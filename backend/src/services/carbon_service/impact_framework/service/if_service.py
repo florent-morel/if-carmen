@@ -2,12 +2,12 @@
 This module defines the abstract base class for implementing Impact Framework (IF) service functionality.
 """
 
+from __future__ import annotations
 import os
 import logging
 import time
 import copy
 from abc import ABC
-from __future__ import typing
 from collections import defaultdict
 import yaml
 from jinja2 import exceptions

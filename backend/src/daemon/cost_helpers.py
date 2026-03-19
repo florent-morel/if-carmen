@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timedelta
 
 from backend.src.common.known_exception import KnownException
-from backend.src.core.config import settings
+from backend.src.core.settings import settings
 from backend.src.schemas.costResource import CostResource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
