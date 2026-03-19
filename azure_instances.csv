@@ -1,3 +1,4 @@
+# Need to add source
 cpu-cores-available,cpu-cores-utilized,cpu-manufacturer,cpu-model-name,cpu-tdp,gpu-count,gpu-model-name,gpu-tdp,instance-class,memory-available
 52.00,1.0,Intel,"Intel® Xeon® Platinum 8272CL,Intel® Xeon® 8171M 2.1 GHz,Intel® Xeon® E5-2673 v4 2.3 GHz,Intel® Xeon® E5-2673 v3 2.4 GHz",205.00,,,,Standard_A1_v2,2.0
 52.00,2.0,Intel,"Intel® Xeon® Platinum 8272CL,Intel® Xeon® 8171M 2.1 GHz,Intel® Xeon® E5-2673 v4 2.3 GHz,Intel® Xeon® E5-2673 v3 2.4 GHz",205.00,,,,Standard_A2_v2,4.0

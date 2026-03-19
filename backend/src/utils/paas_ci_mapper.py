@@ -41,27 +41,6 @@ class PaasCiMapper:
     @staticmethod
     @lru_cache(1000)  # we have 14 different azure regions
     def calculate_ci(zone: str) -> float:
-        """backend_path = os.path.join(os.getcwd(), "..")
-        caw_project_path = os.path.join(
-            backend_path,
-            "carbon-aware-sdk",
-            "src",
-            "CarbonAware.CLI",
-            "src",
-            "CarbonAware.CLI.csproj",
-        )
-        cmd = (
-            f"dotnet run --project {caw_project_path} emissions -l {zone} "
-            f"--start-time {start} --end-time {end} --average"
-        )
-        # cmd is like this for now as the function is currently not in use
-        cmd = (f"dotnet run --project C:\\Users\\sakpinar\\Documents\\GitHub\\carbon-aware-sdk\\src\\CarbonAware.CLI\\"
-               f"src\\CarbonAware.CLI.csproj emissions -l {zone}  --start-time {start} --end-time {end} --average")
-        json_data = run_command_and_parse_json(cmd)
-        if json_data:
-            ci_value = json_data[0]["Rating"]
-            return ci_value
-        return 0"""
         if zone in constants.REGION_TO_COUNTRY_CARBON_INTENSITY:
             return constants.REGION_TO_COUNTRY_CARBON_INTENSITY[zone][
                 "carbon_intensity"
