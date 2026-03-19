@@ -58,13 +58,13 @@ initialize:
   outputs:
     - yaml
 tree:
-  defaults:
+  defaults: # These are the default fallback values
     memory/utilization: 100 # we assume memory utilization is always at 100%
-    device/emissions-embodied: 1672000 # embodied emissions in grams computed with the Embodied Emission Generator script https://rndwww.nce.amadeus.net/git/projects/ACFC/repos/embodied-emission-generator/browse
-    cpu/thermal-design-power: 3.67 # Average watt per cores for Azure taken from CCF.
+    device/emissions-embodied: 1999999 # Average default value of a virtual machine. Data to be refined and updated depending on your inventory.
     device/expected-lifespan: 126230400 # 60 * 60 * 24 * 365.25 * 4, roughly 4 years
-    storage/energy: 0 # Default the storage energy for the applications to 0 as we only compute it for the VMs
-    storage-embodied: 0 # Default the storage embodied for the applications to 0 as we only compute it for the VMs
+    storage/embodied-coefficient: 90 # in gCO2e/GB
+    duration: {{ duration }}
+  pipeline:
     duration: {{ duration }}
   pipeline:
     compute:

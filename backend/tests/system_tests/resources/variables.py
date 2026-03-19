@@ -1,5 +1,5 @@
-HOST = "https://carbon-measurement-engine.forge.amadeus.net/api"  # Or "http://127.0.0.1:8000/api" to test new versions of the tool before it's gets deployed
+HOST = "http://127.0.0.1:8000/api"  # Your HOST PRD URL or localhost to test new versions of the tool before it's gets deployed
 APPLICATION = "Carbon-Measurement-Engine"
-PAAS = "rnd-ne-ima02a"
+PAAS = "your-cluster"
 NAMESPACE = "carbon-engine-prod"
 PYTHONLIBPATH = "../../../../.venv/Lib"

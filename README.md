@@ -76,7 +76,7 @@ We recommend installing Carmen in a virtual environment to keep dependencies iso
 python -m venv .venv
 source ./.venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install amadeus-carmen
+python -m pip install if-carmen
 ```
 
 **For Windows:**
@@ -85,7 +85,7 @@ python -m pip install amadeus-carmen
 py -m venv .venv
 .\.venv\Scripts\activate
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install amadeus-carmen
+.\.venv\Scripts\python.exe -m pip install if-carmen
 ```
 
 ### Quick Start
