@@ -38,6 +38,8 @@ class ModelUtilities(ABC):
         raise NotImplementedError("Subclasses can implement this method if needed.")
 
     # IMP: Can be used if we implement the VM/Pod specific details to the IF input.yaml
+    # IMP: add this import to implement
+    # from backend.src.schemas.compute_resource import ComputeResource
     # @staticmethod
     # def fill_defaults(compute_resource: ComputeResource):
     #     """

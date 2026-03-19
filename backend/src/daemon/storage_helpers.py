@@ -101,10 +101,10 @@ def calculate_storage_size(
         return 0.0, 0
 
     if unit_of_measure == "1 GB/Month":  # Snapshots
-        # Snapshots needs lower ratios - currently returning 0 to exclude
-        # size_gb = quantity  # * billing_period_days
-        # duration_seconds = 86400  # 1 day
-        return 0.0, 0
+        # Snapshots needs lower ratios
+        size_gb = quantity  # * billing_period_days
+        duration_seconds = 86400  # 1 day
+        return size_gb, duration_seconds
 
     if unit_of_measure in ["1", "1/Hour"]:  # Performance options or unknown
         return 0.0, 0
@@ -149,7 +149,7 @@ def extract_size_from_product_name(product_name: str) -> float:
     return 0.0
 
 
-def get_storage_type(row) -> str:
+def get_storage_type(row: dict) -> str:
     """
     Extracts storage type from ProductName.
     Uses explicit mapping then fallback on keywords.
@@ -176,7 +176,7 @@ def get_storage_type(row) -> str:
     return "Unknown"
 
 
-def get_replication_type(row) -> str:
+def get_replication_type(row: dict) -> str:
     """
     Extracts replication type from ProductName or MeterName.
 
@@ -208,7 +208,7 @@ def get_replication_type(row) -> str:
 
 
 def create_storage_resource(
-    row,
+    row: dict,
     storage_id: str,
     size_gb: float,
     storage_type: str,
@@ -249,7 +249,7 @@ def create_storage_resource(
 
 
 def process_storage_row(
-    row, billing_period_days: int, storage_dict: dict[str, StorageResource]
+    row: dict, billing_period_days: int, storage_dict: dict[str, StorageResource]
 ) -> bool:
     """
     Process a single CSV row and add storage resource.

@@ -14,6 +14,7 @@ from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.services.carbon_service.impact_framework.service.if_app_service import (
     IFAppService,
 )
+from backend.src.services.carbon_service.impact_framework.service.if_cost_service import IFCostService
 from backend.src.services.carbon_service.impact_framework.service.if_vm_service import (
     IFVMService,
 )
@@ -71,7 +72,8 @@ def test_register_models(mock_ioc_registration_model, mock_ioc_registered_models
         (("IFApp", CarbonService, IFAppService),),
         (("IFVm", CarbonService, IFVMService),),
         (("IFStorage", CarbonService, IFStorageService),),
+        (("IFCost", CarbonService, IFCostService),),
     ]
 
     mock_ioc_registration_model.assert_has_calls(expected_calls)
-    assert len(mock_ioc_registered_models.append.call_args_list) == 3
+    assert len(mock_ioc_registered_models.append.call_args_list) == 4

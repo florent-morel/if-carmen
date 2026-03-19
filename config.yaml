@@ -1,0 +1,18 @@
+carmen_api:
+  # The URL of the Thanos querier endpoint where Prometheus queries will be sent.
+  thanos_url: https://thanos-world.argos.global.amadeus.net
+
+  # The authentication method used to access the Prometheus/Thanos API.
+  # Supported values can include: 'azure', 'none'.
+  authentication: azure
+
+  external_labels:
+    federation: ""
+    prometheus: "platform"
+
+  # These keys allow Carmen to abstract over environment-specific naming conventions.
+  labels:
+    app_label: "label_app_kubernetes_io_part_of" # Label representing the application name.
+    cluster_label: "stack"                       # Label representing the cluster or environment.
+    pod_label: "pod"                             # Label representing the pod name.
+    namespace_label: "namespace"                 # Label representing the Kubernetes namespace.

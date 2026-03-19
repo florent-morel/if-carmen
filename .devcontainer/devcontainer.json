@@ -1,0 +1,43 @@
+{
+  "name": "if-carmen",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "target": "development",
+    "args": {
+      "USER_UID": "${localEnv:USER_UID:1000}",
+      "USER_GID": "${localEnv:USER_GID:1000}",
+      "APP_USER": "${localEnv:USER:dev}"
+    }
+  },
+  "remoteWorkspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["backend/tests"],
+        "editor.formatOnSave": true,
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "isort.args": ["--profile", "black"],
+        "pylint.enabled": true
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.pylint",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  },
+  "postCreateCommand": "pip install -e '.[all]' && npm install && pre-commit install && git config --global core.editor 'code --wait'",
+  "remoteUser": "${localEnv:USER:dev}"
+}

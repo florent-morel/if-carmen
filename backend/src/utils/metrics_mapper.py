@@ -42,6 +42,18 @@ class MetricsMapper:
             "observations": "storage_embodied",
             "aggregated": "total_storage_embodied",
         },
+        "services-energy": {
+            "observations": "services_energy",
+            "aggregated": "total_energy_consumed",
+        },
+        "services-operational": {
+            "observations": "services_operational",
+            "aggregated": "total_carbon_operational",
+        },
+        "services-embodied": {
+            "observations": "services_embodied",
+            "aggregated": "total_carbon_embodied",
+        },
     }
 
     @classmethod

@@ -302,7 +302,7 @@ def subtract_last_time_point(
 
 def get_timestamps(
     interval_start: datetime, interval_end: datetime, sampling_rate: SamplingRate
-) -> List[datetime]:
+) -> list[datetime]:
     """
     Generate a list of timestamps from start to end at specified intervals.
 

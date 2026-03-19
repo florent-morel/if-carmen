@@ -1,0 +1,76 @@
+name: {{ name }}
+aggregation:
+  metrics:
+    - services-energy
+    - services-operational
+    - services-embodied
+  type: {{ aggregation_type }}
+initialize:
+  plugins:
+    {%- for model in hardware_models %}
+      {{ model }}:
+        method: {{ hardware_models[model].model }}
+        path: {{ hardware_models[model].path }}
+        {%- if hardware_models[model].config %}
+        config:
+          {%- for key, value in hardware_models[model].config.items() %}
+            {%- if value is mapping %}
+            {{ key }}:
+              {%- for sub_key, sub_value in value.items() %}
+              {{ sub_key }}: {{ sub_value }}
+              {%- endfor %}
+            {%- else %}
+            {{ key }}: {{ value }}
+            {%- endif %}
+          {%- endfor %}
+        {%- endif %}
+        {%- if hardware_models[model].output_metadata or hardware_models[model].input_metadata %}
+        parameter-metadata:
+          {%- if hardware_models[model].output_metadata %}
+          outputs:
+            {%- for metadata in hardware_models[model].output_metadata %}
+            {{ metadata.aggregation_parameter }}:
+              unit: {{ metadata.unit }}
+              description: {{ metadata.description }}
+              aggregation-method:
+                {%- if metadata.aggregation_method_time %}
+                time: {{ metadata.aggregation_method_time }}
+                {%- endif %}
+                component: {{ metadata.aggregation_method_component }}
+            {%- endfor %}
+          {%- endif %}
+          {%- if hardware_models[model].input_metadata %}
+          inputs:
+            {%- for metadata in hardware_models[model].input_metadata %}
+            {{ metadata.aggregation_parameter }}:
+              unit: {{ metadata.unit }}
+              description: {{ metadata.description }}
+              aggregation-method:
+                {%- if metadata.aggregation_method_time %}
+                time: {{ metadata.aggregation_method_time }}
+                {%- endif %}
+                component: {{ metadata.aggregation_method_component }}
+            {%- endfor %}
+          {%- endif %}
+        {%- endif %}
+    {%- endfor %}
+  outputs:
+    - yaml
+tree:
+  defaults:
+    duration: {{ duration }}
+  pipeline:
+    compute:
+      {%- for model in hardware_models %}
+      - {{ model }}
+      {%- endfor %}
+  children:
+    {%- for resource_id, time_points in resources.items() %}
+      {{ resource_id }}:
+        inputs:
+          {%- for time_point in time_points %}
+            - {%- for key, value in time_point.items() %}
+              {{ key }}: {{ value }}
+              {%- endfor %}
+          {%- endfor %}
+    {%- endfor %}

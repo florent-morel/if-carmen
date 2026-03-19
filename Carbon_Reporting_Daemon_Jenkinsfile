@@ -1,0 +1,50 @@
+@Library(['pipeline-framework', 'pipeline-toolbox']) _
+
+pipeline {
+
+  agent {
+    docker {
+      image 'dockerhub.rnd.amadeus.net/acfc-docker-dev-cb-test-nce/carbon-engine-webapp:latest'
+      args '-u root'
+    }
+  }
+
+  environment {
+    PROJECT_WORKSPACE = "/app"
+    CSV_FOLDER = "${PROJECT_WORKSPACE}/backend/src/daemon/report"
+  }
+
+  stages {
+    stage ('Build Cost Model Plugin') {
+      steps {
+        script {
+          sh """
+            cd ${PROJECT_WORKSPACE}/cost-model-plugin
+            npm install
+            npm run build
+          """
+        }
+      }
+    }
+
+    stage ('Run Daemon') {
+      steps {
+      	script {
+      	  withCredentials([azureServicePrincipal(credentialsId: 'DAC_AZURE_PRINCIPAL', clientIdVariable: 'CLIENT_ID', clientSecretVariable: 'CLIENT_SECRET',tenantIdVariable: 'TENANT_ID')]){
+            sh """
+              cd ${PROJECT_WORKSPACE}
+              export EXECUTION_DATE="${EXECUTION_DATE}"
+              python -m backend.src.daemon.carbon_daemon
+            """
+      	  }
+      	}
+      }
+    }
+
+    stage ('Archive CSVs') {
+      steps {
+        archiveFiles(CSV_FOLDER, "carbonLogs", null, [".*\\.csv"], true, true)
+      }
+    }
+  }
+}

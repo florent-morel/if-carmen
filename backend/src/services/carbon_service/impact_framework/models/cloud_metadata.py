@@ -7,6 +7,7 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 from backend.src.schemas.virtual_machine import VirtualMachine
+import backend.src.services.carbon_service.impact_framework.files as files_module
 
 
 class CloudMetadata(ModelUtilities):
@@ -17,7 +18,6 @@ class CloudMetadata(ModelUtilities):
 
     def __init__(self):
 
-        import backend.src.services.carbon_service.impact_framework.files as files_module
         files_dir = Path(files_module.__file__).parent
         csv_path = files_dir / "azure_instances.csv"
 

@@ -16,7 +16,6 @@ project_root = (
 config_path = project_root / "config-test.yaml"
 os.environ["CARMEN_CONFIG_FILEPATH"] = str(config_path)
 
-
 def pytest_configure():
     """
     Configure pytest environment variables.
