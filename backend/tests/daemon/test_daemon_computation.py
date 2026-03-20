@@ -12,7 +12,8 @@ from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
 import pytest
 from backend.src.common.constants import PUE_AZURE
-# from backend.src.daemon.carbon_daemon import main as carbon_daemon_main, CarbonDaemon
+from backend.tests.daemon import mock_data
+from backend.src.daemon.carbon_daemon import main as carbon_daemon_main, CarbonDaemon
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.tests.services.carbon_service.impact_framework.computation.computation_helpers import (
@@ -205,7 +206,7 @@ def test_carbon_daemon_with_sample_data(
     Validates real carbon calculations using the Impact Framework.
     """
     # Get sample VM data from test files
-    sample_vms = read_sample_vm_data({"ppt": ["usage_2025-06-01_00.csv"] * 24}, "")
+    sample_vms = mock_data.read_sample_vm_data({"ppt": ["usage_2025-06-01_00.csv"] * 24}, "")
 
     with (
         patch(
