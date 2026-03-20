@@ -52,7 +52,7 @@
     "fix:package": "fixpack",
     "lint": "gts lint",
     "pre-commit": "lint-staged",
-    "prepare": "husky install",
+    "prepare": "cd .. && husky install cost-model-plugin/.husky || true",
     "prepublish": "npm run build",
     "test": "jest --verbose"
   }

@@ -40,6 +40,6 @@
       ]
     }
   },
-  "postCreateCommand": "uv venv --clear && uv sync --all-extras && npm install && uv run pre-commit install && git config --global core.editor 'code --wait' && cd cost-model-plugin && npm install --save-dev husky",
+  "postCreateCommand": "uv venv --clear && uv sync --all-extras && npm install && uv run pre-commit install && git config --global core.editor 'code --wait' && cd cost-model-plugin && npm install",
   "remoteUser": "${localEnv:USER:dev}"
 }

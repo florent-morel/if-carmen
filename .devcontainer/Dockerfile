@@ -14,7 +14,7 @@ ENV PYTHONUNBUFFERED=1
 ENV USERNAME=$APP_USER
  
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git sudo curl ca-certificates lsb-release \
+    && apt-get install -y --no-install-recommends git sudo curl ca-certificates lsb-release bash-completion \
     && rm -rf /var/lib/apt/lists/*
  
 # Create user matching host UID/GID
