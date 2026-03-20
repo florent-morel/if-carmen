@@ -28,3 +28,7 @@ class VirtualMachine(ComputeResource):
     storage_embodied: list[float] = Field(default_factory=list)
     total_storage_embodied: float = 0.0
     pue: float = 1
+
+    def __init_(self):
+        super().__init_()
+        self.name = "VirtualMachine"

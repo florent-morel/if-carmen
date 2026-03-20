@@ -31,3 +31,7 @@ class StorageResource(Resource):
     storage_embodied: list[float] = Field(default_factory=list)
     total_storage_embodied: float = 0.0
     duration_seconds: int = 86400
+
+    def __init_(self):
+        super().__init_()
+        self.name = "StorageResource"

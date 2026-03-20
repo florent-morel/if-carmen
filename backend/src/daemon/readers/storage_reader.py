@@ -1,5 +1,5 @@
 """
-Base module for reading and processing compute resource data.
+Storage module for reading and processing compute resource data.
 """
 
 import csv
@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import ValidationError
 
+from backend.src.daemon.readers.abstract_reader import Reader
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.storage_helpers import (
     calculation_period_days,
@@ -18,7 +19,7 @@ from backend.src.schemas.storage_resource import StorageResource
 logger = logging.getLogger(__name__)
 
 
-class Reader(ABC):
+class StorageReader(Reader):
     """
     Abstract base class for reading compute resource data from various sources.
     """
@@ -26,7 +27,6 @@ class Reader(ABC):
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
 
-    @abstractmethod
     def read_files(self) -> list[StorageResource]:
         """
         Read and process files to extract storage resource information.
@@ -36,7 +36,10 @@ class Reader(ABC):
         """
 
     def process_csv_data(
-        self, csv_data: str, storage_dict: dict[str, StorageResource]
+        self,
+        csv_data: str,
+        storage_dict: dict[str, StorageResource],
+        missing_region_resource_count: dict[str, int],
     ) -> bool:
         """
         Parse CSV data into StorageResource objects.
@@ -93,7 +96,7 @@ class Reader(ABC):
                 excluded_rows += 1
                 continue
 
-        logger.info("CSV processed")
+        logger.info("Storage CSV processed")
 
         # Summary logging
         logger.debug("Storage processing summary:")

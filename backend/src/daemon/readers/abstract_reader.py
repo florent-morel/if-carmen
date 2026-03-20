@@ -36,6 +36,7 @@ class Reader(ABC):
             list[Resource]: List of resources extracted from the data source.
         """
 
+    @abstractmethod
     def process_csv_data(
         self,
         blob_data: str,
@@ -54,30 +55,4 @@ class Reader(ABC):
             bool: Returns True if the CSV data is processed successfully and contains data,
             False if the CSV data is empty (excluding the header row).
         """
-        rows = blob_data.splitlines()
-        if len(rows) == 1:
-            return False
-        csv_reader = csv.DictReader(rows)
-        for row in csv_reader:
-            resource_size = row["Size"]
-            resource_id = row["Id"]
-            try:
-                if resource_id not in resource_dict:
-                    calculate_resource_count_for_missing_regions(
-                        missing_region_resource_count, row["Region"]
-                    )
-                    new_resource = create_resource(row, resource_id, resource_size)
-                    resource_dict[resource_id] = new_resource
 
-                resource_dict[resource_id].cpu_util.append(
-                    str_to_float(row["AverageCpuPercentage"]) / 100
-                )
-                resource_dict[resource_id].time_points.append(row["Time"])
-                resource_dict[resource_id].storage_size.append(
-                    str_to_float(row["DiskSizeGb"])
-                )
-            except ValidationError:
-                logger.exception("Validation error for resource %s ", resource_id)
-                raise
-
-        return True

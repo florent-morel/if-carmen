@@ -8,6 +8,7 @@ processing it through the carbon engine, and generating emission reports.
 
 from __future__ import annotations
 
+from backend.src.schemas.resource import Resource
 import csv
 import logging
 import time
@@ -182,7 +183,7 @@ class CarbonDaemon:
         try:
             logger.info("Starting carbon daemon execution")
 
-            vms = self._read_infrastructure_data_vms()
+            vms = self._read_infrastructure_data_generic("VirtualMachine")
             if not vms:
                 raise KnownException(
                     ErrorCode.DATA_FETCH_NO_RESULTS,
@@ -193,9 +194,9 @@ class CarbonDaemon:
 
             self._write_results(processed_vms)
 
-            storage_resource = self._read_infrastructure_data_vms
+            storage_resources = self._read_infrastructure_data_generic("StorageResource")
 
-            processed_storage = self._process_carbon_calculations_storage()
+            processed_storage = self._process_carbon_calculations_storage(storage_resources)
 
             execution_time = time.time() - start_time
             result = CarbonDaemonResult(
@@ -228,12 +229,12 @@ class CarbonDaemon:
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
-    def _read_infrastructure_data_vms(self) -> list[VirtualMachine]:
+    def _read_infrastructure_data_generic(self, resourceName: Resource.name) -> list[Resource]:
         """
         Read infrastructure data using the configured reader.
 
         Returns:
-            List of virtual machines from the data source
+            List of resources from the data source
 
         Raises:
             Exception: If reading fails
@@ -242,50 +243,21 @@ class CarbonDaemon:
 
         try:
             logger.info("starting infrastructure data reading")
-            reader = self.reader_factory.create_reader(self.config)
-            vms = reader.read_files()
+            reader = self.reader_factory.create_reader(self.config, resourceName)
+            resources = reader.read_files()
 
             read_time = time.time() - read_start_time
             logger.info(
-                "infrastructure data reading completed. Retrieved %d VMs in %.2f seconds",
-                len(vms),
+                "infrastructure data reading completed. Retrieved %d resources of type %s in %.2f seconds",
+                len(resources),
+                resourceName,
                 read_time,
             )
 
-            return vms
+            return resources
 
         except Exception as e:
-            logger.error("failed to read infrastructure data: %s", str(e))
-            raise
-
-    def _read_infrastructure_data_storage(self) -> list[StorageResource]:
-        """
-        Read infrastructure data using the configured reader.
-
-        Returns:
-            List of storage resources from the data source
-
-        Raises:
-            Exception: If reading fails
-        """
-        read_start_time = time.time()
-
-        try:
-            logger.info("starting infrastructure data reading")
-            reader = self.reader_factory.create_reader(self.config)
-            vms = reader.read_files()
-
-            read_time = time.time() - read_start_time
-            logger.info(
-                "infrastructure data reading completed. Retrieved %d VMs in %.2f seconds",
-                len(vms),
-                read_time,
-            )
-
-            return vms
-
-        except Exception as e:
-            logger.error("failed to read infrastructure data: %s", str(e))
+            logger.error("failed to read infrastructure data: %s for reader %s", str(e), resourceName)
             raise
 
     def _process_carbon_calculations_compute(
