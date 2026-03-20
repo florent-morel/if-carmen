@@ -1,7 +1,6 @@
 # Include documentation
 include README.md
 include LICENSE
-include requirements.txt
 include pyproject.toml
 
 # Include configuration files

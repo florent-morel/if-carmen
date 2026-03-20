@@ -14,7 +14,7 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
         "python.testing.pytestEnabled": true,
         "python.testing.pytestArgs": ["backend/tests"],
         "editor.formatOnSave": true,
@@ -38,6 +38,6 @@
       ]
     }
   },
-  "postCreateCommand": "pip install -e '.[all]' && npm install && pre-commit install && git config --global core.editor 'code --wait'",
+  "postCreateCommand": "uv sync --all-extras && npm install && uv run pre-commit install && git config --global core.editor 'code --wait'",
   "remoteUser": "${localEnv:USER:dev}"
 }
