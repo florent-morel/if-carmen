@@ -150,7 +150,7 @@ initialize:
       method: CSVLookup
       path: builtin
       config:
-        filepath: /home/malmounayar/carbon-engine/azure_instances.csv
+        filepath: /workspaces/if-carmen/backend/src/services/carbon_service/impact_framework/files/azure_instances.csv
         query:
           instance-class: cloud/instance-type
         output:
