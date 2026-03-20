@@ -4,7 +4,7 @@ Unit tests for IF_VM_service in impact framework.
 """
 from unittest.mock import patch, MagicMock
 import pytest
-from robot.utils.asserts import assert_true
+# from robot.utils.asserts import assert_true
 
 from backend.src.services.carbon_service.impact_framework.service.if_vm_service import (
     IFVMService,

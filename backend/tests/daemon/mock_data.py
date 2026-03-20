@@ -1,3 +1,4 @@
+
 """
 This file contains the necessary mocks for the methods in FinopsDatalake class.
 """

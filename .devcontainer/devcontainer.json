@@ -1,0 +1,45 @@
+{
+  "name": "if-carmen",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "USER_UID": "${localEnv:USER_UID:1000}",
+      "USER_GID": "${localEnv:USER_GID:1000}",
+      "APP_USER": "${localEnv:USER:dev}"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": [
+          "backend/tests"
+        ],
+        "editor.formatOnSave": true,
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "isort.args": [
+          "--profile",
+          "black"
+        ],
+        "pylint.enabled": true
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.pylint",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  },
+  "postCreateCommand": "uv venv --clear && uv sync --all-extras && npm install && uv run pre-commit install && git config --global core.editor 'code --wait' && cd cost-model-plugin && npm install",
+  "remoteUser": "${localEnv:USER:dev}"
+}

@@ -13,12 +13,14 @@ ENV NODE_NO_WARNINGS=1
 # Create working directory
 WORKDIR ${PROJECT_WORKSPACE}
 
-# Install Python dep
-COPY requirements.txt /tmp
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Copy full application code into working directory
 COPY . .
+
+# Install Python dependencies from pyproject.toml
+RUN uv pip install --no-cache --system .
 
 # update permissions on IF genereated dir to allow unprivileged users to write there
 RUN chmod 777 backend/src/services/carbon_service/impact_framework/files/generated
@@ -36,3 +38,7 @@ RUN mkdir -p $NVM_DIR && curl https://raw.githubusercontent.com/creationix/nvm/m
     && npm install \
     && ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npm /usr/bin/npm \
     && ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npx /usr/bin/npx
+
+RUN cd ${PROJECT_WORKSPACE}/cost-model-plugin \
+    && npm install --ignore-scripts \
+    && npm run build

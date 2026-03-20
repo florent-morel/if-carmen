@@ -9,3 +9,5 @@ report
 *.log
 *.egg-info/
 dist/
+generated
+uv.lock

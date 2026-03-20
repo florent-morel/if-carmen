@@ -4,7 +4,6 @@ This file contains all the constants used in the project.
 
 import os
 from datetime import timedelta
-
 from backend.src.common.enums import SamplingRate
 
 CPU_MIN_ELECTRICITY_RATIO_AZURE = 0.78  # watt per core
@@ -32,6 +31,11 @@ IF_FILES_DIR = os.path.join(
     "carbon_service",
     "impact_framework",
     "files",
+)
+
+PLUGIN_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
+    "cost-model-plugin/build"
 )
 
 # Germany: both germanywestcentral & germanynorth gives the same CI from CAW SDK
@@ -141,7 +145,7 @@ REGION_TO_COUNTRY_CARBON_INTENSITY = {
     "eastus": {"country": "Virginia", "carbon_intensity": 384},
     "eastus2": {"country": "Virginia", "carbon_intensity": 384},
     "francecentral": {"country": "France", "carbon_intensity": 44},
-    "francesouth": {"country": "France", "carbon": 44},
+    "francesouth": {"country": "France", "carbon_intensity": 44},
     "germanywestcentral": {"country": "Germany", "carbon_intensity": 344},
     "northcentralus": {"country": "Illinois", "carbon_intensity": 384},
     "northeurope": {"country": "Ireland", "carbon_intensity": 280},
@@ -152,7 +156,9 @@ REGION_TO_COUNTRY_CARBON_INTENSITY = {
     "westeurope": {"country": "Netherlands", "carbon_intensity": 253},
     "westus": {"country": "California", "carbon_intensity": 384},
     "westus2": {"country": "Washington", "carbon_intensity": 384},
+    "westus3": {"country": "Phoenix", "carbon_intensity": 384},
     "centralindia": {"country": "India", "carbon_intensity": 708},
+    "southindia": {"country": "India", "carbon_intensity": 708},
 }
 
 CARMEN_LOGO = """

@@ -2,7 +2,6 @@
 """
 This module contains tests for various functionalities the Argos class.
 """
-
 from unittest.mock import patch, AsyncMock
 from datetime import datetime, timedelta
 
@@ -263,10 +262,10 @@ async def test_parse_pod_data(mock_get_ci, mock_interpolate):
     pod_data = [
         {
             "metric": {
-                "label_app_kubernetes_io/part_of": "app1",
-                "stack": "paas1",
-                "namespace": "namespace1",
-                "pod": "pod1",
+                Label.SERVICE.value: "app1",
+                Label.PAAS.value: "paas1",
+                Label.NAMESPACE.value: "namespace1",
+                Label.POD.value: "pod1",
                 Label.UID.value: "uid1",
             },
             "values": [[1, "0.5"], [2, "0.6"]],

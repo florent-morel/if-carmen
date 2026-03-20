@@ -88,6 +88,7 @@ class ErrorCode(str, Enum):
     FILE_INVALID_FORMAT = "5005"
     DIRECTORY_NOT_FOUND = "5006"
     DIRECTORY_CREATE_ERROR = "5007"
+    CSV_FILE_NOT_FOUND = "5008"
 
     # Azure Storage errors (5.1xx)
     AZURE_STORAGE_CONNECTION_ERROR = "5101"
@@ -282,6 +283,10 @@ ERRORS: dict[str, ErrorTemplate] = {
     ErrorCode.FILE_NOT_FOUND: ErrorTemplate(
         category=ErrorCategory.FILE_SYSTEM,
         user_message="specified file was not found",
+    ),
+    ErrorCode.CSV_FILE_NOT_FOUND: ErrorTemplate(
+        category=ErrorCategory.FILE_SYSTEM,
+        user_message="CSV data is empty",
     ),
     ErrorCode.FILE_READ_ERROR: ErrorTemplate(
         category=ErrorCategory.FILE_SYSTEM,

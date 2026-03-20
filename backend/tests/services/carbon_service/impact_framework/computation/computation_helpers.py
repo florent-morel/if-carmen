@@ -162,3 +162,70 @@ def compute_storage_embodied_helper(
     )
 
     return embodied_gco2
+
+
+def compute_services_energy_helper(
+    compute_energy: float, storage_energy: float, compute_cost: float,
+    storage_cost: float, services_cost: float
+) -> float:
+    """
+    Compute services energy consumption based on cost allocation.
+
+    Args:
+        compute_energy (float): Compute energy in kWh
+        storage_energy (float): Storage energy in kWh
+        compute_cost (float): Compute cost
+        storage_cost (float): Storage cost
+        services_cost (float): Total services cost
+
+    Returns:
+        float: Services energy consumption in kWh
+    """
+    return services_cost * (
+            0.75 * (compute_energy / compute_cost) + 0.25 * (storage_energy / storage_cost)
+    )
+
+
+def compute_services_operational_helper(
+    compute_energy: float, storage_energy: float, compute_cost: float,
+    storage_cost: float, services_cost: float, carbon_intensity: float
+) -> float:
+    """
+    Compute services operational carbon emissions.
+
+    Args:
+        compute_energy (float): Compute energy in kWh
+        storage_energy (float): Storage energy in kWh
+        compute_cost (float): Compute cost
+        storage_cost (float): Storage cost
+        services_cost (float): Total services cost
+        carbon_intensity (float): Carbon intensity in gCO2/kWh
+
+    Returns:
+        float: Services operational carbon emissions in gCO2e
+    """
+    return services_cost * (
+            0.75 * (compute_energy / compute_cost) + 0.25 * (storage_energy / storage_cost)
+    ) * carbon_intensity
+
+
+def compute_services_embodied_helper(
+    compute_embodied: float, storage_embodied: float, compute_cost: float,
+    storage_cost: float, services_cost: float,
+) -> float:
+    """
+    Compute services embodied carbon emissions based on cost allocation.
+
+    Args:
+        compute_embodied (float): Compute embodied carbon in gCO2e
+        storage_embodied (float): Storage embodied carbon in gCO2e
+        compute_cost (float): Compute cost
+        storage_cost (float): Storage cost
+        services_cost (float): Total services cost
+
+    Returns:
+        float: Services embodied carbon emissions in gCO2e
+    """
+    return services_cost * (
+            0.75 * (compute_embodied / compute_cost) + 0.25 * (storage_embodied / storage_cost)
+    )

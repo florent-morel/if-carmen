@@ -250,10 +250,10 @@ class ArgosService:
 
         for data in pod_data:
             uid = data["metric"][Label.UID.value]
-            app = data["metric"][self.labels.app_label]
-            paas = data["metric"][self.labels.cluster_label]
-            namespace = data["metric"][self.labels.namespace_label]
-            pod = data["metric"][self.labels.pod_label]
+            app = data["metric"][Label.SERVICE.value]
+            paas = data["metric"][Label.PAAS.value]
+            namespace = data["metric"][Label.NAMESPACE.value]
+            pod = data["metric"][Label.POD.value]
             carbon_intensity = PaasCiMapper.get_ci_from_paas(paas)
 
             pod_telemetries.setdefault(

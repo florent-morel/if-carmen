@@ -48,15 +48,31 @@ Carmen's API can be deployed as a sidecar container within your Kubernetes clust
 
 ## Getting Started
 
-### Prerequisites
+### Development with Dev Container (Recommended)
+With devcontainer you will not need any additional setup you are ready to run your application:
+
+```sh
+uv venv
+pytest ...
+```
+
+or
+
+```sh
+uv run pytest ...
+```
+
+### Manual Installation
+
+#### Prerequisites
 
 Before installing Carmen, ensure you have the following dependencies:
 
 - Python 3.11 or higher
-- pip (Python package manager)
+- [uv](https://docs.astral.sh/uv/) (Python package and project manager)
 - npm (Node package manager)
 
-### Installation
+#### Installation
 
 #### Step 1: Install Impact Framework Dependencies
 
@@ -70,22 +86,12 @@ npm install -g "@grnsft/if" "@grnsft/if-plugins" "@grnsft/if-unofficial-plugins"
 
 We recommend installing Carmen in a virtual environment to keep dependencies isolated.
 
-**For Linux/macOS:**
+**For Linux/macOS/Windows:**
 
 ```bash
-python -m venv .venv
-source ./.venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install amadeus-carmen
-```
-
-**For Windows:**
-
-```bash
-py -m venv .venv
-.\.venv\Scripts\activate
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install amadeus-carmen
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install if-carmen
 ```
 
 ### Quick Start
@@ -141,6 +147,7 @@ Carmen was developed and maintained by these outstanding people:
 - Amulya LAKKU
 - Ashly Maria PRINCE
 - Berkay ALKAN
+- Biagio FRUSTERI
 - Cosmin BANICA
 - Dariel BEZERRA DE SOUSA
 - Eleonore GUEIT

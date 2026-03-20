@@ -85,7 +85,10 @@ Carmen relies on the Impact Framework developed by the Green Software Foundation
 
 ```bash
 npm install 
+cd cost-model-plugin
+npm install --save-dev husky
 ```
+# TODO: Move cost-model-plugin to a separate repo, and include it as submodule
 
 ### Verifying Your Installation
 

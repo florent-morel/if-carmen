@@ -2,12 +2,12 @@
 This module defines the abstract base class for implementing Impact Framework (IF) service functionality.
 """
 
+from __future__ import annotations
 import os
 import logging
 import time
 import copy
 from abc import ABC
-from typing import List, Dict, Any, Tuple
 from collections import defaultdict
 import yaml
 from jinja2 import exceptions
@@ -15,6 +15,8 @@ from backend.src.common.constants import IF_FILES_DIR
 from backend.src.common.known_exception import KnownException
 from backend.src.common.errors import ErrorCode
 from backend.src.schemas.pod import Pod
+from backend.src.schemas.resource import Resource
+from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.services.carbon_service.impact_framework.models.carbon.sci_e_pue import (
     SciEPue,
 )
@@ -49,7 +51,6 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
 )
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils.helpers import read_file
-from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.utils.metrics_mapper import MetricsMapper
 
 logger = logging.getLogger(__name__)
@@ -121,7 +122,7 @@ class IFService(ABC, CarbonService):
             logger.error("%s: %s", error_msg, cmd)
             raise ValueError(error_msg)
 
-    def run_if(self, compute_resources: List[ComputeResource], file_id: int = 0):
+    def run_if(self, resources: list[Resource], file_id: int = 0):
         """
         Executes the Impact Framework (IF) process for the given compute resources.
 
@@ -129,16 +130,17 @@ class IFService(ABC, CarbonService):
         and logs the time taken for each step.
 
         Args:
-            compute_resources (List[ComputeResource]): A list of compute resources (e.g., VMs or pods)
+            resources (list[Resource]): A list of compute resources (e.g., VMs or pods)
                                                        to be processed by the IF service.
+            file_id (int, optional): An identifier for the input/output files. Defaults to 0.
         """
         logger.info(
             "Generating Impact Framework input file %d for %d resources...",
             file_id,
-            len(compute_resources),
+            len(resources),
         )
         data = copy.deepcopy(self.data)
-        self.fill_parser_data(data, compute_resources)
+        self.fill_parser_data(data, resources)
         start = time.time()
         self.write_if_input(data, file_id)
         logger.info(
@@ -184,62 +186,62 @@ class IFService(ABC, CarbonService):
 
     @staticmethod
     def get_resource_inputs(
-        compute_resource: ComputeResource, models: Tuple[ModelUtilities] = None
+        resource: Resource, models: tuple[ModelUtilities] = None
     ):
         """
         Generates input data for each time point of a compute unit using the specified models.
 
         Args:
-            compute_resource (ComputeResource): ComputeResource (e.g., VM or pod) to process.
-            models (Tuple[ModelUtilities], optional): Additional models to include in the input generation.
+            resource (Resource): Resource (e.g., VM or pod) to process.
+            models (tuple[ModelUtilities], optional): Additional models to include in the input generation.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries containing inputs for each time point.
+            list[dict[str, Any]]: A list of dictionaries containing inputs for each time point.
         """
         resource_inputs = []
         # common models used by VMs and Pods
         common_models = [TeadsCurve, SciO, SciEPue]
         if models:
             common_models.extend(models)
-        for time_index in range(len(compute_resource.time_points)):
+        for time_index in range(len(resource.time_points)):
             combined_inputs = {
                 key: value
                 for model in common_models
                 for key, value in model.fill_inputs(
-                    compute_resource, time_index
+                    resource, time_index
                 ).items()
             }
             resource_inputs.append(combined_inputs)
         return resource_inputs
 
-    def get_resource_data(self, data, compute_resources: List[ComputeResource]):
+    def get_resource_data(self, data, resources: list[Resource]):
         """
         Fills the VM dictionary with the data required
         """
-        resources = defaultdict(dict)
-        for compute_resource in compute_resources:
-            resources[compute_resource.id] = self.get_resource_inputs(compute_resource)
-        data["resources"] = resources
+        compute_resources = defaultdict(dict)
+        for compute_resource in resources:
+            compute_resources[compute_resource.id] = self.get_resource_inputs(compute_resource)
+        data["resources"] = compute_resources
 
-    def fill_parser_data(self, data, compute_resources: List[ComputeResource]):
+    def fill_parser_data(self, data, resources: list[Resource]):
         """
         Fills the data dictionary with the needed values of each model
         """
         self.get_models_info(data)
-        self.get_resource_data(data, compute_resources)
+        self.get_resource_data(data, resources)
 
     @staticmethod
     def get_measurements_from_output(
-        if_output: Dict[str, Any], compute_resource_id: str
-    ) -> Dict[str, Dict[str, Any]]:
+        if_output: dict[str, Any], compute_resource_id: str
+    ) -> dict[str, dict[str, Any]]:
         """
         Extracts and organizes measurements from the IF output for a given compute resource.
 
         Args:
-            if_output (Dict[str, Any]): The parsed IF output data.
+            if_output (dict[str, Any]): The parsed IF output data.
             compute_resource_id (str): The ID of the compute resource.
         Returns:
-            Dict[str, Dict[str, Any]]: The updated metrics dictionary with aggregated and observation data.
+            dict[str, dict[str, Any]]: The updated metrics dictionary with aggregated and observation data.
         """
 
         metrics = {"timestamp": {"observations": []}}
@@ -262,10 +264,10 @@ class IFService(ABC, CarbonService):
 
     def parse_if_output(
         self,
-        compute_resources: List[ComputeResource],
+        resources: list[Resource],
         emission_breakdown_at_pod_level: bool = False,
         file_id: int = 0,
-    ) -> List[ComputeResource] | Dict[str, Dict[str, Dict[str, List[Pod]]]]:
+    ) -> list[Resource] | dict[str, dict[str, dict[str, list[Pod]]]]:
         """
         Parses the IF output file by removing the unnecessary information
         :return: parsed output dictionary at application or pod level
@@ -281,10 +283,10 @@ class IFService(ABC, CarbonService):
             raise KnownException(ErrorCode.IF_EXECUTION_FAILED, details=err_text)
         if_output = if_output["tree"]["children"]
         if emission_breakdown_at_pod_level:
-            output = IFService.aggregate_pod_level(compute_resources, if_output)
+            output = IFService.aggregate_pod_level(resources, if_output)
         else:
             output = IFService.aggregate_app_level(
-                compute_resources, if_output, file_id
+                resources, if_output, file_id
             )
         logger.info(
             "Output parsing completed in %d seconds for file %d",
@@ -295,25 +297,25 @@ class IFService(ABC, CarbonService):
 
     @staticmethod
     def aggregate_app_level(
-        compute_resources: List[ComputeResource], if_output: Dict, file_id: int
-    ) -> List[ComputeResource]:
+        resources: list[Resource], if_output: dict, file_id: int
+    ) -> list[Resource]:
         """
         Aggregates the application metrics
         """
         logger.info(
             "Parsing IF output for file number %s at application level", str(file_id)
         )
-        for compute_resource in compute_resources:
+        for resource in resources:
             metrics = IFService.get_measurements_from_output(
-                if_output, compute_resource.id
+                if_output, resource.id
             )
-            MetricsMapper.map_metrics_to_resource(metrics, compute_resource)
-        return compute_resources
+            MetricsMapper.map_metrics_to_resource(metrics, resource)
+        return resources
 
     @staticmethod
     def aggregate_pod_level(
-        compute_resources: List[ComputeResource], if_output: Dict
-    ) -> Dict[str, Dict[str, Dict[str, List[Pod]]]]:
+        compute_resources: list[ComputeResource], if_output: dict
+    ) -> dict[str, dict[str, dict[str, list[Pod]]]]:
         """
         Aggregates the pod metrics
         """
@@ -331,13 +333,13 @@ class IFService(ABC, CarbonService):
         return output
 
     @staticmethod
-    def initialize_output(compute_resources: List[ComputeResource]):
+    def initialize_output(compute_resources: list[ComputeResource]):
         """
         Initializes final output dictionary when emission_breakdown_at_pod_level is True
         Returns:
-            output Dict[str, Dict[str, Dict[str, List[Pod]]]]: Dictionary with paas, app and namespace keys added
+            output dict[str, dict[str, dict[str, list[Pod]]]]: dictionary with paas, app and namespace keys added
         """
-        output: Dict[str, Dict[str, Dict[str, List[Pod]]]] = {}
+        output: dict[str, dict[str, dict[str, list[Pod]]]] = {}
         for compute_resource in compute_resources:
             for pod in compute_resource.pods:
                 if pod.paas not in output:

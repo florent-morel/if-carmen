@@ -10,6 +10,7 @@ from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.services.carbon_service.impact_framework.service.if_app_service import (
     IFAppService,
 )
+from backend.src.services.carbon_service.impact_framework.service.if_cost_service import IFCostService
 from backend.src.services.carbon_service.impact_framework.service.if_vm_service import (
     IFVMService,
 )
@@ -58,6 +59,7 @@ def register_models() -> None:
     - IFApp: Application-level carbon calculations
     - IFVm: Virtual Machine carbon calculations
     - IFStorage: Storage resource carbon calculations
+    - IFCost: Cost model calculations
     """
     ioc_registered_models.append(
         IocRegistrationModel("IFApp", CarbonService, IFAppService)
@@ -67,4 +69,7 @@ def register_models() -> None:
     )
     ioc_registered_models.append(
         IocRegistrationModel("IFStorage", CarbonService, IFStorageService)
+    )
+    ioc_registered_models.append(
+        IocRegistrationModel("IFCost", CarbonService, IFCostService)
     )

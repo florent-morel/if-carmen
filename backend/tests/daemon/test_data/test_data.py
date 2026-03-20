@@ -14,6 +14,8 @@ sample_vms = [
         environment="environment_1",
         partition="partition_1",
         total_energy_consumed=100.0,
+        total_carbon_operational=100.0,
+        total_carbon_embodied=100.0,
         total_carbon_emitted=200.0,
         carbon_intensity=281.0,
     )
