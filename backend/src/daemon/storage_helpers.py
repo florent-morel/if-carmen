@@ -101,10 +101,11 @@ def calculate_storage_size(
         return 0.0, 0
 
     if unit_of_measure == "1 GB/Month":  # Snapshots
-        # Snapshots needs lower ratios
-        size_gb = quantity  # * billing_period_days
-        duration_seconds = 86400  # 1 day
-        return size_gb, duration_seconds
+        return 0.0, 0
+        # IMP: Snapshots needs lower ratios?
+        # size_gb = quantity  # * billing_period_days
+        # duration_seconds = 86400  # 1 day
+        # return size_gb, duration_seconds
 
     if unit_of_measure in ["1", "1/Hour"]:  # Performance options or unknown
         return 0.0, 0

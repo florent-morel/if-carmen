@@ -101,7 +101,7 @@ class CrudThanosApp:
         if start is not None and end is not None:
             params["start"] = start.strftime("%Y-%m-%dT%H:%M:%S.000Z")
             params["end"] = end.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-            params["step"] = sampling_rate.value
+            params["step"] = sampling_rate
             logger.debug(
                 "%s, start: %s, end: %s, sampling_rate: %s",
                 debug_msg,

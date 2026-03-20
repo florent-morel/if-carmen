@@ -14,6 +14,8 @@ from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 
+from backend.src.common.errors import ErrorCode
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,7 +58,7 @@ def process_cost_csv(csv_data: str) -> tuple[list[CostResource], float, float]:
     """
     rows = csv_data.splitlines()
     if len(rows) <= 1:
-        raise KnownException("Cost CSV data is empty")
+        raise KnownException(ErrorCode.CSV_FILE_NOT_FOUND, "Cost CSV data is empty")
 
     csv_reader = csv.DictReader(rows)
 

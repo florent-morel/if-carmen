@@ -218,10 +218,10 @@ class IFService(ABC, CarbonService):
         """
         Fills the VM dictionary with the data required
         """
-        resources = defaultdict(dict)
+        compute_resources = defaultdict(dict)
         for compute_resource in resources:
-            resources[compute_resource.id] = self.get_resource_inputs(compute_resource)
-        data["resources"] = resources
+            compute_resources[compute_resource.id] = self.get_resource_inputs(compute_resource)
+        data["resources"] = compute_resources
 
     def fill_parser_data(self, data, resources: list[Resource]):
         """

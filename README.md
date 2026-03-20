@@ -156,3 +156,18 @@ Carmen was developed and maintained by these outstanding people:
 - Thibaut CHASSIGNET
 - Xu HE
 - Yannick DEVAUX
+
+
+
+
+
+## TODO
+
+
+build cost-model (npm)
+dep: husky
+
+npm install --save-dev husky
+
+
+

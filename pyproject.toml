@@ -101,7 +101,10 @@ zip-safe = false
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["backend*"]
+include = [
+    "backend*",
+    "cost-model-plugin"
+]
 exclude = [
     "*.tests",
     "*.tests.*",
@@ -133,6 +136,7 @@ addopts = [
     "--tb=short",
     "--asyncio-mode=auto",
 ]
+
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",

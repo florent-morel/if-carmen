@@ -71,7 +71,7 @@ class TestCostHelpers(unittest.TestCase):
         with self.assertRaises(KnownException) as context:
             process_cost_csv("")
 
-        self.assertEqual(str(context.exception), "Cost CSV data is empty")
+        self.assertEqual(str(context.exception.details), "Cost CSV data is empty")
 
     def test_process_cost_csv(self):
         """
