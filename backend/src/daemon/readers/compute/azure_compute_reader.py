@@ -3,13 +3,14 @@ Azure reader strategy for processing virtual machine data from Azure Blob Storag
 """
 
 import logging
+
 from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import ClientSecretCredential
-from azure.storage.blob import ContainerClient, BlobClient
+from azure.storage.blob import BlobClient, ContainerClient
 
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.daemon_helpers import log_missing_regions
-from backend.src.daemon.readers.compute.compute_reader import Reader
+from backend.src.daemon.readers.abstract_reader import Reader
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.azure_utils import (
     create_blob_service_client,

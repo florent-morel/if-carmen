@@ -5,7 +5,9 @@ Carmen is built on top of the Impact Framework, an open-source solution develope
 - Second, the framework relies entirely on a manifest-based execution model, ensuring that all calculations are transparent, reproducible, and verifiable, any user can rerun the manifest to validate results and inspect the exact models used.
 - Finally, the Impact Framework provides a flexible plugin architecture, enabling us to easily integrate and reuse community-maintained models, while also extending the system with our own. This combination of transparency, extensibility, and methodological rigor makes it a strong foundation for Carmen.
 
-## Infrastructure Pipeline Models
+One can find the existing pipelines used by Carmen in backend/src/services/carbon_service/impact_framework/files
+
+## Infrastructure Pipeline
 The infrastructure pipeline is used by both the Carbon Daemon and the Run Hardware endpoint of Carmen's API to calculate the Software Carbon Intensity (SCI) for virtual machine workloads. It processes resource usage data, hardware specifications, and sustainability parameters to generate accurate energy and carbon impact metrics for VM infrastructure. This methodology is inspired by the Cloud Carbon Footprint (CCF) approach, with some adaptations.
 
 ### Hardware Metadata Retrieval
@@ -601,3 +603,14 @@ tree:
     - sci-o
     - sci
 ```
+
+## Storage Pipeline
+
+The Storage pipeline is used by the Carbon Daemon and the Run Hardware endpoint of Carmen's API to calculate the Software Carbon Intensity (SCI) for virtual machine workloads. It processes resource usage data, hardware specifications, and sustainability parameters to generate accurate energy and carbon impact metrics for VM infrastructure. This methodology is inspired by the Cloud Carbon Footprint (CCF) approach, with some adaptations.
+
+
+## Services Pipeline
+
+The services pipeline is used when calling the Run Engine endpoint of Carmen's API. 
+It differs slightly from the infrastructure pipeline in that it focuses on application-level resource usage rather than the full VM footprint. CPU power is calculated based on an interpolated utilization ratio from the Teads curve, and is scaled down according to the number of cores actually reserved for the application.
+```yaml

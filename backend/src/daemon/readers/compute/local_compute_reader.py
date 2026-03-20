@@ -9,7 +9,7 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.daemon_helpers import log_missing_regions
-from backend.src.daemon.readers.compute.compute_reader import Reader
+from backend.src.daemon.readers.abstract_reader import Reader
 from backend.src.schemas.virtual_machine import VirtualMachine
 
 logger = logging.getLogger(__name__)

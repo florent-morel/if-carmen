@@ -8,6 +8,7 @@ processing it through the carbon engine, and generating emission reports.
 
 from __future__ import annotations
 
+import csv
 import logging
 import time
 from enum import Enum
@@ -18,22 +19,26 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig, config
+from backend.src.daemon.cost_helpers import (
+    create_cost_report,
+    get_carbon_and_energy_values,
+    process_cost_csv,
+)
+from backend.src.daemon.readers.abstract_reader import Reader
 from backend.src.daemon.readers.compute.azure_compute_reader import (
     AzureComputeReaderStrategy,
 )
-from backend.src.daemon.readers.compute.compute_reader import Reader
 from backend.src.daemon.readers.compute.local_compute_reader import (
     LocalComputeReaderStrategy,
 )
 from backend.src.daemon.writers.compute.azure_compute_writer import AzureComputeWriter
 from backend.src.daemon.writers.compute.compute_writer import ComputeWriter
 from backend.src.daemon.writers.compute.local_compute_writer import LocalComputeWriter
+from backend.src.schemas.costResource import CostResource
+from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
-
-from backend.src.daemon.cost_helpers import get_carbon_and_energy_values, process_cost_csv, create_cost_report
-from backend.src.schemas.costResource import CostResource
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +146,7 @@ class CarbonDaemon:
     """
 
     HOURLY_INTERVAL_SECONDS: int = 3600
+    DAILY_SECONDS: int = 86400
 
     def __init__(
         self,
@@ -176,16 +182,20 @@ class CarbonDaemon:
         try:
             logger.info("Starting carbon daemon execution")
 
-            vms = self._read_infrastructure_data()
+            vms = self._read_infrastructure_data_vms()
             if not vms:
                 raise KnownException(
                     ErrorCode.DATA_FETCH_NO_RESULTS,
                     details="No virtual machines found in data source",
                 )
 
-            processed_vms = self._process_carbon_calculations(vms)
+            processed_vms = self._process_carbon_calculations_compute(vms)
 
             self._write_results(processed_vms)
+
+            storage_resource = self._read_infrastructure_data_vms
+
+            processed_storage = self._process_carbon_calculations_storage()
 
             execution_time = time.time() - start_time
             result = CarbonDaemonResult(
@@ -218,7 +228,7 @@ class CarbonDaemon:
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
-    def _read_infrastructure_data(self) -> list[VirtualMachine]:
+    def _read_infrastructure_data_vms(self) -> list[VirtualMachine]:
         """
         Read infrastructure data using the configured reader.
 
@@ -248,11 +258,46 @@ class CarbonDaemon:
             logger.error("failed to read infrastructure data: %s", str(e))
             raise
 
-    def _process_carbon_calculations(
+    def _read_infrastructure_data_storage(self) -> list[StorageResource]:
+        """
+        Read infrastructure data using the configured reader.
+
+        Returns:
+            List of storage resources from the data source
+
+        Raises:
+            Exception: If reading fails
+        """
+        read_start_time = time.time()
+
+        try:
+            logger.info("starting infrastructure data reading")
+            reader = self.reader_factory.create_reader(self.config)
+            vms = reader.read_files()
+
+            read_time = time.time() - read_start_time
+            logger.info(
+                "infrastructure data reading completed. Retrieved %d VMs in %.2f seconds",
+                len(vms),
+                read_time,
+            )
+
+            return vms
+
+        except Exception as e:
+            logger.error("failed to read infrastructure data: %s", str(e))
+            raise
+
+    def _process_carbon_calculations_compute(
         self, vms: list[VirtualMachine]
     ) -> list[VirtualMachine]:
         """
         Process virtual machines through the carbon calculation engine.
+
+        Scope:
+            - cpu
+            - memory
+            - VM disks
 
         Args:
             vms: List of virtual machines to process
@@ -285,6 +330,85 @@ class CarbonDaemon:
         except Exception as e:
             logger.error("failed to process carbon calculations: %s", str(e))
             raise
+
+    def _process_carbon_calculations_storage(
+        self, storage_resources: list[StorageResource]
+    ) -> list[StorageResource]:
+        """
+        Process storage resources through the carbon calculation engine.
+
+        Args:
+            vms: List of storage resources to process
+
+        Returns:
+            List of storage resources with carbon calculations
+
+        Raises:
+            Exception: If carbon processing fails
+        """
+        process_start_time = time.time()
+        if storage_resources:
+            try:
+                logger.info(
+                    "starting carbon calculations for %d storage resources",
+                    len(storage_resources),
+                )
+
+                storage_service = ioc_util.resolve(
+                    CarbonService, "IFStorage", self.DAILY_SECONDS
+                )
+
+                if storage_service is None:
+                    raise RuntimeError(
+                        "failed to resolve CarbonService from IoC container"
+                    )
+
+                processed_storage_resources: list[
+                    VirtualMachine
+                ] = storage_service.run_engine(storage_resources)
+
+                process_time = time.time() - process_start_time
+
+                total_storage_carbon = sum(
+                    storage.total_carbon_emitted
+                    for storage in processed_storage_resources
+                )
+                total_storage_energy = sum(
+                    storage.total_energy_consumed
+                    for storage in processed_storage_resources
+                )
+
+                logger.info(
+                    "Storage processing calculations completed in %.2f seconds",
+                    process_time,
+                )
+
+                logger.info(
+                    "Storage processing : %d storage resources processed, "
+                    "%.2f kWh total energy, %.0f gCO2 total emissions",
+                    len(processed_storage_resources),
+                    total_storage_energy,
+                    total_storage_carbon,
+                )
+
+                return processed_storage_resources
+
+            except (FileNotFoundError, PermissionError, OSError) as e:
+                logger.exception(
+                    "File system error processing storage resources: %s", str(e)
+                )
+            except (csv.Error, UnicodeDecodeError, ValueError) as e:
+                logger.exception(
+                    "Data parsing error processing storage resources: %s", str(e)
+                )
+            except KnownException as e:
+                logger.exception("Known error processing storage resources: %s", str(e))
+            except ImportError as e:
+                logger.exception(
+                    "Import error processing storage resources: %s", str(e)
+                )
+        else:
+            logger.info("No storage resources found to process")
 
     def _write_results(self, vms: list[VirtualMachine]) -> None:
         """

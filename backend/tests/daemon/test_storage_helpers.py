@@ -3,16 +3,16 @@
 Unit tests for storage helpers functions.
 """
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from backend.src.daemon.storage_helpers import (
-    get_storage_type,
-    get_replication_type,
     calculate_storage_size,
+    calculation_period_days,
     create_storage_resource,
-    process_storage_row,
     extract_size_from_product_name,
-    calculate_billing_period_days,
+    get_replication_type,
+    get_storage_type,
+    process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
 
@@ -320,21 +320,21 @@ class TestStorageHelpers(unittest.TestCase):
 
             self.assertEqual(storage.carbon_intensity, 281)  # Should use default
 
-    def test_calculate_billing_period_days_success(self):
+    def test_calculation_period_days_success(self):
         """Test billing period calculation - normal case"""
         csv_data = """BillingPeriodStartDate,BillingPeriodEndDate,ProductName
 3/1/2025,3/31/2025,Premium SSD
 3/1/2025,3/31/2025,Standard HDD"""
 
-        result = calculate_billing_period_days(csv_data)
+        result = calculation_period_days(csv_data)
         self.assertEqual(result, 31)  # March = 31 days
 
-    def test_calculate_billing_period_days_fallback(self):
+    def test_calculation_period_days_fallback(self):
         """Test fallback to 30 days when CSV is invalid"""
         csv_data = "invalid,csv,data"
 
         with self.assertLogs(level="ERROR") as log:
-            result = calculate_billing_period_days(csv_data)
+            result = calculation_period_days(csv_data)
 
         self.assertEqual(result, 30)
         self.assertIn("CSV error", log.output[0])

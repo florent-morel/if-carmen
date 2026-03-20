@@ -5,7 +5,9 @@ Base module for reading and processing compute resource data.
 import csv
 import logging
 from abc import ABC, abstractmethod
+
 from pydantic import ValidationError
+
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.daemon_helpers import (
     calculate_vm_count_for_missing_regions,

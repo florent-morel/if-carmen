@@ -5,18 +5,19 @@ Storage processing helper functions
 from __future__ import annotations
 
 import csv
-import re
 import logging
+import re
 from datetime import datetime
+
 from backend.src.common.constants import DISK_SKU_SIZE_MAPPING
+from backend.src.schemas.storage_resource import StorageResource
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
-from backend.src.schemas.storage_resource import StorageResource
 
 logger = logging.getLogger(__name__)
 
 
-def calculate_billing_period_days(csv_data: str) -> int:
+def calculation_period_days(csv_data: str) -> int:
     """
     Calculate billing period days dynamically from CSV BillingPeriodStartDate and BillingPeriodEndDate.
     Format: 4/1/2025 4/30/2025
