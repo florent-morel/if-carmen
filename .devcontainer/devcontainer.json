@@ -3,20 +3,19 @@
   "build": {
     "dockerfile": "Dockerfile",
     "context": "..",
-    "target": "development",
     "args": {
       "USER_UID": "${localEnv:USER_UID:1000}",
       "USER_GID": "${localEnv:USER_GID:1000}",
       "APP_USER": "${localEnv:USER:dev}"
     }
   },
-  "remoteWorkspaceFolder": "/app",
   "customizations": {
     "vscode": {
       "settings": {
-        "python.defaultInterpreterPath": "/app/.venv/bin/python",
         "python.testing.pytestEnabled": true,
-        "python.testing.pytestArgs": ["backend/tests"],
+        "python.testing.pytestArgs": [
+          "backend/tests"
+        ],
         "editor.formatOnSave": true,
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter",
@@ -24,7 +23,10 @@
             "source.organizeImports": "explicit"
           }
         },
-        "isort.args": ["--profile", "black"],
+        "isort.args": [
+          "--profile",
+          "black"
+        ],
         "pylint.enabled": true
       },
       "extensions": [
@@ -38,6 +40,6 @@
       ]
     }
   },
-  "postCreateCommand": "uv sync --all-extras && npm install && uv run pre-commit install && git config --global core.editor 'code --wait'",
+  "postCreateCommand": "uv venv --clear && uv sync --all-extras && npm install && uv run pre-commit install && git config --global core.editor 'code --wait' && cd cost-model-plugin && npm install --save-dev husky",
   "remoteUser": "${localEnv:USER:dev}"
 }

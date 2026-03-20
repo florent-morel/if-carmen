@@ -147,6 +147,7 @@ Carmen was developed and maintained by these outstanding people:
 - Amulya LAKKU
 - Ashly Maria PRINCE
 - Berkay ALKAN
+- Biagio FRUSTERI
 - Cosmin BANICA
 - Dariel BEZERRA DE SOUSA
 - Eleonore GUEIT
@@ -162,18 +163,3 @@ Carmen was developed and maintained by these outstanding people:
 - Thibaut CHASSIGNET
 - Xu HE
 - Yannick DEVAUX
-
-
-
-
-
-## TODO
-
-
-build cost-model (npm)
-dep: husky
-
-npm install --save-dev husky
-
-
-
