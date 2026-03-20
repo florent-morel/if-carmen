@@ -61,8 +61,10 @@ tree:
   defaults: # These are the default fallback values
     memory/utilization: 100 # we assume memory utilization is always at 100%
     device/emissions-embodied: 1999999 # Average default value of a virtual machine. Data to be refined and updated depending on your inventory.
+    cpu/thermal-design-power: 3.67 # Average watt per cores for Azure taken from CCF.
     device/expected-lifespan: 126230400 # 60 * 60 * 24 * 365.25 * 4, roughly 4 years
-    storage/embodied-coefficient: 90 # in gCO2e/GB
+    storage/energy: 0 # Default the storage energy for the applications to 0 as we only compute it for the VMs
+    storage-embodied: 0 # Default the storage embodied for the applications to 0 as we only compute it for the VMs
     duration: {{ duration }}
   pipeline:
     duration: {{ duration }}
