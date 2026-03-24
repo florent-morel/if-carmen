@@ -9,13 +9,13 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.daemon_helpers import log_missing_regions
-from backend.src.daemon.readers.abstract_reader import Reader
+from backend.src.daemon.readers.vm_reader import VMReader
 from backend.src.schemas.virtual_machine import VirtualMachine
 
 logger = logging.getLogger(__name__)
 
 
-class LocalComputeReaderStrategy(Reader):
+class LocalComputeReaderStrategy(VMReader):
     """
     Local filesystem reader strategy for processing VM data from CSV files.
 

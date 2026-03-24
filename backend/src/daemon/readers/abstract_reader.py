@@ -2,19 +2,11 @@
 Base module for reading and processing compute resource data.
 """
 
-import csv
 import logging
 from abc import ABC, abstractmethod
 
-from pydantic import ValidationError
-
 from backend.src.core.yaml_config_loader import DaemonConfig
-from backend.src.daemon.daemon_helpers import (
-    calculate_resource_count_for_missing_regions,
-    create_resource,
-)
 from backend.src.schemas.resource import Resource
-from backend.src.utils.helpers import str_to_float
 
 logger = logging.getLogger(__name__)
 
@@ -55,4 +47,3 @@ class Reader(ABC):
             bool: Returns True if the CSV data is processed successfully and contains data,
             False if the CSV data is empty (excluding the header row).
         """
-

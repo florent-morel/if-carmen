@@ -32,6 +32,9 @@ from backend.src.daemon.readers.compute.azure_compute_reader import (
 from backend.src.daemon.readers.compute.local_compute_reader import (
     LocalComputeReaderStrategy,
 )
+from backend.src.daemon.readers.storage_reader import (
+    StorageReaderStrategy,
+)
 from backend.src.daemon.writers.compute.azure_compute_writer import AzureComputeWriter
 from backend.src.daemon.writers.compute.compute_writer import ComputeWriter
 from backend.src.daemon.writers.compute.local_compute_writer import LocalComputeWriter
@@ -89,6 +92,8 @@ class DefaultReaderFactory:
             return AzureComputeReaderStrategy(daemon_config)
         if daemon_config.source.type == "local":
             return LocalComputeReaderStrategy(daemon_config)
+        if daemon_config.source.type == "StorageResource":
+            return StorageReaderStrategy(daemon_config)
 
         raise ValueError("unsupported source type in configuration")
 
@@ -336,7 +341,7 @@ class CarbonDaemon:
                     )
 
                 processed_storage_resources: list[
-                    VirtualMachine
+                    StorageResource
                 ] = storage_service.run_engine(storage_resources)
 
                 process_time = time.time() - process_start_time

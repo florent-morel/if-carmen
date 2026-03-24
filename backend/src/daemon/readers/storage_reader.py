@@ -4,7 +4,6 @@ Storage module for reading and processing compute resource data.
 
 import csv
 import logging
-from abc import ABC, abstractmethod
 
 from pydantic import ValidationError
 
@@ -19,7 +18,7 @@ from backend.src.schemas.storage_resource import StorageResource
 logger = logging.getLogger(__name__)
 
 
-class StorageReader(Reader):
+class StorageReaderStrategy(Reader):
     """
     Abstract base class for reading compute resource data from various sources.
     """
