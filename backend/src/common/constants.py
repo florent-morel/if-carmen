@@ -30,6 +30,7 @@ RATE_TO_DURATION = {
 HOURLY_INTERVAL_SECONDS: int = 3600
 DAILY_SECONDS: int = 86400
 
+# TODO: change this path to /backend/generated
 IF_FILES_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "services",
@@ -67,6 +68,12 @@ ZONES = {
     "NET": "westeurope",
     "NCE": "francesouth",
 }
+
+class SupportedResourcesType(Enum):
+    """Supported resources types."""
+
+    VIRTUAL_MACHINE = "VirtualMachine"
+    STORAGE = "Storage"
 
 class UploadType(Enum):
     """Supported upload destination types."""

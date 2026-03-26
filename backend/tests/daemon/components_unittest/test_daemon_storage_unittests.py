@@ -13,6 +13,7 @@ from backend.src.daemon.carbon_daemon_storage import CarbonDaemonStorage
 
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
+    DAILY_SECONDS,
 )
 from backend.src.schemas.storage_resource import StorageResource
 
@@ -71,16 +72,13 @@ class TestCarbonDaemonStorage(unittest.TestCase):
                     resource_group=None,
                     carbon_intensity=253.0,
                     time_points=[],
-                    duration_seconds=HOURLY_INTERVAL_SECONDS,
+                    duration_seconds=DAILY_SECONDS,
             )
         ]
         mock_reader = MagicMock()
         mock_reader.read_files.return_value = processed_storage[0].copy()
 
         mock_writer = MagicMock()
-
-        # mock_carbon_service = MagicMock()
-        # mock_carbon_service.run_engine.return_value = processed_storage
 
         mock_reader_factory = MagicMock()
         mock_reader_factory.create_reader.return_value = mock_reader
@@ -97,12 +95,6 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         )
 
         carbonDaemonResult = daemon.process_carbon_calculations(processed_storage)
-
-        # self.assertIsInstance(result, list[StorageResource])
-        # self.assertTrue(result.success)
-        # self.assertEqual(result.vm_count, 0)  # No vm provided
-        # self.assertGreater(result.execution_time, 0)
-        # self.assertEqual(result.error_message, "")
 
         listStorageResourceResult = carbonDaemonResult.list_processed_resources
         self.assertEqual(len(listStorageResourceResult), 1)

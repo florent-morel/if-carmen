@@ -23,6 +23,9 @@ from backend.src.schemas.resource import Resource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
+from backend.src.common.constants import (
+    SupportedResourcesType,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +50,7 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
         try:
             logger.info("Starting carbon daemon execution")
 
-            vms = self.read_infrastructure_data("VirtualMachine")
+            vms = self.read_infrastructure_data(SupportedResourcesType.VIRTUAL_MACHINE)
             if not vms:
                 raise KnownException(
                     ErrorCode.DATA_FETCH_NO_RESULTS,

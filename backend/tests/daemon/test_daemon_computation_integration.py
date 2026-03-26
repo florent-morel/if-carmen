@@ -15,7 +15,7 @@ import pytest
 import unittest
 from backend.src.common.constants import PUE_AZURE
 from backend.tests.daemon import mock_data
-from backend.src.daemon.carbon_daemon import main as carbon_daemon_main, CarbonDaemon
+from backend.src.daemon.abstract_carbon_daemon import main as CarbonDaemon
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.tests.services.carbon_service.impact_framework.computation.computation_helpers import (
@@ -30,13 +30,12 @@ from backend.tests.services.carbon_service.impact_framework.computation.computat
     compute_storage_operational_helper,
 )
 
-from backend.src.daemon.carbon_daemon import (
-    CarbonDaemon,
+from backend.src.daemon.abstract_carbon_daemon import (
     CarbonDaemonResult,
-    DefaultReaderFactory,
-    DefaultWriterFactory,
     main,
 )
+
+from backend.src.daemon.carbon_daemon_vm import CarbonDaemonVM
 
 # Adjust the Python path
 project_root = os.path.abspath(
@@ -220,10 +219,10 @@ def test_carbon_daemon_with_sample_data(
 
     with (
         patch(
-            "backend.src.daemon.carbon_daemon.DefaultReaderFactory"
+            "backend.src.daemon.readers.reader_factory.DefaultReaderFactory"
         ) as mock_reader_factory_class,
         patch(
-            "backend.src.daemon.carbon_daemon.DefaultWriterFactory"
+            "backend.src.daemon.writers.writer_factory.DefaultWriterFactory"
         ) as mock_writer_factory_class,
     ):
         # Set up reader mock to return sample VMs
@@ -246,7 +245,7 @@ def test_carbon_daemon_with_sample_data(
 
         mock_writer_factory.create_writer.side_effect = capture_vms
 
-        daemon = CarbonDaemon(mock_daemon_config)
+        daemon = CarbonDaemonVM(mock_daemon_config)
         result = daemon.run()
 
         assert result.success is True
@@ -290,7 +289,7 @@ def test_carbon_daemon_with_sample_data(
             ), f"Energy {first_vm.total_energy_consumed} vs expected {expected_energy} differs too much"
 
 
-@patch("backend.src.daemon.carbon_daemon.config")
+@patch("backend.src.daemon.abstract_carbon_daemon.config")
 def test_daemon_with_mocked_components(
     mock_config: MagicMock,
     setup_report_dir: None,
@@ -336,12 +335,12 @@ def test_daemon_with_mocked_components(
 
     with (
         patch(
-            "backend.src.daemon.carbon_daemon.DefaultReaderFactory"
+            "backend.src.daemon.readers.reader_factory.DefaultReaderFactory"
         ) as mock_reader_factory_class,
         patch(
-            "backend.src.daemon.carbon_daemon.DefaultWriterFactory"
+            "backend.src.daemon.writers.writer_factory.DefaultWriterFactory"
         ) as mock_writer_factory_class,
-        patch("backend.src.daemon.carbon_daemon.ioc_util.resolve") as mock_ioc_resolve,
+        patch("backend.src.daemon.abstract_carbon_daemon.ioc_util.resolve") as mock_ioc_resolve,
     ):
         mock_reader_factory = MagicMock()
         mock_reader_factory_class.return_value = mock_reader_factory
@@ -375,7 +374,7 @@ def test_daemon_with_mocked_components(
         mock_writer.upload_compute_report.assert_called_once()
 
 
-@patch("backend.src.daemon.carbon_daemon.config")
+@patch("backend.src.daemon.abstract_carbon_daemon.config")
 def test_daemon_computation_integration(
     mock_config: MagicMock,
     setup_report_dir: None,
@@ -405,10 +404,10 @@ def test_daemon_computation_integration(
 
     with (
         patch(
-            "backend.src.daemon.carbon_daemon.DefaultReaderFactory"
+            "backend.src.daemon.readers.reader_factory.DefaultReaderFactory"
         ) as mock_reader_factory_class,
         patch(
-            "backend.src.daemon.carbon_daemon.DefaultWriterFactory"
+            "backend.src.daemon.writers.writer_factory.DefaultWriterFactory"
         ) as mock_writer_factory_class,
     ):
         mock_reader_factory = MagicMock()
@@ -463,8 +462,8 @@ class TestMainFunction(unittest.TestCase):
     Unit test class for the main function in the carbon_daemon module.
     """
 
-    @patch("backend.src.daemon.carbon_daemon.config")
-    @patch("backend.src.daemon.carbon_daemon.CarbonDaemon")
+    @patch("backend.src.daemon.abstract_carbon_daemon.config")
+    @patch("backend.src.daemon.abstract_carbon_daemon.CarbonDaemon")
     def test_main_success(self, mock_carbon_daemon_class, mock_config):
         """
         Test successful execution of main function.
@@ -485,8 +484,8 @@ class TestMainFunction(unittest.TestCase):
 
         self.assertIn("daemon execution completed successfully", log.output[-1])
 
-    @patch("backend.src.daemon.carbon_daemon.config")
-    @patch("backend.src.daemon.carbon_daemon.CarbonDaemon")
+    @patch("backend.src.daemon.abstract_carbon_daemon.config")
+    @patch("backend.src.daemon.abstract_carbon_daemon.CarbonDaemon")
     def test_main_daemon_failure(self, mock_carbon_daemon_class, mock_config):
         """
         Test main function when daemon execution fails.
@@ -509,8 +508,8 @@ class TestMainFunction(unittest.TestCase):
 
         self.assertIn("daemon execution failed: Test failure", log.output[-1])
 
-    @patch("backend.src.daemon.carbon_daemon.config")
-    @patch("backend.src.daemon.carbon_daemon.CarbonDaemon")
+    @patch("backend.src.daemon.abstract_carbon_daemon.config")
+    @patch("backend.src.daemon.abstract_carbon_daemon.CarbonDaemon")
     def test_main_critical_exception(self, mock_carbon_daemon_class, mock_config):
         """
         Test main function when a critical exception occurs during daemon creation.

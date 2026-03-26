@@ -22,6 +22,10 @@ from backend.src.daemon.readers.storage_reader import (
     StorageReaderStrategy,
 )
 
+from backend.src.common.constants import (
+    SupportedResourcesType,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,7 +40,9 @@ class ReaderFactory(Protocol):
 class DefaultReaderFactory:
     """Default factory for creating reader instances."""
 
-    def create_reader(self, daemon_config: DaemonConfig) -> Reader:
+    def create_reader(self, daemon_config: DaemonConfig,
+                      supportedResourcesType: SupportedResourcesType
+                      ) -> Reader:
         """
         Create a reader based on daemon configuration.
 
@@ -49,11 +55,12 @@ class DefaultReaderFactory:
         Raises:
             ValueError: If unsupported source type is specified
         """
-        if daemon_config.source.type == "azure":
-            return AzureComputeReaderStrategy(daemon_config)
-        if daemon_config.source.type == "local":
-            return LocalComputeReaderStrategy(daemon_config)
-        if daemon_config.source.type == "StorageResource":
+        if (supportedResourcesType == SupportedResourcesType.VIRTUAL_MACHINE):
+            if daemon_config.source.type == "azure":
+                return AzureComputeReaderStrategy(daemon_config)
+            if daemon_config.source.type == "local":
+                return LocalComputeReaderStrategy(daemon_config)
+        elif (supportedResourcesType == SupportedResourcesType.STORAGE):
             return StorageReaderStrategy(daemon_config)
 
-        raise ValueError("unsupported source type in configuration")
+        raise ValueError("unsupported resource type in configuration")

@@ -94,6 +94,7 @@ class CarbonDaemonStorage(AbstractCarbonDaemon):
                     len(storage_resources),
                 )
 
+                ## TODO: check why we have this DAILY_SECONDS (really needed?)
                 storage_service = ioc_util.resolve(
                     CarbonService, "IFStorage", DAILY_SECONDS
                 )
