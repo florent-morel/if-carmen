@@ -199,6 +199,7 @@ class CarbonDaemon:
 
             self._write_results(processed_vms)
 
+            # Implement call to storage calculations
             storage_resources = self._read_infrastructure_data_generic("StorageResource")
 
             processed_storage = self._process_carbon_calculations_storage(storage_resources)

@@ -41,7 +41,7 @@ class TestCarbonDaemon(unittest.TestCase):
 
     @patch("backend.src.daemon.carbon_daemon.register_models")
     @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
-    def test_daemon_run_success(self, mock_ioc_util_resolve, mock_register_models):
+    def test_daemon_run_compute_vms_success(self, mock_ioc_util_resolve, mock_register_models):
         """
         Test successful daemon execution with mocked reader, writer, and carbon service.
         """

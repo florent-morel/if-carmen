@@ -1,6 +1,7 @@
 # pylint: disable=redefined-outer-name
 """
 This file contains tests that validate the entire carbon calculation pipeline for the daemon.
+This is the Integration tests for the Carbon Daemon.
 Tests both VM and Storage resource processing. Computed values are compared to values
 computed by the functions in the module computation_helpers.py
 """
