@@ -117,13 +117,14 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         self.assertEqual(resultStorageResource.replication_type, "LRS")
 
         # Validate computation calculation on single resource
-        self.assertEqual(resultStorageResource.storage_energy, 32.0)
-        self.assertEqual(resultStorageResource.storage_embodied, 32.0)
-        self.assertEqual(resultStorageResource.carbon_emitted, 32.0)
+        self.assertEqual(resultStorageResource.total_storage_energy, 0.0001)
+        self.assertEqual(resultStorageResource.total_storage_operational, 0.03)
+        self.assertEqual(resultStorageResource.total_storage_embodied, 0.44)
+        self.assertEqual(resultStorageResource.total_carbon_emitted, 0.47)
 
         # Validate computation calculation on overall result
         self.assertEqual(carbonDaemonResult.total_storage_energy, 0.0001)
-        self.assertEqual(carbonDaemonResult.total_carbon_emitted, 0.03)
+        self.assertEqual(carbonDaemonResult.total_carbon_operational, 0.03)
         self.assertEqual(carbonDaemonResult.total_storage_embodied, 0.44)
         self.assertEqual(carbonDaemonResult.total_carbon_emitted, 0.47)
         # mock_register_models.assert_called_once()

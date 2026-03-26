@@ -353,7 +353,17 @@ class CarbonDaemon:
 
                 process_time = time.time() - process_start_time
 
-                total_storage_carbon = sum(
+                total_storage_carbon_operational = sum(
+                    storage.total_carbon_operational
+                    for storage in processed_storage_resources
+                )
+
+                total_storage_carbon_embodied = sum(
+                    storage.total_carbon_embodied
+                    for storage in processed_storage_resources
+                )
+
+                total_storage_carbon_emitted = sum(
                     storage.total_carbon_emitted
                     for storage in processed_storage_resources
                 )
@@ -365,8 +375,9 @@ class CarbonDaemon:
                 result = CarbonDaemonResult(
                     success=True, list_processed_resources=processed_storage_resources,
                     total_energy=total_storage_energy,
-                    total_embodied=0,  # TODO: implementation needed
-                    total_carbon_emitted=total_storage_carbon,
+                    total_carbon_operational=total_storage_carbon_operational,
+                    total_embodied=total_storage_carbon_embodied,
+                    total_carbon_emitted=total_storage_carbon_emitted,
                     execution_time=process_time
                 )
 
@@ -380,7 +391,7 @@ class CarbonDaemon:
                     "%.2f kWh total energy, %.0f gCO2 total emissions",
                     len(processed_storage_resources),
                     total_storage_energy,
-                    total_storage_carbon,
+                    total_storage_carbon_emitted,
                 )
 
                 return result
