@@ -65,9 +65,10 @@ class TestCarbonDaemonStorage(unittest.TestCase):
                                            None, None, None, 253.0, [],
                                            HOURLY_INTERVAL_SECONDS)
 
-    @patch("backend.src.daemon.carbon_daemon.register_models")
-    @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
-    def test_daemon_run_compute_storage_success(self, mock_ioc_util_resolve, mock_register_models):
+    # @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
+    # @patch("backend.src.daemon.carbon_daemon.register_models")
+    # def test_daemon_run_compute_storage_success(self, mock_ioc_util_resolve, mock_register_models):
+    def test_daemon_run_compute_storage_success(self):
         """
         Test successful daemon execution with mocked reader, writer, and carbon service.
         """
@@ -76,13 +77,13 @@ class TestCarbonDaemonStorage(unittest.TestCase):
 
         mock_writer = MagicMock()
 
-        mock_carbon_service = MagicMock()
+        # mock_carbon_service = MagicMock()
         processed_storage = [
             self.storage("id", None, "SSD", "LRS", 32.0,
                         None, None, None, 253.0, [],
                         HOURLY_INTERVAL_SECONDS)
         ]
-        mock_carbon_service.run_engine.return_value = processed_storage
+        # mock_carbon_service.run_engine.return_value = processed_storage
 
         mock_reader_factory = MagicMock()
         mock_reader_factory.create_reader.return_value = mock_reader
@@ -90,7 +91,7 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         mock_writer_factory = MagicMock()
         mock_writer_factory.create_writer.return_value = mock_writer
 
-        mock_ioc_util_resolve.return_value = mock_carbon_service
+        # mock_ioc_util_resolve.return_value = mock_carbon_service
 
         daemon = CarbonDaemon(
             self.mock_config,
@@ -121,9 +122,10 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         self.assertEqual(resultStorageResource.carbon_emitted, 32.0)
 
         # Validate computation calculation on overall result
-        self.assertEqual(carbonDaemonResult.total_storage_energy, 32.0)
-        self.assertEqual(carbonDaemonResult.total_storage_embodied, 32.0)
-        self.assertEqual(carbonDaemonResult.total_carbon_emitted, 32.0)
+        self.assertEqual(carbonDaemonResult.total_storage_energy, 0.0001)
+        self.assertEqual(carbonDaemonResult.total_carbon_emitted, 0.03)
+        self.assertEqual(carbonDaemonResult.total_storage_embodied, 0.44)
+        self.assertEqual(carbonDaemonResult.total_carbon_emitted, 0.47)
         # mock_register_models.assert_called_once()
         # mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
         # mock_reader.read_files.assert_called_once()

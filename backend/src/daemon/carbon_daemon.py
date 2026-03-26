@@ -133,6 +133,7 @@ class CarbonDaemonResult:
         success: bool,
         list_processed_resources: list[Resource],
         total_energy: float,
+        total_carbon_operational: float,
         total_embodied: float,
         total_carbon_emitted: float,
         # TODO: remove
@@ -143,6 +144,7 @@ class CarbonDaemonResult:
         self.success: bool = success
         self.list_processed_resources: list = list_processed_resources
         self.total_energy: float = total_energy
+        self.total_carbon_operational: float = total_carbon_operational
         self.total_embodied: float = total_embodied
         self.total_carbon_emitted: float = total_carbon_emitted
         self.vm_count: int = vm_count

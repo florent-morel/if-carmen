@@ -51,9 +51,11 @@ class IFStorageService(IFService):
 
         # Statistics before processing
         total_size = sum(storage.size_gb for storage in storage_resources)
+
         ssd_count = sum(
             1 for storage in storage_resources if "ssd" in storage.storage_type.lower()
         )
+ 
         hdd_count = sum(
             1 for storage in storage_resources if "hdd" in storage.storage_type.lower()
         )
