@@ -6,27 +6,15 @@ These tests cover the new factory-based daemon architecture including
 reader/writer patterns, YAML configuration, and the CarbonDaemon orchestration.
 """
 
-import pytest
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
-from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import ConfigurationError, ComputationError
-from backend.src.schemas.virtual_machine import VirtualMachine
-
-from backend.src.daemon.carbon_daemon import (
-    CarbonDaemon,
-    CarbonDaemonResult,
-    DefaultReaderFactory,
-    DefaultWriterFactory,
-    main,
-)
 from backend.src.common.constants import (
-    CARMEN_LOGO,
     HOURLY_INTERVAL_SECONDS,
-    UploadType,
 )
-from backend.src.services.carbon_service.carbon_service import CarbonService
+from backend.src.daemon.abstract_carbon_daemon import (
+    CarbonDaemon,
+)
 from backend.src.schemas.storage_resource import StorageResource
 
 
