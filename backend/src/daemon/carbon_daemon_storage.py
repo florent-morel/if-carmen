@@ -52,6 +52,8 @@ class CarbonDaemonStorage(AbstractCarbonDaemon):
 
             carbonDaemonResult = self.process_carbon_calculations(storage_resources)
 
+            self.write_results(carbonDaemonResult.list_processed_resources)
+
             execution_time = time.time() - start_time
             carbonDaemonResult.execution_time = execution_time
 
@@ -118,7 +120,7 @@ class CarbonDaemonStorage(AbstractCarbonDaemon):
                     "Storage processing : %d storage resources processed, "
                     "%.2f kWh total energy, %.0f gCO2 total emissions",
                     len(processed_storage_resources),
-                    result.total_energy,
+                    result.total_energy_consumed,
                     result.total_carbon_emitted,
                 )
 

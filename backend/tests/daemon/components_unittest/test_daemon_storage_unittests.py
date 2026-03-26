@@ -104,16 +104,16 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         self.assertEqual(resultStorageResource.replication_type, "LRS")
 
         # Validate computation calculation on single resource
-        self.assertEqual(resultStorageResource.total_storage_energy, 0.0001)
-        self.assertEqual(resultStorageResource.total_storage_operational, 0.03)
-        self.assertEqual(resultStorageResource.total_storage_embodied, 0.44)
-        self.assertEqual(resultStorageResource.total_carbon_emitted, 0.47)
+        self.assertEqual(resultStorageResource.total_energy_consumed, 0.0001)
+        self.assertEqual(resultStorageResource.total_carbon_operational, 0.0291)
+        self.assertEqual(resultStorageResource.total_carbon_embodied, 0.4381)
+        self.assertEqual(resultStorageResource.total_carbon_emitted, 0.4672)
 
         # Validate computation calculation on overall result
-        self.assertEqual(carbonDaemonResult.total_storage_energy, 0.0001)
-        self.assertEqual(carbonDaemonResult.total_carbon_operational, 0.03)
-        self.assertEqual(carbonDaemonResult.total_storage_embodied, 0.44)
-        self.assertEqual(carbonDaemonResult.total_carbon_emitted, 0.47)
+        self.assertEqual(carbonDaemonResult.total_energy_consumed, 0.0001)
+        self.assertEqual(carbonDaemonResult.total_carbon_operational, 0.0291)
+        self.assertEqual(carbonDaemonResult.total_carbon_embodied, 0.4381)
+        self.assertEqual(carbonDaemonResult.total_carbon_emitted, 0.4672)
         # mock_register_models.assert_called_once()
         # mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
         # mock_reader.read_files.assert_called_once()

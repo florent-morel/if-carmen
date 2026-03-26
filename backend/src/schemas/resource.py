@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from abc import ABC
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 class Resource(ABC, BaseModel):
@@ -21,6 +22,12 @@ class Resource(ABC, BaseModel):
 
     id: str  # Unique identifier for the resource
     name: str | None = None
+    carbon_intensity: float = 0.0
+    pue: float = 1.0
+    region: str | None = None
+    subscription: Optional[str] = None
+
+    # List for each time point
     energy_consumed: list[float] = Field(default_factory=list)
     carbon_operational: list[float] = Field(default_factory=list)
     carbon_embodied: list[float] = Field(default_factory=list)
@@ -28,6 +35,8 @@ class Resource(ABC, BaseModel):
     time_points: list = Field(
         default_factory=list
     )  # time for VM, timestamp for Pod/App
+
+    # Total for all time points
     total_energy_consumed: float = 0.0
     total_carbon_operational: float = 0.0
     total_carbon_embodied: float = 0.0

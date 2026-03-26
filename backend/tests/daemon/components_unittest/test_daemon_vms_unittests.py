@@ -28,7 +28,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
     """
 
     def setUp(self):
-        """Set up test fixtures."""  
+        """Set up test fixtures."""
         self.mock_config = MagicMock()
         self.mock_config.source = MagicMock()
         self.mock_config.source.type = "azure"

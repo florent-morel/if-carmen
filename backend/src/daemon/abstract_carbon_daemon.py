@@ -31,7 +31,7 @@ class CarbonDaemonResult:
         self,
         success: bool,
         list_processed_resources: list[Resource],
-        total_energy: float,
+        total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,
         total_carbon_emitted: float,
@@ -40,7 +40,7 @@ class CarbonDaemonResult:
     ):
         self.success: bool = success
         self.list_processed_resources: list = list_processed_resources
-        self.total_energy: float = total_energy
+        self.total_energy_consumed: float = total_energy_consumed
         self.total_carbon_operational: float = total_carbon_operational
         self.total_carbon_embodied: float = total_carbon_embodied
         self.total_carbon_emitted: float = total_carbon_emitted
@@ -127,14 +127,14 @@ class AbstractCarbonDaemon(ABC):
             resource.total_carbon_emitted
             for resource in processed_resources
         )
-        total_energy = sum(
+        total_energy_consumed = sum(
             resource.total_energy_consumed
             for resource in processed_resources
         )
         result = CarbonDaemonResult(
             success=True, 
             list_processed_resources=processed_resources,
-            total_energy=total_energy,
+            total_energy_consumed=total_energy_consumed,
             total_carbon_operational=total_carbon_operational,
             total_carbon_embodied=total_carbon_embodied,
             total_carbon_emitted=total_carbon_emitted,

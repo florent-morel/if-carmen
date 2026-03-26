@@ -26,5 +26,3 @@ class ComputeResource(Resource):
     requested_memory: list[float] = Field(default_factory=list)  # in bytes
     total_cpu_energy: float = 0.0
     total_memory_energy: float = 0.0
-    carbon_intensity: float = 0.0
-    pue: float = 1.0

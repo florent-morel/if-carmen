@@ -16,18 +16,14 @@ class VirtualMachine(ComputeResource):
     instance: str | None = None
     environment: str | None = None
     partition: str | None = None
-    region: str | None = None
     vm_size: str | None = None  # cloud/instance-type in IF
     service: str | None = None
     component: str | None = None
-    subscription: str | None = None
-    carbon_intensity: float = 0.0
     storage_size: list[float] = Field(default_factory=list)  # in GB
     storage_energy: list[float] = Field(default_factory=list)
     total_storage_energy: float = 0.0
     storage_embodied: list[float] = Field(default_factory=list)
     total_storage_embodied: float = 0.0
-    pue: float = 1
 
     def __init_(self):
         super().__init_()

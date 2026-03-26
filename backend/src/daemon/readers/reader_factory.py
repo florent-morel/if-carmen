@@ -1,7 +1,3 @@
-
-
-
-#!/usr/bin/env python3
 """
 Carbon daemon for processing infrastructure resources and generating carbon emission reports.
 
@@ -29,14 +25,13 @@ from backend.src.daemon.readers.storage_reader import (
 logger = logging.getLogger(__name__)
 
 
-
-
 @runtime_checkable
 class ReaderFactory(Protocol):
     """Protocol for reader factory implementations."""
 
     def create_reader(self, daemon_config: DaemonConfig) -> Reader:
         """Create a reader instance based on configuration."""
+
 
 class DefaultReaderFactory:
     """Default factory for creating reader instances."""
@@ -62,5 +57,3 @@ class DefaultReaderFactory:
             return StorageReaderStrategy(daemon_config)
 
         raise ValueError("unsupported source type in configuration")
-
-
