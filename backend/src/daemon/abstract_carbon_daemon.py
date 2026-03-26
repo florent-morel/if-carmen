@@ -144,7 +144,7 @@ class AbstractCarbonDaemon(ABC):
 
         return result
 
-    def write_results(self, resources: list[Resource]) -> None:
+    def write_results(self, resources: list[Resource], resourceType: ResourceType) -> None:
         """
         Write processed results using the configured writer.
 
@@ -157,9 +157,10 @@ class AbstractCarbonDaemon(ABC):
         write_start_time = time.time()
 
         try:
-            logger.info("starting result upload for %d VMs", len(resources))
+            logger.info("starting result upload for %d resources", len(resources))
 
-            writer = self.writer_factory.create_writer(self.config, resources)
+            writer = self.writer_factory.create_writer(self.config, resources,
+                                                       resourceType)
             writer.upload_compute_report()
 
             write_time = time.time() - write_start_time

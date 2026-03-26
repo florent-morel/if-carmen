@@ -249,7 +249,7 @@ def test_carbon_daemon_with_sample_data(
         result = daemon.run()
 
         assert result.success is True
-        assert result.vm_count == len(sample_vms)
+        assert result.list_processed_resources == sample_vms
 
         assert len(captured_vms) == len(sample_vms)
 
