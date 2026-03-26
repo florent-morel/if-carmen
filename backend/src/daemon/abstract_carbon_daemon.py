@@ -136,7 +136,7 @@ class AbstractCarbonDaemon(ABC):
             list_processed_resources=processed_resources,
             total_energy=total_energy,
             total_carbon_operational=total_carbon_operational,
-            total_embodied=total_carbon_embodied,
+            total_carbon_embodied=total_carbon_embodied,
             total_carbon_emitted=total_carbon_emitted,
             execution_time=execution_time
         )

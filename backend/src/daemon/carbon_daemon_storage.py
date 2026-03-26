@@ -27,7 +27,7 @@ from backend.src.utils import ioc_util
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonVM(AbstractCarbonDaemon):
+class CarbonDaemonStorage(AbstractCarbonDaemon):
     """
     Main daemon class responsible for orchestrating carbon emission calculations.
 
@@ -107,7 +107,7 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
 
                 process_time = time.time() - process_start_time
 
-                result = self.create_CarbonDaemonResult(True, processed_storage_resources, process_time)
+                result = self.create_CarbonDaemonResult(True, process_time, processed_storage_resources)
 
                 logger.info(
                     "Storage processing calculations completed in %.2f seconds",
@@ -118,8 +118,8 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
                     "Storage processing : %d storage resources processed, "
                     "%.2f kWh total energy, %.0f gCO2 total emissions",
                     len(processed_storage_resources),
-                    total_storage_energy,
-                    total_storage_carbon_emitted,
+                    result.total_energy,
+                    result.total_carbon_emitted,
                 )
 
                 return result

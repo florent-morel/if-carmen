@@ -61,6 +61,68 @@ from backend.src.utils import ioc_util
 
 logger = logging.getLogger(__name__)
 
+@runtime_checkable
+class WriterFactory(Protocol):
+    """Protocol for writer factory implementations."""
+
+    def create_writer(
+        self, daemon_config: DaemonConfig, vms: list[VirtualMachine]
+    ) -> ComputeWriter:
+        """Create a writer instance based on configuration."""
+
+
+class DefaultReaderFactory:
+    """Default factory for creating reader instances."""
+
+    def create_reader(self, daemon_config: DaemonConfig) -> Reader:
+        """
+        Create a reader based on daemon configuration.
+
+        Args:
+            daemon_config: Configuration containing source information
+
+        Returns:
+            Reader instance
+
+        Raises:
+            ValueError: If unsupported source type is specified
+        """
+        if daemon_config.source.type == "azure":
+            return AzureComputeReaderStrategy(daemon_config)
+        if daemon_config.source.type == "local":
+            return LocalComputeReaderStrategy(daemon_config)
+
+        raise ValueError("unsupported source type in configuration")
+
+
+class DefaultWriterFactory:
+    """Default factory for creating writer instances."""
+
+    def create_writer(
+        self, daemon_config: DaemonConfig, vms: list[VirtualMachine]
+    ) -> ComputeWriter:
+        """
+        Create a writer based on daemon configuration.
+
+        Args:
+            daemon_config: Configuration containing upload information
+            vms: List of virtual machines to write
+
+        Returns:
+            Writer instance
+
+        Raises:
+            ValueError: If unsupported upload type is specified
+        """
+        upload_type = daemon_config.upload.type.lower()
+
+        if upload_type == UploadType.AZURE.value:
+            return AzureComputeWriter(vms, daemon_config)
+        if upload_type == UploadType.LOCAL.value:
+            return LocalComputeWriter(vms, daemon_config)
+
+        raise ValueError(f"unsupported upload type: {upload_type}")
+
 
 
 

@@ -124,7 +124,7 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
             process_time = time.time() - process_start_time
             logger.info("carbon calculations completed in %.2f seconds", process_time)
 
-            result = self.create_CarbonDaemonResult(True, processed_vms, process_time)
+            result = self.create_CarbonDaemonResult(True, process_time, processed_vms)
 
             return result
 
