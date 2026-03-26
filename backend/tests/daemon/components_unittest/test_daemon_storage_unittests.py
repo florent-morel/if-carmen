@@ -19,11 +19,13 @@ from backend.src.schemas.storage_resource import StorageResource
 
 class TestCarbonDaemonStorage(unittest.TestCase):
     """
-    Unit test class for the CarbonDaemon class and related to storage calculation functionality.
+    Unit test class for the CarbonDaemon class and related to storage
+    calculation functionality.
     """
 
-    def storage(self, storage_id, product_name, storage_type, replication_type, 
-                size_gb, region, subscription, resource_group, carbon_intensity, time_points, duration_seconds) -> StorageResource:
+    def create_sample_storage(self, storage_id, product_name, storage_type, replication_type,
+                size_gb, region, subscription, resource_group, carbon_intensity,
+                time_points, duration_seconds) -> StorageResource:
         """
         Returns a sample storage resource dictionary.
         """
@@ -48,28 +50,36 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         self.mock_config.source = MagicMock()
         self.mock_config.upload = MagicMock()
 
-        self.sample_storage = self.storage("id", None, "SSD", "LRS", 32.0,
-                                           None, None, None, 253.0, [],
-                                           HOURLY_INTERVAL_SECONDS)
-
     # @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
     # @patch("backend.src.daemon.carbon_daemon.register_models")
-    # def test_daemon_run_compute_storage_success(self, mock_ioc_util_resolve, mock_register_models):
+    # def test_daemon_run_compute_storage_success(self,
+    # mock_ioc_util_resolve, mock_register_models):
     def test_daemon_run_compute_storage_success(self):
         """
-        Test successful daemon execution with mocked reader, writer, and carbon service.
-        """ 
+        Test successful daemon execution with mocked reader, writer, and
+        carbon service.
+        """
+        processed_storage = [
+            self.create_sample_storage(
+                    storage_id="id",
+                    product_name=None,
+                    storage_type="SSD",
+                    replication_type="LRS",
+                    size_gb=32.0,
+                    region=None,
+                    subscription=None,
+                    resource_group=None,
+                    carbon_intensity=253.0,
+                    time_points=[],
+                    duration_seconds=HOURLY_INTERVAL_SECONDS,
+            )
+        ]
         mock_reader = MagicMock()
-        mock_reader.read_files.return_value = self.sample_storage.copy()
+        mock_reader.read_files.return_value = processed_storage[0].copy()
 
         mock_writer = MagicMock()
 
         # mock_carbon_service = MagicMock()
-        processed_storage = [
-            self.storage("id", None, "SSD", "LRS", 32.0,
-                        None, None, None, 253.0, [],
-                        HOURLY_INTERVAL_SECONDS)
-        ]
         # mock_carbon_service.run_engine.return_value = processed_storage
 
         mock_reader_factory = MagicMock()
