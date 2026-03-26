@@ -72,7 +72,7 @@ class TestCarbonDaemonStorage(unittest.TestCase):
                     resource_group=None,
                     carbon_intensity=253.0,
                     time_points=[],
-                    duration_seconds=DAILY_SECONDS,
+                    duration_seconds=HOURLY_INTERVAL_SECONDS,
             )
         ]
         mock_reader = MagicMock()
