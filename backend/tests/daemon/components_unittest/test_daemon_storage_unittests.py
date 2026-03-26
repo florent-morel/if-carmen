@@ -58,7 +58,7 @@ class TestCarbonDaemonStorage(unittest.TestCase):
     def test_daemon_run_compute_storage_success(self):
         """
         Test successful daemon execution with mocked reader, writer, and carbon service.
-        """
+        """ 
         mock_reader = MagicMock()
         mock_reader.read_files.return_value = self.sample_storage.copy()
 
