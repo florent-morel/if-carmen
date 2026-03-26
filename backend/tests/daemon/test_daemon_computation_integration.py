@@ -16,6 +16,7 @@ import unittest
 from backend.src.common.constants import PUE_AZURE
 from backend.tests.daemon import mock_data
 from backend.src.daemon.abstract_carbon_daemon import main as CarbonDaemon
+
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.tests.services.carbon_service.impact_framework.computation.computation_helpers import (
@@ -215,14 +216,16 @@ def test_carbon_daemon_with_sample_data(
     Validates real carbon calculations using the Impact Framework.
     """
     # Get sample VM data from test files
-    sample_vms = mock_data.read_sample_vm_data({"ppt": ["usage_2025-06-01_00.csv"] * 24}, "")
+    sample_vms = mock_data.read_sample_vm_data(
+        {"ppt": ["usage_2025-06-01_00.csv"] * 24}, ""
+    )
 
     with (
         patch(
-            "backend.src.daemon.readers.reader_factory.DefaultReaderFactory"
+            "backend.src.daemon.abstract_carbon_daemon.DefaultReaderFactory"
         ) as mock_reader_factory_class,
         patch(
-            "backend.src.daemon.writers.writer_factory.DefaultWriterFactory"
+            "backend.src.daemon.abstract_carbon_daemon.DefaultWriterFactory"
         ) as mock_writer_factory_class,
     ):
         # Set up reader mock to return sample VMs
@@ -335,12 +338,14 @@ def test_daemon_with_mocked_components(
 
     with (
         patch(
-            "backend.src.daemon.readers.reader_factory.DefaultReaderFactory"
+            "backend.src.daemon.abstract_carbon_daemon.DefaultReaderFactory"
         ) as mock_reader_factory_class,
         patch(
-            "backend.src.daemon.writers.writer_factory.DefaultWriterFactory"
+            "backend.src.daemon.abstract_carbon_daemon.DefaultWriterFactory"
         ) as mock_writer_factory_class,
-        patch("backend.src.daemon.abstract_carbon_daemon.ioc_util.resolve") as mock_ioc_resolve,
+        patch(
+            "backend.src.daemon.abstract_carbon_daemon.ioc_util.resolve"
+        ) as mock_ioc_resolve,
     ):
         mock_reader_factory = MagicMock()
         mock_reader_factory_class.return_value = mock_reader_factory
@@ -404,10 +409,10 @@ def test_daemon_computation_integration(
 
     with (
         patch(
-            "backend.src.daemon.readers.reader_factory.DefaultReaderFactory"
+            "backend.src.daemon.abstract_carbon_daemon.DefaultReaderFactory"
         ) as mock_reader_factory_class,
         patch(
-            "backend.src.daemon.writers.writer_factory.DefaultWriterFactory"
+            "backend.src.daemon.abstract_carbon_daemon.DefaultWriterFactory"
         ) as mock_writer_factory_class,
     ):
         mock_reader_factory = MagicMock()
@@ -526,5 +531,3 @@ class TestMainFunction(unittest.TestCase):
         self.assertEqual(context.exception.code, 1)
 
         self.assertIn("critical error in daemon main: Critical error", log.output[-1])
-
-

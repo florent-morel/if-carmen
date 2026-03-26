@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import logging
@@ -50,7 +49,6 @@ class CarbonDaemonResult:
 
 
 class AbstractCarbonDaemon(ABC):
-
     def __init__(
         self,
         daemon_config: DaemonConfig,
@@ -99,10 +97,9 @@ class AbstractCarbonDaemon(ABC):
             Exception: If carbon processing fails
         """
 
-    def create_CarbonDaemonResult(self, success,
-                                  execution_time,
-                                  processed_resources: list[Resource]
-                                  ) -> CarbonDaemonResult:
+    def create_CarbonDaemonResult(
+        self, success, execution_time, processed_resources: list[Resource]
+    ) -> CarbonDaemonResult:
         """
         Create a CarbonDaemonResult from the list of processed resources.
 
@@ -115,36 +112,34 @@ class AbstractCarbonDaemon(ABC):
             CarbonDaemonResult
         """
         total_carbon_operational = sum(
-            resource.total_carbon_operational
-            for resource in processed_resources
+            resource.total_carbon_operational for resource in processed_resources
         )
 
         total_carbon_embodied = sum(
-            resource.total_carbon_embodied
-            for resource in processed_resources
+            resource.total_carbon_embodied for resource in processed_resources
         )
 
         total_carbon_emitted = sum(
-            resource.total_carbon_emitted
-            for resource in processed_resources
+            resource.total_carbon_emitted for resource in processed_resources
         )
         total_energy_consumed = sum(
-            resource.total_energy_consumed
-            for resource in processed_resources
+            resource.total_energy_consumed for resource in processed_resources
         )
         result = CarbonDaemonResult(
-            success=True, 
+            success=True,
             list_processed_resources=processed_resources,
             total_energy_consumed=total_energy_consumed,
             total_carbon_operational=total_carbon_operational,
             total_carbon_embodied=total_carbon_embodied,
             total_carbon_emitted=total_carbon_emitted,
-            execution_time=execution_time
+            execution_time=execution_time,
         )
 
         return result
 
-    def write_results(self, resources: list[Resource], resourceType: ResourceType) -> None:
+    def write_results(
+        self, resources: list[Resource], resourceType: ResourceType
+    ) -> None:
         """
         Write processed results using the configured writer.
 
@@ -159,8 +154,9 @@ class AbstractCarbonDaemon(ABC):
         try:
             logger.info("starting result upload for %d resources", len(resources))
 
-            writer = self.writer_factory.create_writer(self.config, resources,
-                                                       resourceType)
+            writer = self.writer_factory.create_writer(
+                self.config, resources, resourceType
+            )
             writer.upload_compute_report()
 
             write_time = time.time() - write_start_time
@@ -191,15 +187,18 @@ class AbstractCarbonDaemon(ABC):
             logger.info(
                 "infrastructure data reading completed. Retrieved %d resources of type %s in %.2f seconds",
                 len(resources),
-                ResourceType.value,
+                ResourceType,
                 read_time,
             )
 
             return resources
 
         except Exception as e:
-            logger.error("failed to read infrastructure data: %s for reader %s"
-                         , str(e), resourceType.value)
+            logger.error(
+                "failed to read infrastructure data: %s for reader %s",
+                str(e),
+                resourceType.value,
+            )
             raise
 
 
