@@ -12,6 +12,7 @@ import csv
 from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
 import pytest
+import unittest
 from backend.src.common.constants import PUE_AZURE
 from backend.tests.daemon import mock_data
 from backend.src.daemon.carbon_daemon import main as carbon_daemon_main, CarbonDaemon
@@ -27,6 +28,14 @@ from backend.tests.services.carbon_service.impact_framework.computation.computat
     compute_storage_energy_helper,
     compute_storage_embodied_helper,
     compute_storage_operational_helper,
+)
+
+from backend.src.daemon.carbon_daemon import (
+    CarbonDaemon,
+    CarbonDaemonResult,
+    DefaultReaderFactory,
+    DefaultWriterFactory,
+    main,
 )
 
 # Adjust the Python path
@@ -447,3 +456,76 @@ def test_daemon_computation_integration(
         assert (
             1.0 < processed_vm.total_carbon_embodied < 5000.0
         ), f"Embodied carbon {processed_vm.total_carbon_embodied} outside expected range"
+
+
+class TestMainFunction(unittest.TestCase):
+    """
+    Unit test class for the main function in the carbon_daemon module.
+    """
+
+    @patch("backend.src.daemon.carbon_daemon.config")
+    @patch("backend.src.daemon.carbon_daemon.CarbonDaemon")
+    def test_main_success(self, mock_carbon_daemon_class, mock_config):
+        """
+        Test successful execution of main function.
+        """
+        mock_daemon_config = MagicMock()
+        mock_config.carmen_daemon = mock_daemon_config
+
+        mock_daemon_instance = MagicMock()
+        mock_result = CarbonDaemonResult(success=True, vm_count=5, execution_time=10.5)
+        mock_daemon_instance.run.return_value = mock_result
+        mock_carbon_daemon_class.return_value = mock_daemon_instance
+
+        with self.assertLogs(level="INFO") as log:
+            main()
+
+        mock_carbon_daemon_class.assert_called_once_with(mock_daemon_config)
+        mock_daemon_instance.run.assert_called_once()
+
+        self.assertIn("daemon execution completed successfully", log.output[-1])
+
+    @patch("backend.src.daemon.carbon_daemon.config")
+    @patch("backend.src.daemon.carbon_daemon.CarbonDaemon")
+    def test_main_daemon_failure(self, mock_carbon_daemon_class, mock_config):
+        """
+        Test main function when daemon execution fails.
+        """
+        mock_daemon_config = MagicMock()
+        mock_config.carmen_daemon = mock_daemon_config
+
+        mock_daemon_instance = MagicMock()
+        mock_result = CarbonDaemonResult(
+            success=False, execution_time=5.0, error_message="Test failure"
+        )
+        mock_daemon_instance.run.return_value = mock_result
+        mock_carbon_daemon_class.return_value = mock_daemon_instance
+
+        with self.assertLogs(level="ERROR") as log:
+            with self.assertRaises(SystemExit) as context:
+                main()
+
+        self.assertEqual(context.exception.code, 1)
+
+        self.assertIn("daemon execution failed: Test failure", log.output[-1])
+
+    @patch("backend.src.daemon.carbon_daemon.config")
+    @patch("backend.src.daemon.carbon_daemon.CarbonDaemon")
+    def test_main_critical_exception(self, mock_carbon_daemon_class, mock_config):
+        """
+        Test main function when a critical exception occurs during daemon creation.
+        """
+        mock_daemon_config = MagicMock()
+        mock_config.carmen_daemon = mock_daemon_config
+
+        mock_carbon_daemon_class.side_effect = Exception("Critical error")
+
+        with self.assertLogs(level="ERROR") as log:
+            with self.assertRaises(SystemExit) as context:
+                main()
+
+        self.assertEqual(context.exception.code, 1)
+
+        self.assertIn("critical error in daemon main: Critical error", log.output[-1])
+
+

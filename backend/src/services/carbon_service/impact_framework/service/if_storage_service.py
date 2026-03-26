@@ -1,10 +1,10 @@
 """
 Impact Framework service for storage resources - extends IFService
 """
+from __future__ import annotations
 
 import threading
 import concurrent
-from typing import List, Tuple
 import logging
 from backend.src.services.carbon_service.impact_framework.service.if_service import (
     IFService,
@@ -38,8 +38,8 @@ class IFStorageService(IFService):
         )
 
     def run_engine(
-        self, storage_resources: List[StorageResource]
-    ) -> List[StorageResource]:
+        self, storage_resources: list[StorageResource]
+    ) -> list[StorageResource]:
         """
         Executes the Impact Framework (IF) model to compute energy and CO2 metrics for storage resources.
         Divides storage resources into chunks and processes them in parallel.
@@ -147,7 +147,7 @@ class IFStorageService(IFService):
     @staticmethod
     def get_resource_inputs(
         storage_resource: StorageResource,
-        models: Tuple[ModelUtilities] = (PStorage, EStorage, MStorage),
+        models: tuple[ModelUtilities] = (PStorage, EStorage, MStorage),
     ):
         """
         Generates input data for each time point of a storage resource using storage-specific models.

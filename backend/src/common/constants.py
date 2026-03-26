@@ -5,6 +5,7 @@ This file contains all the constants used in the project.
 import os
 from datetime import timedelta
 from backend.src.common.enums import SamplingRate
+from enum import Enum
 
 CPU_MIN_ELECTRICITY_RATIO_AZURE = 0.78  # watt per core
 CPU_MAX_ELECTRICITY_RATIO_AZURE = 3.76  # watt per core
@@ -24,6 +25,10 @@ RATE_TO_DURATION = {
     SamplingRate.SIX_HOURS: timedelta(hours=6),
     SamplingRate.ONE_DAY: timedelta(days=1),
 }
+
+
+HOURLY_INTERVAL_SECONDS: int = 3600
+DAILY_SECONDS: int = 86400
 
 IF_FILES_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -62,6 +67,12 @@ ZONES = {
     "NET": "westeurope",
     "NCE": "francesouth",
 }
+
+class UploadType(Enum):
+    """Supported upload destination types."""
+
+    AZURE = "azure"
+    LOCAL = "local"
 
 STORAGE_POWER_COEFFICIENT_MAPPING = {  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
     "SSD": 0.0000012,

@@ -15,7 +15,12 @@ import time
 from enum import Enum
 from typing import Protocol, runtime_checkable
 
-from backend.src.common.constants import CARMEN_LOGO
+from backend.src.common.constants import (
+    CARMEN_LOGO,
+    HOURLY_INTERVAL_SECONDS,
+    DAILY_SECONDS,
+    UploadType,
+)
 from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 from backend.src.core.registrar import register_models
@@ -45,13 +50,6 @@ from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
 
 logger = logging.getLogger(__name__)
-
-
-class UploadType(Enum):
-    """Supported upload destination types."""
-
-    AZURE = "azure"
-    LOCAL = "local"
 
 
 @runtime_checkable
@@ -133,11 +131,20 @@ class CarbonDaemonResult:
     def __init__(
         self,
         success: bool,
+        list_processed_resources: list[Resource],
+        total_energy: float,
+        total_embodied: float,
+        total_carbon_emitted: float,
+        # TODO: remove
         vm_count: int = 0,
         execution_time: float = 0.0,
         error_message: str = "",
     ):
         self.success: bool = success
+        self.list_processed_resources: list = list_processed_resources
+        self.total_energy: float = total_energy
+        self.total_embodied: float = total_embodied
+        self.total_carbon_emitted: float = total_carbon_emitted
         self.vm_count: int = vm_count
         self.execution_time: float = execution_time
         self.error_message: str = error_message
@@ -150,9 +157,6 @@ class CarbonDaemon:
     This class coordinates reading infrastructure data, processing it through
     the carbon engine, and writing the results to the specified destination.
     """
-
-    HOURLY_INTERVAL_SECONDS: int = 3600
-    DAILY_SECONDS: int = 86400
 
     def __init__(
         self,
@@ -292,7 +296,7 @@ class CarbonDaemon:
             logger.info("starting carbon calculations for %d VMs", len(vms))
 
             carbon_service = ioc_util.resolve(
-                CarbonService, "IFVm", self.HOURLY_INTERVAL_SECONDS
+                CarbonService, "IFVm", HOURLY_INTERVAL_SECONDS
             )
 
             if carbon_service is None:
@@ -311,7 +315,7 @@ class CarbonDaemon:
 
     def _process_carbon_calculations_storage(
         self, storage_resources: list[StorageResource]
-    ) -> list[StorageResource]:
+    ) -> CarbonDaemonResult:  # list[StorageResource]:
         """
         Process storage resources through the carbon calculation engine.
 
@@ -333,7 +337,7 @@ class CarbonDaemon:
                 )
 
                 storage_service = ioc_util.resolve(
-                    CarbonService, "IFStorage", self.DAILY_SECONDS
+                    CarbonService, "IFStorage", DAILY_SECONDS
                 )
 
                 if storage_service is None:
@@ -356,6 +360,14 @@ class CarbonDaemon:
                     for storage in processed_storage_resources
                 )
 
+                result = CarbonDaemonResult(
+                    success=True, list_processed_resources=processed_storage_resources,
+                    total_energy=total_storage_energy,
+                    total_embodied=0,  # TODO: implementation needed
+                    total_carbon_emitted=total_storage_carbon,
+                    execution_time=process_time
+                )
+
                 logger.info(
                     "Storage processing calculations completed in %.2f seconds",
                     process_time,
@@ -369,7 +381,7 @@ class CarbonDaemon:
                     total_storage_carbon,
                 )
 
-                return processed_storage_resources
+                return result
 
             except (FileNotFoundError, PermissionError, OSError) as e:
                 logger.exception(
