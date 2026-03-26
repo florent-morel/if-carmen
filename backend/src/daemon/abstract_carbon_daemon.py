@@ -12,7 +12,7 @@ from backend.src.daemon.writers.writer_factory import (
 
 from backend.src.common.constants import (
     CARMEN_LOGO,
-    SupportedResourcesType,
+    ResourceType,
 )
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig, config
@@ -169,7 +169,7 @@ class AbstractCarbonDaemon(ABC):
             logger.error("failed to write results: %s", str(e))
             raise
 
-    def read_infrastructure_data(self, supportedResourcesType: SupportedResourcesType) -> list[Resource]:
+    def read_infrastructure_data(self, resourceType: ResourceType) -> list[Resource]:
         """
         Read infrastructure data using the configured reader.
 
@@ -183,14 +183,14 @@ class AbstractCarbonDaemon(ABC):
 
         try:
             logger.info("starting infrastructure data reading")
-            reader = self.reader_factory.create_reader(self.config, supportedResourcesType)
+            reader = self.reader_factory.create_reader(self.config, resourceType)
             resources = reader.read_files()
 
             read_time = time.time() - read_start_time
             logger.info(
                 "infrastructure data reading completed. Retrieved %d resources of type %s in %.2f seconds",
                 len(resources),
-                SupportedResourcesType.value,
+                ResourceType.value,
                 read_time,
             )
 
@@ -198,7 +198,7 @@ class AbstractCarbonDaemon(ABC):
 
         except Exception as e:
             logger.error("failed to read infrastructure data: %s for reader %s"
-                         , str(e), supportedResourcesType.value)
+                         , str(e), resourceType.value)
             raise
 
 

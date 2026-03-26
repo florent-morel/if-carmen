@@ -69,7 +69,7 @@ ZONES = {
     "NCE": "francesouth",
 }
 
-class SupportedResourcesType(Enum):
+class ResourceType(Enum):
     """Supported resources types."""
 
     VIRTUAL_MACHINE = "VirtualMachine"
