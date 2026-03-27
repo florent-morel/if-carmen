@@ -20,7 +20,7 @@ from backend.src.utils.helpers import str_to_float
 logger = logging.getLogger(__name__)
 
 
-class ComputeReader(AbstractReader):
+class ReaderCompute(AbstractReader):
     """
     Implementation base class for reading virtual machines resource data.
     """

@@ -5,7 +5,6 @@ Base module for reading and processing compute resource data.
 import logging
 from abc import ABC, abstractmethod
 
-from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
 
 logger = logging.getLogger(__name__)

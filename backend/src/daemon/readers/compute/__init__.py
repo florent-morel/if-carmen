@@ -12,6 +12,6 @@ from backend.src.daemon.readers.compute.local_compute_reader import (
 
 __all__ = [
     "Reader",
-    "AzureComputeReaderStrategy",
-    "LocalComputeReaderStrategy",
+    "ReaderComputeAzure",
+    "ReaderComputeLocal",
 ]

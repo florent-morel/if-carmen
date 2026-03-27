@@ -18,7 +18,7 @@ from backend.src.schemas.storage_resource import StorageResource
 logger = logging.getLogger(__name__)
 
 
-class StorageReader(AbstractReader):
+class ReaderStorage(AbstractReader):
     """
     Class for reading storage input data.
     """

@@ -10,7 +10,7 @@ from azure.storage.blob import BlobClient, ContainerClient
 
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.daemon_helpers import log_missing_regions
-from backend.src.daemon.readers.compute_reader import ComputeReader
+from backend.src.daemon.readers.reader_compute import ReaderCompute
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.azure_utils import (
     create_blob_service_client,
@@ -20,7 +20,7 @@ from backend.src.utils.azure_utils import (
 logger = logging.getLogger(__name__)
 
 
-class AzureComputeReader(ComputeReader):
+class ReaderComputeAzure(ReaderCompute):
     """
     Azure Blob Storage reader strategy for processing VM data from CSV files.
 
