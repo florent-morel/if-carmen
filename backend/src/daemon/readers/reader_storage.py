@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.core.yaml_config_loader import DaemonConfig
-from backend.src.daemon.storage_helpers import (
+from backend.src.daemon.readers.helpers.storage_helpers import (
     calculation_period_days,
     process_storage_row,
 )
