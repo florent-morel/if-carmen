@@ -28,10 +28,12 @@ from backend.src.common.constants import (
     ResourceType,
 )
 
+from backend.src.daemon.abstract_carbon_daemon_processor import AbstractCarbonDaemonProcessor
+
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonVM(AbstractCarbonDaemon):
+class CarbonDaemonVMRunner(AbstractCarbonDaemonProcessor):
     """
     Main daemon class responsible for orchestrating carbon emission calculations.
 
