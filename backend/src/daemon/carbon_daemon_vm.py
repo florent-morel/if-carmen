@@ -17,8 +17,9 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 from backend.src.daemon.abstract_carbon_daemon import (
     AbstractCarbonDaemon,
-    CarbonDaemonResult,
 )
+
+from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
@@ -38,7 +39,7 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
     the carbon engine, and writing the results to the specified destination.
     """
 
-    def run(self) -> CarbonDaemonResult:
+    def run(self) -> ResourceDaemonResult:
         """
         Execute the complete daemon workflow.
 
@@ -57,27 +58,34 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
                     details="No virtual machines found in data source",
                 )
 
-            carbonDaemonResult = self.process_carbon_calculations(vms)
-
-            self.write_results(carbonDaemonResult.list_processed_resources)
+            processed_vms = self.process_carbon_calculations(vms)
 
             execution_time = time.time() - start_time
-            carbonDaemonResult.execution_time = execution_time
+
+            resourceDaemonResult = self.create_ResourceDaemonResult(True,
+                                        execution_time, processed_vms)
 
             logger.info(
-                "carbon daemon execution completed successfully. processed %d VMs in %.2f seconds",
-                len(carbonDaemonResult.list_processed_resources),
+                "VM Carbon Daemon execution completed successfully. processed %d VMs in %.2f seconds",
+                len(resourceDaemonResult.list_processed_resources),
                 execution_time,
             )
+            logger.info(
+                "VM Carbon Daemon execution completed successfully. "
+                "Processed %d VMs in %.2f seconds",
+                len(resourceDaemonResult.list_processed_resources),
+                resourceDaemonResult.total_energy_consumed,
+                resourceDaemonResult.total_carbon_emitted,
+            )
 
-            return carbonDaemonResult
+            return resourceDaemonResult
 
         except KnownException as e:
             execution_time = time.time() - start_time
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
 
-            return CarbonDaemonResult(
+            return ResourceDaemonResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
@@ -86,13 +94,13 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
             error_msg = f"unexpected error during daemon execution: {str(e)}"
             logger.exception(error_msg)
 
-            return CarbonDaemonResult(
+            return ResourceDaemonResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
     def process_carbon_calculations(
         self, vms: list[Resource]
-    ) -> CarbonDaemonResult:
+    ) -> list[Resource]:
         """
         Process virtual machines through the carbon calculation engine.
 
@@ -125,11 +133,10 @@ class CarbonDaemonVM(AbstractCarbonDaemon):
             processed_vms: list[VirtualMachine] = carbon_service.run_engine(vms)
 
             process_time = time.time() - process_start_time
+
             logger.info("carbon calculations completed in %.2f seconds", process_time)
 
-            result = self.create_CarbonDaemonResult(True, process_time, processed_vms)
-
-            return result
+            return processed_vms
 
         except Exception as e:
             logger.error("failed to process carbon calculations: %s", str(e))

@@ -2,8 +2,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Iterable
 import logging
-import time
-import csv
 import os
 from datetime import datetime, timedelta
 from backend.src.common.known_exception import KnownException
@@ -51,42 +49,6 @@ class AbstractWriter(ABC):
             execution_date.strftime("%Y-%m-%d"),
         )
         return execution_date_str
-
-    def create_compute_CO2_report(
-        self,
-    ):
-        """
-        Creates a CSV report containing all resource types.
-        Handles VMs, Storage, and future resource categories in one file.
-        """
-        resources = self.resources or []
-
-        logger.info(
-            "Creating CSV report with %d resources",
-            len(resources),
-        )
-        start = time.time()
-
-
-        # TODO: Implement loop on all active resources
-
-        with open(self.out_file, mode="w", newline="", encoding="utf-8") as report:
-            writer = csv.writer(report)
-
-        # TODO: call each writer to get rows
-            writer.writerows(self.build_rows_headers())
-            for row in self.build_content():
-                writer.writerow(row)
-
-        elapsed_time = time.time() - start
-#         logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
-#         logging.info("Total energy consumed: %.2f kWh", vm_energy)
-        logger.info("CSV report created in %.2f seconds", elapsed_time)
-        logger.info(
-            "  Resources: %d resources",
-            len(resources),
-        )
-        logger.info("Report saved to: %s", self.out_file)
 
     @abstractmethod
     def build_rows_headers() -> Iterable[Iterable[Any]]:

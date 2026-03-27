@@ -69,11 +69,6 @@ ZONES = {
     "NCE": "francesouth",
 }
 
-class ResourceType(Enum):
-    """Supported resources types."""
-
-    VIRTUAL_MACHINE = "VirtualMachine"
-    STORAGE = "Storage"
 
 class UploadType(Enum):
     """Supported upload destination types."""

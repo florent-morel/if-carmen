@@ -18,11 +18,12 @@ from backend.src.common.constants import (
 from backend.src.common.known_exception import KnownException
 from backend.src.daemon.abstract_carbon_daemon import (
     AbstractCarbonDaemon,
-    CarbonDaemonResult,
+    ResourceDaemonResult,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
+from backend.src.schemas.resource import Resource, ResourceType
 
 logger = logging.getLogger(__name__)
 
@@ -35,12 +36,12 @@ class CarbonDaemonStorage(AbstractCarbonDaemon):
     the carbon engine, and writing the results to the specified destination.
     """
 
-    def run(self) -> CarbonDaemonResult:
+    def run(self) -> ResourceDaemonResult:
         """
         Execute the complete daemon workflow.
 
         Returns:
-            CarbonDaemonResult containing execution results
+            ResourceDaemonResult containing execution results
         """
         start_time = time.time()
 
@@ -48,29 +49,30 @@ class CarbonDaemonStorage(AbstractCarbonDaemon):
             logger.info("Starting carbon daemon execution")
 
             # Implement call to storage calculations
-            storage_resources = self.read_infrastructure_data_generic("StorageResource")
+            storage_resources = self.read_infrastructure_data_generic(ResourceType.STORAGE)
 
-            carbonDaemonResult = self.process_carbon_calculations(storage_resources)
-
-            self.write_results(carbonDaemonResult.list_processed_resources)
+            processed_storage_resources = self.process_carbon_calculations(storage_resources)
 
             execution_time = time.time() - start_time
-            carbonDaemonResult.execution_time = execution_time
+
+            resourceDaemonResult = self.create_ResourceDaemonResult(True, execution_time, processed_storage_resources)
 
             logger.info(
-                "carbon daemon execution completed successfully. processed %d storage resources in %.2f seconds",
-                len(carbonDaemonResult.list_processed_resources),
-                execution_time,
+                "Storage processing : %d storage resources processed, "
+                "%.2f kWh total energy, %.0f gCO2 total emissions",
+                len(resourceDaemonResult.list_processed_resources),
+                resourceDaemonResult.total_energy_consumed,
+                resourceDaemonResult.total_carbon_emitted,
             )
 
-            return carbonDaemonResult
+            return resourceDaemonResult
 
         except KnownException as e:
             execution_time = time.time() - start_time
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
 
-            return CarbonDaemonResult(
+            return ResourceDaemonResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
@@ -79,13 +81,13 @@ class CarbonDaemonStorage(AbstractCarbonDaemon):
             error_msg = f"unexpected error during daemon execution: {str(e)}"
             logger.exception(error_msg)
 
-            return CarbonDaemonResult(
+            return ResourceDaemonResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
     def process_carbon_calculations(
         self, storage_resources: list[StorageResource]
-    ) -> CarbonDaemonResult:
+    ) -> list[StorageResource]:
         process_start_time = time.time()
         if storage_resources:
             try:
@@ -110,22 +112,12 @@ class CarbonDaemonStorage(AbstractCarbonDaemon):
 
                 process_time = time.time() - process_start_time
 
-                result = self.create_CarbonDaemonResult(True, process_time, processed_storage_resources)
-
                 logger.info(
                     "Storage processing calculations completed in %.2f seconds",
                     process_time,
                 )
 
-                logger.info(
-                    "Storage processing : %d storage resources processed, "
-                    "%.2f kWh total energy, %.0f gCO2 total emissions",
-                    len(processed_storage_resources),
-                    result.total_energy_consumed,
-                    result.total_carbon_emitted,
-                )
-
-                return result
+                return processed_storage_resources
 
             except (FileNotFoundError, PermissionError, OSError) as e:
                 logger.exception(

@@ -8,8 +8,16 @@ including energy consumption and carbon emission tracking capabilities.
 from __future__ import annotations
 
 from abc import ABC
+from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Optional
+
+
+class ResourceType(Enum):
+    """Supported resources types."""
+
+    VIRTUAL_MACHINE = "VirtualMachine"
+    STORAGE = "Storage"
 
 
 class Resource(ABC, BaseModel):

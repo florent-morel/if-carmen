@@ -4,48 +4,29 @@ import logging
 import time
 from abc import ABC, abstractmethod
 
-from backend.src.daemon.writers.writer_factory import (
-    DefaultWriterFactory,
-    WriterFactory,
-)
-
 from backend.src.common.constants import (
     CARMEN_LOGO,
-    ResourceType,
 )
+from backend.src.common.known_exception import KnownException
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig, config
+from backend.src.daemon.abstract_carbon_daemon import (
+    CarbonDaemonResult,
+)
+from backend.src.daemon.carbon_daemon_result import (
+    ResourceDaemonResult,
+)
 from backend.src.daemon.readers.reader_factory import (
     DefaultReaderFactory,
     ReaderFactory,
 )
-from backend.src.schemas.resource import Resource
+from backend.src.daemon.writers.writer_factory import (
+    DefaultWriterFactory,
+    WriterFactory,
+)
+from backend.src.schemas.resource import Resource, ResourceType
 
 logger = logging.getLogger(__name__)
-
-
-class CarbonDaemonResult:
-    """Container for daemon execution results."""
-
-    def __init__(
-        self,
-        success: bool,
-        list_processed_resources: list[Resource],
-        total_energy_consumed: float,
-        total_carbon_operational: float,
-        total_carbon_embodied: float,
-        total_carbon_emitted: float,
-        execution_time: float = 0.0,
-        error_message: str = "",
-    ):
-        self.success: bool = success
-        self.list_processed_resources: list = list_processed_resources
-        self.total_energy_consumed: float = total_energy_consumed
-        self.total_carbon_operational: float = total_carbon_operational
-        self.total_carbon_embodied: float = total_carbon_embodied
-        self.total_carbon_emitted: float = total_carbon_emitted
-        self.execution_time: float = execution_time
-        self.error_message: str = error_message
 
 
 class AbstractCarbonDaemon(ABC):
@@ -69,21 +50,74 @@ class AbstractCarbonDaemon(ABC):
 
         register_models()
 
-        logger.info("Carbon daemon initialized")
+        logger.info("Carbon Daemon initialized")
 
-    @abstractmethod
-    def run(self) -> CarbonDaemonResult:
+    def run_carbon_daemon(self):
         """
         Execute the complete daemon workflow.
 
         Returns:
             CarbonDaemonResult containing execution results
         """
+        start_time = time.time()
+        carbonDaemonResult = CarbonDaemonResult()
+
+        try:
+            logger.info("Starting Carbon Daemon execution")
+
+            # Iterate on each Resource Carbon Daemon Runner
+            # for
+            resourceDaemonResult = self.run()
+
+            carbonDaemonResult.dict_resource_daemon_result[resourceDaemonResult.resourceType, resourceDaemonResult]
+
+            # End of loop, store complete execution time
+            execution_time = time.time() - start_time
+            carbonDaemonResult.execution_time = execution_time
+
+            # Write results
+            self.write_results(carbonDaemonResult)
+
+            logger.info(
+                "Carbon Daemon execution completed successfully. processed %d resources in %.2f seconds",
+                len(carbonDaemonResult.list_processed_resources),
+                execution_time,
+            )
+
+            return carbonDaemonResult
+
+        except KnownException as e:
+            execution_time = time.time() - start_time
+            error_msg = f"known error during daemon execution: {e.formatted_string}"
+            logger.error(error_msg)
+
+            return CarbonDaemonResult(
+                success=False, execution_time=execution_time, error_message=error_msg
+            )
+
+        except Exception as e:
+            execution_time = time.time() - start_time
+            error_msg = f"unexpected error during daemon execution: {str(e)}"
+            logger.exception(error_msg)
+
+            return CarbonDaemonResult(
+                success=False, execution_time=execution_time, error_message=error_msg
+            )
+
+    @abstractmethod
+    def run(self
+            ) -> ResourceDaemonResult:
+        """
+        Execute the workflow dedicated to a given Resource.
+
+        Returns:
+            ResourceDaemonResult containing execution results
+        """
 
     @abstractmethod
     def process_carbon_calculations(
         self, resources: list[Resource]
-    ) -> CarbonDaemonResult:
+    ) -> list[Resource]:
         """
         Process resources through the carbon calculation engine.
 
@@ -152,11 +186,13 @@ class AbstractCarbonDaemon(ABC):
         write_start_time = time.time()
 
         try:
-            logger.info("starting result upload for %d resources", len(resources))
+            logger.info("starting result upload for %d resources",
+                        len(carbonDaemonResult.dict_resource_daemon_result.values()))
 
-            writer = self.writer_factory.create_writer(
-                self.config, resources, resourceType
-            )
+            writer = self.writer_factory.create_writer(self.config, carbonDaemonResult)
+            self.writer_factory.create_CO2_report()
+
+            # TODO: Create an uploader to upload report
             writer.upload_compute_report()
 
             write_time = time.time() - write_start_time
@@ -212,16 +248,16 @@ def main() -> None:
     try:
         logger.info(CARMEN_LOGO)
         daemon = AbstractCarbonDaemon(config.carmen_daemon)
-        result = daemon.run()
+        result = daemon.run_carbon_daemon()
 
         if not result.success:
-            logger.error("daemon execution failed: %s", result.error_message)
+            logger.error("Daemon execution failed: %s", result.error_message)
             exit(1)
 
-        logger.info("daemon execution completed successfully")
+        logger.info("Daemon execution completed successfully.")
 
     except Exception as e:
-        logger.exception("critical error in daemon main: %s", str(e))
+        logger.exception("Critical error in Daemon main: %s", str(e))
         exit(1)
 
 
