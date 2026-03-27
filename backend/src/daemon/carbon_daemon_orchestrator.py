@@ -1,3 +1,14 @@
+"""
+The Carbon Daemon Orchestrator is the main class taking care of the Carbon Daemon
+process.
+It iterates over the different resource related processors and orchestrates the 
+following actions:
+- Read input data.
+- Run the call to the Impact Framework.
+- Write output report.
+- Upload report file.
+
+"""
 
 from __future__ import annotations
 

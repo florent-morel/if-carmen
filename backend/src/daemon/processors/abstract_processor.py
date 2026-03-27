@@ -1,5 +1,5 @@
 """
-A Carbon Processor takes contains a reference to all the classes
+A Carbon Processor contains a reference to all the classes
 needed to:
 - Read input data.
 - Run the call to the Impact Framework.
