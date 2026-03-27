@@ -28,7 +28,7 @@ from backend.src.schemas.resource import Resource, ResourceType
 
 logger = logging.getLogger(__name__)
 
-
+# TODO: To be removed
 class AbstractCarbonDaemon(ABC):
     def __init__(
         self,

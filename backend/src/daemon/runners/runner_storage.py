@@ -17,41 +17,36 @@ from backend.src.common.constants import (
 )
 from backend.src.common.known_exception import KnownException
 from backend.src.daemon.abstract_carbon_daemon import (
-    AbstractCarbonDaemon,
     ResourceDaemonResult,
 )
+from backend.src.daemon.runners.abstract_runner import AbstractRunner
+from backend.src.schemas.resource import Resource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
-from backend.src.schemas.resource import Resource, ResourceType
 
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonStorage(AbstractCarbonDaemon):
+class CarbonDaemonStorageRunner(AbstractRunner):
     """
-    Main daemon class responsible for orchestrating carbon emission calculations.
-
-    This class coordinates reading infrastructure data, processing it through
-    the carbon engine, and writing the results to the specified destination.
+    Implementation of the Runner for the Storage Resource Type.
     """
 
-    def run(self) -> ResourceDaemonResult:
+    def run(self, list_resources_to_process: list[Resource]) -> ResourceDaemonResult:
         """
-        Execute the complete daemon workflow.
+        Run the Impact Framework and build result for the Storage Resource Type.
 
         Returns:
             ResourceDaemonResult containing execution results
         """
+
         start_time = time.time()
 
         try:
-            logger.info("Starting carbon daemon execution")
+            logger.info("Starting Storage runner execution")
 
-            # Implement call to storage calculations
-            storage_resources = self.read_infrastructure_data_generic(ResourceType.STORAGE)
-
-            processed_storage_resources = self.process_carbon_calculations(storage_resources)
+            processed_storage_resources = self.process_carbon_calculations(list_resources_to_process)
 
             execution_time = time.time() - start_time
 

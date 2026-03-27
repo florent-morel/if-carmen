@@ -1,9 +1,3 @@
-"""
-Carbon daemon for processing infrastructure resources and generating carbon emission reports.
-
-This module provides a clean, extensible architecture for reading infrastructure data,
-processing it through the carbon engine, and generating emission reports.
-"""
 
 from __future__ import annotations
 
@@ -13,54 +7,42 @@ import time
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
 )
-from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
-from backend.src.daemon.abstract_carbon_daemon import (
-    AbstractCarbonDaemon,
-)
-
 from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
+from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
-from backend.src.common.constants import (
-    ResourceType,
-)
-
-from backend.src.daemon.abstract_carbon_daemon_processor import AbstractCarbonDaemonProcessor
 
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonVMRunner(AbstractCarbonDaemonProcessor):
+class CarbonDaemonVMRunner(AbstractRunner):
     """
-    Main daemon class responsible for orchestrating carbon emission calculations.
-
-    This class coordinates reading infrastructure data, processing it through
-    the carbon engine, and writing the results to the specified destination.
+    Implementation of the Runner for the Virtual Machine Type.
     """
 
-    def run(self) -> ResourceDaemonResult:
+    def run(self, list_resources_to_process: list[Resource]) -> ResourceDaemonResult:
         """
-        Execute the complete daemon workflow.
+        Run the Impact Framework and build result for Virtual Machines Resource Type.
 
         Returns:
-            CarbonDaemonResult containing execution results
+            ResourceDaemonResult containing execution results
         """
         start_time = time.time()
 
         try:
-            logger.info("Starting carbon daemon execution")
+            logger.info("Starting Virtual Machine runner execution")
 
-            vms = self.read_infrastructure_data(ResourceType.VIRTUAL_MACHINE)
-            if not vms:
-                raise KnownException(
-                    ErrorCode.DATA_FETCH_NO_RESULTS,
-                    details="No virtual machines found in data source",
-                )
+            # vms = self.read_infrastructure_data(ResourceType.VIRTUAL_MACHINE)
+            # if not vms:
+            #     raise KnownException(
+            #         ErrorCode.DATA_FETCH_NO_RESULTS,
+            #         details="No virtual machines found in data source",
+            #     )
 
-            processed_vms = self.process_carbon_calculations(vms)
+            processed_vms = self.process_carbon_calculations(list_resources_to_process)
 
             execution_time = time.time() - start_time
 
@@ -101,7 +83,7 @@ class CarbonDaemonVMRunner(AbstractCarbonDaemonProcessor):
             )
 
     def process_carbon_calculations(
-        self, vms: list[Resource]
+        self, list_resources_to_process: list[Resource]
     ) -> list[Resource]:
         """
         Process virtual machines through the carbon calculation engine.
@@ -123,7 +105,7 @@ class CarbonDaemonVMRunner(AbstractCarbonDaemonProcessor):
         process_start_time = time.time()
 
         try:
-            logger.info("starting carbon calculations for %d VMs", len(vms))
+            logger.info("starting carbon calculations for %d VMs", len(list_resources_to_process))
 
             carbon_service = ioc_util.resolve(
                 CarbonService, "IFVm", HOURLY_INTERVAL_SECONDS
@@ -132,7 +114,7 @@ class CarbonDaemonVMRunner(AbstractCarbonDaemonProcessor):
             if carbon_service is None:
                 raise RuntimeError("failed to resolve CarbonService from IoC container")
 
-            processed_vms: list[VirtualMachine] = carbon_service.run_engine(vms)
+            processed_vms: list[VirtualMachine] = carbon_service.run_engine(list_resources_to_process)
 
             process_time = time.time() - process_start_time
 

@@ -149,10 +149,10 @@ class CarbonDaemonOrchestrator():
         dict_resource_daemon_result = dict[ResourceType, ResourceDaemonResult]
         # Iterate on each Resource Carbon Daemon Processor
         for carbon_daemon_resource_processor in self.list_carbon_daemon_resource_processors:
-            resource_daemon_result = carbon_daemon_resource_processor.runner.run()
+            resource_daemon_result = carbon_daemon_resource_processor.run()
 
             # Populate Daemon Carbon Result with Resource result
-            dict_resource_daemon_result[resource_daemon_result.resourceType, resource_daemon_result]
+            dict_resource_daemon_result[carbon_daemon_resource_processor.resourceType, resource_daemon_result]
 
         # End of loop, store complete execution time
         execution_time = time.time() - start_time
@@ -296,7 +296,10 @@ def main() -> None:
     """
     try:
         logger.info(CARMEN_LOGO)
-        daemon = AbstractCarbonDaemon(config.carmen_daemon)
+        #list_carbon_daemon_resource_processors = [CarbonDaemonVMProcessor(AZURE), StorageProcessor]
+        daemon = CarbonDaemonOrchestrator(list_carbon_daemon_resource_processors=list_carbon_daemon_resource_processors)
+       #  AbstractCarbonDaemon(config.carmen_daemon)
+
         result = daemon.run_carbon_daemon()
 
         if not result.success:
