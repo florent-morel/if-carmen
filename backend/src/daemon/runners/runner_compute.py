@@ -18,7 +18,7 @@ from backend.src.utils import ioc_util
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonVMRunner(AbstractRunner):
+class CarbonDaemonRunnerCompute(AbstractRunner):
     """
     Implementation of the Runner for the Virtual Machine Type.
     """

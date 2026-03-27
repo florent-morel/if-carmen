@@ -7,13 +7,13 @@ from backend.src.daemon.abstract_carbon_daemon_processor import (
 )
 
 from backend.src.daemon.readers.storage_reader import StorageReader
-from backend.src.daemon.runners.runner_storage import CarbonDaemonStorageRunner
+from backend.src.daemon.runners.runner_storage import CarbonDaemonRunnerStorage
 from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonStorageProcessor(AbstractCarbonDaemonProcessor):
+class CarbonDaemonProcessorStorage(AbstractCarbonDaemonProcessor):
     """
     Main daemon class responsible for orchestrating carbon emission calculations.
 
@@ -28,13 +28,10 @@ class CarbonDaemonStorageProcessor(AbstractCarbonDaemonProcessor):
         Initialize abstract carbon daemon processor.
 
         Args:
-            daemon_config: Configuration for daemon operations
-            reader_factory: Factory for creating reader instances (optional)
-            writer_factory: Factory for creating writer instances (optional)
         """
-        self.resource_type = ResourceType.VIRTUAL_MACHINE
+        self.resource_type = ResourceType.STORAGE
 
         self.reader: StorageReader() # TODO: init from source type
-        self.runner: CarbonDaemonStorageRunner()
+        self.runner: CarbonDaemonRunnerStorage()
         # TODO: Implement writers
         # self.writer: AbstractWriter

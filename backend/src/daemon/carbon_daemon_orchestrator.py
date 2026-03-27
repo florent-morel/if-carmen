@@ -261,25 +261,25 @@ class CarbonDaemonOrchestrator():
         Raises:
             Exception: If writing fails
         """
-        write_start_time = time.time()
-
-        try:
-            logger.info("starting result upload for %d resources",
-                        len(carbonDaemonResult.dict_resource_daemon_result.values()))
-
-            writer = self.writer_factory.create_writer(self.config, carbonDaemonResult)
-
-            self.writer_factory.create_CO2_report()
-
-            # TODO: Create an uploader to upload report
-            writer.upload_compute_report()
-
-            write_time = time.time() - write_start_time
-            logger.info("results uploaded successfully in %.2f seconds", write_time)
-
-        except Exception as e:
-            logger.error("failed to write results: %s", str(e))
-            raise
+#         write_start_time = time.time()
+# 
+#         try:
+#             logger.info("starting result upload for %d resources",
+#                         len(carbonDaemonResult.dict_resource_daemon_result.values()))
+# 
+#             writer = self.writer_factory.create_writer(self.config, carbonDaemonResult)
+# 
+#             self.writer_factory.create_CO2_report()
+# 
+#             # TODO: Create an uploader to upload report
+#             writer.upload_compute_report()
+# 
+#             write_time = time.time() - write_start_time
+#             logger.info("results uploaded successfully in %.2f seconds", write_time)
+# 
+#         except Exception as e:
+#             logger.error("failed to write results: %s", str(e))
+#             raise
 
     def upload_compute_report(
             self
