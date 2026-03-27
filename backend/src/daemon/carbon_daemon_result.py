@@ -47,55 +47,6 @@ class CarbonDaemonResult:
         self.execution_time: float = execution_time
         self.error_message: str = error_message
 
-    def create_CarbonDaemonResult(self, success,
-                                  execution_time,
-                                  resourceType: ResourceType,
-                                  processed_resources: list[Resource]
-                                  ) -> CarbonDaemonResult:
-        """
-        Create a CarbonDaemonResult from the list of processed resources.
-
-        Args:
-            success: whether the call to the IF has been successful.
-            execution_time: time to execute the call.
-            processed_resources: List of processed resources.
-
-        Returns:
-            CarbonDaemonResult
-        """
-
-        dict_processed_resources = dict[resourceType, processed_resources]
-
-        total_carbon_operational = sum(
-            resource.total_carbon_operational
-            for resource in processed_resources
-        )
-
-        total_carbon_embodied = sum(
-            resource.total_carbon_embodied
-            for resource in processed_resources
-        )
-
-        total_carbon_emitted = sum(
-            resource.total_carbon_emitted
-            for resource in processed_resources
-        )
-        total_energy_consumed = sum(
-            resource.total_energy_consumed
-            for resource in processed_resources
-        )
-        result = CarbonDaemonResult(
-            success=True,
-            dict_processed_resources=dict_processed_resources,
-            total_energy_consumed=total_energy_consumed,
-            total_carbon_operational=total_carbon_operational,
-            total_carbon_embodied=total_carbon_embodied,
-            total_carbon_emitted=total_carbon_emitted,
-            execution_time=execution_time
-        )
-
-        return result
-
 
 class ResourceDaemonResult:
     """Resource specific container for daemon execution results."""

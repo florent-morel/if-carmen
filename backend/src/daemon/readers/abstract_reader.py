@@ -11,7 +11,7 @@ from backend.src.schemas.resource import Resource
 logger = logging.getLogger(__name__)
 
 
-class Reader(ABC):
+class AbstractReader(ABC):
     """
     Abstract base class for reading compute resource data from various sources.
     """

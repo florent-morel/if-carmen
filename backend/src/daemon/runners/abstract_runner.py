@@ -1,0 +1,37 @@
+
+
+from __future__ import annotations
+
+import logging
+import time
+from abc import ABC, abstractmethod
+
+from backend.src.common.constants import (
+    CARMEN_LOGO,
+)
+from backend.src.common.known_exception import KnownException
+from backend.src.core.registrar import register_models
+from backend.src.core.yaml_config_loader import DaemonConfig, config
+from backend.src.daemon.abstract_carbon_daemon import (
+    CarbonDaemonResult,
+)
+from backend.src.daemon.carbon_daemon_result import (
+    ResourceDaemonResult,
+)
+from backend.src.daemon.readers.reader_factory import (
+    DefaultReaderFactory,
+    ReaderFactory,
+)
+from backend.src.daemon.writers.writer_factory import (
+    DefaultWriterFactory,
+    WriterFactory,
+)
+from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.daemon.readers.abstract_reader import AbstractReader
+from backend.src.daemon.runners.abstract_runner import AbstractReader
+from backend.src.daemon.writers.abstract_writer import AbstractWriter
+
+logger = logging.getLogger(__name__)
+
+
+class AbstractRunner(ABC):

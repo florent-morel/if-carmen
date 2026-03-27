@@ -23,9 +23,6 @@ class AbstractWriter(ABC):
             str(self.config.upload_path), f"CO2_{self.date}.csv"
         )
 
-    @abstractmethod
-    def upload_compute_report(self):
-        pass
 
     @staticmethod
     def get_execution_date():
