@@ -26,7 +26,7 @@ from backend.src.daemon.writers.writer_factory import (
     WriterFactory,
 )
 from backend.src.schemas.resource import Resource, ResourceType
-from backend.src.daemon.abstract_carbon_daemon import AbstractCarbonDaemonProcessor
+from backend.src.daemon.abstract_carbon_daemon_processor import AbstractCarbonDaemonProcessor
 
 logger = logging.getLogger(__name__)
 
