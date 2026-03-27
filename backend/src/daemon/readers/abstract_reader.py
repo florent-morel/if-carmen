@@ -16,11 +16,18 @@ class AbstractReader(ABC):
     Abstract base class for reading compute resource data from various sources.
     """
 
-    def __init__(self, config: DaemonConfig):
-        self.config: DaemonConfig = config
+    def __init__(
+        self,
+    ):
+        """
+        Initialize reader.
+
+        Args:
+
+        """
 
     @abstractmethod
-    def read_files(self) -> list[Resource]:
+    def read(self) -> list[Resource]:
         """
         Read and process files to extract resource information.
 

@@ -7,7 +7,7 @@ import logging
 
 from pydantic import ValidationError
 
-from backend.src.daemon.readers.abstract_reader import Reader
+from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.storage_helpers import (
     calculation_period_days,
@@ -18,15 +18,15 @@ from backend.src.schemas.storage_resource import StorageResource
 logger = logging.getLogger(__name__)
 
 
-class StorageReaderStrategy(Reader):
+class StorageReader(AbstractReader):
     """
-    Abstract base class for reading compute resource data from various sources.
+    Class for reading storage input data.
     """
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
 
-    def read_files(self) -> list[StorageResource]:
+    def read(self) -> list[StorageResource]:
         """
         Read and process files to extract storage resource information.
 

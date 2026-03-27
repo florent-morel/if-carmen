@@ -5,7 +5,7 @@ Base module for reading and processing compute resource data.
 import csv
 import logging
 from abc import ABC, abstractmethod
-from backend.src.daemon.readers.abstract_reader import Reader
+from backend.src.daemon.readers.abstract_reader import AbstractReader
 
 from pydantic import ValidationError
 
@@ -20,7 +20,7 @@ from backend.src.utils.helpers import str_to_float
 logger = logging.getLogger(__name__)
 
 
-class VMReader(Reader):
+class ComputeReader(AbstractReader):
     """
     Implementation base class for reading virtual machines resource data.
     """
@@ -28,7 +28,7 @@ class VMReader(Reader):
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
 
-    def read_files(self) -> list[VirtualMachine]:
+    def read(self) -> list[VirtualMachine]:
         """
         Read and process files to extract virtual machine information.
 
