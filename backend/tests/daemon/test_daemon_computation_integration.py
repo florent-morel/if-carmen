@@ -15,7 +15,7 @@ import pytest
 import unittest
 from backend.src.common.constants import PUE_AZURE
 from backend.tests.daemon import mock_data
-from backend.src.daemon.abstract_carbon_daemon import main as CarbonDaemon
+from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
 
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.virtual_machine import VirtualMachine
@@ -31,12 +31,10 @@ from backend.tests.services.carbon_service.impact_framework.computation.computat
     compute_storage_operational_helper,
 )
 
-from backend.src.daemon.abstract_carbon_daemon import (
+from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonResult,
-    main,
+    CarbonDaemonOrchestrator,
 )
-
-from backend.src.daemon.carbon_daemon_vm import CarbonDaemonVM
 
 # Adjust the Python path
 project_root = os.path.abspath(
@@ -222,22 +220,22 @@ def test_carbon_daemon_with_sample_data(
 
     with (
         patch(
-            "backend.src.daemon.abstract_carbon_daemon.DefaultReaderFactory"
-        ) as mock_reader_factory_class,
+            "backend.src.daemon.readers.abstract_reader.AbstractReader"
+        ) as mock_reader_abstract_class,
         patch(
-            "backend.src.daemon.abstract_carbon_daemon.DefaultWriterFactory"
-        ) as mock_writer_factory_class,
+            "backend.src.daemon.writers.abstract_writer.AbstractWriter"
+        ) as mock_writer_abstract_class,
     ):
         # Set up reader mock to return sample VMs
-        mock_reader_factory = MagicMock()
-        mock_reader_factory_class.return_value = mock_reader_factory
+        mock_reader_abstract = MagicMock()
+        mock_reader_abstract_class.return_value = mock_reader_abstract
         mock_reader = MagicMock()
-        mock_reader.read_files.return_value = sample_vms
-        mock_reader_factory.create_reader.return_value = mock_reader
+        mock_reader.read.return_value = sample_vms
+        mock_reader_abstract.create_reader.return_value = mock_reader
 
         # Set up writer mock to capture processed VMs
-        mock_writer_factory = MagicMock()
-        mock_writer_factory_class.return_value = mock_writer_factory
+        mock_writer_abstract = MagicMock()
+        mock_writer_abstract_class.return_value = mock_writer_abstract
         mock_writer = MagicMock()
 
         captured_vms = []
@@ -246,10 +244,10 @@ def test_carbon_daemon_with_sample_data(
             captured_vms.extend(vms)
             return mock_writer
 
-        mock_writer_factory.create_writer.side_effect = capture_vms
+        mock_writer_abstract.create_writer.side_effect = capture_vms
 
-        daemon = CarbonDaemonVM(mock_daemon_config)
-        result = daemon.run()
+        daemon = CarbonDaemonOrchestrator(mock_daemon_config)
+        result = daemon.run_carbon_daemon()
 
         assert result.success is True
         assert result.list_processed_resources == sample_vms
@@ -350,7 +348,7 @@ def test_daemon_with_mocked_components(
         mock_reader_factory = MagicMock()
         mock_reader_factory_class.return_value = mock_reader_factory
         mock_reader = MagicMock()
-        mock_reader.read_files.return_value = test_vms
+        mock_reader.read.return_value = test_vms
         mock_reader_factory.create_reader.return_value = mock_reader
 
         mock_writer_factory = MagicMock()
@@ -371,7 +369,7 @@ def test_daemon_with_mocked_components(
         assert result.error_message == ""
 
         mock_reader_factory.create_reader.assert_called_once_with(mock_daemon_config)
-        mock_reader.read_files.assert_called_once()
+        mock_reader.read.assert_called_once()
         mock_carbon_service.run_engine.assert_called_once_with(test_vms)
         mock_writer_factory.create_writer.assert_called_once_with(
             mock_daemon_config, processed_vms
@@ -418,7 +416,7 @@ def test_daemon_computation_integration(
         mock_reader_factory = MagicMock()
         mock_reader_factory_class.return_value = mock_reader_factory
         mock_reader = MagicMock()
-        mock_reader.read_files.return_value = [test_vm]
+        mock_reader.read.return_value = [test_vm]
         mock_reader_factory.create_reader.return_value = mock_reader
 
         mock_writer_factory = MagicMock()

@@ -1,24 +1,24 @@
-
 from __future__ import annotations
 
 import logging
 import time
 from abc import ABC, abstractmethod
 
-from backend.src.daemon.writers.writer_factory import (
-    DefaultWriterFactory,
-    WriterFactory,
-)
+# from backend.src.daemon.writers.writer_factory import (
+#    DefaultWriterFactory,
+#    WriterFactory,
+# )
 
 from backend.src.common.constants import (
     CARMEN_LOGO,
 )
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig, config
-from backend.src.daemon.readers.reader_factory import (
-    DefaultReaderFactory,
-    ReaderFactory,
-)
+
+# from backend.src.daemon.readers.reader_factory import (
+#    DefaultReaderFactory,
+#    ReaderFactory,
+# )
 from backend.src.schemas.resource import Resource, ResourceType
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,13 @@ class ResourceDaemonResult:
         self.execution_time: float = execution_time
         self.error_message: str = error_message
 
-    def create_ResourceDaemonResult(self, success, execution_time, resourceType: ResourceType, processed_resources: list[Resource]) -> CarbonDaemonResult:
+    def create_ResourceDaemonResult(
+        self,
+        success,
+        execution_time,
+        resourceType: ResourceType,
+        processed_resources: list[Resource],
+    ) -> CarbonDaemonResult:
         """
         Create a ResourceDaemonResult from the list of processed resources.
 
@@ -88,22 +94,18 @@ class ResourceDaemonResult:
         list_processed_resources = list[processed_resources]
 
         total_carbon_operational = sum(
-            resource.total_carbon_operational
-            for resource in processed_resources
+            resource.total_carbon_operational for resource in processed_resources
         )
 
         total_carbon_embodied = sum(
-            resource.total_carbon_embodied
-            for resource in processed_resources
+            resource.total_carbon_embodied for resource in processed_resources
         )
 
         total_carbon_emitted = sum(
-            resource.total_carbon_emitted
-            for resource in processed_resources
+            resource.total_carbon_emitted for resource in processed_resources
         )
         total_energy_consumed = sum(
-            resource.total_energy_consumed
-            for resource in processed_resources
+            resource.total_energy_consumed for resource in processed_resources
         )
         result = ResourceDaemonResult(
             success=True,
@@ -113,7 +115,7 @@ class ResourceDaemonResult:
             total_carbon_operational=total_carbon_operational,
             total_carbon_embodied=total_carbon_embodied,
             total_carbon_emitted=total_carbon_emitted,
-            execution_time=execution_time
+            execution_time=execution_time,
         )
 
         return result

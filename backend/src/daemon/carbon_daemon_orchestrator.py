@@ -22,33 +22,32 @@ from backend.src.common.constants import (
 from backend.src.common.known_exception import KnownException
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig, config
-from backend.src.daemon.abstract_carbon_daemon import (
-    CarbonDaemonResult,
-)
 from backend.src.daemon.carbon_daemon_result import (
+    CarbonDaemonResult,
     ResourceDaemonResult,
 )
-from backend.src.daemon.readers.reader_factory import (
-    DefaultReaderFactory,
-    ReaderFactory,
-)
-from backend.src.daemon.writers.writer_factory import (
-    DefaultWriterFactory,
-    WriterFactory,
-)
+
+# from backend.src.daemon.readers.abstract_reader import (
+#    ReaderCompute,
+#    ReaderStorage,
+# )
+# from backend.src.daemon.writers.abstract_writer import (
+#    ComputeWriter,
+# )
 from backend.src.schemas.resource import Resource, ResourceType
-from backend.src.daemon.abstract_carbon_daemon_processor import AbstractCarbonDaemonProcessor
+from backend.src.daemon.processors.abstract_processor import (
+    AbstractCarbonDaemonProcessor,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonOrchestrator():
+class CarbonDaemonOrchestrator:
     def __init__(
         self,
         daemon_config: DaemonConfig,
-        reader_factory: ReaderFactory | None = None,
-        writer_factory: WriterFactory | None = None,
-        list_carbon_daemon_resource_processors: list[AbstractCarbonDaemonProcessor] | None = None,
+        list_carbon_daemon_resource_processors: list[AbstractCarbonDaemonProcessor]
+        | None = None,
     ):
         """
         Initialize the carbon daemon.
@@ -59,10 +58,10 @@ class CarbonDaemonOrchestrator():
             writer_factory: Factory for creating writer instances (optional)
         """
         self.config: DaemonConfig = daemon_config
-        self.reader_factory: ReaderFactory = reader_factory or DefaultReaderFactory()
-        self.writer_factory: WriterFactory = writer_factory or DefaultWriterFactory()
 
-        self.list_carbon_daemon_resource_processors: list[AbstractCarbonDaemonProcessor] = list_carbon_daemon_resource_processors
+        self.list_carbon_daemon_resource_processors: list[
+            AbstractCarbonDaemonProcessor
+        ] = list_carbon_daemon_resource_processors
         self.carbon_daemon_result: CarbonDaemonResult = None
 
         register_models()
@@ -137,21 +136,21 @@ class CarbonDaemonOrchestrator():
         try:
             logger.info("Starting data source reading")
 
-            for carbon_daemon_resource_processor in self.list_carbon_daemon_resource_processors:
-                carbon_daemon_resource_processor.reader.read_files()
+            for (
+                carbon_daemon_resource_processor
+            ) in self.list_carbon_daemon_resource_processors:
+                carbon_daemon_resource_processor.reader.read()
 
             read_time = time.time() - read_start_time
             logger.info(
                 "Source data reading completed. Retrieved %d resources of type %s in %.2f seconds",
-                #len(resources),
+                # len(resources),
                 ResourceType,
                 read_time,
             )
 
         except Exception:
-            logger.error(
-                "Failed to read data source"
-            )
+            logger.error("Failed to read data source")
             raise
 
     def run_engine(self):
@@ -159,18 +158,29 @@ class CarbonDaemonOrchestrator():
 
         dict_resource_daemon_result = dict[ResourceType, ResourceDaemonResult]
         # Iterate on each Resource Carbon Daemon Processor
-        for carbon_daemon_resource_processor in self.list_carbon_daemon_resource_processors:
+        for (
+            carbon_daemon_resource_processor
+        ) in self.list_carbon_daemon_resource_processors:
             resource_daemon_result = carbon_daemon_resource_processor.run()
 
             # Populate Daemon Carbon Result with Resource result
-            dict_resource_daemon_result[carbon_daemon_resource_processor.resourceType, resource_daemon_result]
+            dict_resource_daemon_result[
+                carbon_daemon_resource_processor.resourceType, resource_daemon_result
+            ]
 
         # End of loop, store complete execution time
         execution_time = time.time() - start_time
-        self.carbon_daemon_result = self.create_carbon_daemon_result(success=True, execution_time=execution_time, dict_resource_results=dict_resource_daemon_result)
+        self.carbon_daemon_result = self.create_carbon_daemon_result(
+            success=True,
+            execution_time=execution_time,
+            dict_resource_results=dict_resource_daemon_result,
+        )
 
     def create_carbon_daemon_result(
-        self, success, execution_time, dict_resource_results: dict[ResourceType, ResourceDaemonResult]
+        self,
+        success,
+        execution_time,
+        dict_resource_results: dict[ResourceType, ResourceDaemonResult],
     ) -> CarbonDaemonResult:
         """
         Create a CarbonDaemonResult from the list of processed resources.
@@ -206,7 +216,6 @@ class CarbonDaemonOrchestrator():
 
         return result
 
-
     def write_results(
         self,
     ):
@@ -226,8 +235,6 @@ class CarbonDaemonOrchestrator():
         #     list_row_headers = list[str]
         #     list_content = list[str]
 
-
-
         #     # Data from CarbonDaemonResult: total_operational_carbon, etc
         #     # Total from calcultation.from CarbonDaemonResult
         #     # global_results_writer.write()
@@ -235,13 +242,11 @@ class CarbonDaemonOrchestrator():
         #     # Columns for each source
         #     # source_related_writer.write()
 
-
         # # TODO: Implement loop on all active resource runners
         #     for writer in list_active_writers:
         #         # call each storage writer to get rows
         #         list_row_headers.append(writer.build_rows_headers())
         #         list_content.append(writer.build_content())
-
 
         #     # Write Row headers and content
         #     writer_orchestrator.writerows(list_row_headers)
@@ -251,18 +256,17 @@ class CarbonDaemonOrchestrator():
         #         writer_orchestrator.writerow(row)
 
         # elapsed_time = time.time() - start
-#       #   logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
-#       #   logging.info("Total energy consumed: %.2f kWh", vm_energy)
-        # logger.info("CSV report created in %.2f seconds", elapsed_time)
-        # logger.info(
-        #     "  Resources: %d resources",
-        #     len(resources),
-        # )
-        # logger.info("Report saved to: %s", self.out_file)
 
-    def write_result_report(
-        self
-    ) -> None:
+    #       #   logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
+    #       #   logging.info("Total energy consumed: %.2f kWh", vm_energy)
+    # logger.info("CSV report created in %.2f seconds", elapsed_time)
+    # logger.info(
+    #     "  Resources: %d resources",
+    #     len(resources),
+    # )
+    # logger.info("Report saved to: %s", self.out_file)
+
+    def write_result_report(self) -> None:
         """
         Write processed results using the configured writer.
 
@@ -272,29 +276,28 @@ class CarbonDaemonOrchestrator():
         Raises:
             Exception: If writing fails
         """
-#         write_start_time = time.time()
-# 
-#         try:
-#             logger.info("starting result upload for %d resources",
-#                         len(carbonDaemonResult.dict_resource_daemon_result.values()))
-# 
-#             writer = self.writer_factory.create_writer(self.config, carbonDaemonResult)
-# 
-#             self.writer_factory.create_CO2_report()
-# 
-#             # TODO: Create an uploader to upload report
-#             writer.upload_compute_report()
-# 
-#             write_time = time.time() - write_start_time
-#             logger.info("results uploaded successfully in %.2f seconds", write_time)
-# 
-#         except Exception as e:
-#             logger.error("failed to write results: %s", str(e))
-#             raise
 
-    def upload_compute_report(
-            self
-    ) -> None:
+    #         write_start_time = time.time()
+    #
+    #         try:
+    #             logger.info("starting result upload for %d resources",
+    #                         len(carbonDaemonResult.dict_resource_daemon_result.values()))
+    #
+    #             writer = self.writer_factory.create_writer(self.config, carbonDaemonResult)
+    #
+    #             self.writer_factory.create_CO2_report()
+    #
+    #             # TODO: Create an uploader to upload report
+    #             writer.upload_compute_report()
+    #
+    #             write_time = time.time() - write_start_time
+    #             logger.info("results uploaded successfully in %.2f seconds", write_time)
+    #
+    #         except Exception as e:
+    #             logger.error("failed to write results: %s", str(e))
+    #             raise
+
+    def upload_compute_report(self) -> None:
         pass
 
 
@@ -307,9 +310,11 @@ def main() -> None:
     """
     try:
         logger.info(CARMEN_LOGO)
-        #list_carbon_daemon_resource_processors = [CarbonDaemonVMProcessor(AZURE), StorageProcessor]
-        daemon = CarbonDaemonOrchestrator(list_carbon_daemon_resource_processors=list_carbon_daemon_resource_processors)
-       #  AbstractCarbonDaemon(config.carmen_daemon)
+        # list_carbon_daemon_resource_processors = [CarbonDaemonVMProcessor(AZURE), StorageProcessor]
+        daemon = CarbonDaemonOrchestrator(
+            list_carbon_daemon_resource_processors=list_carbon_daemon_resource_processors
+        )
+        # AbstractCarbonDaemon(config.carmen_daemon)
 
         result = daemon.run_carbon_daemon()
 

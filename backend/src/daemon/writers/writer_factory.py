@@ -1,4 +1,3 @@
-
 """
 Carbon daemon for processing infrastructure resources and generating carbon emission reports.
 
@@ -14,7 +13,7 @@ import csv
 from typing import Protocol, runtime_checkable
 
 from backend.src.common.constants import (
-    ResourceType,
+    #    ResourceType,
     UploadType,
 )
 from backend.src.core.yaml_config_loader import DaemonConfig
@@ -23,7 +22,7 @@ from backend.src.daemon.writers.compute.azure_compute_writer import AzureCompute
 from backend.src.daemon.writers.compute.compute_writer import ComputeWriter
 from backend.src.daemon.writers.compute.local_compute_writer import LocalComputeWriter
 from backend.src.schemas.resource import Resource
-from backend.src.daemon.abstract_carbon_daemon import CarbonDaemonResult
+from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonResult
 
 logger = logging.getLogger(__name__)
 
@@ -33,17 +32,16 @@ class WriterFactory(Protocol):
     """Protocol for writer factory implementations."""
 
     def create_writer(
-        self, daemon_config: DaemonConfig,
-        carbonDaemonResult: CarbonDaemonResult
+        self, daemon_config: DaemonConfig, carbonDaemonResult: CarbonDaemonResult
     ) -> list[ComputeWriter]:
         """Create a writer instance based on configuration."""
+
 
 class DefaultWriterFactory:
     """Default factory for creating writer instances."""
 
     def create_writer(
-        self, daemon_config: DaemonConfig,
-        carbonDaemonResult: CarbonDaemonResult
+        self, daemon_config: DaemonConfig, carbonDaemonResult: CarbonDaemonResult
     ) -> list[ComputeWriter]:
         """
         Create a writer based on daemon configuration.
@@ -59,16 +57,23 @@ class DefaultWriterFactory:
             ValueError: If unsupported upload type is specified
         """
         listComputeWriter = list[ComputeWriter]()
-        for resourceType, resources in carbonDaemonResult.dict_processed_resources.items():
-            if (resourceType == ResourceType.VIRTUAL_MACHINE):
+        for (
+            resourceType,
+            resources,
+        ) in carbonDaemonResult.dict_processed_resources.items():
+            if resourceType == ResourceType.VIRTUAL_MACHINE:
                 upload_type = daemon_config.upload.type.lower()
 
                 if upload_type == UploadType.AZURE.value:
-                    listComputeWriter.append(AzureComputeWriter(resources, daemon_config))
+                    listComputeWriter.append(
+                        AzureComputeWriter(resources, daemon_config)
+                    )
                 if upload_type == UploadType.LOCAL.value:
-                    listComputeWriter.append(LocalComputeWriter(resources, daemon_config))
+                    listComputeWriter.append(
+                        LocalComputeWriter(resources, daemon_config)
+                    )
             # elif (resourceType == ResourceType.STORAGE):
-                    #listComputeWriter.append(StorageWriter(resources, daemon_config))
+            # listComputeWriter.append(StorageWriter(resources, daemon_config))
 
         return listComputeWriter
 

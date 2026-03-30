@@ -1,4 +1,3 @@
-
 """
 Carbon daemon for processing infrastructure resources and generating carbon emission reports.
 
@@ -16,9 +15,6 @@ from backend.src.common.constants import (
     DAILY_SECONDS,
 )
 from backend.src.common.known_exception import KnownException
-from backend.src.daemon.abstract_carbon_daemon import (
-    ResourceDaemonResult,
-)
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.storage_resource import StorageResource
@@ -46,11 +42,15 @@ class CarbonDaemonRunnerStorage(AbstractRunner):
         try:
             logger.info("Starting Storage runner execution")
 
-            processed_storage_resources = self.process_carbon_calculations(list_resources_to_process)
+            processed_storage_resources = self.process_carbon_calculations(
+                list_resources_to_process
+            )
 
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_ResourceDaemonResult(True, execution_time, processed_storage_resources)
+            resourceDaemonResult = self.create_ResourceDaemonResult(
+                True, execution_time, processed_storage_resources
+            )
 
             logger.info(
                 "Storage processing : %d storage resources processed, "

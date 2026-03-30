@@ -41,12 +41,14 @@ class TestCarbonDaemonComponents(unittest.TestCase):
 
     @patch("backend.src.daemon.carbon_daemon.register_models")
     @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
-    def test_daemon_run_compute_vms_success(self, mock_ioc_util_resolve, mock_register_models):
+    def test_daemon_run_compute_vms_success(
+        self, mock_ioc_util_resolve, mock_register_models
+    ):
         """
         Test successful daemon execution with mocked reader, writer, and carbon service.
         """
         mock_reader = MagicMock()
-        mock_reader.read_files.return_value = self.sample_vms.copy()
+        mock_reader.read.return_value = self.sample_vms.copy()
 
         mock_writer = MagicMock()
 
@@ -81,7 +83,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
 
         mock_register_models.assert_called_once()
         mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
-        mock_reader.read_files.assert_called_once()
+        mock_reader.read.assert_called_once()
         mock_ioc_util_resolve.assert_called_once_with(CarbonService, "IFVm", 3600)
         mock_carbon_service.run_engine.assert_called_once_with(self.sample_vms)
         mock_writer_factory.create_writer.assert_called_once_with(
@@ -95,7 +97,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         Test daemon execution when no VMs are found in data source.
         """
         mock_reader = MagicMock()
-        mock_reader.read_files.return_value = []
+        mock_reader.read.return_value = []
 
         mock_reader_factory = MagicMock()
         mock_reader_factory.create_reader.return_value = mock_reader
@@ -121,7 +123,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         Test daemon execution when reader raises an exception.
         """
         mock_reader = MagicMock()
-        mock_reader.read_files.side_effect = Exception("Reader failed")
+        mock_reader.read.side_effect = Exception("Reader failed")
 
         mock_reader_factory = MagicMock()
         mock_reader_factory.create_reader.return_value = mock_reader
@@ -150,7 +152,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         Test daemon execution when carbon service raises an exception.
         """
         mock_reader = MagicMock()
-        mock_reader.read_files.return_value = self.sample_vms.copy()
+        mock_reader.read.return_value = self.sample_vms.copy()
 
         mock_carbon_service = MagicMock()
         mock_carbon_service.run_engine.side_effect = Exception("Carbon service failed")
@@ -184,7 +186,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         Test daemon execution when a ConfigurationError is raised.
         """
         mock_reader = MagicMock()
-        mock_reader.read_files.side_effect = ConfigurationError(
+        mock_reader.read.side_effect = ConfigurationError(
             ErrorCode.CONFIG_INVALID_FILE, details="Known error occurred"
         )
 
