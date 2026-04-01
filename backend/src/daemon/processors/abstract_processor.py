@@ -46,7 +46,6 @@ class AbstractCarbonDaemonProcessor(ABC):
         self.list_resources_to_process = list[Resource] | None
         self.resource_daemon_result: ResourceDaemonResult | None
 
-    @abstractmethod
     def read(self) -> list[Resource]:
         """
         Call the associated Reader to read data source.
@@ -55,7 +54,6 @@ class AbstractCarbonDaemonProcessor(ABC):
         """
         self.list_resources_to_process = self.reader.read()
 
-    @abstractmethod
     def run(self) -> ResourceDaemonResult:
         """
         Execute the workflow dedicated to a given Resource.
