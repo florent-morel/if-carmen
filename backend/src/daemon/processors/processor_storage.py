@@ -29,7 +29,7 @@ class Processor_Storage(AbstractProcessor):
 
         Args:
         """
-        super.resource_type = ResourceType.STORAGE
+        self.resource_type = ResourceType.STORAGE
 
         super.reader = Reader_Storage(self.daemon_config)
         super.runner = Runner_Storage()
