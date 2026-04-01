@@ -26,7 +26,7 @@ from backend.src.schemas.resource import Resource, ResourceType
 logger = logging.getLogger(__name__)
 
 
-class AbstractCarbonDaemonProcessor(ABC):
+class AbstractProcessor(ABC):
     def __init__(self, config: DaemonConfig):
         """
         Initialize the abstract carbon daemon processor.

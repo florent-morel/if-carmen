@@ -3,17 +3,17 @@ from __future__ import annotations
 import logging
 
 from backend.src.daemon.processors.abstract_processor import (
-    AbstractCarbonDaemonProcessor,
+    AbstractProcessor,
 )
 
-from backend.src.daemon.readers.reader_storage import ReaderStorage
-from backend.src.daemon.runners.runner_storage import CarbonDaemonRunnerStorage
+from backend.src.daemon.readers.reader_storage import Reader_Storage
+from backend.src.daemon.runners.runner_storage import CarbonDaemonRunner_Storage
 from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonProcessorStorage(AbstractCarbonDaemonProcessor):
+class Processor_Storage(AbstractProcessor):
     """
     Main daemon class responsible for orchestrating carbon emission calculations.
 
@@ -31,7 +31,7 @@ class CarbonDaemonProcessorStorage(AbstractCarbonDaemonProcessor):
         """
         super.resource_type = ResourceType.STORAGE
 
-        super.reader = ReaderStorage(self.daemon_config)
-        super.runner = CarbonDaemonRunnerStorage()
+        super.reader = Reader_Storage(self.daemon_config)
+        super.runner = CarbonDaemonRunner_Storage()
         # TODO: Implement writers
         # self.writer: AbstractWriter

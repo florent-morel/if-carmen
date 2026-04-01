@@ -29,14 +29,14 @@ from backend.src.daemon.carbon_daemon_result import (
 
 # from backend.src.daemon.readers.abstract_reader import (
 #    Reader_Compute,
-#    ReaderStorage,
+#    Reader_Storage,
 # )
 # from backend.src.daemon.writers.abstract_writer import (
 #    ComputeWriter,
 # )
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.daemon.processors.abstract_processor import (
-    AbstractCarbonDaemonProcessor,
+    AbstractProcessor,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,8 +46,7 @@ class CarbonDaemonOrchestrator:
     def __init__(
         self,
         daemon_config: DaemonConfig,
-        list_carbon_daemon_resource_processors: list[AbstractCarbonDaemonProcessor]
-        | None = None,
+        list_carbon_daemon_resource_processors: list[AbstractProcessor] | None = None,
     ):
         """
         Initialize the carbon daemon.
@@ -60,7 +59,7 @@ class CarbonDaemonOrchestrator:
         self.config: DaemonConfig = daemon_config
 
         self.list_carbon_daemon_resource_processors: list[
-            AbstractCarbonDaemonProcessor
+            AbstractProcessor
         ] = list_carbon_daemon_resource_processors
         self.carbon_daemon_result: CarbonDaemonResult = None
 

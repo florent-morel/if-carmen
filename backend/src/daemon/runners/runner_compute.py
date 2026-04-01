@@ -17,7 +17,7 @@ from backend.src.utils import ioc_util
 logger = logging.getLogger(__name__)
 
 
-class RunnerCompute(AbstractRunner):
+class Runner_Compute(AbstractRunner):
     """
     Implementation of the Runner for the Virtual Machine Type.
     """

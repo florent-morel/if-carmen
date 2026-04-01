@@ -24,7 +24,7 @@ from backend.src.utils import ioc_util
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonRunnerStorage(AbstractRunner):
+class CarbonDaemonRunner_Storage(AbstractRunner):
     """
     Implementation of the Runner for the Storage Resource Type.
     """

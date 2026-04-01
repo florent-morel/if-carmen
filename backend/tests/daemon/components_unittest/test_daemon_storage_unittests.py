@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrator
-from backend.src.daemon.processors.processor_storage import CarbonDaemonProcessorStorage
+from backend.src.daemon.processors.processor_storage import Processor_Storage
 
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
@@ -104,9 +104,7 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         #     reader_factory=mock_reader_factory,
         #     writer_factory=mock_writer_factory,
         # )
-        orchestrator = CarbonDaemonOrchestrator(
-            self.mock_config, [CarbonDaemonProcessorStorage()]
-        )
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [Processor_Storage()])
 
         # carbonDaemonResult = daemon.process_carbon_calculations(processed_storage)
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()

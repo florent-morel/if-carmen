@@ -16,7 +16,7 @@ import unittest
 from backend.src.common.constants import PUE_AZURE
 from backend.tests.daemon import mock_data
 from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
-from backend.src.daemon.processors.processor_compute import CarbonDaemonProcessorCompute
+from backend.src.daemon.processors.processor_compute import Processor_Compute
 
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.virtual_machine import VirtualMachine
@@ -251,7 +251,7 @@ def test_carbon_daemon_with_sample_data(
         daemon = CarbonDaemonOrchestrator(
             mock_daemon_config,
             list_carbon_daemon_resource_processors=[
-                CarbonDaemonProcessorCompute(mock_daemon_config)
+                Processor_Compute(mock_daemon_config)
             ],
         )
         result = daemon.orchestrate_carbon_daemon()
