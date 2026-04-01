@@ -31,7 +31,7 @@ class CarbonDaemonProcessorStorage(AbstractCarbonDaemonProcessor):
         """
         self.resource_type = ResourceType.STORAGE
 
-        self.reader: StorageReader()  # TODO: init from source type
+        self.reader: ReaderStorage()
         self.runner: CarbonDaemonRunnerStorage()
         # TODO: Implement writers
         # self.writer: AbstractWriter
