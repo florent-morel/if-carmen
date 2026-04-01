@@ -22,6 +22,15 @@ class Runner_Compute(AbstractRunner):
     Implementation of the Runner for the Virtual Machine Type.
     """
 
+    def __init__(self):
+        self.resource_daemon_result: ResourceDaemonResult | None
+
+    #
+    # Resources built by the reader to be handled by the runner
+    @property
+    def resource_daemon_result(self) -> ResourceDaemonResult | None:
+        return self.resource_daemon_result
+
     def run(self, list_resources_to_process: list[Resource]) -> ResourceDaemonResult:
         """
         Run the Impact Framework and build result for Virtual Machines Resource Type.

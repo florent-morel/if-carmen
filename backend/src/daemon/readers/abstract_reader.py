@@ -25,6 +25,11 @@ class AbstractReader(ABC):
 
         """
 
+    @property
+    @abstractmethod
+    def list_resources_to_process(self) -> list[Resource] | None:
+        pass
+
     @abstractmethod
     def read(self) -> list[Resource]:
         """

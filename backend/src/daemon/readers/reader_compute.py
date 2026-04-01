@@ -15,7 +15,15 @@ from backend.src.daemon.readers.helpers.daemon_helpers import (
     create_vm,
 )
 from backend.src.schemas.virtual_machine import VirtualMachine
+from backend.src.schemas.resource import Resource
 from backend.src.utils.helpers import str_to_float
+from backend.src.common.known_exception import (
+    KnownException,
+)
+from backend.src.common.errors import ErrorCode
+from backend.src.daemon.readers.helpers.daemon_helpers import (
+    log_missing_regions,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +35,9 @@ class Reader_Compute(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
-        logger.info("initializing local compute reader strategy")
+        logger.info("initializing local compute reader.")
 
+        self.list_resources_to_process: list[Resource]
         # These are guaranteed to be non-None after config loader validation
         # Resolve path to absolute to handle relative paths correctly
         self.source_path: Path = Path(
@@ -42,13 +51,9 @@ class Reader_Compute(AbstractReader):
             len(self.file_names),
         )
 
-    def read(self) -> list[VirtualMachine]:
-        """
-        Read and process files to extract virtual machine information.
-
-        Returns:
-            list[VirtualMachine]: List of virtual machines extracted from the data source.
-        """
+    @property
+    def list_resources_to_process(self) -> list[Resource] | None:
+        return self.list_resources_to_process
 
     def process_csv_data(
         self,

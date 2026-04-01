@@ -104,8 +104,8 @@ def create_error_response(
     error_code: str,
     category: str,
     message: str,
-    details: Dict[str, Any] = None,
-) -> Dict[str, Any]:
+    details: dict[str, Any] = None,
+) -> dict[str, Any]:
     """
     Create a standardized error response structure.
 
@@ -163,7 +163,7 @@ async def known_exception_handler(
         )
 
     # Build details dictionary
-    details: Dict[str, Any] = {}
+    details: dict[str, Any] = {}
 
     # Add exception-specific details
     if hasattr(exc, "missing") and exc.missing:
@@ -318,7 +318,7 @@ def raise_http_error(
     error_code: str,
     category: str,
     message: str,
-    details: Dict[str, Any] = None,
+    details: dict[str, Any] = None,
 ) -> None:
     """
     Raise an HTTPException with standardized error format.

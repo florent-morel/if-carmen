@@ -8,6 +8,7 @@ import logging
 from pydantic import ValidationError
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
+from backend.src.schemas.resource import Resource
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.readers.helpers.storage_helpers import (
     calculation_period_days,
@@ -25,6 +26,11 @@ class Reader_Storage(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
+        self.list_resources_to_process: list[Resource]
+
+    @property
+    def list_resources_to_process(self) -> list[Resource] | None:
+        return self.list_resources_to_process
 
     def read(self) -> list[StorageResource]:
         """

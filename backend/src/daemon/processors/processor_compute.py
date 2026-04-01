@@ -9,10 +9,13 @@ from backend.src.daemon.processors.abstract_processor import (
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.readers.reader_compute import Reader_Compute
 from backend.src.daemon.runners.runner_compute import Runner_Compute
-from backend.src.schemas.resource import ResourceType
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
+from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.daemon.carbon_daemon_result import (
+    ResourceDaemonResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +56,8 @@ class Processor_Compute(AbstractProcessor):
         return None
 
     def list_resources_to_process(self) -> list[Resource] | None:
-        pass
+        return self._reader.list_resources_to_process
 
     # Resources built by the reader to be handled by the runner
     def resource_daemon_result(self) -> ResourceDaemonResult | None:
-        pass
+        return self._runner.resource_daemon_result

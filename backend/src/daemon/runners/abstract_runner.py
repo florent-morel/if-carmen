@@ -34,6 +34,11 @@ class AbstractRunner(ABC):
         Returns:
             ResourceDaemonResult containing execution results
         """
+    # Resources built by the reader to be handled by the runner
+    @property
+    @abstractmethod
+    def resource_daemon_result(self) -> ResourceDaemonResult | None:
+        pass
 
     @abstractmethod
     def process_carbon_calculations(
