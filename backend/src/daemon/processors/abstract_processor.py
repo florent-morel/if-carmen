@@ -27,6 +27,28 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractProcessor(ABC):
+
+    @property
+    @abstractmethod
+    def resource_type(self) -> ResourceType:
+        pass
+
+    @property
+    @abstractmethod
+    def reader(self) -> AbstractReader:
+        pass
+
+    @property
+    @abstractmethod
+    def runner(self) -> AbstractRunner:
+        pass
+
+    @property
+    @abstractmethod
+    def writer(self) -> AbstractWriter:
+        pass
+
+
     def __init__(self, config: DaemonConfig):
         """
         Initialize the abstract carbon daemon processor.
@@ -35,11 +57,6 @@ class AbstractProcessor(ABC):
             daemon_config: Configuration for daemon operations
             writer_factory: Factory for creating writer instances (optional)
         """
-        self.resource_type: ResourceType
-
-        self.reader: AbstractReader
-        self.runner: AbstractRunner
-        self.writer: AbstractWriter
 
         # Resources built by the reader to be handled by the runner
         self.list_resources_to_process = list[Resource] | None
