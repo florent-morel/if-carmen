@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from enum import Enum
 
-from backend.src.daemon.abstract_carbon_daemon_processor import (
+from backend.src.daemon.processors.abstract_processor import (
     AbstractCarbonDaemonProcessor,
 )
 
@@ -14,6 +14,7 @@ from backend.src.daemon.runners.runner_compute import CarbonDaemonRunnerCompute
 from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
+
 
 class ComputeSourceType(Enum):
     """Supported source types for compute processing."""
@@ -27,10 +28,7 @@ class CarbonDaemonProcessorCompute(AbstractCarbonDaemonProcessor):
     Carbon Daemon processor implementation dedicated to Virtual Machines.
     """
 
-    def __init__(
-        self,
-        source_type: ComputeSourceType, config: DaemonConfig
-    ):
+    def __init__(self, source_type: ComputeSourceType, config: DaemonConfig):
         """
         Initialize carbon daemon processor.
 
@@ -46,7 +44,6 @@ class CarbonDaemonProcessorCompute(AbstractCarbonDaemonProcessor):
         # self.writer: AbstractWriter
 
         def init_reader():
-
             if self.source_type == ComputeSourceType.AZURE:
                 self.reader = ReaderComputeAzure(self.daemon_config)
             if self.source_type == ComputeSourceType.LOCAL:

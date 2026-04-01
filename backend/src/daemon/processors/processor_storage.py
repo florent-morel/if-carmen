@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import logging
 
-from backend.src.daemon.abstract_carbon_daemon_processor import (
+from backend.src.daemon.processors.abstract_processor import (
     AbstractCarbonDaemonProcessor,
 )
 
-from backend.src.daemon.readers.storage_reader import StorageReader
+from backend.src.daemon.readers.reader_storage import ReaderStorage
 from backend.src.daemon.runners.runner_storage import CarbonDaemonRunnerStorage
 from backend.src.schemas.resource import ResourceType
 
@@ -31,7 +31,7 @@ class CarbonDaemonProcessorStorage(AbstractCarbonDaemonProcessor):
         """
         self.resource_type = ResourceType.STORAGE
 
-        self.reader: StorageReader() # TODO: init from source type
+        self.reader: StorageReader()  # TODO: init from source type
         self.runner: CarbonDaemonRunnerStorage()
         # TODO: Implement writers
         # self.writer: AbstractWriter
