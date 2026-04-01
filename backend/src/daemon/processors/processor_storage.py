@@ -25,13 +25,13 @@ class CarbonDaemonProcessorStorage(AbstractCarbonDaemonProcessor):
         self,
     ):
         """
-        Initialize abstract carbon daemon processor.
+        Initialize processor dedicated to storage.
 
         Args:
         """
-        self.resource_type = ResourceType.STORAGE
+        super.resource_type = ResourceType.STORAGE
 
-        self.reader: ReaderStorage(self.daemon_config)
-        self.runner: CarbonDaemonRunnerStorage()
+        super.reader = ReaderStorage(self.daemon_config)
+        super.runner = CarbonDaemonRunnerStorage()
         # TODO: Implement writers
         # self.writer: AbstractWriter

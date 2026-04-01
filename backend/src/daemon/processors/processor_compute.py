@@ -25,10 +25,10 @@ class CarbonDaemonProcessorCompute(AbstractCarbonDaemonProcessor):
 
         Args:
         """
-        self.resource_type = ResourceType.VIRTUAL_MACHINE
-        self.config = config
+        super.resource_type = ResourceType.VIRTUAL_MACHINE
+        super.config = config
 
-        self.reader = Reader_Compute(self.config)
-        self.runner = RunnerCompute()
+        super.reader = Reader_Compute(self.config)
+        super.runner = RunnerCompute()
         # TODO: Implement writers
-        # self.writer: AbstractWriter
+        # super.writer: AbstractWriter
