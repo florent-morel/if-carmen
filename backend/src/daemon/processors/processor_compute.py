@@ -22,12 +22,12 @@ logger = logging.getLogger(__name__)
 
 class Processor_Compute(AbstractProcessor):
     """
-    Carbon Daemon processor implementation dedicated to Virtual Machines.
+    Carbon Daemon processor implementation dedicated to Compute.
     """
 
     def __init__(self, config: DaemonConfig):
         """
-        Initialize carbon daemon processor.
+        Initialize processor dedicated to compute.
 
         Args:
         """
