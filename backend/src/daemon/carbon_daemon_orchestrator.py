@@ -136,18 +136,23 @@ class CarbonDaemonOrchestrator:
         try:
             logger.info("Starting data source reading")
 
-            for (
-                carbon_daemon_resource_processor
-            ) in self.list_carbon_daemon_resource_processors:
-                carbon_daemon_resource_processor.reader.read()
+            if self.list_carbon_daemon_resource_processors:
 
-            read_time = time.time() - read_start_time
-            logger.info(
-                "Source data reading completed. Retrieved %d resources of type %s in %.2f seconds",
-                # len(resources),
-                ResourceType,
-                read_time,
-            )
+                for (
+                    carbon_daemon_resource_processor
+                ) in self.list_carbon_daemon_resource_processors:
+                    logger.info(f"Data source reading by {carbon_daemon_resource_processor.resource_type.value} processor.")
+                    carbon_daemon_resource_processor.reader.read()
+
+                read_time = time.time() - read_start_time
+                logger.info(
+                    "Source data reading completed. Retrieved %d resources of type %s in %.2f seconds",
+                    # len(resources),
+                    ResourceType,
+                    read_time,
+                )
+            else:
+                logger.error("No processor provided.")
 
         except Exception:
             logger.error("Failed to read data source")

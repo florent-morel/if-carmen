@@ -8,7 +8,8 @@ reader/writer patterns, YAML configuration, and the CarbonDaemon orchestration.
 import unittest
 from unittest.mock import MagicMock
 
-from backend.src.daemon.carbon_daemon_storage import CarbonDaemonStorage
+from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrator
+from backend.src.daemon.processors.processor_storage import CarbonDaemonProcessorStorage
 
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
@@ -98,13 +99,18 @@ class TestCarbonDaemonStorage(unittest.TestCase):
 
         # mock_ioc_util_resolve.return_value = mock_carbon_service
 
-        daemon = CarbonDaemonStorage(
+        # daemon = CarbonDaemonStorage(
+        #     self.mock_config,
+        #     reader_factory=mock_reader_factory,
+        #     writer_factory=mock_writer_factory,
+        # )
+        orchestrator = CarbonDaemonOrchestrator(
             self.mock_config,
-            reader_factory=mock_reader_factory,
-            writer_factory=mock_writer_factory,
+            [CarbonDaemonProcessorStorage]
         )
 
-        carbonDaemonResult = daemon.process_carbon_calculations(processed_storage)
+        # carbonDaemonResult = daemon.process_carbon_calculations(processed_storage)
+        carbonDaemonResult = orchestrator.run_carbon_daemon()
 
         listStorageResourceResult = carbonDaemonResult.list_processed_resources
         self.assertEqual(len(listStorageResourceResult), 1)
