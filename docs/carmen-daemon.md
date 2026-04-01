@@ -95,10 +95,3 @@ To run the example, navigate to the `example-data/` directory and execute the fo
 cd example-data/
 carbon-daemon
 ```
-
-
-## Reading and Uploading to Azure Blob Storage
-The daemon currently supports reading from and writing to Azure Blob Storage. To enable this, you must provide the required Azure configuration parameters. Refer to the configuration section of the documentation for details on the necessary settings.
-
-
-

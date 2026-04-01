@@ -22,11 +22,12 @@ from backend.src.schemas.virtual_machine import VirtualMachine
 # from backend.src.services.carbon_service.carbon_service import CarbonService
 
 from backend.src.daemon.carbon_daemon_orchestrator import (
-        CarbonDaemonOrchestrator,
-        CarbonDaemonResult,
+    CarbonDaemonOrchestrator,
+    CarbonDaemonResult,
 )
 from backend.src.daemon.processors.processor_compute import CarbonDaemonProcessorCompute
-from backend.src.daemon.runners.runner_compute import CarbonDaemonRunnerCompute
+from backend.src.daemon.runners.runner_compute import RunnerCompute
+
 
 class TestCarbonDaemonComponents(unittest.TestCase):
     """
@@ -74,8 +75,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         mock_ioc_util_resolve.return_value = mock_carbon_service
 
         orchestrator = CarbonDaemonOrchestrator(
-            self.mock_config,
-            [CarbonDaemonProcessorCompute]
+            self.mock_config, [CarbonDaemonProcessorCompute]
         )
 
         result = orchestrator.orchestrate_carbon_daemon()
@@ -89,7 +89,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         mock_register_models.assert_called_once()
         mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
         mock_reader.read.assert_called_once()
-        mock_ioc_util_resolve.assert_called_once_with(CarbonDaemonRunnerCompute, "IFVm", 3600)
+        mock_ioc_util_resolve.assert_called_once_with(RunnerCompute, "IFVm", 3600)
         mock_carbon_service.run_engine.assert_called_once_with(self.sample_vms)
         mock_writer_factory.create_writer.assert_called_once_with(
             self.mock_config, processed_vms

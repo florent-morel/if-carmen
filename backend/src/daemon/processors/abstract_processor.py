@@ -17,6 +17,7 @@ from abc import ABC, abstractmethod
 from backend.src.daemon.carbon_daemon_result import (
     ResourceDaemonResult,
 )
+from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
@@ -26,9 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractCarbonDaemonProcessor(ABC):
-    def __init__(
-        self,
-    ):
+    def __init__(self, config: DaemonConfig):
         """
         Initialize the abstract carbon daemon processor.
 

@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import logging
@@ -18,7 +17,7 @@ from backend.src.utils import ioc_util
 logger = logging.getLogger(__name__)
 
 
-class CarbonDaemonRunnerCompute(AbstractRunner):
+class RunnerCompute(AbstractRunner):
     """
     Implementation of the Runner for the Virtual Machine Type.
     """
@@ -46,8 +45,9 @@ class CarbonDaemonRunnerCompute(AbstractRunner):
 
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_ResourceDaemonResult(True,
-                                        execution_time, processed_vms)
+            resourceDaemonResult = self.create_ResourceDaemonResult(
+                True, execution_time, processed_vms
+            )
 
             logger.info(
                 "VM Carbon Daemon execution completed successfully. processed %d VMs in %.2f seconds",
@@ -105,7 +105,10 @@ class CarbonDaemonRunnerCompute(AbstractRunner):
         process_start_time = time.time()
 
         try:
-            logger.info("starting carbon calculations for %d VMs", len(list_resources_to_process))
+            logger.info(
+                "starting carbon calculations for %d VMs",
+                len(list_resources_to_process),
+            )
 
             carbon_service = ioc_util.resolve(
                 CarbonService, "IFVm", HOURLY_INTERVAL_SECONDS
@@ -114,7 +117,9 @@ class CarbonDaemonRunnerCompute(AbstractRunner):
             if carbon_service is None:
                 raise RuntimeError("failed to resolve CarbonService from IoC container")
 
-            processed_vms: list[VirtualMachine] = carbon_service.run_engine(list_resources_to_process)
+            processed_vms: list[VirtualMachine] = carbon_service.run_engine(
+                list_resources_to_process
+            )
 
             process_time = time.time() - process_start_time
 

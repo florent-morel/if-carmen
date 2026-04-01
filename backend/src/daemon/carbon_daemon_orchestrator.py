@@ -28,7 +28,7 @@ from backend.src.daemon.carbon_daemon_result import (
 )
 
 # from backend.src.daemon.readers.abstract_reader import (
-#    ReaderCompute,
+#    Reader_Compute,
 #    ReaderStorage,
 # )
 # from backend.src.daemon.writers.abstract_writer import (
