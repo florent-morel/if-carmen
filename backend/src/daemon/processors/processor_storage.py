@@ -7,7 +7,7 @@ from backend.src.daemon.processors.abstract_processor import (
 )
 
 from backend.src.daemon.readers.reader_storage import Reader_Storage
-from backend.src.daemon.runners.runner_storage import CarbonDaemonRunner_Storage
+from backend.src.daemon.runners.runner_storage import Runner_Storage
 from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,6 @@ class Processor_Storage(AbstractProcessor):
         super.resource_type = ResourceType.STORAGE
 
         super.reader = Reader_Storage(self.daemon_config)
-        super.runner = CarbonDaemonRunner_Storage()
+        super.runner = Runner_Storage()
         # TODO: Implement writers
         # self.writer: AbstractWriter
