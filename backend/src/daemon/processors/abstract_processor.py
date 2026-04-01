@@ -59,7 +59,6 @@ class AbstractProcessor(ABC):
     def resource_daemon_result(self) -> ResourceDaemonResult | None:
         pass
 
-
     def __init__(self, config: DaemonConfig):
         """
         Initialize the abstract carbon daemon processor.
@@ -69,14 +68,12 @@ class AbstractProcessor(ABC):
             writer_factory: Factory for creating writer instances (optional)
         """
 
-
     def read(self) -> list[Resource]:
         """
         Call the associated Reader to read data source.
 
         Returns:
         """
-        self.list_resources_to_process = self.reader.read()
 
     def run(self) -> ResourceDaemonResult:
         """
