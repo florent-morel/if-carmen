@@ -46,7 +46,7 @@ class AbstractReader(ABC):
 
         Args:
             missing_region_resource_count (Dict[str, int]): Dictionary with the information of missing regions and
-            the corresponding VM count.
+            the corresponding resources count.
             blob_data (str): The CSV data read from the blob, as a string.
             resource_dict (Dict[str, Resource]): The dictionary containing Resource objects, indexed by their ID.
         Returns:

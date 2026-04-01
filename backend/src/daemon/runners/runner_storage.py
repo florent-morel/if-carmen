@@ -19,6 +19,7 @@ from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.carbon_service import CarbonService
+from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
 from backend.src.utils import ioc_util
 
 logger = logging.getLogger(__name__)

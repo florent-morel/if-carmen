@@ -142,13 +142,13 @@ class CarbonDaemonOrchestrator:
                     logger.info(
                         f"Data source reading by {abstract_processor.resource_type.value} processor."
                     )
-                    abstract_processor.reader.read()
+                    resources = abstract_processor.reader.read()
 
                 read_time = time.time() - read_start_time
                 logger.info(
                     "Source data reading completed. Retrieved %d resources of type %s in %.2f seconds",
-                    # len(resources),
-                    ResourceType,
+                    len(resources),
+                    abstract_processor.resource_type.value,
                     read_time,
                 )
             else:

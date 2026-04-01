@@ -33,6 +33,7 @@ class Reader_Storage(AbstractReader):
         Returns:
             list[StorageResource]: List of storage resources extracted from the data source.
         """
+        self.process_csv_data()
 
     def process_csv_data(
         self,
