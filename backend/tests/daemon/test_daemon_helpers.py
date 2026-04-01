@@ -3,7 +3,7 @@ Unit tests for the daemon_helpers class.
 """
 
 import unittest
-from backend.src.daemon.daemon_helpers import (
+from backend.src.daemon.readers.helpers.daemon_helperss import (
     calculate_vm_count_for_missing_regions,
     log_missing_regions,
 )

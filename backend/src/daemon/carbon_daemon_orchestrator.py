@@ -68,7 +68,7 @@ class CarbonDaemonOrchestrator:
 
         logger.info("Carbon Daemon initialized")
 
-    def run_carbon_daemon(self):
+    def orchestrate_carbon_daemon(self):
         """
         Execute the complete daemon workflow.
 
@@ -137,11 +137,12 @@ class CarbonDaemonOrchestrator:
             logger.info("Starting data source reading")
 
             if self.list_carbon_daemon_resource_processors:
-
                 for (
                     carbon_daemon_resource_processor
                 ) in self.list_carbon_daemon_resource_processors:
-                    logger.info(f"Data source reading by {carbon_daemon_resource_processor.resource_type.value} processor.")
+                    logger.info(
+                        f"Data source reading by {carbon_daemon_resource_processor.resource_type.value} processor."
+                    )
                     carbon_daemon_resource_processor.reader.read()
 
                 read_time = time.time() - read_start_time
@@ -321,7 +322,7 @@ def main() -> None:
         )
         # AbstractCarbonDaemon(config.carmen_daemon)
 
-        result = daemon.run_carbon_daemon()
+        result = daemon.orchestrate_carbon_daemon()
 
         if not result.success:
             logger.error("Daemon execution failed: %s", result.error_message)

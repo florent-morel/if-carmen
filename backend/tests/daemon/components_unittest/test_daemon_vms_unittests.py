@@ -210,7 +210,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         )
 
     @patch(
-        "backend.src.daemon.readers.compute.azure_compute_reader.initialize_azure_client"
+        "backend.src.daemon.readers.compute.reader_compute_azure.initialize_azure_client"
     )
     def test_default_reader_factory_azure(self, mock_azure_client):
         """

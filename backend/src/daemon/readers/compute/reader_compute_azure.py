@@ -9,7 +9,7 @@ from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobClient, ContainerClient
 
 from backend.src.core.yaml_config_loader import DaemonConfig
-from backend.src.daemon.daemon_helpers import log_missing_regions
+from backend.src.daemon.readers.helpers.daemon_helpers import log_missing_regions
 from backend.src.daemon.readers.reader_compute import ReaderCompute
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.azure_utils import (

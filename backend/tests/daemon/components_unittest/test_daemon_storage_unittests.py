@@ -105,12 +105,11 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         #     writer_factory=mock_writer_factory,
         # )
         orchestrator = CarbonDaemonOrchestrator(
-            self.mock_config,
-            [CarbonDaemonProcessorStorage]
+            self.mock_config, [CarbonDaemonProcessorStorage]
         )
 
         # carbonDaemonResult = daemon.process_carbon_calculations(processed_storage)
-        carbonDaemonResult = orchestrator.run_carbon_daemon()
+        carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
         listStorageResourceResult = carbonDaemonResult.list_processed_resources
         self.assertEqual(len(listStorageResourceResult), 1)
@@ -262,7 +261,7 @@ class TestCarbonDaemonStorage(unittest.TestCase):
 #         )
 #
 #     @patch(
-#         "backend.src.daemon.readers.compute.azure_compute_reader.initialize_azure_client"
+#         "backend.src.daemon.readers.compute.reader_compute_azure.initialize_azure_client"
 #     )
 #     def test_default_reader_factory_azure(self, mock_azure_client):
 #         """

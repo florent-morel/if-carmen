@@ -16,6 +16,7 @@ import unittest
 from backend.src.common.constants import PUE_AZURE
 from backend.tests.daemon import mock_data
 from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
+from backend.src.daemon.processors.processor_compute import CarbonDaemonProcessorCompute
 
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.virtual_machine import VirtualMachine
@@ -35,6 +36,7 @@ from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonResult,
     CarbonDaemonOrchestrator,
 )
+
 
 # Adjust the Python path
 project_root = os.path.abspath(
@@ -246,8 +248,11 @@ def test_carbon_daemon_with_sample_data(
 
         mock_writer_abstract.create_writer.side_effect = capture_vms
 
-        daemon = CarbonDaemonOrchestrator(mock_daemon_config)
-        result = daemon.run_carbon_daemon()
+        daemon = CarbonDaemonOrchestrator(
+            mock_daemon_config,
+            list_carbon_daemon_resource_processors=[CarbonDaemonProcessorCompute],
+        )
+        result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True
         assert result.list_processed_resources == sample_vms

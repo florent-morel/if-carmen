@@ -2,10 +2,10 @@
 Compute reader module for reading virtual machine data from various sources.
 """
 
-from backend.src.daemon.readers.compute.azure_compute_reader import (
+from backend.src.daemon.readers.compute.reader_compute_azure import (
     AzureComputeReaderStrategy,
 )
-from backend.src.daemon.readers.compute.local_compute_reader import (
+from backend.src.daemon.readers.compute.reader_compute_local import (
     LocalComputeReaderStrategy,
 )
 
