@@ -51,3 +51,10 @@ class Processor_Compute(AbstractProcessor):
     def writer(self) -> AbstractWriter:
         # TODO: Implement writer
         return None
+
+    def list_resources_to_process(self) -> list[Resource] | None:
+        pass
+
+    # Resources built by the reader to be handled by the runner
+    def resource_daemon_result(self) -> ResourceDaemonResult | None:
+        pass
