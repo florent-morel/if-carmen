@@ -137,12 +137,12 @@ class CarbonDaemonOrchestrator:
 
             if self.list_carbon_daemon_resource_processors:
                 for (
-                    carbon_daemon_resource_processor
+                    abstract_processor
                 ) in self.list_carbon_daemon_resource_processors:
                     logger.info(
-                        f"Data source reading by {carbon_daemon_resource_processor.resource_type.value} processor."
+                        f"Data source reading by {abstract_processor.resource_type.value} processor."
                     )
-                    carbon_daemon_resource_processor.reader.read()
+                    abstract_processor.reader.read()
 
                 read_time = time.time() - read_start_time
                 logger.info(

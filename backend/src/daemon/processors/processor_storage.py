@@ -5,6 +5,7 @@ import logging
 from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
 )
+from backend.src.core.yaml_config_loader import DaemonConfig
 
 from backend.src.daemon.readers.reader_storage import Reader_Storage
 from backend.src.daemon.runners.runner_storage import Runner_Storage
@@ -22,7 +23,7 @@ class Processor_Storage(AbstractProcessor):
     """
 
     def __init__(
-        self,
+        self, config: DaemonConfig
     ):
         """
         Initialize processor dedicated to storage.
@@ -31,7 +32,7 @@ class Processor_Storage(AbstractProcessor):
         """
         self.resource_type = ResourceType.STORAGE
 
-        super.reader = Reader_Storage(self.daemon_config)
-        super.runner = Runner_Storage()
+        super().reader = Reader_Storage(config)
+        super().runner = Runner_Storage()
         # TODO: Implement writers
         # self.writer: AbstractWriter

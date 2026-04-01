@@ -99,14 +99,9 @@ class TestCarbonDaemonStorage(unittest.TestCase):
 
         # mock_ioc_util_resolve.return_value = mock_carbon_service
 
-        # daemon = CarbonDaemonStorage(
-        #     self.mock_config,
-        #     reader_factory=mock_reader_factory,
-        #     writer_factory=mock_writer_factory,
-        # )
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [Processor_Storage()])
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config,
+                                                [Processor_Storage(self.mock_config)])
 
-        # carbonDaemonResult = daemon.process_carbon_calculations(processed_storage)
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
         listStorageResourceResult = carbonDaemonResult.list_processed_resources
