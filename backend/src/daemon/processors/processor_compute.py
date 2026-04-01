@@ -28,24 +28,26 @@ class Processor_Compute(AbstractProcessor):
 
         Args:
         """
-        self.resource_type = ResourceType.VIRTUAL_MACHINE
-        super.config = config
+        super().__init__(config)
 
-        self.reader = Reader_Compute(self.config)
-        self.runner = Runner_Compute()
+        self._reader = Reader_Compute(self.config)
+        self._runner = Runner_Compute()
         # TODO: Implement writers
-        # self.writer: AbstractWriter
-        #
+        # self._writer: AbstractWriter
 
+    @property
     def resource_type(self) -> ResourceType:
-        self.resource_type
+        return ResourceType.VIRTUAL_MACHINE
 
+    @property
     def reader(self) -> AbstractReader:
-        self.reader
+        return self._reader
 
+    @property
     def runner(self) -> AbstractRunner:
-        self.runner
+        return self._runner
 
+    @property
     def writer(self) -> AbstractWriter:
-        # self.writer
+        # TODO: Implement writer
         return None
