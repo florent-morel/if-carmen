@@ -48,6 +48,17 @@ class AbstractProcessor(ABC):
     def writer(self) -> AbstractWriter:
         pass
 
+    @property
+    @abstractmethod
+    def list_resources_to_process(self) -> list[Resource] | None:
+        pass
+
+    # Resources built by the reader to be handled by the runner
+    @property
+    @abstractmethod
+    def resource_daemon_result(self) -> ResourceDaemonResult | None:
+        pass
+
 
     def __init__(self, config: DaemonConfig):
         """
@@ -58,9 +69,6 @@ class AbstractProcessor(ABC):
             writer_factory: Factory for creating writer instances (optional)
         """
 
-        # Resources built by the reader to be handled by the runner
-        self.list_resources_to_process = list[Resource] | None
-        self.resource_daemon_result: ResourceDaemonResult | None
 
     def read(self) -> list[Resource]:
         """
