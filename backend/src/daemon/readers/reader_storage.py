@@ -3,6 +3,7 @@ Storage module for reading and processing compute resource data.
 """
 
 import csv
+import os
 import logging
 
 from pydantic import ValidationError
@@ -26,20 +27,45 @@ class Reader_Storage(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
-        self.list_resources_to_process: list[Resource]
+        self._list_resources_to_process: list[Resource]
 
     @property
     def list_resources_to_process(self) -> list[Resource] | None:
-        return self.list_resources_to_process
+        return self._list_resources_to_process
 
-    def read(self) -> list[StorageResource]:
+    def list_resources_to_process_set(self, list_resources_to_process: list[Resource]):
+        self._list_resources_to_process = list_resources_to_process
+
+    def read(self) -> list[Resource]:
         """
         Read and process files to extract storage resource information.
 
         Returns:
             list[StorageResource]: List of storage resources extracted from the data source.
         """
-        self.process_csv_data()
+        storage_resources = list[Resource]
+        # Local test file
+        local_storage_file = os.getenv("CSV_PATH", "backend/tests/daemon/test_data/storage_test.csv")
+        # Check if file exists before trying to read it
+        if os.path.exists(local_storage_file):
+            with open(local_storage_file, "r", encoding="utf-8") as file:
+                csv_data = file.read()
+            storage_dict = {}
+            self.process_csv_data(csv_data, storage_dict, None)
+            storage_resources = list(storage_dict.values())
+
+            logger.info(
+                "Loaded %d storage resources from local test file",
+                len(storage_resources),
+            )
+        else:
+            logger.warning(
+                "Local test storage file not found, using empty storage list"
+            )
+
+        self.list_resources_to_process_set(list_resources_to_process=storage_resources)
+
+        return self._list_resources_to_process
 
     def process_csv_data(
         self,

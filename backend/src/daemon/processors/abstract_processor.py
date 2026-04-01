@@ -74,6 +74,7 @@ class AbstractProcessor(ABC):
 
         Returns:
         """
+        self.resource_daemon_result = self.reader.read()
 
     def run(self) -> ResourceDaemonResult:
         """
@@ -82,4 +83,8 @@ class AbstractProcessor(ABC):
         Returns:
             ResourceDaemonResult containing execution results
         """
-        self.resource_daemon_result = self.runner.run(self.list_resources_to_process)
+        if self.list_resources_to_process and len(self.list_resources_to_process) > 0:
+            logger.info("list_resources_to_process: %s", self.list_resources_to_process)
+            self.resource_daemon_result = self.runner.run(self.list_resources_to_process)
+        else:
+            logger.error("No resource to process for this runner.")

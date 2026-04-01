@@ -14,14 +14,13 @@ from __future__ import annotations
 
 import logging
 import time
-from abc import ABC, abstractmethod
 
 from backend.src.common.constants import (
     CARMEN_LOGO,
 )
 from backend.src.common.known_exception import KnownException
 from backend.src.core.registrar import register_models
-from backend.src.core.yaml_config_loader import DaemonConfig, config
+from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.carbon_daemon_result import (
     CarbonDaemonResult,
     ResourceDaemonResult,
@@ -34,7 +33,7 @@ from backend.src.daemon.carbon_daemon_result import (
 # from backend.src.daemon.writers.abstract_writer import (
 #    ComputeWriter,
 # )
-from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.schemas.resource import ResourceType
 from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
 )
@@ -122,10 +121,8 @@ class CarbonDaemonOrchestrator:
 
     def read_data_source(self):
         """
-        Read infrastructure data using the configured reader.
-
-        Returns:
-            List of resources from the data source
+        Loops over all configured processors and reads infrastructure data
+        using the configured reader.
 
         Raises:
             Exception: If reading fails
@@ -133,7 +130,7 @@ class CarbonDaemonOrchestrator:
         read_start_time = time.time()
 
         try:
-            logger.info("Starting data source reading")
+            logger.info("Starting data source reading loop for %d processors.", len(self.list_carbon_daemon_resource_processors))
 
             if self.list_carbon_daemon_resource_processors:
                 for (
@@ -142,15 +139,18 @@ class CarbonDaemonOrchestrator:
                     logger.info(
                         f"Data source reading by {abstract_processor.resource_type.value} processor."
                     )
-                    resources = abstract_processor.reader.read()
+                    resources = abstract_processor.read()
 
                 read_time = time.time() - read_start_time
-                logger.info(
-                    "Source data reading completed. Retrieved %d resources of type %s in %.2f seconds",
-                    len(resources),
-                    abstract_processor.resource_type.value,
-                    read_time,
-                )
+                if resources:
+                    logger.info(
+                        "Source data reading completed. Retrieved %d resources of type %s in %.2f seconds",
+                        len(resources),
+                        abstract_processor.resource_type.value,
+                        read_time,
+                    )
+                else:
+                    logger.info("No resource fetch from data source.")
             else:
                 logger.error("No processor provided.")
 
@@ -159,27 +159,45 @@ class CarbonDaemonOrchestrator:
             raise
 
     def run_engine(self):
+        """
+        Loops over all configured processors and runs the Impact Framework
+        using the configured runner.
+
+        Raises:
+            Exception: If running fails
+        """
         start_time = time.time()
-
         dict_resource_daemon_result = dict[ResourceType, ResourceDaemonResult]
-        # Iterate on each Resource Carbon Daemon Processor
-        for (
-            carbon_daemon_resource_processor
-        ) in self.list_carbon_daemon_resource_processors:
-            resource_daemon_result = carbon_daemon_resource_processor.run()
+        try:
+            logger.info("Starting run_engine loop on %d processors.", len(self.list_carbon_daemon_resource_processors))
 
-            # Populate Daemon Carbon Result with Resource result
-            dict_resource_daemon_result[
-                carbon_daemon_resource_processor.resourceType, resource_daemon_result
-            ]
+            # Iterate on each Resource Carbon Daemon Processor
+            for (
+                carbon_daemon_resource_processor
+            ) in self.list_carbon_daemon_resource_processors:
+                resource_daemon_result = carbon_daemon_resource_processor.run()
 
-        # End of loop, store complete execution time
-        execution_time = time.time() - start_time
-        self.carbon_daemon_result = self.create_carbon_daemon_result(
-            success=True,
-            execution_time=execution_time,
-            dict_resource_results=dict_resource_daemon_result,
-        )
+                # Populate Daemon Carbon Result with Resource result
+                dict_resource_daemon_result[
+                    carbon_daemon_resource_processor.resourceType, resource_daemon_result
+                ]
+
+            # End of loop, store complete execution time
+            execution_time = time.time() - start_time
+            self.carbon_daemon_result = self.create_carbon_daemon_result(
+                success=True,
+                execution_time=execution_time,
+                dict_resource_results=dict_resource_daemon_result,
+            )
+        except Exception:
+            logger.error("Failed to run engine for the given processors.")
+            execution_time = time.time() - start_time
+            self.carbon_daemon_result = self.create_carbon_daemon_result(
+                success=False,
+                execution_time=execution_time,
+                dict_resource_results=dict_resource_daemon_result,
+            )
+            raise
 
     def create_carbon_daemon_result(
         self,
