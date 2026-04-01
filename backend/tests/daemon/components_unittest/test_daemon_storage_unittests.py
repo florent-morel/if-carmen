@@ -105,7 +105,7 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         #     writer_factory=mock_writer_factory,
         # )
         orchestrator = CarbonDaemonOrchestrator(
-            self.mock_config, [CarbonDaemonProcessorStorage]
+            self.mock_config, [CarbonDaemonProcessorStorage()]
         )
 
         # carbonDaemonResult = daemon.process_carbon_calculations(processed_storage)
