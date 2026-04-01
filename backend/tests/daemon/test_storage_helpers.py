@@ -5,7 +5,7 @@ Unit tests for storage helpers functions.
 import unittest
 from unittest.mock import MagicMock, patch
 
-from backend.src.daemon.storage_helpers import (
+from backend.src.daemon.readers.helpers.storage_helpers import (
     calculate_storage_size,
     calculation_period_days,
     create_storage_resource,

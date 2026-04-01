@@ -7,7 +7,7 @@ from unittest.mock import patch, mock_open
 
 from backend.src.common.known_exception import KnownException
 from backend.src.core.settings import settings
-from backend.src.daemon.cost_helpers import (
+from backend.src.daemon.readers.helpers.cost_helpers import (
     get_carbon_and_energy_values,
     process_cost_csv,
     create_cost_resource,
