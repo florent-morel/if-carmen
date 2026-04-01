@@ -25,7 +25,7 @@ class Processor_Compute(AbstractProcessor):
 
         Args:
         """
-        super.resource_type = ResourceType.VIRTUAL_MACHINE
+        self.resource_type = ResourceType.VIRTUAL_MACHINE
         super.config = config
 
         super.reader = Reader_Compute(self.config)
