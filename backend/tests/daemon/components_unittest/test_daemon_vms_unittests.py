@@ -12,15 +12,19 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import ConfigurationError, ComputationError
 from backend.src.schemas.virtual_machine import VirtualMachine
 
-from backend.src.daemon.carbon_daemon import (
-    CarbonDaemon,
-    CarbonDaemonResult,
-    DefaultReaderFactory,
-    DefaultWriterFactory,
-    main,
-)
-from backend.src.services.carbon_service.carbon_service import CarbonService
+# from backend.src.daemon.carbon_daemon import (
+#     CarbonDaemon,
+#     CarbonDaemonResult,
+#     DefaultReaderFactory,
+#     DefaultWriterFactory,
+#     main,
+# )
+# from backend.src.services.carbon_service.carbon_service import CarbonService
 
+from backend.src.daemon.carbon_daemon_orchestrator import (
+        CarbonDaemonOrchestrator,
+        CarbonDaemonResult,
+)
 
 class TestCarbonDaemonComponents(unittest.TestCase):
     """
@@ -67,13 +71,12 @@ class TestCarbonDaemonComponents(unittest.TestCase):
 
         mock_ioc_util_resolve.return_value = mock_carbon_service
 
-        daemon = CarbonDaemon(
+        orchestrator = CarbonDaemonOrchestrator(
             self.mock_config,
-            reader_factory=mock_reader_factory,
-            writer_factory=mock_writer_factory,
+            [CarbonDaemonProcessorStorage]
         )
 
-        result = daemon.run()
+        result = orchestrator.run_carbon_daemon()
 
         self.assertIsInstance(result, CarbonDaemonResult)
         self.assertTrue(result.success)
