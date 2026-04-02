@@ -27,7 +27,6 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractProcessor(ABC):
-
     @property
     @abstractmethod
     def resource_type(self) -> ResourceType:
@@ -83,8 +82,12 @@ class AbstractProcessor(ABC):
         Returns:
             ResourceDaemonResult containing execution results
         """
+        self.resource_daemon_result = None
         if self.list_resources_to_process and len(self.list_resources_to_process) > 0:
             logger.info("list_resources_to_process: %s", self.list_resources_to_process)
-            self.resource_daemon_result = self.runner.run(self.list_resources_to_process)
+            self.resource_daemon_result = self.runner.run(
+                self.list_resources_to_process
+            )
         else:
             logger.error("No resource to process for this runner.")
+        return self.resource_daemon_result

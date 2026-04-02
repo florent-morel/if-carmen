@@ -250,9 +250,7 @@ def test_carbon_daemon_with_sample_data(
 
         daemon = CarbonDaemonOrchestrator(
             mock_daemon_config,
-            list_carbon_daemon_resource_processors=[
-                Processor_Compute(mock_daemon_config)
-            ],
+            list_resource_processors=[Processor_Compute(mock_daemon_config)],
         )
         result = daemon.orchestrate_carbon_daemon()
 

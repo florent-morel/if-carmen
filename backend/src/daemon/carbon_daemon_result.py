@@ -30,7 +30,7 @@ class CarbonDaemonResult:
     def __init__(
         self,
         success: bool,
-        dict_resource_daemon_result: dict[ResourceType, [ResourceDaemonResult]],
+        dict_resource_result: dict[ResourceType, [ResourceDaemonResult]],
         total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,
@@ -39,7 +39,7 @@ class CarbonDaemonResult:
         error_message: str = "",
     ):
         self.success: bool = success
-        self.dict_resource_daemon_result: dict = dict_resource_daemon_result
+        self.dict_resource_result: dict = dict_resource_result
         self.total_energy_consumed: float = total_energy_consumed
         self.total_carbon_operational: float = total_carbon_operational
         self.total_carbon_embodied: float = total_carbon_embodied

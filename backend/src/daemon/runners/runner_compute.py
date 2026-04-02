@@ -59,14 +59,11 @@ class Runner_Compute(AbstractRunner):
             )
 
             logger.info(
-                "VM Carbon Daemon execution completed successfully. processed %d VMs in %.2f seconds",
+                "Runner: Compute modelling completed successfully. "
+                "Processed %d Virtual Machines in %.2f seconds. "
+                "Total energy consumed: %.2f, Total carbon emitted: %.2f",
                 len(resourceDaemonResult.list_processed_resources),
                 execution_time,
-            )
-            logger.info(
-                "VM Carbon Daemon execution completed successfully. "
-                "Processed %d VMs in %.2f seconds",
-                len(resourceDaemonResult.list_processed_resources),
                 resourceDaemonResult.total_energy_consumed,
                 resourceDaemonResult.total_carbon_emitted,
             )
@@ -75,7 +72,9 @@ class Runner_Compute(AbstractRunner):
 
         except KnownException as e:
             execution_time = time.time() - start_time
-            error_msg = f"known error during daemon execution: {e.formatted_string}"
+            error_msg = (
+                f"Runner: Compute known error during execution: {e.formatted_string}"
+            )
             logger.error(error_msg)
 
             return ResourceDaemonResult(
@@ -84,7 +83,7 @@ class Runner_Compute(AbstractRunner):
 
         except Exception as e:
             execution_time = time.time() - start_time
-            error_msg = f"unexpected error during daemon execution: {str(e)}"
+            error_msg = f"Runner: Compute unexpected error during execution: {str(e)}"
             logger.exception(error_msg)
 
             return ResourceDaemonResult(
