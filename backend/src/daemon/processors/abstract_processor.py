@@ -74,7 +74,7 @@ class AbstractProcessor(ABC):
 
         Returns:
         """
-        self.resource_daemon_result = self.reader.read()
+        self.list_resources_to_process = self.reader.read()
 
     def run(self) -> ResourceDaemonResult:
         """
