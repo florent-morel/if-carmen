@@ -8,6 +8,7 @@ reader/writer patterns, YAML configuration, and the CarbonDaemon orchestration.
 import unittest
 from unittest.mock import MagicMock
 
+from unittest.mock import patch, AsyncMock
 from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrator
 from backend.src.daemon.processors.processor_storage import Processor_Storage
 
@@ -16,7 +17,12 @@ from backend.src.common.constants import (
     DAILY_SECONDS,
 )
 from backend.src.schemas.storage_resource import StorageResource
+from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.daemon.runners.runner_storage import Runner_Storage
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TestCarbonDaemonStorage(unittest.TestCase):
     """
@@ -62,11 +68,11 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         self.mock_config.source = MagicMock()
         self.mock_config.upload = MagicMock()
 
-    # @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
+    @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
     # @patch("backend.src.daemon.carbon_daemon.register_models")
     # def test_daemon_run_compute_storage_success(self,
     # mock_ioc_util_resolve, mock_register_models):
-    def test_daemon_run_compute_storage_success(self):
+    def test_daemon_run_compute_storage_success(self, mock_ioc_util_resolve):
         """
         Test successful daemon execution with mocked reader, writer, and
         carbon service.
@@ -86,28 +92,40 @@ class TestCarbonDaemonStorage(unittest.TestCase):
                 duration_seconds=HOURLY_INTERVAL_SECONDS,
             )
         ]
+
         mock_reader = MagicMock()
-        mock_reader.read.return_value = processed_storage[0].copy()
+        mock_reader.read.return_value = processed_storage.copy()
+        logger.info(f"Mock reader: {mock_reader}")
 
-        mock_writer = MagicMock()
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.STORAGE
+        mock_processor.reader = mock_reader
+        runner_storage = Runner_Storage()
+        mock_processor.runner = runner_storage
+        mock_processor.runner.run = runner_storage.run(processed_storage.copy())
+        # mock_processor.reader.read.return_value = processed_storage.copy()
 
-        mock_reader_factory = MagicMock()
-        mock_reader_factory.create_reader.return_value = mock_reader
+        logger.info(f"Mock processor: {mock_processor}")
+        logger.info(f"Mock info: {mock_processor.resource_type}")
+        logger.info(f"Mock reader in processor: {mock_processor.reader}")
 
-        mock_writer_factory = MagicMock()
-        mock_writer_factory.create_writer.return_value = mock_writer
+        mock_carbon_service = MagicMock()
+        mock_ioc_util_resolve.return_value = mock_carbon_service
+#         processor_storage = Processor_Storage(self.mock_config)
 
-        # mock_ioc_util_resolve.return_value = mock_carbon_service
+ #        processor_storage.reader = mock_reader
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config,
-                                                [Processor_Storage(self.mock_config)])
+                                                [mock_processor])
+        # orchestrator = CarbonDaemonOrchestrator(self.mock_config,
+        #                                         [processor_storage])
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
-        listStorageResourceResult = carbonDaemonResult.list_processed_resources
-        self.assertEqual(len(listStorageResourceResult), 1)
+        resultStorageResource = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
+        self.assertIsNotNone(resultStorageResource)
+        # self.assertEqual(len(listStorageResourceResult), 1)
 
-        resultStorageResource = listStorageResourceResult[0]
         # Ensure input data is not altered.
         self.assertEqual(resultStorageResource.size_gb, 32.0)
         self.assertEqual(resultStorageResource.storage_type, "SSD")

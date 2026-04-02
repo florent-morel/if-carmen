@@ -73,6 +73,7 @@ class AbstractProcessor(ABC):
 
         Returns:
         """
+        logger.info(f"Inside AbstractProcessor reader: {self.reader}")
         self.list_resources_to_process = self.reader.read()
 
     def run(self) -> ResourceDaemonResult:

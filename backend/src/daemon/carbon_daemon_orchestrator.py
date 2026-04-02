@@ -94,8 +94,8 @@ class CarbonDaemonOrchestrator:
             total_execution_time = time.time() - start_time
 
             logger.info(
-                "Carbon Daemon execution completed successfully. processed %d resources in %.2f seconds",
-                len(self.carbon_daemon_result.list_processed_resources),
+                "Carbon Daemon execution completed successfully. Processed %d resource typs in %.2f seconds",
+                len(self.list_resource_processors),
                 total_execution_time,
             )
 
@@ -131,21 +131,25 @@ class CarbonDaemonOrchestrator:
 
         try:
             logger.info(
-                "Starting data source reading loop for %d processors.",
+                "Starting data source reading loop for %d processors: %s.",
                 len(self.list_resource_processors),
+                self.list_resource_processors,
             )
 
             if self.list_resource_processors:
                 for abstract_processor in self.list_resource_processors:
                     logger.info(
-                        f"Data source reading by {abstract_processor.resource_type.value} processor."
+                        f"Data source reading by {abstract_processor.reader}"
+                        f" reader for {abstract_processor.resource_type.value}"
+                        f" resource type."
                     )
-                    resources = abstract_processor.read()
+                    resources = abstract_processor.reader.read()
 
                 read_time = time.time() - read_start_time
                 if resources:
                     logger.info(
-                        "Source data reading completed. Retrieved %d resources of type %s in %.2f seconds",
+                        "Source data reading completed. Reader %s retrieved %d resources of type %s in %.2f seconds",
+                        abstract_processor.reader,
                         len(resources),
                         abstract_processor.resource_type.value,
                         read_time,
@@ -168,7 +172,7 @@ class CarbonDaemonOrchestrator:
             Exception: If running fails
         """
         start_time = time.time()
-        dict_resource_result: dict[ResourceType, ResourceDaemonResult] = {}
+        dict_resource_results: dict[ResourceType, ResourceDaemonResult] = {}
         try:
             logger.info(
                 "Starting run_engine loop on %d processors.",
@@ -176,28 +180,36 @@ class CarbonDaemonOrchestrator:
             )
 
             # Iterate on each Resource Carbon Daemon Processor
-            for resource_processor in self.list_resource_processors:
-                resource_daemon_result = resource_processor.run()
+            if self.list_resource_processors:
+                for abstract_processor in self.list_resource_processors:
+                    logger.info(
+                        f"Running engin by {abstract_processor.runner}"
+                        f" runner for {abstract_processor.resource_type.value}"
+                        f" resource type."
+                    )
+                    resource_daemon_result = abstract_processor.runner.run()
 
-                # Populate Daemon Carbon Result with Resource result
-                dict_resource_result[
-                    resource_processor.resource_type
-                ] = resource_daemon_result
+                    # Populate Daemon Carbon Result with Resource result
+                    if resource_daemon_result:
+                        dict_resource_results[
+                            abstract_processor.resource_type
+                        ] = resource_daemon_result
 
-            # End of loop, store complete execution time
-            execution_time = time.time() - start_time
-            self.carbon_daemon_result = self.create_carbon_daemon_result(
-                success=True,
-                execution_time=execution_time,
-                dict_resource_results=dict_resource_result,
-            )
+                # End of loop, store complete execution time
+                execution_time = time.time() - start_time
+                logger.info(f"Creating CarbonDaemonResult for dict_resource_results: {dict_resource_results}")
+                self.carbon_daemon_result = self.create_carbon_daemon_result(
+                    success=True,
+                    execution_time=execution_time,
+                    dict_resource_results=dict_resource_results,
+                )
         except Exception:
             logger.error("Failed to run engine for the given processors.")
             execution_time = time.time() - start_time
             self.carbon_daemon_result = self.create_carbon_daemon_result(
                 success=False,
                 execution_time=execution_time,
-                dict_resource_results=dict_resource_result,
+                dict_resource_results=dict_resource_results,
             )
             raise
 
@@ -223,11 +235,12 @@ class CarbonDaemonOrchestrator:
         total_carbon_emitted = 0
         total_energy_consumed = 0
 
-        for resource_result in dict_resource_results.values():
-            total_carbon_operational += resource_result.total_carbon_operational
-            total_carbon_embodied += resource_result.total_carbon_embodied
-            total_carbon_emitted += resource_result.total_carbon_emitted
-            total_energy_consumed += resource_result.total_energy_consumed
+        if dict_resource_results:
+            for resource_result in dict_resource_results.values():
+                total_carbon_operational += resource_result.total_carbon_operational
+                total_carbon_embodied += resource_result.total_carbon_embodied
+                total_carbon_emitted += resource_result.total_carbon_emitted
+                total_energy_consumed += resource_result.total_energy_consumed
 
         result = CarbonDaemonResult(
             success=success,

@@ -43,6 +43,7 @@ class Reader_Storage(AbstractReader):
         Returns:
             list[StorageResource]: List of storage resources extracted from the data source.
         """
+        logger.info(f"Inside reader Storage: {self}")
         storage_resources = list[Resource]
         # Local test file
         local_storage_file = os.getenv("CSV_PATH", "backend/tests/daemon/test_data/storage_test.csv")
