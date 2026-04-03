@@ -46,8 +46,8 @@ class TestCarbonDaemonComponents(unittest.TestCase):
             VirtualMachine(id="vm2", name="test-vm-2"),
         ]
 
-    @patch("backend.src.daemon.carbon_daemon.register_models")
-    @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
     def test_daemon_run_compute_vms_success(
         self, mock_ioc_util_resolve, mock_register_models
     ):
@@ -94,7 +94,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         )
         mock_writer.upload_compute_report.assert_called_once()
 
-    @patch("backend.src.daemon.carbon_daemon.register_models")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
     def test_daemon_run_no_vms_found(self, mock_register_models):
         """
         Test daemon execution when no VMs are found in data source.
@@ -120,7 +120,7 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         self.assertEqual(result.vm_count, 0)
         self.assertIn("No virtual machines found", result.error_message)
 
-    @patch("backend.src.daemon.carbon_daemon.register_models")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
     def test_daemon_run_reader_exception(self, mock_register_models):
         """
         Test daemon execution when reader raises an exception.
@@ -146,8 +146,8 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         self.assertIn("unexpected error during daemon execution", result.error_message)
         self.assertIn("Reader failed", result.error_message)
 
-    @patch("backend.src.daemon.carbon_daemon.register_models")
-    @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
     def test_daemon_run_carbon_service_exception(
         self, mock_ioc_util_resolve, mock_register_models
     ):
@@ -180,8 +180,8 @@ class TestCarbonDaemonComponents(unittest.TestCase):
         self.assertIn("unexpected error during daemon execution", result.error_message)
         self.assertIn("Carbon service failed", result.error_message)
 
-    @patch("backend.src.daemon.carbon_daemon.register_models")
-    @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
+    @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
     def test_daemon_run_known_exception(
         self, mock_ioc_util_resolve, mock_register_models
     ):
