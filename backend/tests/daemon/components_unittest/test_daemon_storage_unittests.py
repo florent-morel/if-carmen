@@ -111,11 +111,17 @@ class TestCarbonDaemonStorage(unittest.TestCase):
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
-        resultStorageResource = carbonDaemonResult.dict_resource_result[
+        resultStorage = carbonDaemonResult.dict_resource_result[
             ResourceType.STORAGE
         ]
-        self.assertIsNotNone(resultStorageResource)
-        # self.assertEqual(len(listStorageResourceResult), 1)
+
+        self.assertIsNotNone(resultStorage)
+
+        listStorageResourceResult = resultStorage.list_processed_resources
+
+        self.assertEqual(len(listStorageResourceResult), 1)
+
+        resultStorageResource = listStorageResourceResult[0]
 
         # Ensure input data is not altered.
         self.assertEqual(resultStorageResource.size_gb, 32.0)
@@ -123,10 +129,10 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         self.assertEqual(resultStorageResource.replication_type, "LRS")
 
         # Validate computation calculation on single resource
-        self.assertEqual(resultStorageResource.total_energy_consumed, 0.0001)
-        self.assertEqual(resultStorageResource.total_carbon_operational, 0.0291)
-        self.assertEqual(resultStorageResource.total_carbon_embodied, 0.4381)
-        self.assertEqual(resultStorageResource.total_carbon_emitted, 0.4672)
+        self.assertEqual(resultStorage.total_energy_consumed, 0.0001)
+        self.assertEqual(resultStorage.total_carbon_operational, 0.0291)
+        self.assertEqual(resultStorage.total_carbon_embodied, 0.4381)
+        self.assertEqual(resultStorage.total_carbon_emitted, 0.4672)
 
         # Validate computation calculation on overall result
         self.assertEqual(carbonDaemonResult.total_energy_consumed, 0.0001)

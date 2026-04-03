@@ -56,3 +56,45 @@ class AbstractRunner(ABC):
         Raises:
             Exception: If carbon processing fails
         """
+
+    def create_resource_daemon_result(
+        self,
+        success,
+        execution_time,
+        resource_type: ResourceType,
+        list_processed_resources: list[Resource],
+    ) -> ResourceDaemonResult:
+        """
+        Create a ResourceDaemonResult from the list of processed resources.
+
+        Args:
+            success: whether the call to the IF has been successful.
+            execution_time: time to execute the call.
+            processed_resources: List of processed resources.
+
+        Returns:
+            ResourceDaemonResult
+        """
+        total_carbon_operational = 0
+        total_carbon_embodied = 0
+        total_carbon_emitted = 0
+        total_energy_consumed = 0
+
+        if list_processed_resources:
+            for resource_result in list_processed_resources:
+                total_carbon_operational += resource_result.total_carbon_operational
+                total_carbon_embodied += resource_result.total_carbon_embodied
+                total_carbon_emitted += resource_result.total_carbon_emitted
+                total_energy_consumed += resource_result.total_energy_consumed
+
+        result = ResourceDaemonResult(
+            success=success,
+            resource_type=resource_type,
+            list_processed_resources=list_processed_resources,
+            total_energy_consumed=total_energy_consumed,
+            total_carbon_operational=total_carbon_operational,
+            total_carbon_embodied=total_carbon_embodied,
+            total_carbon_emitted=total_carbon_emitted,
+            execution_time=execution_time,
+        )
+        return result

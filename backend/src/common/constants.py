@@ -26,6 +26,11 @@ RATE_TO_DURATION = {
     SamplingRate.ONE_DAY: timedelta(days=1),
 }
 
+# Reader Storage constants
+CSV_PATH: str = "CSV_PATH"
+CSV_FILE_TEST: str = "backend/tests/daemon/test_data/storage_test.csv"
+CSV_FILE_ENCODING: str = "utf-8"
+
 
 HOURLY_INTERVAL_SECONDS: int = 3600
 DAILY_SECONDS: int = 86400

@@ -54,7 +54,7 @@ class ResourceDaemonResult:
     def __init__(
         self,
         success: bool,
-        resourceType: ResourceType,
+        resource_type: ResourceType,
         list_processed_resources: list[Resource],
         total_energy_consumed: float,
         total_carbon_operational: float,
@@ -64,6 +64,7 @@ class ResourceDaemonResult:
         error_message: str = "",
     ):
         self.success: bool = success
+        self.resource_type: ResourceType = resource_type
         self.list_processed_resources: list = list_processed_resources
         self.total_energy_consumed: float = total_energy_consumed
         self.total_carbon_operational: float = total_carbon_operational
@@ -71,51 +72,3 @@ class ResourceDaemonResult:
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
         self.error_message: str = error_message
-
-    def create_ResourceDaemonResult(
-        self,
-        success,
-        execution_time,
-        resourceType: ResourceType,
-        processed_resources: list[Resource],
-    ) -> CarbonDaemonResult:
-        """
-        Create a ResourceDaemonResult from the list of processed resources.
-
-        Args:
-            success: whether the call to the IF has been successful.
-            execution_time: time to execute the call.
-            processed_resources: List of processed resources.
-
-        Returns:
-            ResourceDaemonResult
-        """
-
-        list_processed_resources = list[processed_resources]
-
-        total_carbon_operational = sum(
-            resource.total_carbon_operational for resource in processed_resources
-        )
-
-        total_carbon_embodied = sum(
-            resource.total_carbon_embodied for resource in processed_resources
-        )
-
-        total_carbon_emitted = sum(
-            resource.total_carbon_emitted for resource in processed_resources
-        )
-        total_energy_consumed = sum(
-            resource.total_energy_consumed for resource in processed_resources
-        )
-        result = ResourceDaemonResult(
-            success=True,
-            resourceType=resourceType,
-            list_processed_resources=list_processed_resources,
-            total_energy_consumed=total_energy_consumed,
-            total_carbon_operational=total_carbon_operational,
-            total_carbon_embodied=total_carbon_embodied,
-            total_carbon_emitted=total_carbon_emitted,
-            execution_time=execution_time,
-        )
-
-        return result

@@ -16,7 +16,7 @@ from backend.src.common.constants import (
 )
 from backend.src.common.known_exception import KnownException
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
-from backend.src.schemas.resource import Resource
+from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
@@ -49,20 +49,22 @@ class Runner_Storage(AbstractRunner):
         start_time = time.time()
 
         try:
-            logger.info("Starting Storage runner execution")
+            logger.info("Starting Storage runner execution.")
 
             processed_storage_resources = self.process_carbon_calculations(
                 list_resources_to_process
             )
 
+            logger.info("Processed resources: %s", processed_storage_resources)
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_ResourceDaemonResult(
-                True, execution_time, processed_storage_resources
+            resourceDaemonResult = self.create_resource_daemon_result(
+                True, execution_time, ResourceType.STORAGE,
+                processed_storage_resources
             )
 
             logger.info(
-                "Storage processing : %d storage resources processed, "
+                "Storage processing: %d storage resources processed, "
                 "%.2f kWh total energy, %.0f gCO2 total emissions",
                 len(resourceDaemonResult.list_processed_resources),
                 resourceDaemonResult.total_energy_consumed,
@@ -96,7 +98,7 @@ class Runner_Storage(AbstractRunner):
         if storage_resources:
             try:
                 logger.info(
-                    "starting carbon calculations for %d storage resources",
+                    "Starting carbon calculations for %d storage resources",
                     len(storage_resources),
                 )
 
@@ -110,9 +112,11 @@ class Runner_Storage(AbstractRunner):
                         "failed to resolve CarbonService from IoC container"
                     )
 
+                logger.info("process carbon calculations on resources: %s", storage_resources)
                 processed_storage_resources: list[
                     StorageResource
                 ] = storage_service.run_engine(storage_resources)
+                logger.info("Result process carbon calculations on resources: %s", processed_storage_resources)
 
                 process_time = time.time() - process_start_time
 
