@@ -94,7 +94,7 @@ class TestCostHelpers(unittest.TestCase):
         self.assertEqual(total_compute_cost, 175.0)
         self.assertEqual(total_storage_cost, 110.0)
 
-    @patch("backend.src.daemon.cost_helpers.PaasCiMapper.calculate_ci")
+    @patch("backend.src.daemon.readers.helpers.cost_helpers.PaasCiMapper.calculate_ci")
     def test_create_cost_resource(self, mock_ci_calculator):
         """
         Test create_cost_resource function.
