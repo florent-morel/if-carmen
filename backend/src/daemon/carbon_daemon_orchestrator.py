@@ -143,7 +143,7 @@ class CarbonDaemonOrchestrator:
                         f" reader for {abstract_processor.resource_type.value}"
                         f" resource type."
                     )
-                    resources = abstract_processor.reader.read()
+                    resources = abstract_processor.read()
 
                 read_time = time.time() - read_start_time
                 if resources:
@@ -187,7 +187,7 @@ class CarbonDaemonOrchestrator:
                         f" runner for {abstract_processor.resource_type.value}"
                         f" resource type."
                     )
-                    resource_daemon_result = abstract_processor.runner.run()
+                    resource_daemon_result = abstract_processor.run()
 
                     # Populate Daemon Carbon Result with Resource result
                     if resource_daemon_result:
@@ -197,7 +197,9 @@ class CarbonDaemonOrchestrator:
 
                 # End of loop, store complete execution time
                 execution_time = time.time() - start_time
-                logger.info(f"Creating CarbonDaemonResult for dict_resource_results: {dict_resource_results}")
+                logger.info(
+                    f"Creating CarbonDaemonResult for dict_resource_results: {dict_resource_results}"
+                )
                 self.carbon_daemon_result = self.create_carbon_daemon_result(
                     success=True,
                     execution_time=execution_time,
