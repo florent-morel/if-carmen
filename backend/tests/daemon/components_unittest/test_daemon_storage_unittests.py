@@ -19,6 +19,9 @@ from backend.src.common.constants import (
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.daemon.runners.runner_storage import Runner_Storage
+from backend.src.services.carbon_service.impact_framework.service.if_storage_service import (
+    IFStorageService,
+)
 
 import logging
 
@@ -94,6 +97,8 @@ class TestCarbonDaemonStorage(unittest.TestCase):
             )
         ]
 
+        mock_ioc_util_resolve.return_value = IFStorageService(DAILY_SECONDS)
+
         runner_storage = Runner_Storage()
         resource_daemon_result = runner_storage.run(processed_storage.copy())
 
@@ -104,16 +109,11 @@ class TestCarbonDaemonStorage(unittest.TestCase):
 
         logger.info(f"Mock processor: {mock_processor}")
 
-        mock_carbon_service = MagicMock()
-        mock_ioc_util_resolve.return_value = mock_carbon_service
-
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
-        resultStorage = carbonDaemonResult.dict_resource_result[
-            ResourceType.STORAGE
-        ]
+        resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
 
         self.assertIsNotNone(resultStorage)
 
