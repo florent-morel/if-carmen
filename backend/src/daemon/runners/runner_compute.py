@@ -9,7 +9,7 @@ from backend.src.common.constants import (
 from backend.src.common.known_exception import KnownException
 from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
-from backend.src.schemas.resource import Resource
+from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
@@ -54,8 +54,8 @@ class Runner_Compute(AbstractRunner):
 
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_ResourceDaemonResult(
-                True, execution_time, processed_vms
+            resourceDaemonResult = self.create_resource_daemon_result(
+                True, execution_time, ResourceType.VIRTUAL_MACHINE, processed_vms
             )
 
             logger.info(

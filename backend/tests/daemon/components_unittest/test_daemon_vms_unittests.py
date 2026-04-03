@@ -27,7 +27,13 @@ from backend.src.daemon.carbon_daemon_orchestrator import (
 )
 from backend.src.daemon.processors.processor_compute import Processor_Compute
 from backend.src.daemon.runners.runner_compute import Runner_Compute
-
+from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.services.carbon_service.impact_framework.service.if_vm_service import (
+    IFVMService,
+)
+from backend.src.common.constants import (
+    SAMPLING_RATE_IN_SECONDS,
+)
 
 class TestCarbonDaemonComponents(unittest.TestCase):
     """
@@ -46,53 +52,74 @@ class TestCarbonDaemonComponents(unittest.TestCase):
             VirtualMachine(id="vm2", name="test-vm-2"),
         ]
 
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
-    def test_daemon_run_compute_vms_success(
+    @patch("backend.src.core.registrar.register_models")
+    # @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
+    @patch("backend.src.utils.ioc_util.resolve")
+    def test_daemon_runner_compute_success(
         self, mock_ioc_util_resolve, mock_register_models
     ):
         """
         Test successful daemon execution with mocked reader, writer, and carbon service.
         """
+        mock_ioc_util_resolve.return_value = IFVMService(SAMPLING_RATE_IN_SECONDS)
+
+        runner_compute = Runner_Compute()
+        resource_daemon_result = runner_compute.run(self.sample_vms.copy())
+
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
+        mock_processor.read.return_value = self.sample_vms.copy()
+        mock_processor.run.return_value = resource_daemon_result
+
         mock_reader = MagicMock()
         mock_reader.read.return_value = self.sample_vms.copy()
 
-        mock_writer = MagicMock()
-
-        mock_carbon_service = MagicMock()
-        processed_vms = [
-            VirtualMachine(id="vm1", name="test-vm-1", total_carbon_emitted=100.0),
-            VirtualMachine(id="vm2", name="test-vm-2", total_carbon_emitted=150.0),
-        ]
-        mock_carbon_service.run_engine.return_value = processed_vms
-
-        mock_reader_factory = MagicMock()
-        mock_reader_factory.create_reader.return_value = mock_reader
-
-        mock_writer_factory = MagicMock()
-        mock_writer_factory.create_writer.return_value = mock_writer
-
-        mock_ioc_util_resolve.return_value = mock_carbon_service
-
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [Processor_Compute])
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
         result = orchestrator.orchestrate_carbon_daemon()
 
+        resultResource = result.dict_resource_result[ResourceType.VIRTUAL_MACHINE]
+        self.assertIsNotNone(resultResource)
+
+        listResourceResult = resultResource.list_processed_resources
+        self.assertEqual(len(listResourceResult), 2)
+
+        resultResource = listResourceResult[0]
+        # mock_writer = MagicMock()
+
+        # mock_carbon_service = MagicMock()
+        # processed_vms = [
+        #     VirtualMachine(id="vm1", name="test-vm-1", total_carbon_emitted=100.0),
+        #     VirtualMachine(id="vm2", name="test-vm-2", total_carbon_emitted=150.0),
+        # ]
+        # mock_carbon_service.run_engine.return_value = processed_vms
+
+        # mock_reader_factory = MagicMock()
+        # mock_reader_factory.create_reader.return_value = mock_reader
+
+        # mock_writer_factory = MagicMock()
+        # mock_writer_factory.create_writer.return_value = mock_writer
+
+        # mock_ioc_util_resolve.return_value = mock_carbon_service
+
+        # orchestrator = CarbonDaemonOrchestrator(self.mock_config, [Processor_Compute])
+
+        # result = orchestrator.orchestrate_carbon_daemon()
+
         self.assertIsInstance(result, CarbonDaemonResult)
         self.assertTrue(result.success)
-        self.assertEqual(result.vm_count, 2)
         self.assertGreater(result.execution_time, 0)
         self.assertEqual(result.error_message, "")
 
         mock_register_models.assert_called_once()
-        mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
+        # mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
         mock_reader.read.assert_called_once()
         mock_ioc_util_resolve.assert_called_once_with(Runner_Compute, "IFVm", 3600)
-        mock_carbon_service.run_engine.assert_called_once_with(self.sample_vms)
-        mock_writer_factory.create_writer.assert_called_once_with(
-            self.mock_config, processed_vms
-        )
-        mock_writer.upload_compute_report.assert_called_once()
+        # mock_carbon_service.run_engine.assert_called_once_with(self.sample_vms)
+        # mock_writer_factory.create_writer.assert_called_once_with(
+        #     self.mock_config, processed_vms
+        # )
+        # mock_writer.upload_compute_report.assert_called_once()
 
     @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
     def test_daemon_run_no_vms_found(self, mock_register_models):

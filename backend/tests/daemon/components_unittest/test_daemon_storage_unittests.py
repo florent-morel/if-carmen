@@ -76,7 +76,7 @@ class TestCarbonDaemonStorage(unittest.TestCase):
     # @patch("backend.src.daemon.carbon_daemon.register_models")
     # def test_daemon_run_compute_storage_success(self,
     # mock_ioc_util_resolve, mock_register_models):
-    def test_daemon_runner_compute_storage_success(self, mock_ioc_util_resolve):
+    def test_daemon_runner_storage_success(self, mock_ioc_util_resolve):
         """
         Test successful daemon execution with mocked reader, writer, and
         carbon service.
@@ -114,11 +114,9 @@ class TestCarbonDaemonStorage(unittest.TestCase):
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
         resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
-
         self.assertIsNotNone(resultStorage)
 
         listStorageResourceResult = resultStorage.list_processed_resources
-
         self.assertEqual(len(listStorageResourceResult), 1)
 
         resultStorageResource = listStorageResourceResult[0]
