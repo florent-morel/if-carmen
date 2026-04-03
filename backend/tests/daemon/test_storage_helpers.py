@@ -128,7 +128,7 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertEqual(size_gb, 0.0)  # Snapshots excluded
         self.assertEqual(duration_seconds, 0)
 
-    @patch("backend.src.daemon.storage_helpers.PaasCiMapper.calculate_ci")
+    @patch("backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci")
     def test_create_storage_resource(self, mock_ci_calculator):
         """Test creation of StorageResource object."""
         mock_ci_calculator.return_value = 250.0
@@ -143,10 +143,10 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertEqual(storage_resource.size_gb, 128.0)
         self.assertEqual(storage_resource.carbon_intensity, 250.0)
 
-    @patch("backend.src.daemon.storage_helpers.calculate_storage_size")
-    @patch("backend.src.daemon.storage_helpers.get_storage_type")
-    @patch("backend.src.daemon.storage_helpers.get_replication_type")
-    @patch("backend.src.daemon.storage_helpers.create_storage_resource")
+    @patch("backend.src.daemon.readers.helpers.storage_helpers.calculate_storage_size")
+    @patch("backend.src.daemon.readers.helpers.storage_helpers.get_storage_type")
+    @patch("backend.src.daemon.readers.helpers.storage_helpers.get_replication_type")
+    @patch("backend.src.daemon.readers.helpers.storage_helpers.create_storage_resource")
     def test_process_storage_row_success(
         self,
         mock_create_storage,
@@ -168,7 +168,7 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertTrue(result)
         self.assertIn("test_line_123", storage_dict)
 
-    @patch("backend.src.daemon.storage_helpers.calculate_storage_size")
+    @patch("backend.src.daemon.readers.helpers.storage_helpers.calculate_storage_size")
     def test_process_storage_row_zero_size(self, mock_calculate_size):
         """Test processing of storage row with zero size."""
         mock_calculate_size.return_value = (0.0, 86400)
@@ -179,7 +179,7 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertFalse(result)
         self.assertEqual(len(storage_dict), 0)
 
-    @patch("backend.src.daemon.storage_helpers.calculate_storage_size")
+    @patch("backend.src.daemon.readers.helpers.storage_helpers.calculate_storage_size")
     def test_process_storage_row_missing_line_number(self, mock_calculate_size):
         """Test processing of storage row without line number."""
         mock_calculate_size.return_value = (128.0, 86400)
@@ -275,7 +275,7 @@ class TestStorageHelpers(unittest.TestCase):
         for region, expected_ci in test_regions:
             with self.subTest(region=region):
                 with patch(
-                    "backend.src.daemon.storage_helpers.PaasCiMapper.calculate_ci"
+                    "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
                 ) as mock_ci:
                     mock_ci.return_value = expected_ci
 
@@ -301,7 +301,7 @@ class TestStorageHelpers(unittest.TestCase):
 
         # Test unknown region handling
         with patch(
-            "backend.src.daemon.storage_helpers.PaasCiMapper.calculate_ci"
+            "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
         ) as mock_ci:
             mock_ci.return_value = 281  # Default carbon intensity
 

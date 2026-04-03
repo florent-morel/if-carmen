@@ -93,7 +93,7 @@ class TestReaderStorage(unittest.TestCase):
         ]
 
         reader_storage = MagicMock() # Reader_Storage()
-        reader_storage.local_storage_file = 
+        # reader_storage.local_storage_file = 
 
         # self.assertIsNotNone(resultStorage)
 
