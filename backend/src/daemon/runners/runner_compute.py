@@ -6,13 +6,14 @@ import time
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
 )
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import KnownException, DataFetchError
 from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
+from backend.src.common.errors import ErrorCode
 
 logger = logging.getLogger(__name__)
 
@@ -43,12 +44,11 @@ class Runner_Compute(AbstractRunner):
         try:
             logger.info("Starting Virtual Machine runner execution")
 
-            # vms = self.read_infrastructure_data(ResourceType.VIRTUAL_MACHINE)
-            # if not vms:
-            #     raise KnownException(
-            #         ErrorCode.DATA_FETCH_NO_RESULTS,
-            #         details="No virtual machines found in data source",
-            #     )
+            if not list_resources_to_process:
+                raise DataFetchError(
+                    ErrorCode.DATA_FETCH_NO_RESULTS,
+                    details="No virtual machines found in data source",
+                )
 
             processed_vms = self.process_carbon_calculations(list_resources_to_process)
 

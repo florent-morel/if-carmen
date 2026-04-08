@@ -1,8 +1,8 @@
 """
-Unit tests for the CarbonDaemon class in the carbon_daemon module.
+Unit tests for the CarbonDaemonOrchestrator class - Storage resources.
 
-These tests cover the new factory-based daemon architecture including
-reader/writer patterns, YAML configuration, and the CarbonDaemon orchestration.
+These tests cover the orchestrator-based daemon architecture for storage
+resources, including processor patterns and CarbonDaemonOrchestrator execution.
 """
 
 import unittest
@@ -28,10 +28,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class TestCarbonDaemonStorage(unittest.TestCase):
+class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
     """
-    Unit test class for the CarbonDaemon class and related to storage
-    calculation functionality.
+    Unit test class for the CarbonDaemonOrchestrator storage resource functionality.
     """
 
     def create_sample_storage(

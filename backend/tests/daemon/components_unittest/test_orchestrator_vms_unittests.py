@@ -1,8 +1,8 @@
 """
-Unit tests for the CarbonDaemon class in the carbon_daemon module.
+Unit tests for the CarbonDaemonOrchestrator class.
 
-These tests cover the new factory-based daemon architecture including
-reader/writer patterns, YAML configuration, and the CarbonDaemon orchestration.
+These tests cover the orchestrator-based daemon architecture including
+processor patterns, YAML configuration, and the CarbonDaemonOrchestrator execution.
 """
 
 import unittest
@@ -12,19 +12,13 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import ConfigurationError, ComputationError
 from backend.src.schemas.virtual_machine import VirtualMachine
 
-# from backend.src.daemon.carbon_daemon import (
-#     CarbonDaemon,
-#     CarbonDaemonResult,
-#     DefaultReaderFactory,
-#     DefaultWriterFactory,
-#     main,
-# )
-# from backend.src.services.carbon_service.carbon_service import CarbonService
+from backend.src.services.carbon_service.carbon_service import CarbonService
 
 from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
     CarbonDaemonResult,
 )
+from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
 from backend.src.daemon.processors.processor_compute import Processor_Compute
 from backend.src.daemon.runners.runner_compute import Runner_Compute
 from backend.src.schemas.resource import Resource, ResourceType
@@ -35,9 +29,10 @@ from backend.src.common.constants import (
     SAMPLING_RATE_IN_SECONDS,
 )
 
-class TestCarbonDaemonComponents(unittest.TestCase):
+
+class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
     """
-    Unit test class for the CarbonDaemon class and related functionality.
+    Unit test class for the CarbonDaemonOrchestrator and related components.
     """
 
     def setUp(self):
@@ -52,100 +47,69 @@ class TestCarbonDaemonComponents(unittest.TestCase):
             VirtualMachine(id="vm2", name="test-vm-2"),
         ]
 
-    @patch("backend.src.core.registrar.register_models")
+    @patch("backend.src.daemon.carbon_daemon_orchestrator.register_models")
     # @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
     @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_runner_compute_success(
         self, mock_ioc_util_resolve, mock_register_models
     ):
         """
-        Test successful daemon execution with mocked reader, writer, and carbon service.
+        Test successful Orchestrator execution with mocked reader, writer, and carbon service.
         """
+        # Mock carbon service to return a successful result
         mock_ioc_util_resolve.return_value = IFVMService(SAMPLING_RATE_IN_SECONDS)
 
+        # Execute runner on sample VMs
         runner_compute = Runner_Compute()
         resource_daemon_result = runner_compute.run(self.sample_vms.copy())
 
+        # Mock processor to return the generated resource daemon result
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
         mock_processor.read.return_value = self.sample_vms.copy()
         mock_processor.run.return_value = resource_daemon_result
 
-        mock_reader = MagicMock()
-        mock_reader.read.return_value = self.sample_vms.copy()
-
+        # Orchestrate the daemon with the mocked processor
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
-
         result = orchestrator.orchestrate_carbon_daemon()
 
+        # Validate the results
         resultResource = result.dict_resource_result[ResourceType.VIRTUAL_MACHINE]
         self.assertIsNotNone(resultResource)
 
         listResourceResult = resultResource.list_processed_resources
         self.assertEqual(len(listResourceResult), 2)
 
-        resultResource = listResourceResult[0]
-        # mock_writer = MagicMock()
-
-        # mock_carbon_service = MagicMock()
-        # processed_vms = [
-        #     VirtualMachine(id="vm1", name="test-vm-1", total_carbon_emitted=100.0),
-        #     VirtualMachine(id="vm2", name="test-vm-2", total_carbon_emitted=150.0),
-        # ]
-        # mock_carbon_service.run_engine.return_value = processed_vms
-
-        # mock_reader_factory = MagicMock()
-        # mock_reader_factory.create_reader.return_value = mock_reader
-
-        # mock_writer_factory = MagicMock()
-        # mock_writer_factory.create_writer.return_value = mock_writer
-
-        # mock_ioc_util_resolve.return_value = mock_carbon_service
-
-        # orchestrator = CarbonDaemonOrchestrator(self.mock_config, [Processor_Compute])
-
-        # result = orchestrator.orchestrate_carbon_daemon()
-
         self.assertIsInstance(result, CarbonDaemonResult)
         self.assertTrue(result.success)
         self.assertGreater(result.execution_time, 0)
         self.assertEqual(result.error_message, "")
 
+        # Validate that the mocks were called as expected by the Orchestrator
         mock_register_models.assert_called_once()
-        # mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
-        mock_reader.read.assert_called_once()
-        mock_ioc_util_resolve.assert_called_once_with(Runner_Compute, "IFVm", 3600)
-        # mock_carbon_service.run_engine.assert_called_once_with(self.sample_vms)
-        # mock_writer_factory.create_writer.assert_called_once_with(
-        #     self.mock_config, processed_vms
-        # )
-        # mock_writer.upload_compute_report.assert_called_once()
+        mock_processor.read.assert_called_once()
+        mock_ioc_util_resolve.assert_called_once_with(CarbonService, "IFVm", 3600)
 
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
-    def test_daemon_run_no_vms_found(self, mock_register_models):
+    @patch("backend.src.daemon.carbon_daemon_orchestrator.register_models")
+    def test_orchestrator_no_vms_found(self, _mock_register_models):
         """
-        Test daemon execution when no VMs are found in data source.
+        Test orchestrator execution when no VMs are found in data source.
         """
-        mock_reader = MagicMock()
-        mock_reader.read.return_value = []
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
+        mock_processor.read.return_value = []
 
-        mock_reader_factory = MagicMock()
-        mock_reader_factory.create_reader.return_value = mock_reader
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        result = orchestrator.orchestrate_carbon_daemon()
 
-        mock_writer_factory = MagicMock()
+        # read() was called; run() was never reached because the orchestrator short-circuits
+        mock_processor.read.assert_called_once()
+        mock_processor.run.assert_not_called()
 
-        daemon = CarbonDaemon(
-            self.mock_config,
-            reader_factory=mock_reader_factory,
-            writer_factory=mock_writer_factory,
-        )
-
-        result = daemon.run()
-
+        # Orchestrator fails at the read stage
         self.assertIsInstance(result, CarbonDaemonResult)
         self.assertFalse(result.success)
-        self.assertEqual(result.vm_count, 0)
-        self.assertIn("No virtual machines found", result.error_message)
+        self.assertIn("No resources found for VirtualMachine", result.error_message)
 
     @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
     def test_daemon_run_reader_exception(self, mock_register_models):

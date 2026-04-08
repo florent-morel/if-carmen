@@ -18,7 +18,8 @@ import time
 from backend.src.common.constants import (
     CARMEN_LOGO,
 )
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import KnownException, DataFetchError
+from backend.src.common.errors import ErrorCode
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.carbon_daemon_result import (
@@ -107,7 +108,14 @@ class CarbonDaemonOrchestrator:
             logger.error(error_msg)
 
             return CarbonDaemonResult(
-                success=False, execution_time=execution_time, error_message=error_msg
+                success=False,
+                dict_resource_result={},
+                total_energy_consumed=0.0,
+                total_carbon_operational=0.0,
+                total_carbon_embodied=0.0,
+                total_carbon_emitted=0.0,
+                execution_time=execution_time,
+                error_message=error_msg,
             )
 
         except Exception as e:
@@ -116,7 +124,14 @@ class CarbonDaemonOrchestrator:
             logger.exception(error_msg)
 
             return CarbonDaemonResult(
-                success=False, execution_time=execution_time, error_message=error_msg
+                success=False,
+                dict_resource_result={},
+                total_energy_consumed=0.0,
+                total_carbon_operational=0.0,
+                total_carbon_embodied=0.0,
+                total_carbon_emitted=0.0,
+                execution_time=execution_time,
+                error_message=error_msg,
             )
 
     def read_data_source(self):
@@ -155,7 +170,10 @@ class CarbonDaemonOrchestrator:
                         read_time,
                     )
                 else:
-                    logger.info("No resource fetch from data source.")
+                    raise DataFetchError(
+                        ErrorCode.DATA_FETCH_NO_RESULTS,
+                        details=f"No resources found for {abstract_processor.resource_type.value} in data source",
+                    )
             else:
                 logger.error("No processor provided.")
 
