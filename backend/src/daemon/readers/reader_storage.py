@@ -39,10 +39,6 @@ class Reader_Storage(AbstractReader):
     def list_resources_to_process(self) -> list[Resource] | None:
         return self._list_resources_to_process
 
-    def list_resources_to_process_set(
-            self, list_resources_to_process: list[Resource]):
-        self._list_resources_to_process = list_resources_to_process
-
     def read(self) -> list[Resource]:
         """
         Read and process files to extract storage resource information.
@@ -72,8 +68,7 @@ class Reader_Storage(AbstractReader):
                 "Local test storage file not found, using empty storage list"
             )
 
-        self.list_resources_to_process_set(
-            list_resources_to_process=storage_resources)
+        self._list_resources_to_process = storage_resources
 
         return self._list_resources_to_process
 

@@ -92,10 +92,15 @@ class TestReaderStorage(unittest.TestCase):
             )
         ]
 
-        reader_storage = MagicMock() # Reader_Storage()
+        reader_storage = Reader_Storage()
+
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.STORAGE
+        mock_processor.reader = reader_storage
         # reader_storage.local_storage_file = 
 
         # self.assertIsNotNone(resultStorage)
+        mock_processor.read()
 
         listStorageResourceResult = resultStorage.list_processed_resources
 

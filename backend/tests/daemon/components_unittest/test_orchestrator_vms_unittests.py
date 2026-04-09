@@ -137,39 +137,47 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertIn("unexpected error during daemon execution", result.error_message)
         self.assertIn("Reader failed", result.error_message)
 
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
+    # @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
+    # @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
+    @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_run_carbon_service_exception(
-        self, mock_ioc_util_resolve, mock_register_models
+        self, mock_ioc_util_resolve
     ):
         """
         Test daemon execution when carbon service raises an exception.
         """
-        mock_reader = MagicMock()
-        mock_reader.read.return_value = self.sample_vms.copy()
+        # mock_reader = MagicMock()
+        # mock_reader.read.return_value = self.sample_vms.copy()
 
         mock_carbon_service = MagicMock()
         mock_carbon_service.run_engine.side_effect = Exception("Carbon service failed")
 
-        mock_reader_factory = MagicMock()
-        mock_reader_factory.create_reader.return_value = mock_reader
+        # mock_reader_factory = MagicMock()
+        # mock_reader_factory.create_reader.return_value = mock_reader
 
         mock_writer_factory = MagicMock()
 
         mock_ioc_util_resolve.return_value = mock_carbon_service
 
-        daemon = CarbonDaemon(
-            self.mock_config,
-            reader_factory=mock_reader_factory,
-            writer_factory=mock_writer_factory,
-        )
+        # daemon = CarbonDaemon(
+        #     self.mock_config,
+        #     reader_factory=mock_reader_factory,
+        #     writer_factory=mock_writer_factory,
+        # )
 
-        result = daemon.run()
+        # result = daemon.run()
 
-        self.assertIsInstance(result, CarbonDaemonResult)
-        self.assertFalse(result.success)
-        self.assertIn("unexpected error during daemon execution", result.error_message)
-        self.assertIn("Carbon service failed", result.error_message)
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
+        mock_processor.read.return_value = self.sample_vms.copy()
+
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
+
+        self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
+        self.assertFalse(carbonDaemonResult.success)
+        self.assertIn("unexpected error during daemon execution", carbonDaemonResult.error_message)
+        self.assertIn("Carbon service failed", carbonDaemonResult.error_message)
 
     @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
     @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")

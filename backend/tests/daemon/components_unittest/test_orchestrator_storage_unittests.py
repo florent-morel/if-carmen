@@ -23,6 +23,7 @@ from backend.src.services.carbon_service.impact_framework.service.if_storage_ser
     IFStorageService,
 )
 
+from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
 import logging
 
 logger = logging.getLogger(__name__)
@@ -172,33 +173,37 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 #         self.assertFalse(result.success)
 #         self.assertEqual(result.vm_count, 0)
 #         self.assertIn("No virtual machines found", result.error_message)
-#
+
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
-#     def test_daemon_run_reader_exception(self, mock_register_models):
-#         """
-#         Test daemon execution when reader raises an exception.
-#         """
-#         mock_reader = MagicMock()
-#         mock_reader.read.side_effect = Exception("Reader failed")
-#
-#         mock_reader_factory = MagicMock()
-#         mock_reader_factory.create_reader.return_value = mock_reader
-#
-#         mock_writer_factory = MagicMock()
-#
-#         daemon = CarbonDaemon(
-#             self.mock_config,
-#             reader_factory=mock_reader_factory,
-#             writer_factory=mock_writer_factory,
-#         )
-#
-#         result = daemon.run()
-#
-#         self.assertIsInstance(result, CarbonDaemonResult)
-#         self.assertFalse(result.success)
-#         self.assertIn("unexpected error during daemon execution", result.error_message)
-#         self.assertIn("Reader failed", result.error_message)
-#
+
+    def test_daemon_run_reader_exception(self, mock_register_models):
+        """
+        Test daemon execution when reader raises an exception.
+        """
+        mock_reader = MagicMock()
+        mock_reader.read.side_effect = Exception("Reader failed")
+
+        mock_reader_factory = MagicMock()
+        mock_reader_factory.create_reader.return_value = mock_reader
+
+
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.STORAGE
+        mock_processor.read.side_effect = Exception("Reader failed")
+
+        logger.info(f"Mock processor: {mock_processor}")
+
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+
+        carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
+
+        resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
+
+        self.assertIsInstance(resultStorage, ResourceDaemonResult)
+        self.assertFalse(resultStorage.success)
+        self.assertIn("unexpected error during daemon execution", resultStorage.error_message)
+        self.assertIn("Reader failed", resultStorage.error_message)
+
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
 #     @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
 #     def test_daemon_run_carbon_service_exception(
