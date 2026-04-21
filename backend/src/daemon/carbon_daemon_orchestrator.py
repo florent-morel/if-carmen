@@ -39,6 +39,10 @@ from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
 )
 
+from backend.src.daemon.uploaders.abstract_uploader import AbstractUploader
+from backend.src.daemon.uploaders.uploader_local import Uploader_Local
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -349,11 +353,12 @@ class CarbonDaemonOrchestrator:
         upload_start_time = time.time()
     #
         try:
-            # Fetch upload type from config.yaml
-
-            # if uplod.type == "local": 
-            # Local implementation: move file to configured path
-
+            # TODO: Fetch upload type from config.yaml
+            upload_type = "local"
+            if upload_type == "local": 
+                # Local implementation: move file to configured path
+                uploader = Uploader_Local()
+                uploader.upload_report()
 
     #             logger.info("starting result upload for %d resources",
     #                         len(carbonDaemonResult.dict_resource_result.values()))
