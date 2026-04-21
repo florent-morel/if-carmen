@@ -27,7 +27,12 @@ from backend.src.services.carbon_service.impact_framework.service.if_vm_service 
 )
 from backend.src.common.constants import (
     SAMPLING_RATE_IN_SECONDS,
+    DAILY_SECONDS,
 )
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
@@ -111,31 +116,31 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("No resources found for VirtualMachine", result.error_message)
 
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
-    def test_daemon_run_reader_exception(self, mock_register_models):
+    @patch("backend.src.utils.ioc_util.resolve")
+    def test_daemon_reader_compute_exception(self, mock_ioc_util_resolve):
         """
         Test daemon execution when reader raises an exception.
         """
         mock_reader = MagicMock()
         mock_reader.read.side_effect = Exception("Reader failed")
 
-        mock_reader_factory = MagicMock()
-        mock_reader_factory.create_reader.return_value = mock_reader
+        mock_ioc_util_resolve.return_value = IFVMService(DAILY_SECONDS)
 
-        mock_writer_factory = MagicMock()
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
+        mock_processor.read.side_effect = Exception("Reader failed")
 
-        daemon = CarbonDaemon(
-            self.mock_config,
-            reader_factory=mock_reader_factory,
-            writer_factory=mock_writer_factory,
-        )
+        logger.info(f"Mock processor: {mock_processor}")
 
-        result = daemon.run()
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
-        self.assertIsInstance(result, CarbonDaemonResult)
-        self.assertFalse(result.success)
-        self.assertIn("unexpected error during daemon execution", result.error_message)
-        self.assertIn("Reader failed", result.error_message)
+        carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
+
+
+        self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
+        self.assertFalse(carbonDaemonResult.success)
+        self.assertIn("unexpected error during daemon execution", carbonDaemonResult.error_message)
+        self.assertIn("Reader failed", carbonDaemonResult.error_message)
 
     # @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
     # @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
@@ -155,8 +160,6 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         # mock_reader_factory = MagicMock()
         # mock_reader_factory.create_reader.return_value = mock_reader
 
-        mock_writer_factory = MagicMock()
-
         mock_ioc_util_resolve.return_value = mock_carbon_service
 
         # daemon = CarbonDaemon(
@@ -170,6 +173,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
         mock_processor.read.return_value = self.sample_vms.copy()
+        mock_processor.run.side_effect = Exception("Carbon service failed")
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
@@ -179,36 +183,32 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertIn("unexpected error during daemon execution", carbonDaemonResult.error_message)
         self.assertIn("Carbon service failed", carbonDaemonResult.error_message)
 
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
-    @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
+    @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_run_known_exception(
-        self, mock_ioc_util_resolve, mock_register_models
+        self, mock_ioc_util_resolve
     ):
         """
         Test daemon execution when a ConfigurationError is raised.
         """
-        mock_reader = MagicMock()
-        mock_reader.read.side_effect = ConfigurationError(
+
+        mock_ioc_util_resolve.return_value = IFVMService(DAILY_SECONDS)
+
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
+        mock_processor.read.side_effect = ConfigurationError(
             ErrorCode.CONFIG_INVALID_FILE, details="Known error occurred"
         )
 
-        mock_reader_factory = MagicMock()
-        mock_reader_factory.create_reader.return_value = mock_reader
+        logger.info(f"Mock processor: {mock_processor}")
 
-        mock_writer_factory = MagicMock()
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
-        daemon = CarbonDaemon(
-            self.mock_config,
-            reader_factory=mock_reader_factory,
-            writer_factory=mock_writer_factory,
-        )
+        carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
-        result = daemon.run()
-
-        self.assertIsInstance(result, CarbonDaemonResult)
-        self.assertFalse(result.success)
+        self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
+        self.assertFalse(carbonDaemonResult.success)
         self.assertIn(
-            "known error during daemon execution", result.error_message.lower()
+            "known error during daemon execution", carbonDaemonResult.error_message.lower()
         )
 
     @patch(

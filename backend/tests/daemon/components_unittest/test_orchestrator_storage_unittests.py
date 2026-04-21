@@ -176,16 +176,16 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
 
-    def test_daemon_run_reader_exception(self, mock_register_models):
+    @patch("backend.src.utils.ioc_util.resolve")
+    # def test_daemon_run_reader_exception(self, mock_register_models):
+    def test_daemon_reader_storage_exception(self, mock_ioc_util_resolve):
         """
         Test daemon execution when reader raises an exception.
         """
         mock_reader = MagicMock()
         mock_reader.read.side_effect = Exception("Reader failed")
 
-        mock_reader_factory = MagicMock()
-        mock_reader_factory.create_reader.return_value = mock_reader
-
+        mock_ioc_util_resolve.return_value = IFStorageService(DAILY_SECONDS)
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
@@ -197,12 +197,13 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
-        resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
+        # resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
+        # self.assertIsNone(carbonDaemonResult.dict_resource_result[ResourceType.STORAGE])
 
-        self.assertIsInstance(resultStorage, ResourceDaemonResult)
-        self.assertFalse(resultStorage.success)
-        self.assertIn("unexpected error during daemon execution", resultStorage.error_message)
-        self.assertIn("Reader failed", resultStorage.error_message)
+        # self.assertIsInstance(resultStorage, ResourceDaemonResult)
+        self.assertFalse(carbonDaemonResult.success)
+        self.assertIn("unexpected error during daemon execution", carbonDaemonResult.error_message)
+        self.assertIn("Reader failed", carbonDaemonResult.error_message)
 
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
 #     @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
