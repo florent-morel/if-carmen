@@ -207,7 +207,7 @@ class CarbonDaemonOrchestrator:
                     )
                     resource_daemon_result = abstract_processor.run()
 
-                    # Populate Daemon Carbon Result with Resource result
+                    # Populate result dictionary with Resource result
                     if resource_daemon_result:
                         dict_resource_results[
                             abstract_processor.resource_type
@@ -281,12 +281,21 @@ class CarbonDaemonOrchestrator:
         Creates a CSV report containing all resource types.
         Handles VMs, Storage, and future resource categories in one file.
         """
-        # logger.info(
-        #     "Creating CSV report with %d resources",
-        #     len(resources),
-        # )
-        # start = time.time()
+        logger.info(
+            "Starting run_engine loop on %d processors.",
+            len(self.list_resource_processors),
+        )
+        start = time.time()
 
+        if self.carbon_daemon_result.success:
+            # Carbon daemon run was succesful, write report output file.
+            logger.info(
+                "Carbon daemon run was succesful, write report output file.")
+        # # TODO: Implement loop on all active resource runners
+            # First build list of row headers
+        #     for writer in list_active_writers:
+        #         # call each storage writer to get rows
+        #         list_row_headers.append(writer.build_rows_headers())
         # with open(self.out_file, mode="w", newline="", encoding="utf-8") as report:
         #     writer_orchestrator = csv.writer(report)
 
@@ -300,31 +309,33 @@ class CarbonDaemonOrchestrator:
         #     # Columns for each source
         #     # source_related_writer.write()
 
-        # # TODO: Implement loop on all active resource runners
+            #TODO: Then add data in each row
+            # /!\ Need to check consitency between data & rows
         #     for writer in list_active_writers:
-        #         # call each storage writer to get rows
-        #         list_row_headers.append(writer.build_rows_headers())
         #         list_content.append(writer.build_content())
-
         #     # Write Row headers and content
         #     writer_orchestrator.writerows(list_row_headers)
 
         #     # Concatenate content for each source
         #     for row in self.build_content():
         #         writer_orchestrator.writerow(row)
+        else:
+            # Carbon daemon run was not succesful, write error in output file.
+            logger.info(
+                "Carbon daemon run was not succesful, write error in output file.")
 
-        # elapsed_time = time.time() - start
+        elapsed_time = time.time() - start
 
     #       #   logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
     #       #   logging.info("Total energy consumed: %.2f kWh", vm_energy)
-    # logger.info("CSV report created in %.2f seconds", elapsed_time)
+        logger.info("CSV report created in %.2f seconds", elapsed_time)
     # logger.info(
     #     "  Resources: %d resources",
     #     len(resources),
     # )
     # logger.info("Report saved to: %s", self.out_file)
 
-    def write_result_report(self) -> None:
+    def upload_compute_report(self) -> None:
         """
         Write processed results using the configured writer.
 
@@ -335,9 +346,15 @@ class CarbonDaemonOrchestrator:
             Exception: If writing fails
         """
 
-    #         write_start_time = time.time()
+        upload_start_time = time.time()
     #
-    #         try:
+        try:
+            # Fetch upload type from config.yaml
+
+            # if uplod.type == "local": 
+            # Local implementation: move file to configured path
+
+
     #             logger.info("starting result upload for %d resources",
     #                         len(carbonDaemonResult.dict_resource_result.values()))
     #
@@ -348,14 +365,13 @@ class CarbonDaemonOrchestrator:
     #             # TODO: Create an uploader to upload report
     #             writer.upload_compute_report()
     #
-    #             write_time = time.time() - write_start_time
-    #             logger.info("results uploaded successfully in %.2f seconds", write_time)
-    #
-    #         except Exception as e:
-    #             logger.error("failed to write results: %s", str(e))
-    #             raise
+            upload_time = time.time() - upload_start_time
+            logger.info("results uploaded successfully in %.2f seconds", upload_time)
 
-    def upload_compute_report(self) -> None:
+        except Exception as e:
+             logger.error("failed to upload results: %s", str(e))
+             raise
+
         pass
 
 

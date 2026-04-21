@@ -2,11 +2,45 @@
 
 ## Finalize workflow
 
+- Orchestrator.
 - Reader.
 - Runner.
 - Writer.
 - Uploader.
 
+### Orchestrator
+
+- main: Read list of processors & DaemonConfig from settings.
+
+### Reader
+
+### Runner
+
+### Writer
+
+- Build CSV columns and data depending on listed processors.
+
+Output CSV example:
+| Resource | VM Energy| Total Energy | Total CO2 |
+| --- | --- | --- | ---|
+| abc | 560 | 560 | 2500 |
+
+| Resource | VM Energy | Storage energy | Total Energy | Total CO2 |
+| --- | --- | --- | --- | ---|
+| abc | 560 | 100 | 660 | 2500 |
+Algo:
+- writer-0: based on CarbonDaemonResult.
+    - Csv file structure (=add columns to be output regardless number of processors - aka total columns).
+    - "pre-processors columns".
+    - "post-processors columns".
+- writer-i: based on ResourceDaemonResult.
+    - columns dedicated to this resource.
+
+### Uploader
+
+- Define in settings where the file should be stored.
+
+### Fixing UTs
 
 ## Implement Cost use case.
 
