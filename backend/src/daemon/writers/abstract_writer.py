@@ -1,6 +1,6 @@
 import logging
 import os
-import file
+import csv
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import Any, Iterable
@@ -10,19 +10,19 @@ from backend.src.common.known_exception import KnownException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
-from backend.src.core.settings import settings, ReportConfig
+from backend.src.core.settings import ReportConfig
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractWriter(ABC):
     def __init__(self, config: "DaemonConfig",
-                 report_csv_file: file,
+                 writer: csv.DictWriter,
                  resource_result: ResourceTypeResult):
         self.resource_result: ResourceTypeResult = resource_result
         self.date: str = AbstractWriter.get_execution_date()
         self.config: "DaemonConfig" = config
-        self.report_csv_file: file = report_csv_file
+        self.writer: csv.DictWriter = writer
         self.out_file: str = os.path.join(
             str(self.config.upload_path), f"CO2_{self.date}.csv"
         )
@@ -73,7 +73,7 @@ class AbstractWriter(ABC):
         content it needs.
         """
 
-    def build_common_content(self, resource: Resource) -> dict[str, str]:
+    def write_common_content(self, resource: Resource) -> dict[str, str]:
         """
         Method to fill common columns for a given resource.
         Args:

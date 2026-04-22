@@ -16,7 +16,7 @@ class Writer_Storage(AbstractWriter):
         # Add resources
         for resource in resources:
             # Build common columns
-            row = super.build_common_content(resource)
+            row = super.write_common_content(resource)
 
             # resource specific columns
             row[ReportConfig.HEADER[ReportConfig.STORAGE]

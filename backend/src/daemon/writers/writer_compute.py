@@ -12,7 +12,7 @@ class Writer_Compute(AbstractWriter):
         # Add VMs
         for vm in vms:
             # Build common columns
-            row = super.build_common_content(vm)
+            row = super.write_common_content(vm)
 
             # VM specific columns
             row[ReportConfig.HEADER[ReportConfig.COMPUTE]

@@ -101,7 +101,7 @@ class CarbonDaemonOrchestrator:
 
             # Upload report file
             # TODO: rename to have harmonized name
-            self.upload_compute_report()
+            self.upload_report()
 
             total_execution_time = time.time() - start_time
 
@@ -305,17 +305,17 @@ class CarbonDaemonOrchestrator:
             # init csv writer
             with open(self.out_file, "w", newline="") as report_csv_file:
                 fieldnames = AbstractWriter.get_report_headers()
-                self.writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
+                writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
 
             # iterate on writers
             for resource_type_result in self.carbon_daemon_result.dict_resource_result.values():
                 # TODO: need to go via the factory
                 # Instantiate writer dedicated to ResourceType
                 if resource_type_result.resource_type == ResourceType.STORAGE:
-                    writer = Writer_Storage(report_csv_file)
+                    writer = Writer_Storage(writer)
                     writer.write_content()
                 elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
-                    writer = Writer_Compute(report_csv_file)
+                    writer = Writer_Compute(writer)
                     writer.write_content()
 
             self.output_file = report_csv_file
@@ -329,13 +329,10 @@ class CarbonDaemonOrchestrator:
 
         elapsed_time = time.time() - start
 
-        #       #   logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
-        #       #   logging.info("Total energy consumed: %.2f kWh", vm_energy)
         logger.info("CSV report created in %.2f seconds", elapsed_time)
-
         logger.info("Report saved to: %s", self.output_file)
 
-    def upload_compute_report(self) -> None:
+    def upload_report(self) -> None:
         """
         Call the configured uploader to push the CO2 report to the proper
         location.
@@ -355,7 +352,7 @@ class CarbonDaemonOrchestrator:
             upload_type = "local"
             if upload_type == "local":
                 # Local implementation: move file to configured path
-                uploader = Uploader_Local()
+                uploader = Uploader_Local(self.output_file)
                 uploader.upload_report()
 
             upload_time = time.time() - upload_start_time
