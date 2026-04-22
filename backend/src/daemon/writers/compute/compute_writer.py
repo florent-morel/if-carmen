@@ -23,27 +23,16 @@ class ComputeWriter(AbstractWriter):
             vm_carbon += vm.total_carbon_emitted
             vm_energy += vm.total_energy_consumed
 
-            row = [
-                # Common columns
-                super.date,
-                "VM",
-                vm.id,
-                vm.name,
-                vm.region,
-                vm.subscription,
-                vm.total_energy_consumed,
-                vm.total_carbon_operational,
-                vm.total_carbon_embodied,
-                vm.total_carbon_emitted,
-                vm.carbon_intensity,
-                # VM columns
-                vm.vm_size,
-                vm.service,
-                vm.instance,
-                vm.environment,
-                vm.partition,
-                vm.component,
-            ]
+            # Build common columns
+            row = super.build_common_content(vm)
+
+            # VM specific columns
+            row.append(vm.vm_size)
+            row.append(vm.service)
+            row.append(vm.instance)
+            row.append(vm.environment)
+            row.append(vm.partition)
+            row.append(vm.component)
 
             list_rows.append(row)
 

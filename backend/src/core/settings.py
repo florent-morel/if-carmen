@@ -104,6 +104,8 @@ class FinOpsConfig(BaseSettings):
             "StorageType",
             "ReplicationType",
             "SizeGB",
+            # Misc services columns
+            "ServicesCost",
         ]
     ]
  
