@@ -74,17 +74,17 @@ class AbstractWriter(ABC):
         # Add information to fill common columns
         row = {
             # Common columns
-            ReportConfig.HEADER_COMMON_DATE: self.date,
-            ReportConfig.HEADER_COMMON_RESOURCE_TYPE: resource.resource_type,
-            ReportConfig.HEADER_COMMON_ID: resource.id,
-            ReportConfig.HEADER_COMMON_NAME: resource.name,
-            ReportConfig.HEADER_COMMON_REGION: resource.region,
-            ReportConfig.HEADER_COMMON_SUBSCRIPTION: resource.subscription,
-            ReportConfig.HEADER_COMMON_ENERGY: resource.total_energy_consumed,
-            ReportConfig.HEADER_COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
-            ReportConfig.HEADER_COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
-            ReportConfig.HEADER_COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
-            ReportConfig.HEADER_COMMON_CARBON_INTENSITY: resource.carbon_intensity,
+            ReportConfig.HEADER_COMMON.DATE: self.date,
+            ReportConfig.HEADER_COMMON.RESOURCE_TYPE: resource.resource_type,
+            ReportConfig.HEADER_COMMON.ID: resource.id,
+            ReportConfig.HEADER_COMMON.NAME: resource.name,
+            ReportConfig.HEADER_COMMON.REGION: resource.region,
+            ReportConfig.HEADER_COMMON.SUBSCRIPTION: resource.subscription,
+            ReportConfig.HEADER_COMMON.ENERGY: resource.total_energy_consumed,
+            ReportConfig.HEADER_COMMON.OPERATIONAL_CARBON: resource.total_carbon_operational,
+            ReportConfig.HEADER_COMMON.EMBODIED_CARBON: resource.total_carbon_embodied,
+            ReportConfig.HEADER_COMMON.TOTAL_CARBON: resource.total_carbon_emitted,
+            ReportConfig.HEADER_COMMON.CARBON_INTENSITY: resource.carbon_intensity,
         }
 
         return row
