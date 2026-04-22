@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class Writer_Storage(AbstractWriter):
-    def build_content(resources: list[StorageResource]):
+    def write_content(resources: list[StorageResource]):
         logger.info(
             "Starting write_results for resource %s.", StorageResource.resource_type
         )

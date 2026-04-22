@@ -67,7 +67,7 @@ class AbstractWriter(ABC):
         return list_headers
 
     @abstractmethod
-    def build_content() -> Iterable[Iterable[Any]]:
+    def write_content() -> Iterable[Iterable[Any]]:
         """
         Abstract method to let each resource dedicated writer build the
         content it needs.

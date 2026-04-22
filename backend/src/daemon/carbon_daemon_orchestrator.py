@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging
 import time
 import csv
+import file
 
 from backend.src.common.constants import (
     CARMEN_LOGO,
@@ -72,6 +73,8 @@ class CarbonDaemonOrchestrator:
         self.carbon_daemon_result: CarbonDaemonResult = None
 
         register_models()
+
+        self.output_file: file
 
         logger.info("Carbon Daemon initialized")
 
@@ -285,9 +288,7 @@ class CarbonDaemonOrchestrator:
 
         return carbon_daemon_result
 
-    def write_results(
-        self,
-    ):
+    def write_results(self):
         """
         Creates a CSV report containing all resource types.
         Handles VMs, Storage, and future resource categories in one file.
@@ -312,44 +313,19 @@ class CarbonDaemonOrchestrator:
                 # Instantiate writer dedicated to ResourceType
                 if resource_type_result.resource_type == ResourceType.STORAGE:
                     writer = Writer_Storage(report_csv_file)
-                    writer.build_content()
+                    writer.write_content()
                 elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
                     writer = Writer_Compute(report_csv_file)
-                    writer.build_content()
+                    writer.write_content()
 
-        # # TODO: Implement loop on all active resource runners
-        # First build list of row headers
-        #     for writer in list_active_writers:
-        #         # call each storage writer to get rows
-        #         list_row_headers.append(writer.build_rows_headers())
-        # with open(self.out_file, mode="w", newline="", encoding="utf-8") as report:
-        #     writer_orchestrator = csv.writer(report)
+            self.output_file = report_csv_file
 
-        #     list_row_headers = list[str]
-        #     list_content = list[str]
-
-        #     # Data from CarbonDaemonResult: total_operational_carbon, etc
-        #     # Total from calcultation.from CarbonDaemonResult
-        #     # global_results_writer.write()
-
-        #     # Columns for each source
-        #     # source_related_writer.write()
-
-        # TODO: Then add data in each row
-        # /!\ Need to check consitency between data & rows
-        #     for writer in list_active_writers:
-        #         list_content.append(writer.build_content())
-        #     # Write Row headers and content
-        #     writer_orchestrator.writerows(list_row_headers)
-
-        #     # Concatenate content for each source
-        #     for row in self.build_content():
-        #         writer_orchestrator.writerow(row)
         else:
             # Carbon daemon run was not succesful, write error in output file.
             logger.info(
                 "Carbon daemon run was not succesful, write error in output file."
             )
+            # TODO: Implement error case
 
         elapsed_time = time.time() - start
 
@@ -357,11 +333,7 @@ class CarbonDaemonOrchestrator:
         #       #   logging.info("Total energy consumed: %.2f kWh", vm_energy)
         logger.info("CSV report created in %.2f seconds", elapsed_time)
 
-    # logger.info(
-    #     "  Resources: %d resources",
-    #     len(resources),
-    # )
-    # logger.info("Report saved to: %s", self.out_file)
+        logger.info("Report saved to: %s", self.output_file)
 
     def upload_compute_report(self) -> None:
         """

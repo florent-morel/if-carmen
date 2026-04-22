@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class Writer_Compute(AbstractWriter):
-    def build_content(vms: list[VirtualMachine]):
+    def write_content(vms: list[VirtualMachine]):
         # Add VMs
         for vm in vms:
             # Build common columns
