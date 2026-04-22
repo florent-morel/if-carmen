@@ -17,7 +17,6 @@ class Writer_Compute(AbstractWriter):
             row = super.build_common_content(vm)
 
             # VM specific columns
-            row[FinOpsConfig.HEADER_COMPUTE_] = vm.storage_type
             row[FinOpsConfig.HEADER_COMPUTE_VM_SIZE] = vm.vm_size
             row[FinOpsConfig.HEADER_COMPUTE_SERVICE] = vm.service
             row[FinOpsConfig.HEADER_COMPUTE_INSTANCE] = vm.instance
@@ -25,7 +24,7 @@ class Writer_Compute(AbstractWriter):
             row[FinOpsConfig.HEADER_COMPUTE_PARTITION] = vm.partition
             row[FinOpsConfig.HEADER_COMPUTE_COMPONENT] = vm.component
 
-            writer.write(row)
+            super.writer.write(row)
 
         logger.info(
             " Rows built for %d resources",

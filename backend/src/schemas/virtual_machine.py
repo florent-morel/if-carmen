@@ -20,11 +20,12 @@ class VirtualMachine(ComputeResource):
     vm_size: str | None = None  # cloud/instance-type in IF
     service: str | None = None
     component: str | None = None
-    storage_size: list[float] = Field(default_factory=list)  # in GB
-    storage_energy: list[float] = Field(default_factory=list)
-    total_storage_energy: float = 0.0
-    storage_embodied: list[float] = Field(default_factory=list)
-    total_storage_embodied: float = 0.0
+    # TODO: check if this is really necessary
+    # storage_size: list[float] = Field(default_factory=list)  # in GB
+    # storage_energy: list[float] = Field(default_factory=list)
+    # total_storage_energy: float = 0.0
+    # storage_embodied: list[float] = Field(default_factory=list)
+    # total_storage_embodied: float = 0.0
 
     def __init_(self):
         super().__init_()

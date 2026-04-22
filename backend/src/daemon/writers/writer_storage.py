@@ -10,22 +10,22 @@ logger = logging.getLogger(__name__)
 class Writer_Storage(AbstractWriter):
 
     def build_content(resources: list[StorageResource]):
+        logger.info(
+            "Starting write_results for resource %s.",
+            StorageResource.resource_type
+        )
 
         # Add resources
-        for storage_resource in resources:
+        for resource in resources:
             # Build common columns
-            row = super.build_common_content(storage_resource)
+            row = super.build_common_content(resource)
 
-            # storage_resource specific columns
-            row[FinOpsConfig.HEADER_STORAGE_TYPE] = storage_resource.storage_type
-            row[FinOpsConfig.HEADER_STORAGE_REPLICATION_TYPE] = storage_resource.replication_type
-            row[FinOpsConfig.HEADER_STORAGE_SIZE_GB] = storage_resource.size_gb
-            # TODO: Needed???
-            row[FinOpsConfig.HEADER_STORAGE_] = storage_resource.resource_group
-            row[FinOpsConfig.HEADER_STORAGE_] = storage_resource.total_storage_embodied
-            row[FinOpsConfig.HEADER_STORAGE_] = storage_resource.duration_seconds
+            # resource specific columns
+            row[FinOpsConfig.HEADER_STORAGE_TYPE] = resource.storage_type
+            row[FinOpsConfig.HEADER_STORAGE_REPLICATION_TYPE] = resource.replication_type
+            row[FinOpsConfig.HEADER_STORAGE_SIZE_GB] = resource.size_gb
 
-            writer.write(row)
+            super.writer.write(row)
 
         logger.info(
             " Rows built for %d resources",

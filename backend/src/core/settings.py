@@ -80,6 +80,20 @@ class FinOpsConfig(BaseSettings):
     """
 
     # Common columns
+    # HEADER_COMMON = {
+    #     DATE: "Date",
+    #     RESOURCE_TYPE: "ResourceType",
+    #     ID: "Id",
+    #     NAME: "Name",
+    #     REGION: "Region",
+    #     SUBSCRIPTION: "Subscription",
+    #     ENERGY: "EnergyKWH",
+    #     OPERATIONAL_CARBON: "OperationalCarbonGramsCO2eq",
+    #     EMBODIED_CARBON: "EmbodiedCarbonGramsCO2eq",
+    #     TOTAL_CARBON: "TotalCarbonGramsCO2eq",
+    #     CARBON_INTENSITY: "CarbonIntensity",
+    # }
+
     HEADER_COMMON_DATE = "Date"
     HEADER_COMMON_RESOURCE_TYPE = "ResourceType"
     HEADER_COMMON_ID = "Id"

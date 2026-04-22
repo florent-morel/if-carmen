@@ -1,5 +1,7 @@
+
 import logging
 import os
+import csv
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import Any, Iterable
@@ -15,13 +17,19 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractWriter(ABC):
-    def __init__(self, config: "DaemonConfig", resource_result: ResourceDaemonResult):
+
+    def __init__(self, config: "DaemonConfig",
+                 resource_result: ResourceDaemonResult):
         self.resource_result: ResourceDaemonResult
         self.date: str = AbstractWriter.get_execution_date()
         self.config: "DaemonConfig" = config
         self.out_file: str = os.path.join(
             str(self.config.upload_path), f"CO2_{self.date}.csv"
         )
+        with open(self.out_file, 'w', newline='') as csvfile:
+            # fieldnames = ['first_name', 'last_name']
+            # self.writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            self.writer = csv.DictWriter(csvfile)
 
     @staticmethod
     def get_execution_date():
@@ -69,17 +77,17 @@ class AbstractWriter(ABC):
         # Add information to fill common columns
         row = {
             # Common columns
-            self.date,
-            resource.resource_type,  # TODO: there's no resource_type attribute in Resource.
-            resource.id,
-            resource.resource_type,
-            resource.region,
-            resource.subscription,
-            resource.total_energy_consumed,
-            resource.total_carbon_operational,
-            resource.total_carbon_embodied,
-            resource.total_carbon_emitted,
-            resource.carbon_intensity,
-        ]
+            FinOpsConfig.HEADER_COMMON_DATE: self.date,
+            FinOpsConfig.HEADER_COMMON_RESOURCE_TYPE: resource.resource_type,
+            FinOpsConfig.HEADER_COMMON_ID: resource.id,
+            FinOpsConfig.HEADER_COMMON_NAME: resource.name,
+            FinOpsConfig.HEADER_COMMON_REGION: resource.region,
+            FinOpsConfig.HEADER_COMMON_SUBSCRIPTION: resource.subscription,
+            FinOpsConfig.HEADER_COMMON_ENERGY: resource.total_energy_consumed,
+            FinOpsConfig.HEADER_COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
+            FinOpsConfig.HEADER_COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
+            FinOpsConfig.HEADER_COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
+            FinOpsConfig.HEADER_COMMON_CARBON_INTENSITY: resource.carbon_intensity,
+        }
 
         return row
