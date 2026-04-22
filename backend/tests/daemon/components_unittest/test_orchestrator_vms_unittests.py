@@ -5,32 +5,27 @@ These tests cover the orchestrator-based daemon architecture including
 processor patterns, YAML configuration, and the CarbonDaemonOrchestrator execution.
 """
 
+import logging
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+from backend.src.common.constants import (
+    DAILY_SECONDS,
+    SAMPLING_RATE_IN_SECONDS,
+)
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import ConfigurationError, ComputationError
-from backend.src.schemas.virtual_machine import VirtualMachine
-
-from backend.src.services.carbon_service.carbon_service import CarbonService
-
+from backend.src.common.known_exception import ConfigurationError
 from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
     CarbonDaemonResult,
 )
-from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
-from backend.src.daemon.processors.processor_compute import Processor_Compute
 from backend.src.daemon.runners.runner_compute import Runner_Compute
-from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.schemas.resource import ResourceType
+from backend.src.schemas.virtual_machine import VirtualMachine
+from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.services.carbon_service.impact_framework.service.if_vm_service import (
     IFVMService,
 )
-from backend.src.common.constants import (
-    SAMPLING_RATE_IN_SECONDS,
-    DAILY_SECONDS,
-)
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +48,6 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         ]
 
     @patch("backend.src.daemon.carbon_daemon_orchestrator.register_models")
-    # @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
     @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_runner_compute_success(
         self, mock_ioc_util_resolve, mock_register_models
@@ -143,31 +137,15 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         )
         self.assertIn("Reader failed", carbonDaemonResult.error_message)
 
-    # @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
-    # @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
     @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_run_carbon_service_exception(self, mock_ioc_util_resolve):
         """
         Test daemon execution when carbon service raises an exception.
         """
-        # mock_reader = MagicMock()
-        # mock_reader.read.return_value = self.sample_vms.copy()
-
         mock_carbon_service = MagicMock()
         mock_carbon_service.run_engine.side_effect = Exception("Carbon service failed")
 
-        # mock_reader_factory = MagicMock()
-        # mock_reader_factory.create_reader.return_value = mock_reader
-
         mock_ioc_util_resolve.return_value = mock_carbon_service
-
-        # daemon = CarbonDaemon(
-        #     self.mock_config,
-        #     reader_factory=mock_reader_factory,
-        #     writer_factory=mock_writer_factory,
-        # )
-
-        # result = daemon.run()
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
@@ -210,83 +188,6 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
             "known error during daemon execution",
             carbonDaemonResult.error_message.lower(),
         )
-
-    @patch(
-        "backend.src.daemon.readers.compute.reader_compute_azure.initialize_azure_client"
-    )
-    def test_default_reader_factory_azure(self, mock_azure_client):
-        """
-        Test DefaultReaderFactory creates Azure reader for azure source type.
-        """
-        mock_azure_client.return_value = MagicMock()
-
-        factory = DefaultReaderFactory()
-        config = MagicMock()
-        config.source = MagicMock()
-        config.source.type = "azure"
-
-        reader = factory.create_reader(config)
-
-        self.assertIsNotNone(reader)
-
-    def test_default_reader_factory_unsupported(self):
-        """
-        Test DefaultReaderFactory raises ValueError for unsupported source type.
-        """
-        factory = DefaultReaderFactory()
-        config = MagicMock()
-        config.source = MagicMock()
-        config.source.type = "unsupported"
-
-        with self.assertRaises(ValueError) as context:
-            factory.create_reader(config)
-
-        self.assertIn("unsupported source type", str(context.exception))
-
-    @patch(
-        "backend.src.daemon.writers.compute.azure_compute_writer.initialize_azure_client"
-    )
-    def test_default_writer_factory_azure(self, mock_azure_client):
-        """
-        Test DefaultWriterFactory creates Azure writer for azure upload type.
-        """
-        mock_azure_client.return_value = MagicMock()
-
-        factory = DefaultWriterFactory()
-        config = MagicMock()
-        config.upload = MagicMock()
-        config.upload.type = "azure"
-
-        writer = factory.create_writer(config, self.sample_vms)
-
-        self.assertIsNotNone(writer)
-
-    def test_default_writer_factory_local(self):
-        """
-        Test DefaultWriterFactory creates Local writer for local upload type.
-        """
-        factory = DefaultWriterFactory()
-        config = MagicMock()
-        config.upload = MagicMock()
-        config.upload.type = "local"
-
-        writer = factory.create_writer(config, self.sample_vms)
-
-        self.assertIsNotNone(writer)
-
-    def test_default_writer_factory_unsupported(self):
-        """
-        Test DefaultWriterFactory raises ValueError for unsupported upload type.
-        """
-        factory = DefaultWriterFactory()
-        config = MagicMock()
-        config.upload = MagicMock()
-        config.upload.type = "unsupported"
-
-        with self.assertRaises(ValueError) as context:
-            factory.create_writer(config, self.sample_vms)
-
-        self.assertIn("unsupported upload type", str(context.exception))
 
 
 if __name__ == "__main__":
