@@ -7,7 +7,7 @@ from backend.src.schemas.virtual_machine import VirtualMachine
 logger = logging.getLogger(__name__)
 
 
-class ComputeWriter(AbstractWriter):
+class Writer_Compute(AbstractWriter):
 
     def build_content(vms: list[VirtualMachine]) -> Iterable[Iterable[Any]]:
         vm_carbon = 0
@@ -42,4 +42,3 @@ class ComputeWriter(AbstractWriter):
             len(vms),
         )
         return list_rows
-
