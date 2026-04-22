@@ -74,7 +74,7 @@ class ThanosConfig(BaseSettings):
         return level
 
 
-class FinOpsConfig(BaseSettings):
+class ReportConfig(BaseSettings):
     """
     Configuration class for FinOps settings.
     """
@@ -175,7 +175,7 @@ class Settings(BaseSettings):
 
     FASTAPI: FastAPIConfig = FastAPIConfig()
     THANOS: ThanosConfig
-    FINOPS: FinOpsConfig
+    FINOPS: ReportConfig
     UVICORN: UvicornConfig
     TEST_ENV: bool = os.getenv("TEST_ENV", "False").lower() in ("true", "1", "t")
     LOG_LEVEL: LogLevel = LogLevel.INFO

@@ -10,7 +10,7 @@ from backend.src.common.known_exception import KnownException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
-from backend.src.core.settings import settings, FinOpsConfig
+from backend.src.core.settings import settings, ReportConfig
 
 logger = logging.getLogger(__name__)
 
@@ -74,17 +74,17 @@ class AbstractWriter(ABC):
         # Add information to fill common columns
         row = {
             # Common columns
-            FinOpsConfig.HEADER_COMMON_DATE: self.date,
-            FinOpsConfig.HEADER_COMMON_RESOURCE_TYPE: resource.resource_type,
-            FinOpsConfig.HEADER_COMMON_ID: resource.id,
-            FinOpsConfig.HEADER_COMMON_NAME: resource.name,
-            FinOpsConfig.HEADER_COMMON_REGION: resource.region,
-            FinOpsConfig.HEADER_COMMON_SUBSCRIPTION: resource.subscription,
-            FinOpsConfig.HEADER_COMMON_ENERGY: resource.total_energy_consumed,
-            FinOpsConfig.HEADER_COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
-            FinOpsConfig.HEADER_COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
-            FinOpsConfig.HEADER_COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
-            FinOpsConfig.HEADER_COMMON_CARBON_INTENSITY: resource.carbon_intensity,
+            ReportConfig.HEADER_COMMON_DATE: self.date,
+            ReportConfig.HEADER_COMMON_RESOURCE_TYPE: resource.resource_type,
+            ReportConfig.HEADER_COMMON_ID: resource.id,
+            ReportConfig.HEADER_COMMON_NAME: resource.name,
+            ReportConfig.HEADER_COMMON_REGION: resource.region,
+            ReportConfig.HEADER_COMMON_SUBSCRIPTION: resource.subscription,
+            ReportConfig.HEADER_COMMON_ENERGY: resource.total_energy_consumed,
+            ReportConfig.HEADER_COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
+            ReportConfig.HEADER_COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
+            ReportConfig.HEADER_COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
+            ReportConfig.HEADER_COMMON_CARBON_INTENSITY: resource.carbon_intensity,
         }
 
         return row

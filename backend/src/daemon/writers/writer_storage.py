@@ -2,17 +2,15 @@ import logging
 
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.core.settings import FinOpsConfig
+from backend.src.core.settings import ReportConfig
 
 logger = logging.getLogger(__name__)
 
 
 class Writer_Storage(AbstractWriter):
-
     def build_content(resources: list[StorageResource]):
         logger.info(
-            "Starting write_results for resource %s.",
-            StorageResource.resource_type
+            "Starting write_results for resource %s.", StorageResource.resource_type
         )
 
         # Add resources
@@ -21,9 +19,11 @@ class Writer_Storage(AbstractWriter):
             row = super.build_common_content(resource)
 
             # resource specific columns
-            row[FinOpsConfig.HEADER_STORAGE_TYPE] = resource.storage_type
-            row[FinOpsConfig.HEADER_STORAGE_REPLICATION_TYPE] = resource.replication_type
-            row[FinOpsConfig.HEADER_STORAGE_SIZE_GB] = resource.size_gb
+            row[ReportConfig.HEADER_STORAGE_TYPE] = resource.storage_type
+            row[
+                ReportConfig.HEADER_STORAGE_REPLICATION_TYPE
+            ] = resource.replication_type
+            row[ReportConfig.HEADER_STORAGE_SIZE_GB] = resource.size_gb
 
             super.writer.write(row)
 
