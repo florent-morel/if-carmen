@@ -47,3 +47,9 @@ Algo:
 - Dedicated Reader, Runner.
 - Adapt Writer.
 - From Berkay's PR.
+
+## Fixes
+
+
+- calculate_vm_count_for_missing_regions -> it applies to any resource.
+- remove THANOS: ThanosConfig
