@@ -244,39 +244,42 @@ class CarbonDaemonOrchestrator:
         dict_resource_results: dict[ResourceType, ResourceTypeResult],
     ) -> CarbonDaemonResult:
         """
-        Create a CarbonDaemonResult from the list of processed resources.
+        Create a CarbonDaemonResult from the list of resource type results.
 
         Args:
             success: whether the call to the IF has been successful.
             execution_time: time to execute the call.
-            processed_resources: List of processed resources.
+            dict_resource_results: List of resource type results.
 
         Returns:
             CarbonDaemonResult
         """
-        total_carbon_operational = 0
-        total_carbon_embodied = 0
-        total_carbon_emitted = 0
-        total_energy_consumed = 0
 
-        if dict_resource_results:
-            for resource_result in dict_resource_results.values():
-                total_carbon_operational += resource_result.total_carbon_operational
-                total_carbon_embodied += resource_result.total_carbon_embodied
-                total_carbon_emitted += resource_result.total_carbon_emitted
-                total_energy_consumed += resource_result.total_energy_consumed
-
-        result = CarbonDaemonResult(
+        carbon_daemon_result = CarbonDaemonResult(
             success=success,
             dict_resource_result=dict_resource_results,
-            total_energy_consumed=total_energy_consumed,
-            total_carbon_operational=total_carbon_operational,
-            total_carbon_embodied=total_carbon_embodied,
-            total_carbon_emitted=total_carbon_emitted,
+            total_energy_consumed=0,
+            total_carbon_operational=0,
+            total_carbon_embodied=0,
+            total_carbon_emitted=0,
             execution_time=execution_time,
         )
 
-        return result
+        for resource_result in dict_resource_results.values():
+            carbon_daemon_result.total_carbon_operational += (
+                resource_result.total_carbon_operational
+            )
+            carbon_daemon_result.total_carbon_embodied += (
+                resource_result.total_carbon_embodied
+            )
+            carbon_daemon_result.total_carbon_emitted += (
+                resource_result.total_carbon_emitted
+            )
+            carbon_daemon_result.total_energy_consumed += (
+                resource_result.total_energy_consumed
+            )
+
+        return carbon_daemon_result
 
     def write_results(
         self,

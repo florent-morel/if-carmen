@@ -30,7 +30,7 @@ class CarbonDaemonResult:
     def __init__(
         self,
         success: bool,
-        dict_resource_result: dict[ResourceType, [ResourceTypeResult]],
+        dict_resource_result: dict[ResourceType, ResourceTypeResult],
         total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,

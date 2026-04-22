@@ -17,16 +17,15 @@ logger = logging.getLogger(__name__)
 
 class AbstractWriter(ABC):
     def __init__(self, config: "DaemonConfig", resource_result: ResourceTypeResult):
-        self.resource_result: ResourceTypeResult
+        self.resource_result: ResourceTypeResult = resource_result
         self.date: str = AbstractWriter.get_execution_date()
         self.config: "DaemonConfig" = config
         self.out_file: str = os.path.join(
             str(self.config.upload_path), f"CO2_{self.date}.csv"
         )
         with open(self.out_file, "w", newline="") as csvfile:
-            # fieldnames = ['first_name', 'last_name']
-            # self.writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            self.writer = csv.DictWriter(csvfile)
+            fieldnames = self.get_report_headers()
+            self.writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     @staticmethod
     def get_execution_date():
@@ -51,12 +50,15 @@ class AbstractWriter(ABC):
         )
         return execution_date_str
 
-    def build_rows_headers() -> Iterable[Iterable[Any]]:
+    def initialize_headers(self):
+        self.writer.writeheader()
+
+    def get_report_headers() -> Iterable[Iterable[Any]]:
         """
         Abstract method to let each resource dedicated writer list the header
         rows it needs.
         """
-        return settings.FINOPS.REPORT_HEADERS
+        return ReportConfig.REPORT_HEADERS
 
     @abstractmethod
     def build_content() -> Iterable[Iterable[Any]]:
