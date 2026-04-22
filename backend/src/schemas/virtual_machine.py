@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from pydantic import Field
 from backend.src.schemas.compute_resource import ComputeResource
+from backend.src.schemas.resource import ResourceType
 
 
 class VirtualMachine(ComputeResource):
@@ -27,4 +28,4 @@ class VirtualMachine(ComputeResource):
 
     def __init_(self):
         super().__init_()
-        self.name = "VirtualMachine"
+        self.name = ResourceType.VIRTUAL_MACHINE.value

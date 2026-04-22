@@ -10,18 +10,10 @@ logger = logging.getLogger(__name__)
 class Writer_Compute(AbstractWriter):
 
     def build_content(vms: list[VirtualMachine]) -> Iterable[Iterable[Any]]:
-        vm_carbon = 0
-        vm_energy = 0
 
         # Add VMs
         list_rows = []
         for vm in vms:
-            vm.total_carbon_emitted = (
-                vm.total_carbon_operational + vm.total_carbon_embodied
-            )
-            vm_carbon += vm.total_carbon_emitted
-            vm_energy += vm.total_energy_consumed
-
             # Build common columns
             row = super.build_common_content(vm)
 
@@ -35,10 +27,8 @@ class Writer_Compute(AbstractWriter):
 
             list_rows.append(row)
 
-        logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
-        logging.info("Total energy consumed: %.2f kWh", vm_energy)
         logger.info(
-            "  Resources: %d VMs",
+            " Rows built for %d resources",
             len(vms),
         )
         return list_rows
