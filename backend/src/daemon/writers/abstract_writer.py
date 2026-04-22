@@ -1,6 +1,6 @@
 import logging
 import os
-import csv
+import file
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import Any, Iterable
@@ -16,16 +16,16 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractWriter(ABC):
-    def __init__(self, config: "DaemonConfig", resource_result: ResourceTypeResult):
+    def __init__(self, config: "DaemonConfig",
+                 report_csv_file: file,
+                 resource_result: ResourceTypeResult):
         self.resource_result: ResourceTypeResult = resource_result
         self.date: str = AbstractWriter.get_execution_date()
         self.config: "DaemonConfig" = config
+        self.report_csv_file: file = report_csv_file
         self.out_file: str = os.path.join(
             str(self.config.upload_path), f"CO2_{self.date}.csv"
         )
-        with open(self.out_file, "w", newline="") as csvfile:
-            fieldnames = self.get_report_headers()
-            self.writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     @staticmethod
     def get_execution_date():
@@ -53,12 +53,18 @@ class AbstractWriter(ABC):
     def initialize_headers(self):
         self.writer.writeheader()
 
+    @staticmethod
     def get_report_headers() -> Iterable[Iterable[Any]]:
         """
         Abstract method to let each resource dedicated writer list the header
         rows it needs.
         """
-        return ReportConfig.REPORT_HEADERS
+        list_headers = []
+        for header in ReportConfig.HEADER.values():
+            for header_sub in header.values():
+                list_headers.append(header_sub)
+
+        return list_headers
 
     @abstractmethod
     def build_content() -> Iterable[Iterable[Any]]:

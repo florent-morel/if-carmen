@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import time
+import csv
 
 from backend.src.common.constants import (
     CARMEN_LOGO,
@@ -40,6 +41,9 @@ from backend.src.daemon.processors.abstract_processor import (
 )
 
 from backend.src.daemon.uploaders.abstract_uploader import AbstractUploader
+from backend.src.daemon.writers.abstract_writer import AbstractWriter
+from backend.src.daemon.writers.writer_storage import Writer_Storage
+from backend.src.daemon.writers.writer_compute import Writer_Compute
 from backend.src.daemon.uploaders.uploader_local import Uploader_Local
 
 
@@ -297,6 +301,22 @@ class CarbonDaemonOrchestrator:
         if self.carbon_daemon_result.success:
             # Carbon daemon run was succesful, write report output file.
             logger.info("Carbon daemon run was succesful, write report output file.")
+            # init csv writer
+            with open(self.out_file, "w", newline="") as report_csv_file:
+                fieldnames = AbstractWriter.get_report_headers()
+                self.writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
+
+            # iterate on writers
+            for resource_type_result in self.carbon_daemon_result.dict_resource_result.values():
+                # TODO: need to go via the factory
+                # Instantiate writer dedicated to ResourceType
+                if resource_type_result.resource_type == ResourceType.STORAGE:
+                    writer = Writer_Storage(report_csv_file)
+                    writer.build_content()
+                elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
+                    writer = Writer_Compute(report_csv_file)
+                    writer.build_content()
+
         # # TODO: Implement loop on all active resource runners
         # First build list of row headers
         #     for writer in list_active_writers:

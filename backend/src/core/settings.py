@@ -79,41 +79,76 @@ class ReportConfig(BaseSettings):
     Configuration class for FinOps settings.
     """
 
+    COMMON: str = "COMMON"
+    COMPUTE: str = "COMPUTE"
+    STORAGE: str = "STORAGE"
+    MISC_SERVICES: str = "MISC_SERVICES"
+
+    # Common columns
+    COMMON_DATE: str = "COMMON_DATE"
+    COMMON_RESOURCE_TYPE: str = "COMMON_RESOURCE_TYPE"
+    COMMON_ID: str = "COMMON_ID"
+    COMMON_NAME: str = "COMMON_NAME"
+    COMMON_REGION: str = "COMMON_REGION"
+    COMMON_SUBSCRIPTION: str = "COMMON_SUBSCRIPTION"
+    COMMON_ENERGY: str = "COMMON_ENERGY"
+    COMMON_OPERATIONAL_CARBON: str = "COMMON_OPERATIONAL_CARBON"
+    COMMON_EMBODIED_CARBON: str = "COMMON_EMBODIED_CARBON"
+    COMMON_TOTAL_CARBON: str = "COMMON_TOTAL_CARBON"
+    COMMON_CARBON_INTENSITY: str = "COMMON_CARBON_INTENSITY"
+
+    # VM columns
+    COMPUTE_VM_SIZE: str = "COMPUTE_VM_SIZE"
+    COMPUTE_SERVICE: str = "COMPUTE_SERVICE"
+    COMPUTE_INSTANCE: str = "COMPUTE_INSTANCE"
+    COMPUTE_ENVIRONMENT: str = "COMPUTE_ENVIRONMENT"
+    COMPUTE_PARTITION: str = "COMPUTE_PARTITION"
+    COMPUTE_COMPONENT: str = "COMPUTE_COMPONENT"
+
+    # Storage columns
+    STORAGE_TYPE: str = "STORAGE_TYPE"
+    STORAGE_REPLICATION_TYPE: str = "STORAGE_REPLICATION_TYPE"
+    STORAGE_SIZE_GB: str = "STORAGE_SIZE_GB"
+
+    # Misc services columns
+    MISC_SERVICES_COST: str = "MISC_SERVICES_COST"
+
     HEADER = {
         # Common columns
-        "COMMON": {
-            "DATE": "Date",
-            "RESOURCE_TYPE": "ResourceType",
-            "ID": "Id",
-            "NAME": "Name",
-            "REGION": "Region",
-            "SUBSCRIPTION": "Subscription",
-            "ENERGY": "EnergyKWH",
-            "OPERATIONAL_CARBON": "OperationalCarbonGramsCO2eq",
-            "EMBODIED_CARBON": "EmbodiedCarbonGramsCO2eq",
-            "TOTAL_CARBON": "TotalCarbonGramsCO2eq",
-            "CARBON_INTENSITY": "CarbonIntensity",
+        COMMON: {
+           COMMON_DATE: "Date",
+           COMMON_RESOURCE_TYPE: "ResourceType",
+           COMMON_ID: "Id",
+           COMMON_NAME: "Name",
+           COMMON_REGION: "Region",
+           COMMON_SUBSCRIPTION: "Subscription",
+           COMMON_ENERGY: "EnergyKWH",
+           COMMON_OPERATIONAL_CARBON: "OperationalCarbonGramsCO2eq",
+           COMMON_EMBODIED_CARBON: "EmbodiedCarbonGramsCO2eq",
+           COMMON_TOTAL_CARBON: "TotalCarbonGramsCO2eq",
+           COMMON_CARBON_INTENSITY: "CarbonIntensity",
         },
         # VM columns
-        "COMPUTE": {
-            "VM_SIZE": "VMSize",
-            "SERVICE": "Service",
-            "INSTANCE": "Instance",
-            "ENVIRONMENT": "Environment",
-            "PARTITION": "Partition",
-            "COMPONENT": "Component",
+        COMPUTE: {
+           COMPUTE_VM_SIZE: "VMSize",
+           COMPUTE_SERVICE: "Service",
+           COMPUTE_INSTANCE: "Instance",
+           COMPUTE_ENVIRONMENT: "Environment",
+           COMPUTE_PARTITION: "Partition",
+           COMPUTE_COMPONENT: "Component",
         },
         # Storage columns
-        "STORAGE": {
-            "TYPE": "StorageType",
-            "REPLICATION_TYPE": "ReplicationType",
-            "SIZE_GB": "SizeGB",
+        STORAGE: {
+           STORAGE_TYPE: "StorageType",
+           STORAGE_REPLICATION_TYPE: "ReplicationType",
+           STORAGE_SIZE_GB: "SizeGB",
         },
         # Misc services columns
-        "MISC_SERVICES": {
-            "COST": "ServicesCost",
+        MISC_SERVICES: {
+            MISC_SERVICES_COST: "ServicesCost",
         },
     }
+
 
     REPORT_HEADERS: list[list[str]] = [
         [
