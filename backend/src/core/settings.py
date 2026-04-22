@@ -79,6 +79,35 @@ class FinOpsConfig(BaseSettings):
     Configuration class for FinOps settings.
     """
 
+    # Common columns
+    HEADER_COMMON_DATE = "Date"
+    HEADER_COMMON_RESOURCE_TYPE = "ResourceType"
+    HEADER_COMMON_ID = "Id"
+    HEADER_COMMON_NAME = "Name"
+    HEADER_COMMON_REGION = "Region"
+    HEADER_COMMON_SUBSCRIPTION = "Subscription"
+    HEADER_COMMON_ENERGY = "EnergyKWH"
+    HEADER_COMMON_OPERATIONAL_CARBON = "OperationalCarbonGramsCO2eq"
+    HEADER_COMMON_EMBODIED_CARBON = "EmbodiedCarbonGramsCO2eq"
+    HEADER_COMMON_TOTAL_CARBON = "TotalCarbonGramsCO2eq"
+    HEADER_COMMON_CARBON_INTENSITY = "CarbonIntensity"
+
+    # VM columns
+    HEADER_COMPUTE_VM_SIZE = "VMSize"
+    HEADER_COMPUTE_SERVICE = "Service"
+    HEADER_COMPUTE_INSTANCE = "Instance"
+    HEADER_COMPUTE_ENVIRONMENT = "Environment"
+    HEADER_COMPUTE_PARTITION = "Partition"
+    HEADER_COMPUTE_COMPONENT = "Component"
+
+    # Storage columns
+    HEADER_STORAGE_TYPE = "StorageType"
+    HEADER_STORAGE_REPLICATION_TYPE = "ReplicationType"
+    HEADER_STORAGE_SIZE_GB = "SizeGB"
+
+    # Misc services columns
+    HEADER_MISC_SERVICES_COST = "ServicesCost"
+
     REPORT_HEADERS: list[list[str]] = [
         [
             # Common columns

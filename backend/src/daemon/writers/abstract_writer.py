@@ -9,7 +9,7 @@ from backend.src.common.known_exception import KnownException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
 from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
-from backend.src.core.settings import settings
+from backend.src.core.settings import settings, FinOpsConfig
 
 logger = logging.getLogger(__name__)
 
@@ -60,15 +60,14 @@ class AbstractWriter(ABC):
         content it needs.
         """
 
-    def build_common_content(self, resource: Resource) -> Iterable[Any]:
+    def build_common_content(self, resource: Resource) -> dict[str, str]:
         """
         Method to fill common columns for a given resource.
         Args:
             resource: the resource to fill the columns.
         """
-
         # Add information to fill common columns
-        row = [
+        row = {
             # Common columns
             self.date,
             resource.resource_type,  # TODO: there's no resource_type attribute in Resource.

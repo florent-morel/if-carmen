@@ -1,34 +1,33 @@
 import logging
-from typing import Any, Iterable
 
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.schemas.virtual_machine import VirtualMachine
+from backend.src.core.settings import FinOpsConfig
 
 logger = logging.getLogger(__name__)
 
 
 class Writer_Compute(AbstractWriter):
 
-    def build_content(vms: list[VirtualMachine]) -> Iterable[Iterable[Any]]:
+    def build_content(vms: list[VirtualMachine]):
 
         # Add VMs
-        list_rows = []
         for vm in vms:
             # Build common columns
             row = super.build_common_content(vm)
 
             # VM specific columns
-            row.append(vm.vm_size)
-            row.append(vm.service)
-            row.append(vm.instance)
-            row.append(vm.environment)
-            row.append(vm.partition)
-            row.append(vm.component)
+            row[FinOpsConfig.HEADER_COMPUTE_] = vm.storage_type
+            row[FinOpsConfig.HEADER_COMPUTE_VM_SIZE] = vm.vm_size
+            row[FinOpsConfig.HEADER_COMPUTE_SERVICE] = vm.service
+            row[FinOpsConfig.HEADER_COMPUTE_INSTANCE] = vm.instance
+            row[FinOpsConfig.HEADER_COMPUTE_ENVIRONMENT] = vm.environment
+            row[FinOpsConfig.HEADER_COMPUTE_PARTITION] = vm.partition
+            row[FinOpsConfig.HEADER_COMPUTE_COMPONENT] = vm.component
 
-            list_rows.append(row)
+            writer.write(row)
 
         logger.info(
             " Rows built for %d resources",
             len(vms),
         )
-        return list_rows
