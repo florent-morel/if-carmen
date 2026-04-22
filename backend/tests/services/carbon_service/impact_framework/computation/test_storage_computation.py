@@ -3,6 +3,7 @@
 End-to-end tests for storage computation in impact framework.
 """
 import pytest
+import logging
 
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.impact_framework.service.if_storage_service import (
@@ -13,7 +14,10 @@ from backend.tests.services.carbon_service.impact_framework.computation.computat
     compute_storage_embodied_helper,
 )
 
-STORAGE_DAILY_DURATION = 86400  # 24 hours in seconds (daily billing)
+from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.common.constants import DAILY_SECONDS
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -30,7 +34,7 @@ def base_storage():
         region="francecentral",
         carbon_intensity=44.0,
         time_points=["2021-01-01"],
-        duration_seconds=STORAGE_DAILY_DURATION,
+        duration_seconds=DAILY_SECONDS,
     )
 
 
@@ -55,14 +59,16 @@ def test_storage_energy_computation_by_type(
     storage.region = region
     storage.carbon_intensity = carbon_intensity
     storage.id = f"storage_{storage_type.lower()}"
-    storage.resource_type = f"{storage_type} Test"
+    # storage.resource_type = f"{storage_type} Test"
 
     expected_energy = compute_storage_energy_helper(
-        size_gb, storage_type, "LRS", STORAGE_DAILY_DURATION
+        size_gb, storage_type, "LRS", DAILY_SECONDS
     )
 
-    service = IFStorageService(STORAGE_DAILY_DURATION)
+    service = IFStorageService(DAILY_SECONDS)
     storage_resources = service.run_engine([storage])
+
+    logger.info(f"storage_resources: {storage_resources}")
 
     assert len(storage_resources) == 1
     assert storage_resources[0].energy_consumed[0] == pytest.approx(
@@ -86,7 +92,7 @@ def test_storage_embodied_computation(base_storage):
         storage.duration_seconds,
     )
 
-    service = IFStorageService(STORAGE_DAILY_DURATION)
+    service = IFStorageService(DAILY_SECONDS)
     storage_resources = service.run_engine([storage])
 
     assert len(storage_resources) == 1
@@ -110,7 +116,7 @@ def test_storage_replication_factor_impact(base_storage):
     grs_storage.replication_type = "GRS"
     grs_storage.id = "storage_grs_test"
 
-    service = IFStorageService(STORAGE_DAILY_DURATION)
+    service = IFStorageService(DAILY_SECONDS)
     lrs_result = service.run_engine([lrs_storage])
     grs_result = service.run_engine([grs_storage])
 

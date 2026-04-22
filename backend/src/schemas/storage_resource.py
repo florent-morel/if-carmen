@@ -27,7 +27,4 @@ class StorageResource(Resource):
     storage_embodied: list[float] = Field(default_factory=list)
     total_storage_embodied: float = 0.0
     duration_seconds: int = DAILY_SECONDS
-
-    def __init_(self):
-        super().__init_()
-        self.resource_type = ResourceType.STORAGE.value
+    resource_type: ResourceType = ResourceType.STORAGE

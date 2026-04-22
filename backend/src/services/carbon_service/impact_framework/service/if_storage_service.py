@@ -72,7 +72,7 @@ class IFStorageService(IFService):
         chunk_size = min(chunk_size, len(storage_resources))
 
         chunks = [
-            storage_resources[x : x + chunk_size]
+            storage_resources[x: x + chunk_size]
             for x in range(0, len(storage_resources), chunk_size)
         ]
         lock = threading.Lock()
