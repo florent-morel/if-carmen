@@ -286,8 +286,8 @@ class CarbonDaemonOrchestrator:
         Handles VMs, Storage, and future resource categories in one file.
         """
         logger.info(
-            "Starting run_engine loop on %d processors.",
-            len(self.list_resource_processors),
+            "Starting write_results for %d resource results.",
+            len(self.carbon_daemon_result.dict_resource_result),
         )
         start = time.time()
 
@@ -341,43 +341,34 @@ class CarbonDaemonOrchestrator:
 
     def upload_compute_report(self) -> None:
         """
-        Write processed results using the configured writer.
+        Call the configured uploader to push the CO2 report to the proper
+        location.
 
         Args:
-            resources: List of processed resources
 
         Raises:
-            Exception: If writing fails
+            Exception: If upload fails.
         """
+
+        logger.info("Starting upload_report.")
 
         upload_start_time = time.time()
     #
         try:
             # TODO: Fetch upload type from config.yaml
             upload_type = "local"
-            if upload_type == "local": 
+            if upload_type == "local":
                 # Local implementation: move file to configured path
                 uploader = Uploader_Local()
                 uploader.upload_report()
 
-    #             logger.info("starting result upload for %d resources",
-    #                         len(carbonDaemonResult.dict_resource_result.values()))
-    #
-    #             writer = self.writer_factory.create_writer(self.config, carbonDaemonResult)
-    #
-    #             self.writer_factory.create_CO2_report()
-    #
-    #             # TODO: Create an uploader to upload report
-    #             writer.upload_compute_report()
-    #
             upload_time = time.time() - upload_start_time
-            logger.info("results uploaded successfully in %.2f seconds", upload_time)
+            logger.info("results uploaded successfully in %.2f seconds",
+                        upload_time)
 
         except Exception as e:
-             logger.error("failed to upload results: %s", str(e))
-             raise
-
-        pass
+            logger.error("failed to upload results: %s", str(e))
+            raise
 
 
 def main() -> None:
