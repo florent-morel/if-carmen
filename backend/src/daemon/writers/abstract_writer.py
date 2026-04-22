@@ -1,4 +1,3 @@
-
 import logging
 import os
 import csv
@@ -10,23 +9,21 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
-from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
+from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.core.settings import settings, FinOpsConfig
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractWriter(ABC):
-
-    def __init__(self, config: "DaemonConfig",
-                 resource_result: ResourceDaemonResult):
-        self.resource_result: ResourceDaemonResult
+    def __init__(self, config: "DaemonConfig", resource_result: ResourceTypeResult):
+        self.resource_result: ResourceTypeResult
         self.date: str = AbstractWriter.get_execution_date()
         self.config: "DaemonConfig" = config
         self.out_file: str = os.path.join(
             str(self.config.upload_path), f"CO2_{self.date}.csv"
         )
-        with open(self.out_file, 'w', newline='') as csvfile:
+        with open(self.out_file, "w", newline="") as csvfile:
             # fieldnames = ['first_name', 'last_name']
             # self.writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             self.writer = csv.DictWriter(csvfile)

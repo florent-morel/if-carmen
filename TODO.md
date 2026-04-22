@@ -33,7 +33,7 @@ Algo:
     - Csv file structure (=add columns to be output regardless number of processors - aka total columns).
     - "pre-processors columns".
     - "post-processors columns".
-- writer-i: based on ResourceDaemonResult.
+- writer-i: based on ResourceTypeResult.
     - columns dedicated to this resource.
 
 ### Uploader

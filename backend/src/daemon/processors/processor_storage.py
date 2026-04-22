@@ -14,7 +14,7 @@ from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.daemon.carbon_daemon_result import (
-    ResourceDaemonResult,
+    ResourceTypeResult,
 )
 
 logger = logging.getLogger(__name__)
@@ -59,5 +59,5 @@ class Processor_Storage(AbstractProcessor):
         return self._reader.list_resources_to_process
 
     # Resources built by the reader to be handled by the runner
-    def resource_daemon_result(self) -> ResourceDaemonResult | None:
-        return self._runner.resource_daemon_result
+    def resource_type_result(self) -> ResourceTypeResult | None:
+        return self._runner.resource_type_result

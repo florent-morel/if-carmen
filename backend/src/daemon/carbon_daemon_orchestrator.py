@@ -24,7 +24,7 @@ from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.carbon_daemon_result import (
     CarbonDaemonResult,
-    ResourceDaemonResult,
+    ResourceTypeResult,
 )
 
 # from backend.src.daemon.readers.abstract_reader import (
@@ -194,7 +194,7 @@ class CarbonDaemonOrchestrator:
             Exception: If running fails
         """
         start_time = time.time()
-        dict_resource_results: dict[ResourceType, ResourceDaemonResult] = {}
+        dict_resource_results: dict[ResourceType, ResourceTypeResult] = {}
         try:
             logger.info(
                 "Starting run_engine loop on %d processors.",
@@ -209,13 +209,13 @@ class CarbonDaemonOrchestrator:
                         f" runner for {abstract_processor.resource_type.value}"
                         f" resource type."
                     )
-                    resource_daemon_result = abstract_processor.run()
+                    resource_type_result = abstract_processor.run()
 
                     # Populate result dictionary with Resource result
-                    if resource_daemon_result:
+                    if resource_type_result:
                         dict_resource_results[
                             abstract_processor.resource_type
-                        ] = resource_daemon_result
+                        ] = resource_type_result
 
                 # End of loop, store complete execution time
                 execution_time = time.time() - start_time
@@ -241,7 +241,7 @@ class CarbonDaemonOrchestrator:
         self,
         success,
         execution_time,
-        dict_resource_results: dict[ResourceType, ResourceDaemonResult],
+        dict_resource_results: dict[ResourceType, ResourceTypeResult],
     ) -> CarbonDaemonResult:
         """
         Create a CarbonDaemonResult from the list of processed resources.
@@ -293,10 +293,9 @@ class CarbonDaemonOrchestrator:
 
         if self.carbon_daemon_result.success:
             # Carbon daemon run was succesful, write report output file.
-            logger.info(
-                "Carbon daemon run was succesful, write report output file.")
+            logger.info("Carbon daemon run was succesful, write report output file.")
         # # TODO: Implement loop on all active resource runners
-            # First build list of row headers
+        # First build list of row headers
         #     for writer in list_active_writers:
         #         # call each storage writer to get rows
         #         list_row_headers.append(writer.build_rows_headers())
@@ -313,8 +312,8 @@ class CarbonDaemonOrchestrator:
         #     # Columns for each source
         #     # source_related_writer.write()
 
-            #TODO: Then add data in each row
-            # /!\ Need to check consitency between data & rows
+        # TODO: Then add data in each row
+        # /!\ Need to check consitency between data & rows
         #     for writer in list_active_writers:
         #         list_content.append(writer.build_content())
         #     # Write Row headers and content
@@ -326,13 +325,15 @@ class CarbonDaemonOrchestrator:
         else:
             # Carbon daemon run was not succesful, write error in output file.
             logger.info(
-                "Carbon daemon run was not succesful, write error in output file.")
+                "Carbon daemon run was not succesful, write error in output file."
+            )
 
         elapsed_time = time.time() - start
 
-    #       #   logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
-    #       #   logging.info("Total energy consumed: %.2f kWh", vm_energy)
+        #       #   logging.info("Total carbon emitted: %.2f kg CO2", vm_carbon)
+        #       #   logging.info("Total energy consumed: %.2f kWh", vm_energy)
         logger.info("CSV report created in %.2f seconds", elapsed_time)
+
     # logger.info(
     #     "  Resources: %d resources",
     #     len(resources),
@@ -353,7 +354,7 @@ class CarbonDaemonOrchestrator:
         logger.info("Starting upload_report.")
 
         upload_start_time = time.time()
-    #
+        #
         try:
             # TODO: Fetch upload type from config.yaml
             upload_type = "local"
@@ -363,8 +364,7 @@ class CarbonDaemonOrchestrator:
                 uploader.upload_report()
 
             upload_time = time.time() - upload_start_time
-            logger.info("results uploaded successfully in %.2f seconds",
-                        upload_time)
+            logger.info("results uploaded successfully in %.2f seconds", upload_time)
 
         except Exception as e:
             logger.error("failed to upload results: %s", str(e))

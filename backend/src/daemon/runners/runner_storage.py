@@ -19,7 +19,7 @@ from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.carbon_service import CarbonService
-from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
+from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.utils import ioc_util
 
 logger = logging.getLogger(__name__)
@@ -31,19 +31,19 @@ class Runner_Storage(AbstractRunner):
     """
 
     def __init__(self):
-        self.resource_daemon_result: ResourceDaemonResult | None
+        self.resource_type_result: ResourceTypeResult | None
 
     # Resources built by the reader to be handled by the runner
     @property
-    def resource_daemon_result(self) -> ResourceDaemonResult | None:
-        return self.resource_daemon_result
+    def resource_type_result(self) -> ResourceTypeResult | None:
+        return self.resource_type_result
 
-    def run(self, list_resources_to_process: list[Resource]) -> ResourceDaemonResult:
+    def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for the Storage Resource Type.
 
         Returns:
-            ResourceDaemonResult containing execution results
+            ResourceTypeResult containing execution results
         """
 
         start_time = time.time()
@@ -58,9 +58,8 @@ class Runner_Storage(AbstractRunner):
             logger.info("Processed resources: %s", processed_storage_resources)
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_resource_daemon_result(
-                True, execution_time, ResourceType.STORAGE,
-                processed_storage_resources
+            resourceDaemonResult = self.create_resource_type_result(
+                True, execution_time, ResourceType.STORAGE, processed_storage_resources
             )
 
             logger.info(
@@ -78,7 +77,7 @@ class Runner_Storage(AbstractRunner):
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
 
-            return ResourceDaemonResult(
+            return ResourceTypeResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
@@ -87,7 +86,7 @@ class Runner_Storage(AbstractRunner):
             error_msg = f"unexpected error during daemon execution: {str(e)}"
             logger.exception(error_msg)
 
-            return ResourceDaemonResult(
+            return ResourceTypeResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
@@ -112,11 +111,16 @@ class Runner_Storage(AbstractRunner):
                         "failed to resolve CarbonService from IoC container"
                     )
 
-                logger.info("process carbon calculations on resources: %s", storage_resources)
+                logger.info(
+                    "process carbon calculations on resources: %s", storage_resources
+                )
                 processed_storage_resources: list[
                     StorageResource
                 ] = storage_service.run_engine(storage_resources)
-                logger.info("Result process carbon calculations on resources: %s", processed_storage_resources)
+                logger.info(
+                    "Result process carbon calculations on resources: %s",
+                    processed_storage_resources,
+                )
 
                 process_time = time.time() - process_start_time
 

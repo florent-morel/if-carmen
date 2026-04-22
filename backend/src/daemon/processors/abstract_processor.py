@@ -15,7 +15,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from backend.src.daemon.carbon_daemon_result import (
-    ResourceDaemonResult,
+    ResourceTypeResult,
 )
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.readers.abstract_reader import AbstractReader
@@ -55,7 +55,7 @@ class AbstractProcessor(ABC):
     # Resources built by the reader to be handled by the runner
     @property
     @abstractmethod
-    def resource_daemon_result(self) -> ResourceDaemonResult | None:
+    def resource_type_result(self) -> ResourceTypeResult | None:
         pass
 
     def __init__(self, config: DaemonConfig):
@@ -76,19 +76,17 @@ class AbstractProcessor(ABC):
         logger.info(f"Inside AbstractProcessor reader: {self.reader}")
         self.list_resources_to_process = self.reader.read()
 
-    def run(self) -> ResourceDaemonResult:
+    def run(self) -> ResourceTypeResult:
         """
         Execute the workflow dedicated to a given Resource.
 
         Returns:
-            ResourceDaemonResult containing execution results
+            ResourceTypeResult containing execution results
         """
-        self.resource_daemon_result = None
+        self.resource_type_result = None
         if self.list_resources_to_process and len(self.list_resources_to_process) > 0:
             logger.info("list_resources_to_process: %s", self.list_resources_to_process)
-            self.resource_daemon_result = self.runner.run(
-                self.list_resources_to_process
-            )
+            self.resource_type_result = self.runner.run(self.list_resources_to_process)
         else:
             logger.error("No resource to process for this runner.")
-        return self.resource_daemon_result
+        return self.resource_type_result

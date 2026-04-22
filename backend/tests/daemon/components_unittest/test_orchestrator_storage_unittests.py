@@ -23,7 +23,7 @@ from backend.src.services.carbon_service.impact_framework.service.if_storage_ser
     IFStorageService,
 )
 
-from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
+from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 import logging
 
 logger = logging.getLogger(__name__)
@@ -100,12 +100,12 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         mock_ioc_util_resolve.return_value = IFStorageService(DAILY_SECONDS)
 
         runner_storage = Runner_Storage()
-        resource_daemon_result = runner_storage.run(processed_storage.copy())
+        resource_type_result = runner_storage.run(processed_storage.copy())
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
         mock_processor.read.return_value = processed_storage.copy()
-        mock_processor.run.return_value = resource_daemon_result
+        mock_processor.run.return_value = resource_type_result
 
         logger.info(f"Mock processor: {mock_processor}")
 
@@ -147,34 +147,33 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         # )
         # mock_writer.upload_compute_report.assert_called_once()
 
+    #     @patch("backend.src.daemon.carbon_daemon.register_models")
+    #     def test_daemon_run_no_vms_found(self, mock_register_models):
+    #         """
+    #         Test daemon execution when no VMs are found in data source.
+    #         """
+    #         mock_reader = MagicMock()
+    #         mock_reader.read.return_value = []
+    #
+    #         mock_reader_factory = MagicMock()
+    #         mock_reader_factory.create_reader.return_value = mock_reader
+    #
+    #         mock_writer_factory = MagicMock()
+    #
+    #         daemon = CarbonDaemon(
+    #             self.mock_config,
+    #             reader_factory=mock_reader_factory,
+    #             writer_factory=mock_writer_factory,
+    #         )
+    #
+    #         result = daemon.run()
+    #
+    #         self.assertIsInstance(result, CarbonDaemonResult)
+    #         self.assertFalse(result.success)
+    #         self.assertEqual(result.vm_count, 0)
+    #         self.assertIn("No virtual machines found", result.error_message)
 
-#     @patch("backend.src.daemon.carbon_daemon.register_models")
-#     def test_daemon_run_no_vms_found(self, mock_register_models):
-#         """
-#         Test daemon execution when no VMs are found in data source.
-#         """
-#         mock_reader = MagicMock()
-#         mock_reader.read.return_value = []
-#
-#         mock_reader_factory = MagicMock()
-#         mock_reader_factory.create_reader.return_value = mock_reader
-#
-#         mock_writer_factory = MagicMock()
-#
-#         daemon = CarbonDaemon(
-#             self.mock_config,
-#             reader_factory=mock_reader_factory,
-#             writer_factory=mock_writer_factory,
-#         )
-#
-#         result = daemon.run()
-#
-#         self.assertIsInstance(result, CarbonDaemonResult)
-#         self.assertFalse(result.success)
-#         self.assertEqual(result.vm_count, 0)
-#         self.assertIn("No virtual machines found", result.error_message)
-
-#     @patch("backend.src.daemon.carbon_daemon.register_models")
+    #     @patch("backend.src.daemon.carbon_daemon.register_models")
 
     @patch("backend.src.utils.ioc_util.resolve")
     # def test_daemon_run_reader_exception(self, mock_register_models):
@@ -200,10 +199,13 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         # resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
         # self.assertIsNone(carbonDaemonResult.dict_resource_result[ResourceType.STORAGE])
 
-        # self.assertIsInstance(resultStorage, ResourceDaemonResult)
+        # self.assertIsInstance(resultStorage, ResourceTypeResult)
         self.assertFalse(carbonDaemonResult.success)
-        self.assertIn("unexpected error during daemon execution", carbonDaemonResult.error_message)
+        self.assertIn(
+            "unexpected error during daemon execution", carbonDaemonResult.error_message
+        )
         self.assertIn("Reader failed", carbonDaemonResult.error_message)
+
 
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
 #     @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")

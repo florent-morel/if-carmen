@@ -18,7 +18,7 @@ from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
     CarbonDaemonResult,
 )
-from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
+from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.daemon.processors.processor_compute import Processor_Compute
 from backend.src.daemon.runners.runner_compute import Runner_Compute
 from backend.src.schemas.resource import Resource, ResourceType
@@ -66,13 +66,13 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
         # Execute runner on sample VMs
         runner_compute = Runner_Compute()
-        resource_daemon_result = runner_compute.run(self.sample_vms.copy())
+        resource_type_result = runner_compute.run(self.sample_vms.copy())
 
         # Mock processor to return the generated resource daemon result
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
         mock_processor.read.return_value = self.sample_vms.copy()
-        mock_processor.run.return_value = resource_daemon_result
+        mock_processor.run.return_value = resource_type_result
 
         # Orchestrate the daemon with the mocked processor
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
@@ -136,18 +136,17 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
-
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
         self.assertFalse(carbonDaemonResult.success)
-        self.assertIn("unexpected error during daemon execution", carbonDaemonResult.error_message)
+        self.assertIn(
+            "unexpected error during daemon execution", carbonDaemonResult.error_message
+        )
         self.assertIn("Reader failed", carbonDaemonResult.error_message)
 
     # @patch("backend.src.daemon.readers.helpers.carbon_daemon.register_models")
     # @patch("backend.src.daemon.readers.helpers.carbon_daemon.ioc_util.resolve")
     @patch("backend.src.utils.ioc_util.resolve")
-    def test_daemon_run_carbon_service_exception(
-        self, mock_ioc_util_resolve
-    ):
+    def test_daemon_run_carbon_service_exception(self, mock_ioc_util_resolve):
         """
         Test daemon execution when carbon service raises an exception.
         """
@@ -180,13 +179,13 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
         self.assertFalse(carbonDaemonResult.success)
-        self.assertIn("unexpected error during daemon execution", carbonDaemonResult.error_message)
+        self.assertIn(
+            "unexpected error during daemon execution", carbonDaemonResult.error_message
+        )
         self.assertIn("Carbon service failed", carbonDaemonResult.error_message)
 
     @patch("backend.src.utils.ioc_util.resolve")
-    def test_daemon_run_known_exception(
-        self, mock_ioc_util_resolve
-    ):
+    def test_daemon_run_known_exception(self, mock_ioc_util_resolve):
         """
         Test daemon execution when a ConfigurationError is raised.
         """
@@ -208,7 +207,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
         self.assertFalse(carbonDaemonResult.success)
         self.assertIn(
-            "known error during daemon execution", carbonDaemonResult.error_message.lower()
+            "known error during daemon execution",
+            carbonDaemonResult.error_message.lower(),
         )
 
     @patch(

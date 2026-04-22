@@ -94,33 +94,33 @@ class FinOpsConfig(BaseSettings):
     #     CARBON_INTENSITY: "CarbonIntensity",
     # }
 
-    HEADER_COMMON_DATE = "Date"
-    HEADER_COMMON_RESOURCE_TYPE = "ResourceType"
-    HEADER_COMMON_ID = "Id"
-    HEADER_COMMON_NAME = "Name"
-    HEADER_COMMON_REGION = "Region"
-    HEADER_COMMON_SUBSCRIPTION = "Subscription"
-    HEADER_COMMON_ENERGY = "EnergyKWH"
-    HEADER_COMMON_OPERATIONAL_CARBON = "OperationalCarbonGramsCO2eq"
-    HEADER_COMMON_EMBODIED_CARBON = "EmbodiedCarbonGramsCO2eq"
-    HEADER_COMMON_TOTAL_CARBON = "TotalCarbonGramsCO2eq"
-    HEADER_COMMON_CARBON_INTENSITY = "CarbonIntensity"
+    HEADER_COMMON_DATE: str = "Date"
+    HEADER_COMMON_RESOURCE_TYPE: str = "ResourceType"
+    HEADER_COMMON_ID: str = "Id"
+    HEADER_COMMON_NAME: str = "Name"
+    HEADER_COMMON_REGION: str = "Region"
+    HEADER_COMMON_SUBSCRIPTION: str = "Subscription"
+    HEADER_COMMON_ENERGY: str = "EnergyKWH"
+    HEADER_COMMON_OPERATIONAL_CARBON: str = "OperationalCarbonGramsCO2eq"
+    HEADER_COMMON_EMBODIED_CARBON: str = "EmbodiedCarbonGramsCO2eq"
+    HEADER_COMMON_TOTAL_CARBON: str = "TotalCarbonGramsCO2eq"
+    HEADER_COMMON_CARBON_INTENSITY: str = "CarbonIntensity"
 
     # VM columns
-    HEADER_COMPUTE_VM_SIZE = "VMSize"
-    HEADER_COMPUTE_SERVICE = "Service"
-    HEADER_COMPUTE_INSTANCE = "Instance"
-    HEADER_COMPUTE_ENVIRONMENT = "Environment"
-    HEADER_COMPUTE_PARTITION = "Partition"
-    HEADER_COMPUTE_COMPONENT = "Component"
+    HEADER_COMPUTE_VM_SIZE: str = "VMSize"
+    HEADER_COMPUTE_SERVICE: str = "Service"
+    HEADER_COMPUTE_INSTANCE: str = "Instance"
+    HEADER_COMPUTE_ENVIRONMENT: str = "Environment"
+    HEADER_COMPUTE_PARTITION: str = "Partition"
+    HEADER_COMPUTE_COMPONENT: str = "Component"
 
     # Storage columns
-    HEADER_STORAGE_TYPE = "StorageType"
-    HEADER_STORAGE_REPLICATION_TYPE = "ReplicationType"
-    HEADER_STORAGE_SIZE_GB = "SizeGB"
+    HEADER_STORAGE_TYPE: str = "StorageType"
+    HEADER_STORAGE_REPLICATION_TYPE: str = "ReplicationType"
+    HEADER_STORAGE_SIZE_GB: str = "SizeGB"
 
     # Misc services columns
-    HEADER_MISC_SERVICES_COST = "ServicesCost"
+    HEADER_MISC_SERVICES_COST: str = "ServicesCost"
 
     REPORT_HEADERS: list[list[str]] = [
         [
@@ -151,7 +151,7 @@ class FinOpsConfig(BaseSettings):
             "ServicesCost",
         ]
     ]
- 
+
     COST_REPORT_HEADERS: list[list[str]] = [
         [
             "Date",

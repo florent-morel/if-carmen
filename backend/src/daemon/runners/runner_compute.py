@@ -7,7 +7,7 @@ from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
 )
 from backend.src.common.known_exception import KnownException, DataFetchError
-from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
+from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.schemas.virtual_machine import VirtualMachine
@@ -24,20 +24,20 @@ class Runner_Compute(AbstractRunner):
     """
 
     def __init__(self):
-        self.resource_daemon_result: ResourceDaemonResult | None
+        self.resource_type_result: ResourceTypeResult | None
 
     #
     # Resources built by the reader to be handled by the runner
     @property
-    def resource_daemon_result(self) -> ResourceDaemonResult | None:
-        return self.resource_daemon_result
+    def resource_type_result(self) -> ResourceTypeResult | None:
+        return self.resource_type_result
 
-    def run(self, list_resources_to_process: list[Resource]) -> ResourceDaemonResult:
+    def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for Virtual Machines Resource Type.
 
         Returns:
-            ResourceDaemonResult containing execution results
+            ResourceTypeResult containing execution results
         """
         start_time = time.time()
 
@@ -54,7 +54,7 @@ class Runner_Compute(AbstractRunner):
 
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_resource_daemon_result(
+            resourceDaemonResult = self.create_resource_type_result(
                 True, execution_time, ResourceType.VIRTUAL_MACHINE, processed_vms
             )
 
@@ -77,7 +77,7 @@ class Runner_Compute(AbstractRunner):
             )
             logger.error(error_msg)
 
-            return ResourceDaemonResult(
+            return ResourceTypeResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 
@@ -86,7 +86,7 @@ class Runner_Compute(AbstractRunner):
             error_msg = f"Runner: Compute unexpected error during execution: {str(e)}"
             logger.exception(error_msg)
 
-            return ResourceDaemonResult(
+            return ResourceTypeResult(
                 success=False, execution_time=execution_time, error_message=error_msg
             )
 

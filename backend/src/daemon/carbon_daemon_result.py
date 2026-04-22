@@ -30,7 +30,7 @@ class CarbonDaemonResult:
     def __init__(
         self,
         success: bool,
-        dict_resource_result: dict[ResourceType, [ResourceDaemonResult]],
+        dict_resource_result: dict[ResourceType, [ResourceTypeResult]],
         total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,
@@ -48,7 +48,7 @@ class CarbonDaemonResult:
         self.error_message: str = error_message
 
 
-class ResourceDaemonResult:
+class ResourceTypeResult:
     """Resource specific container for daemon execution results."""
 
     def __init__(
