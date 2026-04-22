@@ -30,4 +30,4 @@ class StorageResource(Resource):
 
     def __init_(self):
         super().__init_()
-        self.name = ResourceType.STORAGE.value
+        self.resource_type = ResourceType.STORAGE.value

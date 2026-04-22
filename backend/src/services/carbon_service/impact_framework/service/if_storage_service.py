@@ -124,7 +124,7 @@ class IFStorageService(IFService):
                 "   %d. ID %s: %s: %.2f gCO2 (%s, %.1f GB, %s)",
                 i + 1,
                 storage.id,
-                storage.name,
+                storage.resource_type,
                 storage.total_carbon_emitted,
                 storage.storage_type,
                 storage.size_gb,

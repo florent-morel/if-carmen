@@ -1,4 +1,3 @@
-
 import logging
 import os
 from abc import ABC, abstractmethod
@@ -16,9 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractWriter(ABC):
-
-    def __init__(self, config: "DaemonConfig",
-                 resource_result: ResourceDaemonResult):
+    def __init__(self, config: "DaemonConfig", resource_result: ResourceDaemonResult):
         self.resource_result: ResourceDaemonResult
         self.date: str = AbstractWriter.get_execution_date()
         self.config: "DaemonConfig" = config
@@ -76,7 +73,7 @@ class AbstractWriter(ABC):
             self.date,
             resource.resource_type,  # TODO: there's no resource_type attribute in Resource.
             resource.id,
-            resource.name,
+            resource.resource_type,
             resource.region,
             resource.subscription,
             resource.total_energy_consumed,

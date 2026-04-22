@@ -28,8 +28,9 @@ class Resource(ABC, BaseModel):
     that are shared across all resource types.
     """
 
+    resource_type: ResourceType = None
+
     id: str  # Unique identifier for the resource
-    name: str | None = None
     carbon_intensity: float = 0.0
     pue: float = 1.0
     region: str | None = None

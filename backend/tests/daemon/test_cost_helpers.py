@@ -11,7 +11,7 @@ from backend.src.daemon.readers.helpers.cost_helpers import (
     get_carbon_and_energy_values,
     process_cost_csv,
     create_cost_resource,
-    create_cost_report
+    create_cost_report,
 )
 from backend.src.schemas.costResource import CostResource
 from backend.tests.daemon.test_data.test_data import (
@@ -24,6 +24,7 @@ class TestCostHelpers(unittest.TestCase):
     """
     Unit tests for cost_helpers class functions.
     """
+
     def setUp(self):
         """
         Set up test fixtures.
@@ -35,7 +36,7 @@ class TestCostHelpers(unittest.TestCase):
                 region="eastus",
                 subscription="sub1",
                 carbon_intensity=100.0,
-                services_cost=50.0
+                services_cost=50.0,
             ),
             CostResource(
                 id="cost2",
@@ -43,8 +44,8 @@ class TestCostHelpers(unittest.TestCase):
                 region="westus",
                 subscription="sub2",
                 carbon_intensity=150.0,
-                services_cost=75.0
-            )
+                services_cost=75.0,
+            ),
         ]
 
     def test_get_carbon_and_energy_values(self):
@@ -88,7 +89,9 @@ class TestCostHelpers(unittest.TestCase):
             "cost6,keyvault,90.0\n"
         )
 
-        cost_resources, total_compute_cost, total_storage_cost = process_cost_csv(mock_csv_data)
+        cost_resources, total_compute_cost, total_storage_cost = process_cost_csv(
+            mock_csv_data
+        )
 
         self.assertEqual(len(cost_resources), 2)
         self.assertEqual(total_compute_cost, 175.0)
@@ -105,14 +108,14 @@ class TestCostHelpers(unittest.TestCase):
             "ResourceLocation": "eastus",
             "SubscriptionId": "sub1",
             "CostInBillingCurrencyEUR": "120.0",
-            "Date": "2025-11-01"
+            "Date": "2025-11-01",
         }
         mock_ci_calculator.return_value = 200.0
 
         cost_resource = create_cost_resource(mock_row)
 
         self.assertEqual(cost_resource.id, "cost1")
-        self.assertEqual(cost_resource.name, "costName")
+        self.assertEqual(cost_resource.resource_type, "costName")
         self.assertEqual(cost_resource.region, "eastus")
         self.assertEqual(cost_resource.subscription, "sub1")
         self.assertEqual(cost_resource.carbon_intensity, 200.0)
@@ -128,10 +131,14 @@ class TestCostHelpers(unittest.TestCase):
         test_file_name = "test_cost_report.csv"
 
         with self.assertLogs(level="INFO") as log:
-            create_cost_report(self.cost_resources, mock_date.strftime("%Y-%m-%d"), test_file_name)
+            create_cost_report(
+                self.cost_resources, mock_date.strftime("%Y-%m-%d"), test_file_name
+            )
             self.assertIn("Cost model report saved to:", log.output[1])
 
-        mock_file.assert_called_once_with(test_file_name, mode="w", newline="", encoding="utf-8")
+        mock_file.assert_called_once_with(
+            test_file_name, mode="w", newline="", encoding="utf-8"
+        )
 
     @patch("builtins.open", new_callable=mock_open)
     def test_create_cost_report_headers(self, mock_file):
@@ -143,7 +150,9 @@ class TestCostHelpers(unittest.TestCase):
         expected_headers = settings.FINOPS.COST_REPORT_HEADERS[0]
 
         with self.assertLogs(level="INFO") as log:
-            create_cost_report(self.cost_resources, mock_date.strftime("%Y-%m-%d"), test_file_name)
+            create_cost_report(
+                self.cost_resources, mock_date.strftime("%Y-%m-%d"), test_file_name
+            )
             self.assertIn("Cost model report saved to:", log.output[1])
 
         mock_file().write.assert_called()

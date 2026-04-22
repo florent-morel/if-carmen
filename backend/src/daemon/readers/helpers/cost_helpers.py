@@ -19,7 +19,9 @@ from backend.src.common.errors import ErrorCode
 logger = logging.getLogger(__name__)
 
 
-def get_carbon_and_energy_values(vms: list[VirtualMachine], storage_resources: list[StorageResource]):
+def get_carbon_and_energy_values(
+    vms: list[VirtualMachine], storage_resources: list[StorageResource]
+):
     """
     Calculates and returns carbon and energy values for VMs and storage resources.
     Args:
@@ -34,11 +36,11 @@ def get_carbon_and_energy_values(vms: list[VirtualMachine], storage_resources: l
     vm_total_energy = 0
     storage_total_energy = 0
     for vm in vms:
-        vm_total_carbon += (vm.total_carbon_operational + vm.total_carbon_embodied)
+        vm_total_carbon += vm.total_carbon_operational + vm.total_carbon_embodied
         vm_total_energy += vm.total_energy_consumed
     for storage in storage_resources:
         storage_total_carbon += (
-                storage.total_carbon_operational + storage.total_carbon_embodied
+            storage.total_carbon_operational + storage.total_carbon_embodied
         )
         storage_total_energy += storage.total_energy_consumed
     return storage_total_carbon, storage_total_energy, vm_total_carbon, vm_total_energy
@@ -92,9 +94,11 @@ def create_cost_resource(row):
         region=region,
         subscription=row.get("SubscriptionId", "unknown"),
         carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-        services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0"))
+        services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
     )
-    timestamp = row.get("Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d"))
+    timestamp = row.get(
+        "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    )
     cost_resource.time_points = [timestamp]
     return cost_resource
 
@@ -111,7 +115,7 @@ def create_cost_report(cost_resources: list[CostResource], date: str, out_file: 
             row = [
                 date,
                 cost_resource.id,
-                cost_resource.name,
+                cost_resource.resource_type,
                 cost_resource.region,
                 cost_resource.subscription,
                 cost_resource.carbon_intensity,

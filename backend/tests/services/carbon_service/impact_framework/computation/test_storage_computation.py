@@ -55,7 +55,7 @@ def test_storage_energy_computation_by_type(
     storage.region = region
     storage.carbon_intensity = carbon_intensity
     storage.id = f"storage_{storage_type.lower()}"
-    storage.name = f"{storage_type} Test"
+    storage.resource_type = f"{storage_type} Test"
 
     expected_energy = compute_storage_energy_helper(
         size_gb, storage_type, "LRS", STORAGE_DAILY_DURATION
@@ -77,7 +77,7 @@ def test_storage_embodied_computation(base_storage):
     """
     storage = base_storage.model_copy()
     storage.id = "storage_embodied_test"
-    storage.name = "SSD Embodied Test"
+    storage.resource_type = "SSD Embodied Test"
 
     expected_embodied = compute_storage_embodied_helper(
         storage.size_gb,

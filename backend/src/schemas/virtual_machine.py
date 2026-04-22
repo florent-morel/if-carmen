@@ -28,4 +28,4 @@ class VirtualMachine(ComputeResource):
 
     def __init_(self):
         super().__init_()
-        self.name = ResourceType.VIRTUAL_MACHINE.value
+        self.resource_type = ResourceType.VIRTUAL_MACHINE.value
