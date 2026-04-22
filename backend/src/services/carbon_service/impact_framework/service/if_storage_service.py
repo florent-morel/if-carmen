@@ -160,7 +160,7 @@ class IFStorageService(IFService):
             len(storage_resource.time_points) if storage_resource.time_points else 1
         )
 
-        for time_index in range(time_points_count):
+        for time_index in rangeitime_points_count):
             combined_inputs = {
                 "timestamp": (
                     storage_resource.time_points[time_index]

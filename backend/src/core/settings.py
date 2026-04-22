@@ -79,48 +79,41 @@ class ReportConfig(BaseSettings):
     Configuration class for FinOps settings.
     """
 
-    # Common columns
-    # HEADER_COMMON = {
-    #     DATE: "Date",
-    #     RESOURCE_TYPE: "ResourceType",
-    #     ID: "Id",
-    #     NAME: "Name",
-    #     REGION: "Region",
-    #     SUBSCRIPTION: "Subscription",
-    #     ENERGY: "EnergyKWH",
-    #     OPERATIONAL_CARBON: "OperationalCarbonGramsCO2eq",
-    #     EMBODIED_CARBON: "EmbodiedCarbonGramsCO2eq",
-    #     TOTAL_CARBON: "TotalCarbonGramsCO2eq",
-    #     CARBON_INTENSITY: "CarbonIntensity",
-    # }
-
-    HEADER_COMMON_DATE: str = "Date"
-    HEADER_COMMON_RESOURCE_TYPE: str = "ResourceType"
-    HEADER_COMMON_ID: str = "Id"
-    HEADER_COMMON_NAME: str = "Name"
-    HEADER_COMMON_REGION: str = "Region"
-    HEADER_COMMON_SUBSCRIPTION: str = "Subscription"
-    HEADER_COMMON_ENERGY: str = "EnergyKWH"
-    HEADER_COMMON_OPERATIONAL_CARBON: str = "OperationalCarbonGramsCO2eq"
-    HEADER_COMMON_EMBODIED_CARBON: str = "EmbodiedCarbonGramsCO2eq"
-    HEADER_COMMON_TOTAL_CARBON: str = "TotalCarbonGramsCO2eq"
-    HEADER_COMMON_CARBON_INTENSITY: str = "CarbonIntensity"
-
-    # VM columns
-    HEADER_COMPUTE_VM_SIZE: str = "VMSize"
-    HEADER_COMPUTE_SERVICE: str = "Service"
-    HEADER_COMPUTE_INSTANCE: str = "Instance"
-    HEADER_COMPUTE_ENVIRONMENT: str = "Environment"
-    HEADER_COMPUTE_PARTITION: str = "Partition"
-    HEADER_COMPUTE_COMPONENT: str = "Component"
-
-    # Storage columns
-    HEADER_STORAGE_TYPE: str = "StorageType"
-    HEADER_STORAGE_REPLICATION_TYPE: str = "ReplicationType"
-    HEADER_STORAGE_SIZE_GB: str = "SizeGB"
-
-    # Misc services columns
-    HEADER_MISC_SERVICES_COST: str = "ServicesCost"
+    HEADER = {
+        # Common columns
+        "COMMON": {
+            "DATE": "Date",
+            "RESOURCE_TYPE": "ResourceType",
+            "ID": "Id",
+            "NAME": "Name",
+            "REGION": "Region",
+            "SUBSCRIPTION": "Subscription",
+            "ENERGY": "EnergyKWH",
+            "OPERATIONAL_CARBON": "OperationalCarbonGramsCO2eq",
+            "EMBODIED_CARBON": "EmbodiedCarbonGramsCO2eq",
+            "TOTAL_CARBON": "TotalCarbonGramsCO2eq",
+            "CARBON_INTENSITY": "CarbonIntensity",
+        },
+        # VM columns
+        "COMPUTE": {
+            "VM_SIZE": "VMSize",
+            "SERVICE": "Service",
+            "INSTANCE": "Instance",
+            "ENVIRONMENT": "Environment",
+            "PARTITION": "Partition",
+            "COMPONENT": "Component",
+        },
+        # Storage columns
+        "STORAGE": {
+            "TYPE": "StorageType",
+            "REPLICATION_TYPE": "ReplicationType",
+            "SIZE_GB": "SizeGB",
+        },
+        # Misc services columns
+        "MISC_SERVICES": {
+            "COST": "ServicesCost",
+        },
+    }
 
     REPORT_HEADERS: list[list[str]] = [
         [
