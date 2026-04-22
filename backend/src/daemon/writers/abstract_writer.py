@@ -10,6 +10,7 @@ from backend.src.common.known_exception import KnownException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
 from backend.src.daemon.carbon_daemon_result import ResourceDaemonResult
+from backend.src.core.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -48,12 +49,12 @@ class AbstractWriter(ABC):
         )
         return execution_date_str
 
-    @abstractmethod
     def build_rows_headers() -> Iterable[Iterable[Any]]:
         """
         Abstract method to let each resource dedicated writer list the header
         rows it needs.
         """
+        return settings.FINOPS.REPORT_HEADERS
 
     @abstractmethod
     def build_content() -> Iterable[Iterable[Any]]:

@@ -1,7 +1,6 @@
 import logging
 from typing import Any, Iterable
 
-from backend.src.core.settings import settings
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.schemas.virtual_machine import VirtualMachine
 
@@ -44,5 +43,3 @@ class ComputeWriter(AbstractWriter):
         )
         return list_rows
 
-    def build_rows_headers() -> Iterable[Iterable[Any]]:
-        return settings.FINOPS.REPORT_HEADERS
