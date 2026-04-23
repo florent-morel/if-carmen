@@ -38,3 +38,7 @@ carmen_daemon:
     azure:
       container_name_upload: null
       blob_name: null
+  orchestrator:
+    list_processors:
+      - Processor_Compute
+      - Processor_Storage

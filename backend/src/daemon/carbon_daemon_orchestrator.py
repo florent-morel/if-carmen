@@ -32,19 +32,11 @@ from backend.src.daemon.carbon_daemon_result import (
     ResourceTypeResult,
 )
 
-# from backend.src.daemon.readers.abstract_reader import (
-#    Reader_Compute,
-#    Reader_Storage,
-# )
-# from backend.src.daemon.writers.abstract_writer import (
-#    ComputeWriter,
-# )
 from backend.src.schemas.resource import ResourceType
 from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
 )
 
-from backend.src.daemon.uploaders.abstract_uploader import AbstractUploader
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.daemon.writers.writer_storage import Writer_Storage
 from backend.src.daemon.writers.writer_compute import Writer_Compute
@@ -103,7 +95,7 @@ class CarbonDaemonOrchestrator:
             self.run_engine()
 
             # Write results
-            self.write_results()
+            self.write_report()
 
             # Upload report file
             # TODO: rename to have harmonized name
@@ -294,7 +286,7 @@ class CarbonDaemonOrchestrator:
 
         return carbon_daemon_result
 
-    def write_results(self):
+    def write_report(self):
         """
         Creates a CSV report containing all resource types.
         Handles VMs, Storage, and future resource categories in one file.
@@ -400,7 +392,8 @@ def main() -> None:
     """
     try:
         logger.info(CARMEN_LOGO)
-        # list_resource_processors = [CarbonDaemonVMProcessor(AZURE), StorageProcessor]
+        list_resource_processors = app.carmen_daemon.orchestrator.list_processors
+        # [CarbonDaemonVMProcessor(AZURE), StorageProcessor]
         daemon = CarbonDaemonOrchestrator(
             list_resource_processors=list_resource_processors
         )

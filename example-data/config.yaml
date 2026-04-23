@@ -35,3 +35,7 @@ carmen_daemon:
     local:
       # Output directory for carbon reports
       upload_path: "./output"
+  orchestrator:
+    list_processors:
+      - Processor_Compute
+      - Processor_Storage

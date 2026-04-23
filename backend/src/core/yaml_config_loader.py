@@ -26,6 +26,15 @@ from backend.src.common.known_exception import (
     MissingParametersError,
 )
 from backend.src.core.settings import settings
+from backend.src.daemon.processors.abstract_processor import (
+    AbstractProcessor,
+)
+from backend.src.daemon.processors.processor_compute import (
+    Processor_Compute
+)
+from backend.src.daemon.processors.processor_storage import (
+    Processor_Storage
+)
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +121,12 @@ class UploadConfig(BaseSettings):
     local: LocalUploadConfig = LocalUploadConfig()
 
 
+class OrchestratorConfig(BaseSettings):
+    """Carbon Daemon Orchestrator configuration."""
+
+    list_processors: list[AbstractProcessor] | None = None
+
+
 class DaemonConfig(BaseSettings):
     """
     Configuration for the Carbon Engine daemon.
@@ -120,11 +135,14 @@ class DaemonConfig(BaseSettings):
     - credentials: Azure authentication (shared between source and upload)
     - source: Where to read data from (azure blob storage or local files)
     - upload: Where to write reports to (azure blob storage or local files)
+    - orchestrator: What kind of resources need to be processed for this daemon
+      instance.
     """
 
     credentials: AzureCredentials = AzureCredentials()
     source: SourceConfig = SourceConfig()
     upload: UploadConfig = UploadConfig()
+    orchestrator: OrchestratorConfig = OrchestratorConfig()
 
     @model_validator(mode="after")
     def validate_source_configuration(self) -> DaemonConfig:
@@ -215,6 +233,32 @@ class DaemonConfig(BaseSettings):
             raise MissingParametersError(
                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["upload_path"]
             )
+
+        return self
+
+    @model_validator(mode="after")
+    def validate_orchestrator_configuration(self) -> DaemonConfig:
+        """
+        Validate orchestrator configuration parameters.
+
+        Returns:
+            The validated model.
+
+        Raises:
+            ValueError: If required parameters are missing or invalid.
+        """
+        if not self.orchestrator.list_processors:
+            logger.error("No processor found in configuration."
+                         " Providing hard-coded list: Processor_Compute.")
+            self.orchestrator.list_processors = [Processor_Compute()]
+        else:
+            # Check that provide processors are supported.
+            list_supported_processors = (Processor_Compute, Processor_Storage)
+            for processor in self.orchestrator.list_processors:
+                if not isinstance(processor, list_supported_processors):
+                    logger.error("Invalid processor found in configuration:"
+                        f" {processor}.  Removing it from list.")
+                    self.orchestrator.list_processors.remove(processor)
 
         return self
 
