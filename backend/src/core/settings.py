@@ -113,7 +113,7 @@ class ReportConfig(BaseSettings):
     # Misc services columns
     MISC_SERVICES_COST: str = "MISC_SERVICES_COST"
 
-    HEADER = {
+    HEADER: dict = {
         # Common columns
         COMMON: {
            COMMON_DATE: "Date",

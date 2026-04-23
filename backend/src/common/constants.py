@@ -35,6 +35,8 @@ CSV_FILE_ENCODING: str = "utf-8"
 HOURLY_INTERVAL_SECONDS: int = 3600
 DAILY_SECONDS: int = 86400
 SAMPLING_RATE_IN_SECONDS = 86400  # 24 hours
+EXECUTION_DATE: str = "EXECUTION_DATE"
+DATE_FORMAT: str = "%Y-%m-%d"
 
 # TODO: change this path to /backend/generated
 IF_FILES_DIR = os.path.join(

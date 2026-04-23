@@ -14,11 +14,14 @@ from __future__ import annotations
 
 import logging
 import time
+import os
 import csv
-import file
+from datetime import datetime, timedelta
 
 from backend.src.common.constants import (
     CARMEN_LOGO,
+    DATE_FORMAT,
+    EXECUTION_DATE,
 )
 from backend.src.common.known_exception import KnownException, DataFetchError
 from backend.src.common.errors import ErrorCode
@@ -74,7 +77,10 @@ class CarbonDaemonOrchestrator:
 
         register_models()
 
-        self.output_file: file
+        self.date: str = self.get_execution_date()
+        self.output_file: str = os.path.join(
+            str(self.config.upload_path), f"CO2_{self.date}.csv"
+        )
 
         logger.info("Carbon Daemon initialized")
 
@@ -303,7 +309,7 @@ class CarbonDaemonOrchestrator:
             # Carbon daemon run was succesful, write report output file.
             logger.info("Carbon daemon run was succesful, write report output file.")
             # init csv writer
-            with open(self.out_file, "w", newline="") as report_csv_file:
+            with open(self.output_file, "w", newline="") as report_csv_file:
                 fieldnames = AbstractWriter.get_report_headers()
                 writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
 
@@ -361,6 +367,28 @@ class CarbonDaemonOrchestrator:
         except Exception as e:
             logger.error("failed to upload results: %s", str(e))
             raise
+
+    def get_execution_date(self):
+        execution_date_str = os.getenv(EXECUTION_DATE)
+        if not execution_date_str:
+            execution_date_str = (datetime.now() - timedelta(days=2)).strftime(
+                DATE_FORMAT
+            )
+        try:
+            execution_date = datetime.strptime(execution_date_str, DATE_FORMAT)
+        except ValueError as err:
+            logger.error(
+                "Invalid date format for EXECUTION_DATE: '%s'", execution_date_str
+            )
+            raise KnownException(
+                ErrorCode.VALIDATION_INVALID_DATE_FORMAT,
+                details="Failed to parse execution date",
+            ) from err
+        logger.info(
+            "Carbon daemon starting execution for date: %s",
+            execution_date.strftime(DATE_FORMAT),
+        )
+        return execution_date_str
 
 
 def main() -> None:

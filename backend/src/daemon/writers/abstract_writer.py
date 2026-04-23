@@ -20,35 +20,8 @@ class AbstractWriter(ABC):
                  writer: csv.DictWriter,
                  resource_result: ResourceTypeResult):
         self.resource_result: ResourceTypeResult = resource_result
-        self.date: str = AbstractWriter.get_execution_date()
         self.config: "DaemonConfig" = config
         self.writer: csv.DictWriter = writer
-        self.out_file: str = os.path.join(
-            str(self.config.upload_path), f"CO2_{self.date}.csv"
-        )
-
-    @staticmethod
-    def get_execution_date():
-        execution_date_str = os.getenv("EXECUTION_DATE")
-        if not execution_date_str:
-            execution_date_str = (datetime.now() - timedelta(days=2)).strftime(
-                "%Y-%m-%d"
-            )
-        try:
-            execution_date = datetime.strptime(execution_date_str, "%Y-%m-%d")
-        except ValueError as err:
-            logger.error(
-                "Invalid date format for EXECUTION_DATE: '%s'", execution_date_str
-            )
-            raise KnownException(
-                ErrorCode.VALIDATION_INVALID_DATE_FORMAT,
-                details="Failed to parse execution date",
-            ) from err
-        logger.info(
-            "Carbon daemon starting execution for date: %s",
-            execution_date.strftime("%Y-%m-%d"),
-        )
-        return execution_date_str
 
     def initialize_headers(self):
         self.writer.writeheader()
