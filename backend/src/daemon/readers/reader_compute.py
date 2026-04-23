@@ -45,7 +45,7 @@ class Reader_Compute(AbstractReader):
         ).resolve()
         self.file_names: list[str] = self.config.source.file_names
 
-        logger.debug(
+        logger.info(
             "local compute reader initialized with source path %s files %d",
             self.source_path,
             len(self.file_names),

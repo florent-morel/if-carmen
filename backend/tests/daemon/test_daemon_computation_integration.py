@@ -295,7 +295,7 @@ def test_carbon_daemon_with_sample_data(
             ), f"Energy {first_vm.total_energy_consumed} vs expected {expected_energy} differs too much"
 
 
-@patch("backend.src.daemon.abstract_carbon_daemon.config")
+# @patch("backend.src.daemon.abstract_carbon_daemon.config")
 def test_daemon_with_mocked_components(
     mock_config: MagicMock,
     setup_report_dir: None,

@@ -33,7 +33,7 @@ class Processor_Compute(AbstractProcessor):
         """
         super().__init__(config)
 
-        self._reader = Reader_Compute(self.config)
+        self._reader = Reader_Compute(config)
         self._runner = Runner_Compute()
         # TODO: Implement writers
         # self._writer: AbstractWriter

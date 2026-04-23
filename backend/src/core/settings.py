@@ -76,7 +76,7 @@ class ThanosConfig(BaseSettings):
 
 class ReportConfig(BaseSettings):
     """
-    Configuration class for FinOps settings.
+    Configuration class for CO2 Report generation settings.
     """
 
     COMMON: str = "COMMON"

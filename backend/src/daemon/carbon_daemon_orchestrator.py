@@ -355,8 +355,8 @@ class CarbonDaemonOrchestrator:
         #
         try:
             # TODO: Fetch upload type from config.yaml
-            upload_type = "local"
-            if upload_type == "local":
+            # self.config.upload.type = "local"
+            if self.config.upload.type == "local":
                 # Local implementation: move file to configured path
                 uploader = Uploader_Local(self.output_file)
                 uploader.upload_report()

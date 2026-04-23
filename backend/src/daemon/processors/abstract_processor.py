@@ -66,6 +66,7 @@ class AbstractProcessor(ABC):
             daemon_config: Configuration for daemon operations
             writer_factory: Factory for creating writer instances (optional)
         """
+        self.config = config
 
     def read(self) -> list[Resource]:
         """
