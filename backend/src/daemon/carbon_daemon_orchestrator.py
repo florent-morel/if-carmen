@@ -25,6 +25,7 @@ from backend.src.common.constants import (
 )
 from backend.src.common.known_exception import KnownException, DataFetchError
 from backend.src.common.errors import ErrorCode
+# from backend.src.core.yaml_config_loader import config
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.carbon_daemon_result import (
@@ -392,12 +393,10 @@ def main() -> None:
     """
     try:
         logger.info(CARMEN_LOGO)
-        list_resource_processors = app.carmen_daemon.orchestrator.list_processors
-        # [CarbonDaemonVMProcessor(AZURE), StorageProcessor]
+        list_resource_processors = config.carmen_daemon.orchestrator.list_processors
         daemon = CarbonDaemonOrchestrator(
             list_resource_processors=list_resource_processors
         )
-        # AbstractCarbonDaemon(config.carmen_daemon)
 
         result = daemon.orchestrate_carbon_daemon()
 

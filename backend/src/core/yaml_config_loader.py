@@ -26,15 +26,6 @@ from backend.src.common.known_exception import (
     MissingParametersError,
 )
 from backend.src.core.settings import settings
-from backend.src.daemon.processors.abstract_processor import (
-    AbstractProcessor,
-)
-from backend.src.daemon.processors.processor_compute import (
-    Processor_Compute
-)
-from backend.src.daemon.processors.processor_storage import (
-    Processor_Storage
-)
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +115,9 @@ class UploadConfig(BaseSettings):
 class OrchestratorConfig(BaseSettings):
     """Carbon Daemon Orchestrator configuration."""
 
-    list_processors: list[AbstractProcessor] | None = None
+    list_supported_processors: list[str] = ("Processor_Compute",
+                                             "Processor_Storage")
+    list_processors: list[str] | None = None
 
 
 class DaemonConfig(BaseSettings):
@@ -250,12 +243,11 @@ class DaemonConfig(BaseSettings):
         if not self.orchestrator.list_processors:
             logger.error("No processor found in configuration."
                          " Providing hard-coded list: Processor_Compute.")
-            self.orchestrator.list_processors = [Processor_Compute()]
+            self.orchestrator.list_processors = ["Processor_Compute"]
         else:
             # Check that provide processors are supported.
-            list_supported_processors = (Processor_Compute, Processor_Storage)
             for processor in self.orchestrator.list_processors:
-                if not isinstance(processor, list_supported_processors):
+                if not self.orchestrator.list_supported_processors.index(processor):
                     logger.error("Invalid processor found in configuration:"
                         f" {processor}.  Removing it from list.")
                     self.orchestrator.list_processors.remove(processor)

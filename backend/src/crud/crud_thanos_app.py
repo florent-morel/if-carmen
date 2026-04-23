@@ -20,7 +20,6 @@ from backend.src.common.known_exception import (
 from backend.src.common.enums import SamplingRate
 from backend.src.utils.helpers import get_result_from_response
 from backend.src.crud.auth_strategies.auth_strategy import AuthStrategy
-from backend.src.core.yaml_config_loader import ApiConfig
 
 logger = logging.getLogger(__name__)
 
