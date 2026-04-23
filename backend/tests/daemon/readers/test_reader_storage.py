@@ -7,16 +7,13 @@ Unit tests for the Storage Reader class in the daemon.readers module.
 import unittest
 from unittest.mock import MagicMock
 
-from unittest.mock import patch, AsyncMock
-from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrator
-from backend.src.daemon.processors.processor_storage import Processor_Storage
+from unittest.mock import patch
 
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
-    DAILY_SECONDS,
 )
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.schemas.resource import ResourceType
 from backend.src.daemon.readers.reader_storage import Reader_Storage
 
 import logging
@@ -69,9 +66,6 @@ class TestReaderStorage(unittest.TestCase):
         self.mock_config.upload = MagicMock()
 
     @patch("backend.src.utils.ioc_util.resolve")
-    # @patch("backend.src.daemon.carbon_daemon.register_models")
-    # def test_daemon_run_compute_storage_success(self,
-    # mock_ioc_util_resolve, mock_register_models):
     def test_reader_storage_success(self, mock_ioc_util_resolve):
         """
         Test successful Storage Reader execution.
@@ -92,21 +86,18 @@ class TestReaderStorage(unittest.TestCase):
             )
         ]
 
-        reader_storage = Reader_Storage()
+        reader_storage = Reader_Storage(self.mock_config)
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
         mock_processor.reader = reader_storage
-        # reader_storage.local_storage_file = 
 
-        # self.assertIsNotNone(resultStorage)
-        mock_processor.read()
+        logger.debug(f"Inside test reader Storage: {self}")
+        list_processed_resources = reader_storage.read()
 
-        listStorageResourceResult = resultStorage.list_processed_resources
+        self.assertEqual(len(list_processed_resources), 1)
 
-        self.assertEqual(len(listStorageResourceResult), 1)
-
-        resultStorageResource = listStorageResourceResult[0]
+        resultStorageResource = list_processed_resources[0]
 
         # Ensure input data is not altered.
         self.assertEqual(resultStorageResource.size_gb, 32.0)
