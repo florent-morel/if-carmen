@@ -2,7 +2,7 @@
 from backend.src.schemas.resource import Resource
 
 
-class CostResource(Resource):
+class MiscServicesResource(Resource):
     compute_energy: float = 0.0
     storage_energy: float = 0.0
     compute_embodied: float = 0.0

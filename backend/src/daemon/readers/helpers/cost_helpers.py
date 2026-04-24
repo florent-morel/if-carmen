@@ -46,61 +46,8 @@ def get_carbon_and_energy_values(
     return storage_total_carbon, storage_total_energy, vm_total_carbon, vm_total_energy
 
 
-def process_cost_csv(csv_data: str) -> tuple[list[CostResource], float, float]:
-    """
-    Process CSV data into a CostResource list.
-
-    Args:
-        csv_data: Raw CSV data
-
-    Returns:
-        list[CostResource]: Processed cost resource list
-        float: Total compute cost
-        float: Total storage cost
-    """
-    rows = csv_data.splitlines()
-    if len(rows) <= 1:
-        raise KnownException(ErrorCode.CSV_FILE_NOT_FOUND, "Cost CSV data is empty")
-
-    csv_reader = csv.DictReader(rows)
-
-    logger.info("Processing Cost CSV...")
-    cost_resources: list[CostResource] = []
-    total_compute_cost = 0.0
-    total_storage_cost = 0.0
-    for row in csv_reader:
-        consumed_service = row.get("ConsumedService", "").lower()
-        if "microsoft.compute" == consumed_service:
-            total_compute_cost += str_to_float(row.get("CostInBillingCurrencyEUR", "0"))
-        elif "microsoft.storage" == consumed_service:
-            total_storage_cost += str_to_float(row.get("CostInBillingCurrencyEUR", "0"))
-        else:
-            cost_resource = create_cost_resource(row)
-            if cost_resource.id == "":
-                continue
-            cost_resources.append(cost_resource)
-    logger.info("Cost CSV processed")
-    return cost_resources, total_compute_cost, total_storage_cost
 
 
-def create_cost_resource(row):
-    """
-    Creates a cost resource from the given row
-    """
-    region = row.get("ResourceLocation", "unknown")
-    cost_resource = CostResource(
-        id=row.get("ResourceId"),
-        name=row.get("ProductName", ""),
-        region=region,
-        subscription=row.get("SubscriptionId", "unknown"),
-        carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-        services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
-    )
-    timestamp = row.get(
-        "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
-    )
-    cost_resource.time_points = [timestamp]
-    return cost_resource
 
 
 def create_cost_report(cost_resources: list[CostResource], date: str, out_file: str):

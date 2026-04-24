@@ -51,15 +51,15 @@ class Runner_Storage(AbstractRunner):
         try:
             logger.info("Starting Storage runner execution.")
 
-            processed_storage_resources = self.process_carbon_calculations(
+            processed_resources = self.process_carbon_calculations(
                 list_resources_to_process
             )
 
-            logger.info("Processed resources: %s", processed_storage_resources)
+            logger.info("Processed resources: %s", processed_resources)
             execution_time = time.time() - start_time
 
             resourceDaemonResult = self.create_resource_type_result(
-                True, execution_time, ResourceType.STORAGE, processed_storage_resources
+                True, execution_time, ResourceType.STORAGE, processed_resources
             )
 
             logger.info(
@@ -78,7 +78,7 @@ class Runner_Storage(AbstractRunner):
             logger.error(error_msg)
 
             return ResourceTypeResult(
-                success=False, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.STORAGE, execution_time=execution_time, error_message=error_msg
             )
 
         except Exception as e:
@@ -87,7 +87,7 @@ class Runner_Storage(AbstractRunner):
             logger.exception(error_msg)
 
             return ResourceTypeResult(
-                success=False, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.STORAGE, execution_time=execution_time, error_message=error_msg
             )
 
     def process_carbon_calculations(

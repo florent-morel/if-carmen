@@ -18,6 +18,7 @@ class ResourceType(Enum):
 
     VIRTUAL_MACHINE = "VirtualMachine"
     STORAGE = "Storage"
+    MISC_SERVICES = "MiscServices"
 
 
 class Resource(ABC, BaseModel):

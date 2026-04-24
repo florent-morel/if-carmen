@@ -10,6 +10,7 @@ from backend.src.common.known_exception import KnownException, DataFetchError
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.schemas.resource.virtual_machine import ComputeResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
@@ -50,12 +51,12 @@ class Runner_Compute(AbstractRunner):
                     details="No virtual machines found in data source",
                 )
 
-            processed_vms = self.process_carbon_calculations(list_resources_to_process)
+            processed_resources = self.process_carbon_calculations(list_resources_to_process)
 
             execution_time = time.time() - start_time
 
             resourceDaemonResult = self.create_resource_type_result(
-                True, execution_time, ResourceType.VIRTUAL_MACHINE, processed_vms
+                True, execution_time, ResourceType.VIRTUAL_MACHINE, processed_resources
             )
 
             logger.info(
@@ -78,7 +79,7 @@ class Runner_Compute(AbstractRunner):
             logger.error(error_msg)
 
             return ResourceTypeResult(
-                success=False, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.VIRTUAL_MACHINE, execution_time=execution_time, error_message=error_msg
             )
 
         except Exception as e:
@@ -87,12 +88,12 @@ class Runner_Compute(AbstractRunner):
             logger.exception(error_msg)
 
             return ResourceTypeResult(
-                success=False, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.VIRTUAL_MACHINE, execution_time=execution_time, error_message=error_msg
             )
 
     def process_carbon_calculations(
-        self, list_resources_to_process: list[Resource]
-    ) -> list[Resource]:
+        self, list_resources_to_process: list[ComputeResource]
+    ) -> list[ComputeResource]:
         """
         Process virtual machines through the carbon calculation engine.
 

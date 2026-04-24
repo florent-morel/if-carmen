@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractWriter(ABC):
-    def __init__(self, config: "DaemonConfig",
+    def __init__(self, config: DaemonConfig,
                  writer: csv.DictWriter,
                  resource_result: ResourceTypeResult):
         self.resource_result: ResourceTypeResult = resource_result
-        self.config: "DaemonConfig" = config
+        self.config: DaemonConfig = config
         self.writer: csv.DictWriter = writer
 
     def initialize_headers(self):

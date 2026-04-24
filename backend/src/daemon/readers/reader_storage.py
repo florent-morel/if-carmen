@@ -32,12 +32,12 @@ class Reader_Storage(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
-        self._list_resources_to_process: list[Resource]
-        self.local_storage_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
+        self.list_resources_to_process: list[Resource]
+        self.storage_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
 
     @property
     def list_resources_to_process(self) -> list[Resource] | None:
-        return self._list_resources_to_process
+        return self.list_resources_to_process
 
     def read(self) -> list[Resource]:
         """
@@ -51,8 +51,8 @@ class Reader_Storage(AbstractReader):
         storage_resources = list[Resource]
         # Local test file
         # Check if file exists before trying to read it
-        if os.path.exists(self.local_storage_file):
-            with open(self.local_storage_file, "r",
+        if os.path.exists(self.storage_file):
+            with open(self.storage_file, "r",
                       encoding=CSV_FILE_ENCODING) as file:
                 csv_data = file.read()
             storage_dict = {}
@@ -68,9 +68,9 @@ class Reader_Storage(AbstractReader):
                 "Local test storage file not found, using empty storage list"
             )
 
-        self._list_resources_to_process = storage_resources
+        self.list_resources_to_process = storage_resources
 
-        return self._list_resources_to_process
+        return self.list_resources_to_process
 
     def process_csv_data(
         self,
