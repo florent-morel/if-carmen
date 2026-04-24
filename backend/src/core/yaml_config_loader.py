@@ -39,14 +39,6 @@ class Labels(BaseSettings):
     namespace_label: str = "namespace"
 
 
-class AzureCredentials(BaseSettings):
-    """Azure authentication credentials."""
-
-    client_id: str | None = None
-    client_secret: str | None = None
-    tenant_id: str | None = None
-
-
 class ApiConfig(BaseSettings):
     """Configuration for API-related settings including Thanos integration."""
 
@@ -67,32 +59,6 @@ class ApiConfig(BaseSettings):
                 ["client_id", "tenant_id", "client_secret"],
             )
         return self
-
-
-class AzureSourceConfig(BaseSettings):
-    """Azure Blob Storage source configuration."""
-
-    storage_account_url: str | None = None
-    container_name_read: str | None = None
-
-
-class AzureUploadConfig(BaseSettings):
-    """Azure Blob Storage upload configuration."""
-
-    container_name_upload: str | None = None
-    blob_name: str | None = None
-
-
-class LocalSourceConfig(BaseSettings):
-    """Local file system source configuration."""
-
-    source_path: str | None = None
-
-
-class LocalUploadConfig(BaseSettings):
-    """Local file system upload configuration."""
-
-    upload_path: str | None = None
 
 
 class SourceConfig(BaseSettings):
