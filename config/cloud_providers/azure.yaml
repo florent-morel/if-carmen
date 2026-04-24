@@ -1,0 +1,78 @@
+
+# Electricity ratios
+ELECTRICITY_RATIOS:
+  CPU_MIN: 0.78  # watt per core
+  CPU_MAX: 3.76  # watt per core
+  MEMORY: 0.392  # watt per GB
+  # Storage ratios
+  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
+  SSD: 0.0000012
+  HDD: 0.00000065
+  STORAGE_UNKNOWN: 0.000000925  # Average
+
+# in gCO2e/GB from https://hotcarbon.org/assets/2022/pdf/hotcarbon22-tannu.pdf
+STORAGE_EMBODIED_COEFFICIENT_MAPPING:
+  SSD: 160
+  HDD: 20
+  UNKNOWN: 90  # Average
+
+
+# Replication factors for different Azure storage types
+# https://docs.google.com/spreadsheets/d/1D7mIGKkdO1djPoMVmlXRmzA7_4tTiGZLYdVbfe85xQM/edit?gid=2008238628#gid=2008238628
+STORAGE_REPLICATION_FACTORS:
+  LRS: 3  # Locally redundant storage - 3 copies in single physical location
+  ZRS: 3  # Zone redundant storage - 3 copies across availability zones
+  GRS: 6  # Geo redundant storage - 3 primary + 3 secondary copies
+  RA_GRS: 6  # Read-access geo redundant - same as GRS
+  GZRS: 6  # Geo-zone redundant - 3 copies across zones + 3 secondary
+  RA_GZRS: 6  # Read-access geo-zone - same as GZRS
+
+
+# Azure Disk SKU to size mapping in GiB
+DISK_SKU_SIZE_MAPPING:
+  # Premium SSD (P series)
+  P1: 4
+  P2: 8
+  P3: 16
+  P4: 32
+  P6: 64
+  P10: 128
+  P15: 256
+  P20: 512
+  P30: 1024
+  P40: 2048
+  P50: 4096
+  P60: 8192
+  P70: 16384
+  P80: 32767
+  # Standard SSD (E series)
+  E1: 4
+  E2: 8
+  E3: 16
+  E4: 32
+  E6: 64
+  E10: 128
+  E15: 256
+  E20: 512
+  E30: 1024
+  E40: 2048
+  E50: 4096
+  E60: 8192
+  E70: 16384
+  E80: 32767
+  # Standard HDD (S series)
+  S4: 32
+  S6: 64
+  S10: 128
+  S15: 256
+  S20: 512
+  S30: 1024
+  S40: 2048
+  S50: 4096
+  S60: 8192
+  S70: 16384
+  S80: 32767
+
+
+# Power usage effectiveness values for this cloud provider
+PUE: 1.185

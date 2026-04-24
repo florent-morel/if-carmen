@@ -10,7 +10,7 @@ The daemon expects to read a group of csv files containing resource usage data. 
 | Time | Timestamp when the measurement was recorded, typically in ISO 8601 format | 2024-10-15T14:30:00Z |
 | Id | Unique identifier for the virtual machine resource | vm-a1b2c3d4e5f6 |
 | Size | VM instance size or tier (defines CPU, memory, and performance characteristics) | Standard_D4s_v3 |
-| Region | Geographic location or data center where the VM is deployed | eastus, westeurope, ap-southeast-1 |
+| Region | Geographic location where the resource is deployed | Canada, California, European_Union |
 | Service | Cloud service or product category the VM belongs to | Compute, Azure Virtual Machines, EC2 |
 | Component | Logical component or application layer the VM serves | web-server, database, api-gateway |
 | Subscription | Cloud subscription or account identifier | prod-subscription-001 |

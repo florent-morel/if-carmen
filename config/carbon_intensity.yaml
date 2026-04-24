@@ -1,0 +1,32 @@
+
+# List of carbon_intensity per location
+# 2024 Data (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
+# Locations can be a country, state, region, etc.
+# Add specific carbon_intensity for your environment at the end of the file
+locations: 
+  Australia:
+    carbon_intensity: 552
+  Hong_Kong:
+    carbon_intensity: 560
+  United_States:
+    carbon_intensity: 384
+  France:
+    carbon_intensity: 44
+  Germany:
+    carbon_intensity: 344
+  Ireland:
+    carbon_intensity: 280
+  Singapore:
+    carbon_intensity: 499
+  Sweden:
+    carbon_intensity: 36
+  Dubai:
+    carbon_intensity: 493
+  United_Kingdom:
+    carbon_intensity: 211
+  Netherlands:
+    carbon_intensity: 253
+  India:
+    carbon_intensity: 708
+  European_Union:
+    carbon_intensity: 281
