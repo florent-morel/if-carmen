@@ -27,9 +27,7 @@ class AbstractSourceConfig(ABC, BaseSettings):
     def __init__(self):
         self.list_credentials: list[AbstractCredentials]
         self.file_names: list[str] = []
-        self. type: Literal["azure", "local"] = "local"
 
-    @abstractmethod
     def validate_configuration(self):
         """
         Validate source configuration parameters.
@@ -37,7 +35,6 @@ class AbstractSourceConfig(ABC, BaseSettings):
         Raises:
             MissingParametersError: If required parameters are missing.
         """
-        # TODO: does this work? (this code should be run for any sub-class)
         # Validate file_names
         if not self.source.file_names:
             raise MissingParametersError(
@@ -48,4 +45,8 @@ class AbstractSourceConfig(ABC, BaseSettings):
         for credential in self.list_credentials:
             credential.validate_configuration()
 
+        self.validate_specific_configuration()
+
+    @abstractmethod
+    def validate_specific_configuration(self):
         pass

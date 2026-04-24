@@ -29,9 +29,12 @@ class AbstractUploadConfig(ABC, BaseSettings):
         Raises:
             MissingParametersError: If required parameters are missing.
         """
-        # TODO: does this work? (this code should be run for any sub-class)
         # Loop on all credentials and validate them
         for credential in self.list_credentials:
             credential.validate_configuration()
 
+        self.validate_specific_configuration()
+
+    @abstractmethod
+    def validate_specific_configuration(self):
         pass

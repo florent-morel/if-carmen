@@ -23,4 +23,8 @@ class AbstractCredentialsConfig(ABC, BaseSettings):
         Raises:
             MissingParametersError: If required parameters are missing.
         """
+        self.validate_specific_configuration()
+
+    @abstractmethod
+    def validate_specific_configuration(self):
         pass

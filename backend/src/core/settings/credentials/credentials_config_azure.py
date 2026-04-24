@@ -16,7 +16,7 @@ class AzureCredentialsConfig(AbstractCredentialsConfig):
     client_secret: str | None = None
     tenant_id: str | None = None
 
-    def validate_configuration(self):
+    def validate_specific_configuration(self):
         """
         Validate source configuration parameters dedicated to Azure.
 

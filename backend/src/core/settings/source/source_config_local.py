@@ -14,7 +14,7 @@ class LocalSourceConfig(AbstractSourceConfig):
 
     source_path: str | None = None
 
-    def validate_configuration(self):
+    def validate_specific_configuration(self):
         """
         Validate source configuration parameters.
 

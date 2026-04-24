@@ -15,16 +15,13 @@ class AzureUploadConfig(AbstractUploadConfig):
     container_name_upload: str | None = None
     blob_name: str | None = None
 
-    def validate_configuration(self):
+    def validate_specific_configuration(self):
         """
         Validate source configuration parameters.
 
         Raises:
             MissingParametersError: If required parameters are missing.
         """
-        # Check Azure credentials (shared with source)
-        # TODO: call credentials validation method
-
         # Check Azure upload settings
         missing: list[str] = []
         if not self.upload.azure.container_name_upload:

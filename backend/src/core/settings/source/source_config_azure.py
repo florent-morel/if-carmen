@@ -15,7 +15,7 @@ class AzureSourceConfig(AbstractSourceConfig):
     storage_account_url: str | None = None
     container_name_read: str | None = None
 
-    def validate_configuration(self):
+    def validate_specific_configuration(self):
         """
         Validate source configuration parameters dedicated to Azure.
 
