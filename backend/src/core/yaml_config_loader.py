@@ -333,8 +333,8 @@ def load_provider_configs() -> dict[str, AbstractProviderConfig]:
     """
     Load provider-specific configuration files.
     Part of multi-provider support implementation, allows to easily add new providers,
-    by just adding a new yaml file and provider config class if needed,
-    and update _instantiate_provider_config factory.
+    by adding a new yaml file and provider config class,
+    and updating _instantiate_provider_config factory.
 
     Returns:
         dict[str, AbstractProviderConfig]: A dictionary mapping provider names to their configuration objects.
