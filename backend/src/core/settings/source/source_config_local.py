@@ -1,7 +1,4 @@
-
-from backend.src.core.settings.source.abstract_source_config import (
-    AbstractSourceConfig
-)
+from backend.src.core.settings.source.abstract_source_config import AbstractSourceConfig
 
 from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import (
@@ -12,7 +9,7 @@ from backend.src.common.known_exception import (
 class LocalSourceConfig(AbstractSourceConfig):
     """Local file system source configuration."""
 
-    source_path: str | None = None
+    input_path: str | None = None
 
     def validate_specific_configuration(self):
         """
@@ -21,7 +18,7 @@ class LocalSourceConfig(AbstractSourceConfig):
         Raises:
             MissingParametersError: If required parameters are missing.
         """
-        if not self.source.local.source_path:
+        if not self.source.local.input_path:
             raise MissingParametersError(
-                ErrorCode.CONFIG_MISSING_PARAMETERS, ["source_path"]
+                ErrorCode.CONFIG_MISSING_PARAMETERS, ["input_path"]
             )

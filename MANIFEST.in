@@ -4,9 +4,10 @@ include LICENSE
 include pyproject.toml
 
 # Include configuration files
-include config-test.yaml
+include config/config.yaml
 include workbench.yaml
-include azure_instances.csv
+include config/cloud_providers/azure_instances.csv
+include config/cloud_providers/azure.yaml
 
 # Include all Python source code
 recursive-include backend *.py

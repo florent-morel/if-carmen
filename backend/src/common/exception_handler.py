@@ -62,8 +62,6 @@ def get_status_code_for_error(error_code: ErrorCode) -> int:
         if error_code in [
             ErrorCode.FILE_NOT_FOUND,
             ErrorCode.DIRECTORY_NOT_FOUND,
-            ErrorCode.AZURE_STORAGE_BLOB_NOT_FOUND,
-            ErrorCode.AZURE_STORAGE_CONTAINER_NOT_FOUND,
         ]:
             return status.HTTP_404_NOT_FOUND
         if error_code in [

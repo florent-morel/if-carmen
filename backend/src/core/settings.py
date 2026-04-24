@@ -116,39 +116,38 @@ class ReportConfig(BaseSettings):
     HEADER: dict = {
         # Common columns
         COMMON: {
-           COMMON_DATE: "Date",
-           COMMON_RESOURCE_TYPE: "ResourceType",
-           COMMON_ID: "Id",
-           COMMON_NAME: "Name",
-           COMMON_REGION: "Region",
-           COMMON_SUBSCRIPTION: "Subscription",
-           COMMON_ENERGY: "EnergyKWH",
-           COMMON_OPERATIONAL_CARBON: "OperationalCarbonGramsCO2eq",
-           COMMON_EMBODIED_CARBON: "EmbodiedCarbonGramsCO2eq",
-           COMMON_TOTAL_CARBON: "TotalCarbonGramsCO2eq",
-           COMMON_CARBON_INTENSITY: "CarbonIntensity",
+            COMMON_DATE: "Date",
+            COMMON_RESOURCE_TYPE: "ResourceType",
+            COMMON_ID: "Id",
+            COMMON_NAME: "Name",
+            COMMON_REGION: "Region",
+            COMMON_SUBSCRIPTION: "Subscription",
+            COMMON_ENERGY: "EnergyKWH",
+            COMMON_OPERATIONAL_CARBON: "OperationalCarbonGramsCO2eq",
+            COMMON_EMBODIED_CARBON: "EmbodiedCarbonGramsCO2eq",
+            COMMON_TOTAL_CARBON: "TotalCarbonGramsCO2eq",
+            COMMON_CARBON_INTENSITY: "CarbonIntensity",
         },
         # VM columns
         COMPUTE: {
-           COMPUTE_VM_SIZE: "VMSize",
-           COMPUTE_SERVICE: "Service",
-           COMPUTE_INSTANCE: "Instance",
-           COMPUTE_ENVIRONMENT: "Environment",
-           COMPUTE_PARTITION: "Partition",
-           COMPUTE_COMPONENT: "Component",
+            COMPUTE_VM_SIZE: "VMSize",
+            COMPUTE_SERVICE: "Service",
+            COMPUTE_INSTANCE: "Instance",
+            COMPUTE_ENVIRONMENT: "Environment",
+            COMPUTE_PARTITION: "Partition",
+            COMPUTE_COMPONENT: "Component",
         },
         # Storage columns
         STORAGE: {
-           STORAGE_TYPE: "StorageType",
-           STORAGE_REPLICATION_TYPE: "ReplicationType",
-           STORAGE_SIZE_GB: "SizeGB",
+            STORAGE_TYPE: "StorageType",
+            STORAGE_REPLICATION_TYPE: "ReplicationType",
+            STORAGE_SIZE_GB: "SizeGB",
         },
         # Misc services columns
         MISC_SERVICES: {
             MISC_SERVICES_COST: "ServicesCost",
         },
     }
-
 
     REPORT_HEADERS: list[list[str]] = [
         [
@@ -211,7 +210,9 @@ class Settings(BaseSettings):
         "https://raw.githubusercontent.com/Green-Software-Foundation/if-data/main/cloud"
         "-metdata-azure-instances.csv"
     )
-    CARMEN_CONFIG_FILEPATH: str = os.getenv("CARMEN_CONFIG_FILEPATH", "config.yaml")
+    CARMEN_CONFIG_FILEPATH: str = os.getenv(
+        "CARMEN_CONFIG_FILEPATH", "config/config.yaml"
+    )
 
 
 def configure_logger(validated_settings: Settings) -> None:

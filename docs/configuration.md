@@ -1,7 +1,7 @@
 # Configuration
 
 This file documents all possible configuration options for running Carmen.
-The default configuration path is `config.yaml`, but can be overriden through the `CARMEN_CONFIG_FILEPATH` environment variable.
+The default configuration path is `config/config.yaml`, but can be overriden through the `CARMEN_CONFIG_FILEPATH` environment variable.
 
 ```yaml
 # API Configuration (optional)
@@ -94,7 +94,7 @@ carmen_daemon:
     local:
       # REQUIRED: Directory path for input files
       # Type: string | null
-      source_path: "/var/data/carbon-engine/input"
+      input_path: "/var/data/carbon-engine/input"
   
   # Upload destination configuration
   upload:
@@ -118,5 +118,5 @@ carmen_daemon:
     local:
       # REQUIRED: Directory path for output reports
       # Type: string | null
-      upload_path: "/var/data/carbon-engine/output"
+      output_path: "/var/data/carbon-engine/output"
 ```

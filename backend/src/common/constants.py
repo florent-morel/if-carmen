@@ -48,8 +48,10 @@ IF_FILES_DIR = os.path.join(
 )
 
 PLUGIN_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
-    "cost-model-plugin/build"
+    os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    ),
+    "cost-model-plugin/build",
 )
 
 # Germany: both germanywestcentral & germanynorth gives the same CI from CAW SDK
@@ -77,25 +79,18 @@ PLUGIN_PATH = os.path.join(
 #     "NCE": "francesouth",
 # }
 
-
-class UploadType(Enum):
-    """Supported upload destination types."""
-
-    AZURE = "azure"
-    LOCAL = "local"
-
 # STORAGE_POWER_COEFFICIENT_MAPPING = {  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
 #     "SSD": 0.0000012,
 #     "HDD": 0.00000065,
 #     "UNKNOWN": 0.000000925,  # Average
 # }
-# 
+#
 # STORAGE_EMBODIED_COEFFICIENT_MAPPING = {  # in gCO2e/GB from https://hotcarbon.org/assets/2022/pdf/hotcarbon22-tannu.pdf
 #     "SSD": 160,
 #     "HDD": 20,
 #     "UNKNOWN": 90,  # Average
 # }
-# 
+#
 # # Replication factors for different Azure storage types
 # # https://docs.google.com/spreadsheets/d/1D7mIGKkdO1djPoMVmlXRmzA7_4tTiGZLYdVbfe85xQM/edit?gid=2008238628#gid=2008238628
 # STORAGE_REPLICATION_FACTORS = {
@@ -106,7 +101,7 @@ class UploadType(Enum):
 #     "GZRS": 6,  # Geo-zone redundant - 3 copies across zones + 3 secondary
 #     "RA_GZRS": 6,  # Read-access geo-zone - same as GZRS
 # }
-# 
+#
 # # Azure Disk SKU to size mapping in GiB
 # DISK_SKU_SIZE_MAPPING = {
 #     # Premium SSD (P series)
@@ -152,7 +147,7 @@ class UploadType(Enum):
 #     "S70": 16384,
 #     "S80": 32767,
 # }
-# 
+#
 # # Power usage effectiveness values for different cloud providers
 # PUE_AZURE = 1.185
 # PUE_AWS = 1.135

@@ -38,10 +38,6 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
-        self.mock_config.source = MagicMock()
-        self.mock_config.source.type = "azure"
-        self.mock_config.upload = MagicMock()
-        self.mock_config.upload.type = "local"
         self.sample_vms = [
             VirtualMachine(id="vm1", name="test-vm-1"),
             VirtualMachine(id="vm2", name="test-vm-2"),

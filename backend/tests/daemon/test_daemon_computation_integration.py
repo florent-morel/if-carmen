@@ -198,10 +198,7 @@ def mock_daemon_config() -> MagicMock:
     config = MagicMock()
     config.source = MagicMock()
     config.source.type = "azure"
-    config.upload = MagicMock()
-    config.upload.type = "local"
-    config.upload.local = MagicMock()
-    config.upload.local.upload_path = TEST_REPORT_DIR
+    config.output_path = TEST_REPORT_DIR
     return config
 
 
@@ -379,7 +376,6 @@ def test_daemon_with_mocked_components(
         mock_writer_factory.create_writer.assert_called_once_with(
             mock_daemon_config, processed_vms
         )
-        mock_writer.upload_compute_report.assert_called_once()
 
 
 @patch("backend.src.daemon.abstract_carbon_daemon.config")

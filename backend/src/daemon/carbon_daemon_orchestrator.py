@@ -6,7 +6,6 @@ following actions:
 - Read input data.
 - Run the call to the Impact Framework.
 - Write output report.
-- Upload report file.
 
 """
 
@@ -25,6 +24,7 @@ from backend.src.common.constants import (
 )
 from backend.src.common.known_exception import KnownException, DataFetchError
 from backend.src.common.errors import ErrorCode
+
 # from backend.src.core.yaml_config_loader import config
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig
@@ -41,7 +41,6 @@ from backend.src.daemon.processors.abstract_processor import (
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.daemon.writers.writer_storage import Writer_Storage
 from backend.src.daemon.writers.writer_compute import Writer_Compute
-from backend.src.daemon.uploaders.uploader_local import Uploader_Local
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +71,7 @@ class CarbonDaemonOrchestrator:
 
         self.date: str = self.get_execution_date()
         self.output_file: str = os.path.join(
-            str(self.config.upload_path), f"CO2_{self.date}.csv"
+            str(self.config.output_path), f"CO2_{self.date}.csv"
         )
 
         logger.info("Carbon Daemon initialized")
@@ -97,10 +96,6 @@ class CarbonDaemonOrchestrator:
 
             # Write results
             self.write_report()
-
-            # Upload report file
-            # TODO: rename to have harmonized name
-            self.upload_report()
 
             total_execution_time = time.time() - start_time
 
@@ -307,7 +302,9 @@ class CarbonDaemonOrchestrator:
                 writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
 
             # iterate on writers
-            for resource_type_result in self.carbon_daemon_result.dict_resource_result.values():
+            for (
+                resource_type_result
+            ) in self.carbon_daemon_result.dict_resource_result.values():
                 # TODO: need to go via the factory
                 # Instantiate writer dedicated to ResourceType
                 if resource_type_result.resource_type == ResourceType.STORAGE:
@@ -330,36 +327,6 @@ class CarbonDaemonOrchestrator:
 
         logger.info("CSV report created in %.2f seconds", elapsed_time)
         logger.info("Report saved to: %s", self.output_file)
-
-    def upload_report(self) -> None:
-        """
-        Call the configured uploader to push the CO2 report to the proper
-        location.
-
-        Args:
-
-        Raises:
-            Exception: If upload fails.
-        """
-
-        logger.info("Starting upload_report.")
-
-        upload_start_time = time.time()
-        #
-        try:
-            # TODO: Fetch upload type from config.yaml
-            # self.config.upload.type = "local"
-            if self.config.upload.type == "local":
-                # Local implementation: move file to configured path
-                uploader = Uploader_Local(self.output_file)
-                uploader.upload_report()
-
-            upload_time = time.time() - upload_start_time
-            logger.info("results uploaded successfully in %.2f seconds", upload_time)
-
-        except Exception as e:
-            logger.error("failed to upload results: %s", str(e))
-            raise
 
     def get_execution_date(self):
         execution_date_str = os.getenv(EXECUTION_DATE)

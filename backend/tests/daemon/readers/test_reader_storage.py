@@ -1,4 +1,3 @@
-
 """
 Unit tests for the Storage Reader class in the daemon.readers module.
 
@@ -62,8 +61,6 @@ class TestReaderStorage(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
-        self.mock_config.source = MagicMock()
-        self.mock_config.upload = MagicMock()
 
     @patch("backend.src.utils.ioc_util.resolve")
     def test_reader_storage_success(self, mock_ioc_util_resolve):

@@ -40,14 +40,12 @@ class Reader_Compute(AbstractReader):
         self.list_resources_to_process: list[Resource]
         # These are guaranteed to be non-None after config loader validation
         # Resolve path to absolute to handle relative paths correctly
-        self.source_path: Path = Path(
-            str(self.config.source.local.source_path)
-        ).resolve()
+        self.input_path: Path = Path(str(self.config.source.local.input_path)).resolve()
         self.file_names: list[str] = self.config.source.file_names
 
         logger.info(
             "local compute reader initialized with source path %s files %d",
-            self.source_path,
+            self.input_path,
             len(self.file_names),
         )
 
@@ -146,7 +144,7 @@ class Reader_Compute(AbstractReader):
         logger.info("processing %d local files", total_files)
 
         for index, file_name in enumerate(self.file_names, 1):
-            file_path = self.source_path / file_name
+            file_path = self.input_path / file_name
             logger.debug("processing file %d/%d %s", index, total_files, str(file_path))
 
             try:

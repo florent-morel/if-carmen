@@ -69,8 +69,6 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
-        self.mock_config.source = MagicMock()
-        self.mock_config.upload = MagicMock()
 
     @patch("backend.src.utils.ioc_util.resolve")
     # @patch("backend.src.daemon.carbon_daemon.register_models")
@@ -145,7 +143,6 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         # mock_writer_factory.create_writer.assert_called_once_with(
         #     self.mock_config, processed_storage
         # )
-        # mock_writer.upload_compute_report.assert_called_once()
 
     #     @patch("backend.src.daemon.carbon_daemon.register_models")
     #     def test_daemon_run_no_vms_found(self, mock_register_models):
@@ -308,47 +305,6 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 #     @patch(
 #         "backend.src.daemon.writers.compute.azure_compute_writer.initialize_azure_client"
 #     )
-#     def test_default_writer_factory_azure(self, mock_azure_client):
-#         """
-#         Test DefaultWriterFactory creates Azure writer for azure upload type.
-#         """
-#         mock_azure_client.return_value = MagicMock()
-#
-#         factory = DefaultWriterFactory()
-#         config = MagicMock()
-#         config.upload = MagicMock()
-#         config.upload.type = "azure"
-#
-#         writer = factory.create_writer(config, self.sample_vms)
-#
-#         self.assertIsNotNone(writer)
-#
-#     def test_default_writer_factory_local(self):
-#         """
-#         Test DefaultWriterFactory creates Local writer for local upload type.
-#         """
-#         factory = DefaultWriterFactory()
-#         config = MagicMock()
-#         config.upload = MagicMock()
-#         config.upload.type = "local"
-#
-#         writer = factory.create_writer(config, self.sample_vms)
-#
-#         self.assertIsNotNone(writer)
-#
-#     def test_default_writer_factory_unsupported(self):
-#         """
-#         Test DefaultWriterFactory raises ValueError for unsupported upload type.
-#         """
-#         factory = DefaultWriterFactory()
-#         config = MagicMock()
-#         config.upload = MagicMock()
-#         config.upload.type = "unsupported"
-#
-#         with self.assertRaises(ValueError) as context:
-#             factory.create_writer(config, self.sample_vms)
-#
-#         self.assertIn("unsupported upload type", str(context.exception))
 
 
 if __name__ == "__main__":

@@ -17,8 +17,7 @@ class CloudMetadata(ModelUtilities):
     """
 
     def __init__(self):
-
-        files_dir = Path(files_module.__file__).parent
+        files_dir = Path(files_module.__file__).parent / "config"
         csv_path = files_dir / "azure_instances.csv"
 
         config = {

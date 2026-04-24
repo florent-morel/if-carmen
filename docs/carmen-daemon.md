@@ -75,10 +75,10 @@ carmen_daemon:
     local:
       # Path to the example data directory
       # Using relative path from project root
-      source_path: "vm-metrics"
+      input_path: "vm-metrics"
 
       # Or use absolute path:
-      # source_path: "/home/user/carbon-engine/example-data/vm-metrics"
+      # input_path: "/home/user/carbon-engine/example-data/vm-metrics"
 
   # UPLOAD: Write carbon reports to local output directory
   upload:
@@ -86,7 +86,7 @@ carmen_daemon:
     # Local filesystem configuration
     local:
       # Output directory for carbon reports
-      upload_path: "./output"
+      output_path: "./output"
 ```
 
 To run the example, navigate to the `example-data/` directory and execute the following command:
