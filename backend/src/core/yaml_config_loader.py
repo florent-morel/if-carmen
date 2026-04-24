@@ -31,6 +31,10 @@ from backend.src.core.settings.providers.provider_config_azure import (
     Provider_Config_Azure,
 )
 
+from backend.src.core.settings.providers.abstract_provider_config import (
+    AbstractProviderConfig,
+)
+
 from backend.src.core.settings.credentials.credentials_config_azure import (
     AzureCredentialsConfig,
 )
@@ -184,7 +188,7 @@ class AppConfig(BaseSettings):
 
     carmen_api: ApiConfig | None = None
     carmen_daemon: DaemonConfig | None = None
-    provider_config: Provider_Config_Azure | None = None
+    provider_configs: dict[str, AbstractProviderConfig] = {}
 
 
 def env_constructor(loader: yaml.SafeLoader, node: yaml.ScalarNode) -> str:
@@ -214,8 +218,16 @@ def env_constructor(loader: yaml.SafeLoader, node: yaml.ScalarNode) -> str:
     return value
 
 
-def load_yaml(path: Path):
+def load_yaml(path: Path) -> dict:
     """
+    Load a YAML configuration file with environment variable substitution.
+
+    Args:
+        path (Path): The path to the YAML configuration file.
+
+    Returns:
+        The loaded configuration as a dictionary.
+
     Raises:
         ConfigFileError: If the configuration file is not found or invalid.
         ConfigValidationError: If configuration validation fails.
@@ -254,6 +266,98 @@ def load_yaml(path: Path):
     return raw_config
 
 
+def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None]:
+    """
+    Load the main configuration file and validate required sections.
+
+    Returns:
+        Tuple containing the API configuration and Daemon configuration objects.
+
+    Raises:
+        ConfigFileError: If the configuration file is not found or invalid.
+        ConfigValidationError: If configuration validation fails.
+        MissingParametersError: If required parameters are missing in the configuration.
+    """
+    main_config_file = settings.CARMEN_MAIN_CONFIG_FILEPATH
+    main_config_file_path = Path(main_config_file)
+
+    main_config_raw = load_yaml(main_config_file_path)
+
+    if "carmen_api" not in main_config_raw and "carmen_daemon" not in main_config_raw:
+        logger.error(
+            "Required configuration sections missing in: %s", main_config_file_path
+        )
+        raise MissingParametersError(
+            ErrorCode.CONFIG_MISSING_PARAMETERS, ["carmen_api", "carmen_daemon"]
+        )
+
+    # Fill in APIConfig and DaemonConfig based on data retrieved from config.yaml
+    carmen_api = (
+        ApiConfig.model_validate(main_config_raw["carmen_api"])
+        if "carmen_api" in main_config_raw
+        else None
+    )
+    carmen_daemon = (
+        DaemonConfig.model_validate(main_config_raw["carmen_daemon"])
+        if "carmen_daemon" in main_config_raw
+        else None
+    )
+
+    return carmen_api, carmen_daemon
+
+
+def _instantiate_provider_config(name: str, raw: dict) -> AbstractProviderConfig | None:
+    """
+    Factory function to instantiate provider configuration objects based on provider name.
+
+    Args:
+        name (str): The name of the provider.
+        raw (dict): The raw configuration data for the provider.
+
+    Returns:
+        AbstractProviderConfig | None: The instantiated provider configuration object, or None if the provider is not implemented or unknown.
+    """
+    match name:
+        case "azure":
+            return Provider_Config_Azure.model_validate(raw)
+        # IMP: Code is ready, but dataset is missing for these providers, so we will implement them as part of multi-provider support implementation, after we have the datasets.
+        case "aws" | "gcp":
+            logger.warning("Provider '%s' is not yet implemented. Skipping.", name)
+            return None
+        case _:
+            logger.warning("Unknown provider '%s'. Skipping.", name)
+            return None
+
+
+def load_provider_configs() -> dict[str, AbstractProviderConfig]:
+    """
+    Load provider-specific configuration files.
+    Part of multi-provider support implementation, allows to easily add new providers,
+    by just adding a new yaml file and provider config class if needed,
+    and update _instantiate_provider_config factory.
+
+    Returns:
+        dict[str, AbstractProviderConfig]: A dictionary mapping provider names to their configuration objects.
+    Raises:
+        ConfigFileError: If any provider configuration file is missing or invalid.
+        ConfigValidationError: If any provider configuration fails validation.
+        MissingParametersError: If required parameters are missing in any provider configuration.
+    """
+    provider_configs = {}
+    provider_config_dir = Path(settings.CARMEN_PROVIDER_CONFIG_FILEPATH)
+    for provider_dir in provider_config_dir.iterdir():
+        if provider_dir.is_dir():
+            yaml_file = provider_dir / f"{provider_dir.name}.yaml"
+            raw = load_yaml(yaml_file)
+            provider_name = provider_dir.name  # "azure", "aws", "gcp"
+            provider_config = _instantiate_provider_config(provider_name, raw)
+            # Guard against None in case of unknown provider or not-yet-implemented provider
+            if provider_config is not None:
+                provider_configs[provider_name] = provider_config
+
+    return provider_configs
+
+
 @lru_cache()
 def load_and_validate_config() -> AppConfig:
     """
@@ -263,34 +367,13 @@ def load_and_validate_config() -> AppConfig:
         The validated configuration object.
 
     """
-    main_config_file = settings.CARMEN_MAIN_CONFIG_FILEPATH
-    main_config_file_path = Path(main_config_file)
-
-    main_config_raw = load_yaml(main_config_file_path)
-
-    if "carmen_api" not in main_config_raw or "carmen_daemon" not in main_config_raw:
-        logger.error(
-            "Required configuration sections missing in: %s", main_config_file_path
-        )
-        raise MissingParametersError(
-            ErrorCode.CONFIG_MISSING_PARAMETERS, ["carmen_api", "carmen_daemon"]
-        )
-
-    # Fill in APIConfig and DaemonConfig based on data retrieved from config.yaml
-    carmen_api = ApiConfig.model_validate(main_config_raw["carmen_api"])
-    carmen_daemon = DaemonConfig.model_validate(main_config_raw["carmen_daemon"])
-
-    # Fill in provider_config based on data retrieved from cloud_providers
-    provider_config_file = settings.CARMEN_PROVIDER_CONFIG_FILEPATH
-    provider_config_file_path = Path(provider_config_file)
-    provider_config_raw = load_yaml(provider_config_file_path)
-
-    provider_config = Provider_Config_Azure.model_validate(provider_config_raw)
+    carmen_api, carmen_daemon = load_main_config()
+    provider_configs = load_provider_configs()
 
     return AppConfig(
         carmen_api=carmen_api,
         carmen_daemon=carmen_daemon,
-        provider_config=provider_config,
+        provider_configs=provider_configs,
     )
 
 

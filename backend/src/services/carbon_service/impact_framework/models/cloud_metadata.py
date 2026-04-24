@@ -16,6 +16,8 @@ class CloudMetadata(ModelUtilities):
     name and CPU TDP based on cloud instance type and vendor (which is Azure by default)
     """
 
+    # TODO accept provider as a str and select {provider}_instances.csv accordingly,
+    # instead of hardcoding Azure, as part of multi-provider support implementation.
     def __init__(self):
         files_dir = Path(files_module.__file__).parent / "config"
         csv_path = files_dir / "azure_instances.csv"
