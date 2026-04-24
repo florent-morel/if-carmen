@@ -21,6 +21,7 @@ The daemon expects to read a group of csv files containing resource usage data. 
 | AverageCpuPercentage | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | DiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
 
+
 ## Report File
 
 The Carmen Daemon generates a detailed carbon emissions report in CSV format with the following fields:
@@ -44,6 +45,13 @@ The Carmen Daemon generates a detailed carbon emissions report in CSV format wit
 | Environment | Deployment environment | prd |
 | Partition | Logical partition or tenant | (empty) |
 | Component | Infrastructure component type | db |
+
+
+> [!IMPORTANT]
+> The report file is unique, regardless the number of resource types (compute, storage, misc services) included in the computation.
+> A single row is specific to a single entry of a given resource type.
+> As a consequence, some fields might be empty if they are not relevant for the given resource type.
+
 
 ## Running The Daemon
 

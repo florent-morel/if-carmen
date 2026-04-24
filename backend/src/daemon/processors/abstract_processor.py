@@ -68,14 +68,14 @@ class AbstractProcessor(ABC):
         """
         self.config = config
 
-    def read(self) -> list[Resource]:
+    def read(self, csv_data: str) -> list[Resource]:
         """
         Call the associated Reader to read data source.
 
         Returns:
         """
-        logger.info(f"Inside AbstractProcessor reader: {self.reader}")
-        self.list_resources_to_process = self.reader.read()
+        logger.debug(f"Inside AbstractProcessor reader: {self.reader}")
+        self.list_resources_to_process = self.reader.read(csv_data)
 
     def run(self) -> ResourceTypeResult:
         """

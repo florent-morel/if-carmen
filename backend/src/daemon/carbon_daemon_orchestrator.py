@@ -42,6 +42,12 @@ from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.daemon.writers.writer_storage import Writer_Storage
 from backend.src.daemon.writers.writer_compute import Writer_Compute
 
+from backend.src.common.constants import (
+    CSV_PATH,
+    CSV_FILE_TEST,
+    CSV_FILE_ENCODING,
+)
+
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +76,10 @@ class CarbonDaemonOrchestrator:
         register_models()
 
         self.date: str = self.get_execution_date()
+        # TODO: Implement support for list
+        self.list_input_file = []
+        self.list_input_file.append(os.getenv(CSV_PATH, CSV_FILE_TEST))
+
         self.output_file: str = os.path.join(
             str(self.config.output_path), f"CO2_{self.date}.csv"
         )
@@ -157,28 +167,59 @@ class CarbonDaemonOrchestrator:
             )
 
             if self.list_resource_processors:
-                for abstract_processor in self.list_resource_processors:
-                    logger.info(
-                        f"Data source reading by {abstract_processor.reader}"
-                        f" reader for {abstract_processor.resource_type.value}"
-                        f" resource type."
-                    )
-                    resources = abstract_processor.read()
 
-                read_time = time.time() - read_start_time
-                if resources:
-                    logger.info(
-                        "Source data reading completed. Reader %s retrieved %d resources of type %s in %.2f seconds",
-                        abstract_processor.reader,
-                        len(resources),
-                        abstract_processor.resource_type.value,
-                        read_time,
-                    )
-                else:
-                    raise DataFetchError(
-                        ErrorCode.DATA_FETCH_NO_RESULTS,
-                        details=f"No resources found for {abstract_processor.resource_type.value} in data source",
-                    )
+                for input_file in self.list_input_file:
+                    # Check if file exists before trying to read it
+                    try:
+                        if os.path.exists(input_file):
+                            with open(input_file, "r", encoding=CSV_FILE_ENCODING) as file:
+                                logger.info(
+                                    f"Data source reading from {input_file}"
+                                )
+                                csv_data = file.read()
+
+                        for abstract_processor in self.list_resource_processors:
+                            logger.info(
+                                f"Data source reading by {abstract_processor.reader}"
+                                f" reader for {abstract_processor.resource_type.value}"
+                                f" resource type."
+                            )
+                            resources = abstract_processor.read(csv_data)
+
+                        read_time = time.time() - read_start_time
+                        if resources:
+                            logger.info(
+                                "Source data reading completed for file %s."
+                                "Reader %s retrieved %d resources of type %s"
+                                "in %.2f seconds",
+                                input_file,
+                                abstract_processor.reader,
+                                len(resources),
+                                abstract_processor.resource_type.value,
+                                read_time,
+                            )
+                        else:
+                            raise DataFetchError(
+                                ErrorCode.DATA_FETCH_NO_RESULTS,
+                                details=f"No resources found for {abstract_processor.resource_type.value} in data source",
+                            )
+                    except FileNotFoundError:
+                        logger.warning("file not found %s", input_file)
+                        return None
+                    except PermissionError as e:
+                        logger.error("permission denied reading file %s %s", input_file, str(e))
+                        raise KnownException(
+                            ErrorCode.FILE_PERMISSION_DENIED,
+                            details=f"permission denied: {input_file}",
+                        ) from e
+                    except UnicodeDecodeError as e:
+                        logger.error("failed to decode file data for %s %s", input_file, str(e))
+                        return None
+                    except Exception as e:
+                        logger.error("unexpected error reading file %s %s", input_file, str(e))
+                        raise KnownException(
+                            ErrorCode.FILE_READ_ERROR, details=f"failed to read file: {input_file}"
+                        ) from e
             else:
                 logger.error("No processor provided.")
 

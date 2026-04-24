@@ -16,11 +16,6 @@ from backend.src.daemon.readers.helpers.storage_helpers import (
     process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.common.constants import (
-    CSV_PATH,
-    CSV_FILE_TEST,
-    CSV_FILE_ENCODING,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +34,7 @@ class Reader_Storage(AbstractReader):
     def list_resources_to_process(self) -> list[Resource] | None:
         return self.list_resources_to_process
 
-    def read(self) -> list[Resource]:
+    def read(self, csv_data) -> list[Resource]:
         """
         Read and process files to extract storage resource information.
 
@@ -49,25 +44,14 @@ class Reader_Storage(AbstractReader):
         """
         logger.info(f"Inside reader Storage: {self}")
         storage_resources = list[Resource]
-        # Local test file
-        # Check if file exists before trying to read it
-        if os.path.exists(self.storage_file):
-            with open(self.storage_file, "r",
-                      encoding=CSV_FILE_ENCODING) as file:
-                csv_data = file.read()
-            storage_dict = {}
-            self.process_csv_data(csv_data, storage_dict, None)
-            storage_resources = list(storage_dict.values())
+        storage_dict = {}
+        self.process_csv_data(csv_data, storage_dict, None)
+        storage_resources = list(storage_dict.values())
 
-            logger.info(
-                "Loaded %d storage resources from local test file",
-                len(storage_resources),
-            )
-        else:
-            logger.warning(
-                "Local test storage file not found, using empty storage list"
-            )
-
+        logger.info(
+            "Loaded %d storage resources from local test file",
+            len(storage_resources),
+        )
         self.list_resources_to_process = storage_resources
 
         return self.list_resources_to_process

@@ -31,7 +31,7 @@ class AbstractReader(ABC):
         pass
 
     @abstractmethod
-    def read(self) -> list[Resource]:
+    def read(self, csv_data: str) -> list[Resource]:
         """
         Read and process files to extract resource information.
 
@@ -47,7 +47,7 @@ class AbstractReader(ABC):
         missing_region_resource_count: dict[str, int],
     ) -> bool:
         """
-        Processes CSV data from the blob and updates the resource machine dictionary.
+        Processes CSV data from the blob and updates the resource dictionary.
 
         Args:
             missing_region_resource_count (Dict[str, int]): Dictionary with the information of missing regions and

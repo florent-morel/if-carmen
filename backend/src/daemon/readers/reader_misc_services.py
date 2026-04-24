@@ -53,7 +53,7 @@ class Reader_Misc_Services(AbstractReader):
     def list_resources_to_process(self) -> list[Resource] | None:
         return self.list_resources_to_process
 
-    def read(self) -> list[Resource]:
+    def read(self, csv_data) -> list[Resource]:
         """
         Read and process files to extract misc services resource information.
 
@@ -65,18 +65,12 @@ class Reader_Misc_Services(AbstractReader):
 
         # COST MODEL PROCESSING
         # TODO: CSV path will be changed when we start fetching the files from finops
-        if os.path.exists(self.storage_file):
-            with open(self.storage_file, "r", encoding=CSV_FILE_ENCODING) as file:
-                csv_data = file.read()
-            cost_resources, total_compute_cost, total_storage_cost = self.process_cost_csv(self.input_file)
-            logger.info(
-                "Loaded %d cost resources from local test file",
-                len(cost_resources),
-            )
-        else:
-            logger.warning(
-                "Local test file not found, using empty list"
-            )
+        cost_resources, total_compute_cost, total_storage_cost = self.process_cost_csv(csv_data)
+        logger.info(
+            "Loaded %d cost resources from local test file",
+            len(cost_resources),
+        )
+        #     TODO: what is this?
         #     cost_resources = []
         #     total_compute_cost, total_storage_cost = 1.0, 1.0
 
