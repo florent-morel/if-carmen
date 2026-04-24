@@ -51,12 +51,9 @@ The example-data directory includes sample VM usage datasets you can use to expl
 
 ```yaml
 # Example Configuration for Carbon Engine with Sample Data
-# This configuration uses the local reader to process the example VM metrics
 carmen_daemon:
   # SOURCE: Read VM metrics from local example data
   source:
-    type: local
-
     # Files to process - choose one or more:
     # Option 1: Simple example (2 VMs, 3 hours each)
     file_names:
@@ -71,22 +68,23 @@ carmen_daemon:
     #   - "vm_metrics_2024_01.csv"
     #   - "vm_metrics_2024_02.csv"
 
-    # Local filesystem configuration
-    local:
-      # Path to the example data directory
-      # Using relative path from project root
-      input_path: "vm-metrics"
+    # Path to the example data directory
+    # Using relative path from project root
+    input_path: "vm-metrics"
+    # Or use absolute path:
+    # input_path: "/home/user/carbon-engine/example-data/vm-metrics"
 
-      # Or use absolute path:
-      # input_path: "/home/user/carbon-engine/example-data/vm-metrics"
+  # Output directory for carbon reports
+  output_path: "./output"
+  # TODO document properly below
+  orchestrator:
+    list_processors:
+      - Processor_Compute
+      - Processor_Storage
+      - Processor_Misc_Services
+  infrastructure_providers:
+    - azure
 
-  # UPLOAD: Write carbon reports to local output directory
-  upload:
-    type: local
-    # Local filesystem configuration
-    local:
-      # Output directory for carbon reports
-      output_path: "./output"
 ```
 
 To run the example, navigate to the `example-data/` directory and execute the following command:

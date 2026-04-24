@@ -54,69 +54,36 @@ carmen_api:
 
 # Daemon Configuration (optional)
 carmen_daemon:
-  
-  # CONDITIONAL: Azure credentials (shared between source and upload)
-  # Type: object
-  # Required when source.type="azure" OR upload.type="azure"
-  credentials:
-    # All three fields required when using Azure
-    client_id: "${DAEMON_CLIENT_ID}"
-    client_secret: "${DAEMON_CLIENT_SECRET}"
-    tenant_id: "${AZURE_TENANT_ID}"
-  
-  # Data source configuration
+  # SOURCE: Read VM metrics from local example data
   source:
-    
-    # OPTIONAL: Source type ("azure" or "local")
-    # Type: string
-    # Default: "local"
-    type: "azure"
-    
-    # REQUIRED: List of files to process
-    # Type: list[string]
-    # Must not be empty
+    # Files to process - choose one or more:
+    # Option 1: Simple example (2 VMs, 3 hours each)
     file_names:
-      - "carbon_metrics_2024.csv"
-      - "emissions_data.csv"
-      - "energy_consumption.csv"
-    
-    # CONDITIONAL: Required when type="azure"
-    azure:
-      # REQUIRED: Azure Storage account URL (must start with https://)
-      # Type: string | null
-      storage_account_url: "https://carbonstorage.blob.core.windows.net"
-      
-      # REQUIRED: Container name to read from
-      # Type: string | null
-      container_name_read: "carbon-data-input"
-    
-    # CONDITIONAL: Required when type="local"
-    local:
-      # REQUIRED: Directory path for input files
-      # Type: string | null
-      input_path: "/var/data/carbon-engine/input"
-  
-  # Upload destination configuration
-  upload:
-    
-    # OPTIONAL: Upload type ("azure" or "local")
-    # Type: string
-    # Default: "local"
-    type: "azure"
-    
-    # CONDITIONAL: Required when type="azure"
-    azure:
-      # REQUIRED: Container name for uploads
-      # Type: string | null
-      container_name_upload: "carbon-reports-output"
-      
-      # OPTIONAL: Custom blob name pattern
-      # Type: string | null
-      blob_name: "report_{timestamp}.html"
-    
-    # CONDITIONAL: Required when type="local"
-    local:
-      # REQUIRED: Directory path for output reports
-      # Type: string | null
-      output_path: "/var/data/carbon-engine/output"
+      - "vm_metrics_simple.csv"
+
+    # Option 2: Full monthly data (6 VMs, January)
+    # file_names:
+    #   - "vm_metrics_2024_01.csv"
+
+    # Option 3: Multi-month data (January + February)
+    # file_names:
+    #   - "vm_metrics_2024_01.csv"
+    #   - "vm_metrics_2024_02.csv"
+
+    # Path to the example data directory
+    # Using relative path from project root
+    input_path: "vm-metrics"
+    # Or use absolute path:
+    # input_path: "/home/user/carbon-engine/example-data/vm-metrics"
+
+  # Output directory for carbon reports
+  output_path: "./output"
+  # TODO document properly below
+  orchestrator:
+    list_processors:
+      - Processor_Compute
+      - Processor_Storage
+      - Processor_Misc_Services
+  infrastructure_providers:
+    - azure
 ```

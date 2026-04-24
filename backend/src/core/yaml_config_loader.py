@@ -172,43 +172,6 @@ class DaemonConfig(BaseSettings):
     #         return self
     #
     #     @model_validator(mode="after")
-    #     def validate_upload_configuration(self) -> DaemonConfig:
-    #         """
-    #         Validate upload configuration parameters.
-    #
-    #         Returns:
-    #             The validated model.
-    #
-    #         Raises:
-    #             ValueError: If required parameters are missing for the specified upload type.
-    #         """
-    #         if self.upload.type == "azure":
-    #             # Check Azure credentials (shared with source)
-    #             missing_creds: list[str] = []
-    #             if not self.credentials.client_id:
-    #                 missing_creds.append("client_id")
-    #             if not self.credentials.client_secret:
-    #                 missing_creds.append("client_secret")
-    #             if not self.credentials.tenant_id:
-    #                 missing_creds.append("tenant_id")
-    #
-    #             # Check Azure upload settings
-    #             missing_upload: list[str] = []
-    #             if not self.upload.azure.container_name_upload:
-    #                 missing_upload.append("container_name_upload")
-    #
-    #             missing: list[str] = missing_creds + missing_upload
-    #             if missing:
-    #                 raise MissingParametersError(
-    #                     ErrorCode.CONFIG_MISSING_PARAMETERS, missing
-    #                 )
-    #
-    #         elif self.upload.type == "local" and not self.upload.local.output_path:
-    #             raise MissingParametersError(
-    #                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["output_path"]
-    #             )
-    #
-    #         return self
 
     @model_validator(mode="after")
     def validate_orchestrator_configuration(self) -> DaemonConfig:

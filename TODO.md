@@ -6,7 +6,6 @@
 - Reader.
 - Runner.
 - Writer.
-- Uploader.
 
 ### Orchestrator
 
@@ -35,10 +34,6 @@ Algo:
     - "post-processors columns".
 - writer-i: based on ResourceTypeResult.
     - columns dedicated to this resource.
-
-### Uploader
-
-- Define in settings where the file should be stored.
 
 ### Fixing UTs
 
