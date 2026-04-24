@@ -27,8 +27,12 @@ from backend.src.common.known_exception import (
 )
 from backend.src.core.settings import settings
 
-from backend.src.core.settings.upload.abstract_credentials_config import (
+from backend.src.core.settings.credentials.abstract_credentials_config import (
     AbstractCredentialsConfig
+)
+
+from backend.src.core.settings.credentials.credentials_config_azure import (
+    AzureCredentialsConfig
 )
 
 from backend.src.core.settings.upload.abstract_source_config import (
@@ -65,7 +69,7 @@ class ApiConfig(BaseSettings):
 
     thanos_url: str
     authentication: Literal["azure"] | None = None
-    credentials: AzureCredentials | None = None
+    credentials: AzureCredentialsConfig | None = None
     scope: str | None = None
     external_labels: dict[str, str]
     labels: Labels = Labels()
@@ -80,14 +84,6 @@ class ApiConfig(BaseSettings):
                 ["client_id", "tenant_id", "client_secret"],
             )
         return self
-
-
-class UploadConfig(BaseSettings):
-    """Upload destination configuration."""
-
-    type: Literal["azure", "local"] = "local"
-    azure: AzureUploadConfig = AzureUploadConfig()
-    local: LocalUploadConfig = LocalUploadConfig()
 
 
 class OrchestratorConfig(BaseSettings):
@@ -110,7 +106,7 @@ class DaemonConfig(BaseSettings):
       instance.
     """
 
-    credentials: AzureCredentials = AzureCredentials()
+    credentials: AzureCredentialsConfig = AzureCredentialsConfig()
     # TODO: check how to make this dynamic from conf file
     # TODO: support Azure config
     # TODO: create a list of source configs
@@ -145,100 +141,100 @@ class DaemonConfig(BaseSettings):
 
         return self
 
-    @model_validator(mode="after")
-    def validate_source_configuration(self) -> DaemonConfig:
-        """
-        Validate source configuration parameters.
-
-        Returns:
-            The validated model.
-
-        Raises:
-            MissingParametersError: If required parameters are missing.
-        """
-        # Validate file_names
-        if not self.source.file_names:
-            raise MissingParametersError(
-                ErrorCode.CONFIG_MISSING_PARAMETERS, ["file_names"]
-            )
-
-        if self.source.type == "azure":
-            # Check Azure credentials
-            missing_creds: list[str] = []
-            if not self.credentials.client_id:
-                missing_creds.append("client_id")
-            if not self.credentials.client_secret:
-                missing_creds.append("client_secret")
-            if not self.credentials.tenant_id:
-                missing_creds.append("tenant_id")
-
-            missing: list[str] = missing_creds
-
-            # Check Azure source settings
-            missing_source: list[str] = []
-            if not self.source.azure.storage_account_url:
-                missing_source.append("storage_account_url")
-            if not self.source.azure.container_name_read:
-                missing_source.append("container_name_read")
-
-            missing.append(missing_source)
-
-            if missing:
-                raise MissingParametersError(
-                    ErrorCode.CONFIG_MISSING_PARAMETERS, missing
-                )
-
-            if (
-                self.source.azure.storage_account_url
-                and not self.source.azure.storage_account_url.startswith("https://")
-            ):
-                raise ValueError("storage account url must be a valid https url")
-
-        elif self.source.type == "local" and not self.source.local.source_path:
-            raise MissingParametersError(
-                ErrorCode.CONFIG_MISSING_PARAMETERS, ["source_path"]
-            )
-
-        return self
-
-    @model_validator(mode="after")
-    def validate_upload_configuration(self) -> DaemonConfig:
-        """
-        Validate upload configuration parameters.
-
-        Returns:
-            The validated model.
-
-        Raises:
-            ValueError: If required parameters are missing for the specified upload type.
-        """
-        if self.upload.type == "azure":
-            # Check Azure credentials (shared with source)
-            missing_creds: list[str] = []
-            if not self.credentials.client_id:
-                missing_creds.append("client_id")
-            if not self.credentials.client_secret:
-                missing_creds.append("client_secret")
-            if not self.credentials.tenant_id:
-                missing_creds.append("tenant_id")
-
-            # Check Azure upload settings
-            missing_upload: list[str] = []
-            if not self.upload.azure.container_name_upload:
-                missing_upload.append("container_name_upload")
-
-            missing: list[str] = missing_creds + missing_upload
-            if missing:
-                raise MissingParametersError(
-                    ErrorCode.CONFIG_MISSING_PARAMETERS, missing
-                )
-
-        elif self.upload.type == "local" and not self.upload.local.upload_path:
-            raise MissingParametersError(
-                ErrorCode.CONFIG_MISSING_PARAMETERS, ["upload_path"]
-            )
-
-        return self
+#     @model_validator(mode="after")
+#     def validate_source_configuration(self) -> DaemonConfig:
+#         """
+#         Validate source configuration parameters.
+# 
+#         Returns:
+#             The validated model.
+# 
+#         Raises:
+#             MissingParametersError: If required parameters are missing.
+#         """
+#         # Validate file_names
+#         if not self.source.file_names:
+#             raise MissingParametersError(
+#                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["file_names"]
+#             )
+# 
+#         if self.source.type == "azure":
+#             # Check Azure credentials
+#             missing_creds: list[str] = []
+#             if not self.credentials.client_id:
+#                 missing_creds.append("client_id")
+#             if not self.credentials.client_secret:
+#                 missing_creds.append("client_secret")
+#             if not self.credentials.tenant_id:
+#                 missing_creds.append("tenant_id")
+# 
+#             missing: list[str] = missing_creds
+# 
+#             # Check Azure source settings
+#             missing_source: list[str] = []
+#             if not self.source.azure.storage_account_url:
+#                 missing_source.append("storage_account_url")
+#             if not self.source.azure.container_name_read:
+#                 missing_source.append("container_name_read")
+# 
+#             missing.append(missing_source)
+# 
+#             if missing:
+#                 raise MissingParametersError(
+#                     ErrorCode.CONFIG_MISSING_PARAMETERS, missing
+#                 )
+# 
+#             if (
+#                 self.source.azure.storage_account_url
+#                 and not self.source.azure.storage_account_url.startswith("https://")
+#             ):
+#                 raise ValueError("storage account url must be a valid https url")
+# 
+#         elif self.source.type == "local" and not self.source.local.source_path:
+#             raise MissingParametersError(
+#                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["source_path"]
+#             )
+# 
+#         return self
+# 
+#     @model_validator(mode="after")
+#     def validate_upload_configuration(self) -> DaemonConfig:
+#         """
+#         Validate upload configuration parameters.
+# 
+#         Returns:
+#             The validated model.
+# 
+#         Raises:
+#             ValueError: If required parameters are missing for the specified upload type.
+#         """
+#         if self.upload.type == "azure":
+#             # Check Azure credentials (shared with source)
+#             missing_creds: list[str] = []
+#             if not self.credentials.client_id:
+#                 missing_creds.append("client_id")
+#             if not self.credentials.client_secret:
+#                 missing_creds.append("client_secret")
+#             if not self.credentials.tenant_id:
+#                 missing_creds.append("tenant_id")
+# 
+#             # Check Azure upload settings
+#             missing_upload: list[str] = []
+#             if not self.upload.azure.container_name_upload:
+#                 missing_upload.append("container_name_upload")
+# 
+#             missing: list[str] = missing_creds + missing_upload
+#             if missing:
+#                 raise MissingParametersError(
+#                     ErrorCode.CONFIG_MISSING_PARAMETERS, missing
+#                 )
+# 
+#         elif self.upload.type == "local" and not self.upload.local.upload_path:
+#             raise MissingParametersError(
+#                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["upload_path"]
+#             )
+# 
+#         return self
 
     @model_validator(mode="after")
     def validate_orchestrator_configuration(self) -> DaemonConfig:
