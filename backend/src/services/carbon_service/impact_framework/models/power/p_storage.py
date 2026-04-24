@@ -14,6 +14,9 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 
+from backend.src.core.settings.providers.abstract_provider_config import (
+    AbstractProviderConfig,
+)
 
 class PStorage(ModelUtilities):
     """
@@ -26,6 +29,8 @@ class PStorage(ModelUtilities):
     """
 
     def __init__(self):
+        # TODO: Instantiate provider config
+        self.provider_config: AbstractProviderConfig
         config = {
             "input-parameters": ["storage/requested", "power/coefficient"],
             "output-parameter": "storage/power",  # in kW
@@ -35,8 +40,9 @@ class PStorage(ModelUtilities):
         ]
         super().__init__("builtin", "Multiply", config, output_metadata)
 
-    @staticmethod
-    def fill_inputs(storage_resource: StorageResource, time_index: int):
+    # @staticmethod
+    # TODO: check why this was static
+    def fill_inputs(self, storage_resource: StorageResource, time_index: int):
         """
         Fills the storage input values from the storage resource.
 
@@ -48,13 +54,14 @@ class PStorage(ModelUtilities):
             Dict containing storage input in GB and the power coefficient based on storage type
         """
         # Get the power coefficient based on storage type
-        power_coefficient = STORAGE_POWER_COEFFICIENT_MAPPING.get(
+        ratio = self.provider_config.get_electricity_ratios().get("UNKNOWN"),  # kW/GB
+        power_coefficient = self.provider_config.get_electricity_ratios().get(
             storage_resource.storage_type.upper(),
-            STORAGE_POWER_COEFFICIENT_MAPPING["UNKNOWN"],
+            ratio,
         )
 
         # Get the replication factor
-        replication_factor = STORAGE_REPLICATION_FACTORS.get(
+        replication_factor = self.provider_config.get_storage_replication_factors().get(
             storage_resource.replication_type.upper(), 1
         )
 

@@ -59,25 +59,25 @@ PLUGIN_PATH = os.path.join(
 # There are 3 different zones for west US in CAW SDK, all of them gives different CI.
 #   Improvement: Be sure on 1 zone
 # WUS = westus -> US-CAL-CISO, westus2 -> US-NW-GCPD, westus3 -> US-SW-SRP
-# ZONES = {
-#     "EUS": "eastus",
-#     "WUS": "westus",
-#     "NE": "northeurope",
-#     "EUN1": "northeurope",
-#     "IRL": "northeurope",
-#     "FC": "francecentral",
-#     "SA": "southeastasia",
-#     "GWC": "germanywestcentral",
-#     "ERD": "germanywestcentral",
-#     "MUC": "germanywestcentral",
-#     "CDF": "germanywestcentral",
-#     "CDFDEV": "germanywestcentral",
-#     "NLD": "westeurope",
-#     "WE": "westeurope",
-#     "NGI": "northeurope",
-#     "NET": "westeurope",
-#     "NCE": "francesouth",
-# }
+ZONES = {
+    "EUS": "eastus",
+    "WUS": "westus",
+    "NE": "northeurope",
+    "EUN1": "northeurope",
+    "IRL": "northeurope",
+    "FC": "francecentral",
+    "SA": "southeastasia",
+    "GWC": "germanywestcentral",
+    "ERD": "germanywestcentral",
+    "MUC": "germanywestcentral",
+    "CDF": "germanywestcentral",
+    "CDFDEV": "germanywestcentral",
+    "NLD": "westeurope",
+    "WE": "westeurope",
+    "NGI": "northeurope",
+    "NET": "westeurope",
+    "NCE": "francesouth",
+}
 
 # STORAGE_POWER_COEFFICIENT_MAPPING = {  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
 #     "SSD": 0.0000012,

@@ -13,7 +13,6 @@ from datetime import datetime, timedelta
 from typing import TypeVar, Callable
 import numpy as np
 
-from backend.src.common.constants import PUE_AZURE
 from backend.src.schemas.application import Application
 from backend.src.schemas.cluster import Cluster
 from backend.src.api.dependencies import AppDao
@@ -32,6 +31,11 @@ from backend.src.crud.prometheus_query_builder import PromQBuilder
 from backend.src.core.yaml_config_loader import config
 from backend.src.core.settings import settings
 
+
+from backend.src.core.settings.providers.abstract_provider_config import (
+    AbstractProviderConfig,
+)
+
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=ComputeResource)
@@ -44,6 +48,8 @@ class ArgosService:
 
     def __init__(self) -> None:
         self.external_labels = config.carmen_api.external_labels
+        # TODO: Instantiate provider config
+        self.provider_config: AbstractProviderConfig
         self.labels = config.carmen_api.labels
         self.resource_label_value = lambda resources: (
             "|".join(resources) if resources else ".*"
@@ -265,7 +271,7 @@ class ArgosService:
                     namespace=namespace,
                     name=pod,
                     carbon_intensity=carbon_intensity,
-                    pue=PUE_AZURE,  # improvement: add pue value dynamically
+                    pue=self.provider_config.get_pue(),
                     time_points=desired_timestamps,
                 ),
             )

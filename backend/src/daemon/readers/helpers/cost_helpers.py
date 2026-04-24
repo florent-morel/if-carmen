@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 from backend.src.common.known_exception import KnownException
 from backend.src.core.settings import settings
-from backend.src.schemas.costResource import CostResource
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
@@ -50,7 +50,7 @@ def get_carbon_and_energy_values(
 
 
 
-def create_cost_report(cost_resources: list[CostResource], date: str, out_file: str):
+def create_cost_report(cost_resources: list[MiscServicesResource], date: str, out_file: str):
     """
     Creates a cost report for the given cost resource list.
     """

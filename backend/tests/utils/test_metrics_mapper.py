@@ -3,7 +3,7 @@ This file contains unit tests for the metrics mapper
 """
 
 from backend.src.schemas.compute_resource import ComputeResource
-from backend.src.schemas.costResource import CostResource
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.utils.metrics_mapper import MetricsMapper
@@ -100,7 +100,7 @@ def test_map_metrics_to_cost_resource():
         "services-embodied": {"observations": [70], "aggregated": 70},
     }
 
-    cost_resource = CostResource(id="test_id")
+    cost_resource = MiscServicesResource(id="test_id")
     MetricsMapper.map_metrics_to_resource(metrics, cost_resource)
 
     assert cost_resource.services_energy == [50]

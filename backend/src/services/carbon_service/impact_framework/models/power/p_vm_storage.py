@@ -3,7 +3,6 @@ VM Storage Power Consumption model made with IF builtins based on disk type (SSD
 """
 
 from backend.src.schemas.virtual_machine import VirtualMachine
-from backend.src.common.constants import STORAGE_POWER_COEFFICIENT_MAPPING
 from backend.src.services.carbon_service.impact_framework.models.metadata import (
     Metadata,
 )
@@ -11,6 +10,9 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 
+from backend.src.core.settings.providers.abstract_provider_config import (
+    AbstractProviderConfig,
+)
 
 class PVmStorage(ModelUtilities):
     """
@@ -23,9 +25,11 @@ class PVmStorage(ModelUtilities):
     """
 
     def __init__(self):
+        # TODO: Instantiate provider config
+        self.provider_config: AbstractProviderConfig
         config = {
             "input-parameter": "storage/requested",  # in GB and
-            "coefficient": STORAGE_POWER_COEFFICIENT_MAPPING["UNKNOWN"],  # kW/GB
+            "coefficient": self.provider_config.get_electricity_ratios().get("UNKNOWN"),  # kW/GB
             "output-parameter": "storage/power",  # in kW
         }
         output_metadata = [
