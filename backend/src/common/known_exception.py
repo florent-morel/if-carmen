@@ -365,39 +365,6 @@ class DirectoryError(FileSystemError):
     """Exception raised for directory-related errors."""
 
 
-# Azure Storage Exceptions
-
-
-class AzureStorageError(FileSystemError):
-    """Base class for Azure Storage errors."""
-
-    def __init__(
-        self,
-        error_code: ErrorCode,
-        container: Optional[str] = None,
-        blob_name: Optional[str] = None,
-        details: Optional[str] = None,
-    ):
-        """
-        Initialize an AzureStorageError.
-
-        Args:
-            error_code: The error code.
-            container: Optional container name.
-            blob_name: Optional blob name.
-            details: Optional additional details.
-        """
-        self.container = container
-        self.blob_name = blob_name
-        path_parts = []
-        if container:
-            path_parts.append(f"container: {container}")
-        if blob_name:
-            path_parts.append(f"blob: {blob_name}")
-        path_str = ", ".join(path_parts) if path_parts else None
-        super().__init__(error_code, path_str, details)
-
-
 # Computation Exceptions
 
 

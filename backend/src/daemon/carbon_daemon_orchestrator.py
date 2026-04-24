@@ -25,7 +25,7 @@ from backend.src.common.constants import (
 from backend.src.common.known_exception import KnownException, DataFetchError
 from backend.src.common.errors import ErrorCode
 
-# from backend.src.core.yaml_config_loader import config
+from backend.src.core.yaml_config_loader import config
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.carbon_daemon_result import (
@@ -81,7 +81,7 @@ class CarbonDaemonOrchestrator:
         self.list_input_file.append(os.getenv(CSV_PATH, CSV_FILE_TEST))
 
         self.output_file: str = os.path.join(
-            str(self.config.output_path), f"CO2_{self.date}.csv"
+            str(self.config.output.output_path), f"CO2_{self.date}.csv"
         )
 
         logger.info("Carbon Daemon initialized")
@@ -167,15 +167,14 @@ class CarbonDaemonOrchestrator:
             )
 
             if self.list_resource_processors:
-
                 for input_file in self.list_input_file:
                     # Check if file exists before trying to read it
                     try:
                         if os.path.exists(input_file):
-                            with open(input_file, "r", encoding=CSV_FILE_ENCODING) as file:
-                                logger.info(
-                                    f"Data source reading from {input_file}"
-                                )
+                            with open(
+                                input_file, "r", encoding=CSV_FILE_ENCODING
+                            ) as file:
+                                logger.info(f"Data source reading from {input_file}")
                                 csv_data = file.read()
 
                         for abstract_processor in self.list_resource_processors:
@@ -207,18 +206,25 @@ class CarbonDaemonOrchestrator:
                         logger.warning("file not found %s", input_file)
                         return None
                     except PermissionError as e:
-                        logger.error("permission denied reading file %s %s", input_file, str(e))
+                        logger.error(
+                            "permission denied reading file %s %s", input_file, str(e)
+                        )
                         raise KnownException(
                             ErrorCode.FILE_PERMISSION_DENIED,
                             details=f"permission denied: {input_file}",
                         ) from e
                     except UnicodeDecodeError as e:
-                        logger.error("failed to decode file data for %s %s", input_file, str(e))
+                        logger.error(
+                            "failed to decode file data for %s %s", input_file, str(e)
+                        )
                         return None
                     except Exception as e:
-                        logger.error("unexpected error reading file %s %s", input_file, str(e))
+                        logger.error(
+                            "unexpected error reading file %s %s", input_file, str(e)
+                        )
                         raise KnownException(
-                            ErrorCode.FILE_READ_ERROR, details=f"failed to read file: {input_file}"
+                            ErrorCode.FILE_READ_ERROR,
+                            details=f"failed to read file: {input_file}",
                         ) from e
             else:
                 logger.error("No processor provided.")
@@ -403,7 +409,7 @@ def main() -> None:
         logger.info(CARMEN_LOGO)
         list_resource_processors = config.carmen_daemon.orchestrator.list_processors
         daemon = CarbonDaemonOrchestrator(
-            list_resource_processors=list_resource_processors
+            daemon_config=config, list_resource_processors=list_resource_processors
         )
 
         result = daemon.orchestrate_carbon_daemon()

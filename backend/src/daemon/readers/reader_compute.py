@@ -40,13 +40,11 @@ class Reader_Compute(AbstractReader):
         self.list_resources_to_process: list[Resource]
         # These are guaranteed to be non-None after config loader validation
         # Resolve path to absolute to handle relative paths correctly
-        self.input_path: Path = Path(str(self.config.source.local.input_path)).resolve()
-        self.file_names: list[str] = self.config.source.file_names
+        self.input_path: Path = Path(str(self.config.source.input_path)).resolve()
 
         logger.info(
-            "local compute reader initialized with source path %s files %d",
+            "local compute reader initialized with source path %s",
             self.input_path,
-            len(self.file_names),
         )
 
     @property
@@ -69,13 +67,9 @@ class Reader_Compute(AbstractReader):
             vm_dict: dict[str, VirtualMachine] = {}
             missing_region_vm_count: dict[str, int] = {}
 
-            self.process_csv_data(
-                csv_data, vm_dict, missing_region_vm_count
-            )
+            self.process_csv_data(csv_data, vm_dict, missing_region_vm_count)
 
-            self._log_processing_results(
-                vm_dict, missing_region_vm_count
-            )
+            self._log_processing_results(vm_dict, missing_region_vm_count)
 
             return list(vm_dict.values())
 

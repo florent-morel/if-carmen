@@ -90,14 +90,6 @@ class ErrorCode(str, Enum):
     DIRECTORY_CREATE_ERROR = "5007"
     CSV_FILE_NOT_FOUND = "5008"
 
-    # Azure Storage errors (5.1xx)
-    AZURE_STORAGE_CONNECTION_ERROR = "5101"
-    AZURE_STORAGE_BLOB_NOT_FOUND = "5102"
-    AZURE_STORAGE_UPLOAD_FAILED = "5103"
-    AZURE_STORAGE_DOWNLOAD_FAILED = "5104"
-    AZURE_STORAGE_AUTH_FAILED = "5105"
-    AZURE_STORAGE_CONTAINER_NOT_FOUND = "5106"
-
     # Computation errors (6xxx)
     COMPUTATION_FAILED = "6001"
     COMPUTATION_INVALID_INPUT = "6002"
@@ -311,31 +303,6 @@ ERRORS: dict[str, ErrorTemplate] = {
     ErrorCode.DIRECTORY_CREATE_ERROR: ErrorTemplate(
         category=ErrorCategory.FILE_SYSTEM,
         user_message="failed to create directory",
-    ),
-    # Azure Storage errors
-    ErrorCode.AZURE_STORAGE_CONNECTION_ERROR: ErrorTemplate(
-        category=ErrorCategory.FILE_SYSTEM,
-        user_message="failed to connect to azure storage",
-    ),
-    ErrorCode.AZURE_STORAGE_BLOB_NOT_FOUND: ErrorTemplate(
-        category=ErrorCategory.FILE_SYSTEM,
-        user_message="specified blob was not found in azure storage",
-    ),
-    ErrorCode.AZURE_STORAGE_UPLOAD_FAILED: ErrorTemplate(
-        category=ErrorCategory.FILE_SYSTEM,
-        user_message="failed to upload file to azure storage",
-    ),
-    ErrorCode.AZURE_STORAGE_DOWNLOAD_FAILED: ErrorTemplate(
-        category=ErrorCategory.FILE_SYSTEM,
-        user_message="failed to download file from azure storage",
-    ),
-    ErrorCode.AZURE_STORAGE_AUTH_FAILED: ErrorTemplate(
-        category=ErrorCategory.FILE_SYSTEM,
-        user_message="azure storage authentication failed",
-    ),
-    ErrorCode.AZURE_STORAGE_CONTAINER_NOT_FOUND: ErrorTemplate(
-        category=ErrorCategory.FILE_SYSTEM,
-        user_message="specified container was not found in azure storage",
     ),
     # Computation errors
     ErrorCode.COMPUTATION_FAILED: ErrorTemplate(

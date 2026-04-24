@@ -27,15 +27,9 @@ from backend.src.common.known_exception import (
 )
 from backend.src.core.settings import settings
 
-from backend.src.core.settings.credentials.abstract_credentials_config import (
-    AbstractCredentialsConfig,
-)
-
 from backend.src.core.settings.credentials.credentials_config_azure import (
     AzureCredentialsConfig,
 )
-
-from backend.src.core.settings.source.source_config_local import LocalSourceConfig
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +68,11 @@ class ApiConfig(BaseSettings):
 class OrchestratorConfig(BaseSettings):
     """Carbon Daemon Orchestrator configuration."""
 
-    list_supported_processors: list[str] = ("Processor_Compute", "Processor_Storage")
+    list_supported_processors: list[str] = (
+        "Processor_Compute",
+        "Processor_Storage",
+        "Processor_Misc_Services",
+    )
     list_processors: list[str] | None = None
 
 
@@ -88,12 +86,6 @@ class DaemonConfig(BaseSettings):
       instance.
     """
 
-    credentials: AzureCredentialsConfig = AzureCredentialsConfig()
-    # TODO: check how to make this dynamic from conf file
-    # TODO: support Azure config
-    # TODO: create a list of source configs
-    source: AbstractSourceConfig = LocalSourceConfig()
-    list_source_configs: list[AbstractSourceConfig] = source
     orchestrator: OrchestratorConfig = OrchestratorConfig()
 
     @model_validator(mode="after")
@@ -109,7 +101,6 @@ class DaemonConfig(BaseSettings):
         """
 
         # Source configuration validation
-        # Credentials are validated inside the source validation
         for source in self.list_source_configs:
             source.validate_configuration()
 
@@ -126,11 +117,6 @@ class DaemonConfig(BaseSettings):
     #         Raises:
     #             MissingParametersError: If required parameters are missing.
     #         """
-    #         # Validate file_names
-    #         if not self.source.file_names:
-    #             raise MissingParametersError(
-    #                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["file_names"]
-    #             )
     #
     #         if self.source.type == "azure":
     #             # Check Azure credentials
@@ -148,8 +134,6 @@ class DaemonConfig(BaseSettings):
     #             missing_source: list[str] = []
     #             if not self.source.azure.storage_account_url:
     #                 missing_source.append("storage_account_url")
-    #             if not self.source.azure.container_name_read:
-    #                 missing_source.append("container_name_read")
     #
     #             missing.append(missing_source)
     #
@@ -164,7 +148,7 @@ class DaemonConfig(BaseSettings):
     #             ):
     #                 raise ValueError("storage account url must be a valid https url")
     #
-    #         elif self.source.type == "local" and not self.source.local.input_path:
+    #         elif self.source.type == "local" and not self.source.input_path:
     #             raise MissingParametersError(
     #                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["input_path"]
     #             )
@@ -187,11 +171,11 @@ class DaemonConfig(BaseSettings):
         if not self.orchestrator.list_processors:
             logger.error(
                 "No processor found in configuration."
-                " Providing hard-coded list: Processor_Compute."
+                " Defaulting to Processor_Compute."
             )
             self.orchestrator.list_processors = ["Processor_Compute"]
         else:
-            # Check that provide processors are supported.
+            # Check that provided processors are supported.
             for processor in self.orchestrator.list_processors:
                 if not self.orchestrator.list_supported_processors.index(processor):
                     logger.error(
@@ -203,44 +187,19 @@ class DaemonConfig(BaseSettings):
         return self
 
     @property
-    def source_type(self) -> Literal["azure", "local"]:
-        """Backward compatibility for source_type."""
-        return self.source.type
-
-    @property
-    def client_id(self) -> str | None:
-        """Backward compatibility for client_id."""
-        return self.credentials.client_id
-
-    @property
-    def client_secret(self) -> str | None:
-        """Backward compatibility for client_secret."""
-        return self.credentials.client_secret
-
-    @property
-    def tenant_id(self) -> str | None:
-        """Backward compatibility for tenant_id."""
-        return self.credentials.tenant_id
-
-    @property
-    def storage_account_url(self) -> str | None:
-        """Backward compatibility for storage_account_url."""
-        return self.source.azure.storage_account_url
-
-    @property
-    def container_name_read(self) -> str | None:
-        """Backward compatibility for container_name_read."""
-        return self.source.azure.container_name_read
-
-    @property
     def input_path(self) -> str | None:
         """Backward compatibility for input_path."""
-        return self.source.local.input_path
+        return self.source.input_path
 
     @property
-    def file_names(self) -> list[str]:
-        """Backward compatibility for file_names."""
-        return self.source.file_names
+    def output_path(self) -> str | None:
+        """Backward compatibility for input_path."""
+        return self.output.output_path
+
+    @property
+    def output_path(self) -> str | None:
+        """Backward compatibility for input_path."""
+        return self.output.output_path
 
 
 class AppConfig(BaseSettings):
@@ -290,26 +249,30 @@ def load_and_validate_config() -> AppConfig:
         ConfigValidationError: If configuration validation fails.
         MissingParametersError: If required parameters are missing.
     """
-    config_file = settings.CARMEN_CONFIG_FILEPATH
-    path = Path(config_file)
+    main_config_file = settings.CARMEN_CONFIG_FILEPATH
+    main_config_file_path = Path(main_config_file)
 
-    if not path.exists():
-        logger.error("Configuration file not found: %s", config_file)
-        raise ConfigFileError(ErrorCode.CONFIG_FILE_MISSING, file_path=config_file)
+    if not main_config_file_path.exists():
+        logger.error("Configuration file not found: %s", main_config_file)
+        raise ConfigFileError(ErrorCode.CONFIG_FILE_MISSING, file_path=main_config_file)
 
     loader = yaml.SafeLoader
     loader.add_constructor("!env", env_constructor)
 
     try:
-        with path.open("r", encoding="utf-8") as file:
+        with main_config_file_path.open("r", encoding="utf-8") as file:
             raw_config = yaml.load(file, Loader=loader)  # type: ignore[misc]
 
         if not raw_config or not isinstance(raw_config, dict):
-            logger.error("Configuration file is empty or invalid: %s", config_file)
-            raise ConfigFileError(ErrorCode.CONFIG_INVALID_FILE, file_path=config_file)
+            logger.error("Configuration file is empty or invalid: %s", main_config_file)
+            raise ConfigFileError(
+                ErrorCode.CONFIG_INVALID_FILE, file_path=main_config_file
+            )
 
         if "carmen_api" not in raw_config and "carmen_daemon" not in raw_config:
-            logger.error("Required configuration sections missing in: %s", config_file)
+            logger.error(
+                "Required configuration sections missing in: %s", main_config_file
+            )
             raise MissingParametersError(
                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["carmen_api", "carmen_daemon"]
             )
@@ -317,9 +280,9 @@ def load_and_validate_config() -> AppConfig:
         yaml_config = AppConfig(**raw_config)  # type: ignore[arg-type]
 
     except yaml.YAMLError as e:
-        logger.error("YAML parsing error in %s: %s", config_file, str(e))
+        logger.error("YAML parsing error in %s: %s", main_config_file, str(e))
         raise ConfigFileError(
-            ErrorCode.CONFIG_INVALID_YAML, file_path=config_file
+            ErrorCode.CONFIG_INVALID_YAML, file_path=main_config_file
         ) from e
     except ValidationError as e:
         logger.error("Configuration validation failed: %s", str(e))
@@ -332,7 +295,7 @@ def load_and_validate_config() -> AppConfig:
     except Exception as e:
         logger.error("Unexpected error loading configuration: %s", str(e))
         raise ConfigFileError(
-            ErrorCode.CONFIG_INVALID_FILE, file_path=config_file
+            ErrorCode.CONFIG_INVALID_FILE, file_path=main_config_file
         ) from e
 
     return yaml_config

@@ -18,16 +18,10 @@ carmen_api:
   verify_ssl: false
 
 carmen_daemon:
-  infrastructure_providers:
-    - azure
   source:
     input_path: "/tmp/test-data"
-    file_names:
-    - "test-data.csv"
-    input_template: "Carmen_input_{id}.csv"
   output:
     output_path: "/tmp/test-output"
-    output_template: "Carmen_CO2_report_{date}.csv"
   orchestrator:
     list_processors:
       - Processor_Compute
