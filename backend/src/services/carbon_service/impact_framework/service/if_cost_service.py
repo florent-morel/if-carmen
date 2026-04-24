@@ -6,7 +6,7 @@ import logging
 import threading
 from typing import List
 
-from backend.src.schemas.costResource import CostResource
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.services.carbon_service.impact_framework.models.carbon.cost import CostModel
 from backend.src.services.carbon_service.impact_framework.models.model_utilities import ModelUtilities
 from backend.src.services.carbon_service.impact_framework.service.if_service import IFService
@@ -27,7 +27,7 @@ class IFCostService(IFService):
             duration
         )
 
-    def run_engine(self, cost_resources: List[CostResource]) -> List[CostResource]:
+    def run_engine(self, cost_resources: List[MiscServicesResource]) -> List[MiscServicesResource]:
         """
         Executes the Impact Framework (IF) model to compute cost metrics for cost resources.
         """
@@ -67,7 +67,7 @@ class IFCostService(IFService):
             data["hardware_models"]["cost-model"] = CostModel().__dict__
 
     @staticmethod
-    def get_resource_inputs(cost_resource: CostResource, model: ModelUtilities = CostModel):
+    def get_resource_inputs(cost_resource: MiscServicesResource, model: ModelUtilities = CostModel):
         """
         Get cost model specific inputs
         """

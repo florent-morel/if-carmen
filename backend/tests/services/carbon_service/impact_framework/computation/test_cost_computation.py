@@ -3,7 +3,7 @@ Tests that check if the cost IF pipelines correctly compute energy consumption a
 """
 import pytest
 
-from backend.src.schemas.costResource import CostResource
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.services.carbon_service.impact_framework.service.if_cost_service import IFCostService
 from backend.tests.services.carbon_service.impact_framework.computation.computation_helpers import (
     compute_services_energy_helper,
@@ -20,7 +20,7 @@ def mock_cost_resources():
     Fixture to create mock cost resource list for testing.
     """
     return [
-        CostResource(
+        MiscServicesResource(
             id="cost1",
             compute_energy=500.0,
             storage_energy=200.0,
@@ -32,7 +32,7 @@ def mock_cost_resources():
             carbon_intensity=100.0,
             time_points=["2025-11-10"]
         ),
-        CostResource(
+        MiscServicesResource(
             id="cost2",
             compute_energy=400.0,
             storage_energy=300.0,

@@ -6,9 +6,9 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from backend.src.schemas.costResource import CostResource
 from backend.src.services.carbon_service.impact_framework.service.if_cost_service import IFCostService
 from backend.src.services.carbon_service.impact_framework.service.if_service import IFService
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 
 
 @pytest.fixture
@@ -16,9 +16,9 @@ def mock_cost_resource():
     """
     Fixture to create a mock cost resource object for testing.
     """
-    return CostResource(
+    return MiscServicesResource(
         id="cost1",
-        name="Test Cost Resource",
+        name="Test Misc Services Resource",
         region="eastus",
         subscription="sub1",
         carbon_intensity=100.0,

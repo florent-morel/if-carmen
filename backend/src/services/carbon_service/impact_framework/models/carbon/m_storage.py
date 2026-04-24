@@ -3,12 +3,15 @@ Storage Services Embodied Emissions model for IF
 """
 
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.common.constants import STORAGE_EMBODIED_COEFFICIENT_MAPPING
 from backend.src.services.carbon_service.impact_framework.models.metadata import (
     Metadata,
 )
 from backend.src.services.carbon_service.impact_framework.models.model_utilities import (
     ModelUtilities,
+)
+
+from backend.src.core.settings.providers.abstract_provider_config import (
+    AbstractProviderConfig,
 )
 
 
@@ -20,6 +23,8 @@ class MStorage(ModelUtilities):
     """
 
     def __init__(self):
+        # TODO: Instantiate provider config
+        self.provider_config: AbstractProviderConfig
         config = {
             "input-parameters": [
                 "storage/requested",
@@ -35,15 +40,17 @@ class MStorage(ModelUtilities):
         ]
         super().__init__("builtin", "Multiply", config, output_metadata)
 
-    @staticmethod
-    def fill_inputs(storage_resource: StorageResource, time_index: int):
+    # @staticmethod
+    # TODO: check why this was static
+    def fill_inputs(self, storage_resource: StorageResource, time_index: int):
         """
         Fills the storage embodied inputs based on storage type.
         """
         # Get the embodied coefficient based on storage type
-        embodied_coefficient = STORAGE_EMBODIED_COEFFICIENT_MAPPING.get(
+        embodied_storage_dict = self.provider_config.get_storage_embodied()
+        embodied_coefficient = embodied_storage_dict.get(
             storage_resource.storage_type.upper(),
-            STORAGE_EMBODIED_COEFFICIENT_MAPPING["UNKNOWN"],
+            embodied_storage_dict.get("UNKNOWN"),
         )
 
         return {"storage/embodied-coefficient": embodied_coefficient}

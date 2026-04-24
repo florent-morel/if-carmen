@@ -3,10 +3,6 @@ Storage Services Power Consumption model made with IF builtins based on disk typ
 """
 
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.common.constants import (
-    STORAGE_POWER_COEFFICIENT_MAPPING,
-    STORAGE_REPLICATION_FACTORS,
-)
 from backend.src.services.carbon_service.impact_framework.models.metadata import (
     Metadata,
 )
@@ -54,6 +50,7 @@ class PStorage(ModelUtilities):
             Dict containing storage input in GB and the power coefficient based on storage type
         """
         # Get the power coefficient based on storage type
+            # TODO: check if dict.get() works
         ratio = self.provider_config.get_electricity_ratios().get("UNKNOWN"),  # kW/GB
         power_coefficient = self.provider_config.get_electricity_ratios().get(
             storage_resource.storage_type.upper(),
@@ -61,6 +58,7 @@ class PStorage(ModelUtilities):
         )
 
         # Get the replication factor
+            # TODO: check if dict.get() works
         replication_factor = self.provider_config.get_storage_replication_factors().get(
             storage_resource.replication_type.upper(), 1
         )

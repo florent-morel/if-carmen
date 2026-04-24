@@ -8,10 +8,10 @@ import os
 import csv
 import re
 
-from backend.src.common.constants import CARBON_INTENSITY_EUROPE
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
 
+from backend.src.common.constants import CARBON_INTENSITY_EUROPE
 
 def read_sample_vm_data(file_dict, _destination_forlder):
     """

@@ -5,6 +5,10 @@ The Carbon Daemon is a specialized reporting tool designed to help you track and
 
 The daemon expects to read a group of csv files containing resource usage data. Below is a description for each column expected in the CSV input.
 
+
+# TODO: Review this list
+
+
 | Field | Description | Example |
 |------|-------------|---------|
 | Time | Timestamp when the measurement was recorded, typically in ISO 8601 format | 2024-10-15T14:30:00Z |
@@ -20,6 +24,7 @@ The daemon expects to read a group of csv files containing resource usage data. 
 | Partition | Logical partition, tenant, or organizational division | customer-a, team-finance, partition-1 |
 | AverageCpuPercentage | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | DiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
+| ReplicationType | Storage replication type | GRS, LRS |
 
 
 ## Report File

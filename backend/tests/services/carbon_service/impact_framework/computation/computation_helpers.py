@@ -4,13 +4,32 @@ pipeline does when it computes carbon emissions.
 """
 
 import numpy as np
-from backend.src.common.constants import (
-    CARBON_INTENSITY_EUROPE,
-    STORAGE_POWER_COEFFICIENT_MAPPING,
-    STORAGE_EMBODIED_COEFFICIENT_MAPPING,
-    STORAGE_REPLICATION_FACTORS,
-)
 
+# European Average for 2024 (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
+CARBON_INTENSITY_EUROPE = 281  # gCO2 per kWh
+
+STORAGE_POWER_COEFFICIENT_MAPPING = {  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
+    "SSD": 0.0000012,
+    "HDD": 0.00000065,
+    "UNKNOWN": 0.000000925,  # Average
+}
+
+STORAGE_EMBODIED_COEFFICIENT_MAPPING = {  # in gCO2e/GB from https://hotcarbon.org/assets/2022/pdf/hotcarbon22-tannu.pdf
+    "SSD": 160,
+    "HDD": 20,
+    "UNKNOWN": 90,  # Average
+}
+
+# Replication factors for different Azure storage types
+# https://docs.google.com/spreadsheets/d/1D7mIGKkdO1djPoMVmlXRmzA7_4tTiGZLYdVbfe85xQM/edit?gid=2008238628#gid=2008238628
+STORAGE_REPLICATION_FACTORS = {
+    "LRS": 3,  # Locally redundant storage - 3 copies in single physical location
+    "ZRS": 3,  # Zone redundant storage - 3 copies across availability zones
+    "GRS": 6,  # Geo redundant storage - 3 primary + 3 secondary copies
+    "RA_GRS": 6,  # Read-access geo redundant - same as GRS
+    "GZRS": 6,  # Geo-zone redundant - 3 copies across zones + 3 secondary
+    "RA_GZRS": 6,  # Read-access geo-zone - same as GZRS
+}
 MEMORY_COEFFICIENT = 0.000392
 DEVICE_EMISSIONS = 1672000
 EXPECTED_LIFESPAN = 126230400  # 4 years in seconds

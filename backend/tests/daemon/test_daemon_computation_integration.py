@@ -13,7 +13,6 @@ from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
 import pytest
 import unittest
-from backend.src.common.constants import PUE_AZURE
 from backend.tests.daemon import mock_data
 from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
 from backend.src.daemon.processors.processor_compute import Processor_Compute
@@ -37,6 +36,7 @@ from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
 )
 
+PUE_AZURE = 1.185
 
 # Adjust the Python path
 project_root = os.path.abspath(

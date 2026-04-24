@@ -1,12 +1,13 @@
 """
 Cost model to calculate service energy and emissions
 """
-from backend.src.common.constants import CARBON_INTENSITY_EUROPE, PLUGIN_PATH
-from backend.src.schemas.costResource import CostResource
+from backend.src.common.constants import PLUGIN_PATH
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.services.carbon_service.impact_framework.models.metadata import Metadata
 from backend.src.services.carbon_service.impact_framework.models.model_utilities import ModelUtilities
 
 
+# TODO: rename in Misc Service Model
 class CostModel(ModelUtilities):
     """
     Concrete class for the Cost model
@@ -57,7 +58,7 @@ class CostModel(ModelUtilities):
         super().__init__(PLUGIN_PATH, "CostModelPlugin", config, output_metadata)
 
     @staticmethod
-    def fill_inputs(cost_resource: CostResource, time_index: int):
+    def fill_inputs(cost_resource: MiscServicesResource, time_index: int):
         """
         Fills the time point specific input values.
         """
