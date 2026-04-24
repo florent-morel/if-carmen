@@ -3,7 +3,6 @@ This script is used to map PaaS value retrieved from Thanos to their respective 
 and used to calculate carbon intensity depending on their region and time range by using CAW.
 """
 
-# pylint: disable=unused-argument, unused-private-member, unused-import
 from functools import lru_cache
 from backend.src.common import constants
 from backend.src.utils.helpers import remove_unnecessary

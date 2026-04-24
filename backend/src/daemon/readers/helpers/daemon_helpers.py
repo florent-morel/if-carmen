@@ -14,23 +14,6 @@ from backend.src.common.constants import (
 logger = logging.getLogger(__name__)
 
 
-def calculate_vm_count_for_missing_regions(
-    missing_region_vm_count: dict[str, int], region: str
-):
-    """
-    Fills the missing_region_vm_count dictionary.
-    Args:
-        missing_region_vm_count Dict[str, int]: Dictionary with the information of missing regions and
-        the corresponding VM count.
-        region str: Current VM's region.
-    def get_vms() -> list
-    """
-    if region not in REGION_TO_COUNTRY_CARBON_INTENSITY:
-        if region not in missing_region_vm_count:
-            missing_region_vm_count[region] = 1
-        else:
-            missing_region_vm_count[region] += 1
-
 
 def log_missing_regions(missing_region_vm_count: dict[str, int]):
     """

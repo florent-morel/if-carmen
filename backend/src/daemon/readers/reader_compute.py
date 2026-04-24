@@ -24,6 +24,9 @@ from backend.src.common.errors import ErrorCode
 from backend.src.daemon.readers.helpers.daemon_helpers import (
     log_missing_regions,
 )
+from backend.src.core.settings.config_carbon_intensity import (
+    CarbonIntensityConfig,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +39,8 @@ class Reader_Compute(AbstractReader):
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
         logger.info("initializing local compute reader.")
+        # TODO: Instantiate provider config
+        self.carbon_intensity_config: CarbonIntensityConfig
 
         self.list_resources_to_process: list[Resource]
         # These are guaranteed to be non-None after config loader validation
@@ -140,3 +145,21 @@ class Reader_Compute(AbstractReader):
             log_missing_regions(missing_region_vm_count)
 
         logger.info("local compute reader processing finished successfully")
+
+    def calculate_vm_count_for_missing_regions(self,
+        missing_region_vm_count: dict[str, int], region: str
+    ):
+        """
+        Fills the missing_region_vm_count dictionary.
+        Args:
+            missing_region_vm_count Dict[str, int]: Dictionary with the information of missing regions and
+            the corresponding VM count.
+            region str: Current VM's region.
+        def get_vms() -> list
+        """
+        if region not in self.config_carbon_intensity.get_dict_ci_per_location():
+            if region not in missing_region_vm_count:
+                missing_region_vm_count[region] = 1
+            else:
+                missing_region_vm_count[region] += 1
+
