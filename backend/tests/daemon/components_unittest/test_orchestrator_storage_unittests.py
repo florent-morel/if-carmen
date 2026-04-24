@@ -270,41 +270,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 #             "known error during daemon execution", result.error_message.lower()
 #         )
 #
-#     @patch(
-#         "backend.src.daemon.readers.compute.reader_compute_azure.initialize_azure_client"
-#     )
-#     def test_default_reader_factory_azure(self, mock_azure_client):
-#         """
-#         Test DefaultReaderFactory creates Azure reader for azure source type.
-#         """
-#         mock_azure_client.return_value = MagicMock()
 #
-#         factory = DefaultReaderFactory()
-#         config = MagicMock()
-#         config.source = MagicMock()
-#         config.source.type = "azure"
-#
-#         reader = factory.create_reader(config)
-#
-#         self.assertIsNotNone(reader)
-#
-#     def test_default_reader_factory_unsupported(self):
-#         """
-#         Test DefaultReaderFactory raises ValueError for unsupported source type.
-#         """
-#         factory = DefaultReaderFactory()
-#         config = MagicMock()
-#         config.source = MagicMock()
-#         config.source.type = "unsupported"
-#
-#         with self.assertRaises(ValueError) as context:
-#             factory.create_reader(config)
-#
-#         self.assertIn("unsupported source type", str(context.exception))
-#
-#     @patch(
-#         "backend.src.daemon.writers.compute.azure_compute_writer.initialize_azure_client"
-#     )
 
 
 if __name__ == "__main__":

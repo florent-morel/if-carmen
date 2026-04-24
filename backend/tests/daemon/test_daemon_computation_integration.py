@@ -197,8 +197,7 @@ def mock_daemon_config() -> MagicMock:
     """
     config = MagicMock()
     config.source = MagicMock()
-    config.source.type = "azure"
-    config.output_path = TEST_REPORT_DIR
+    config.output.output_path = TEST_REPORT_DIR
     return config
 
 

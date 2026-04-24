@@ -210,8 +210,11 @@ class Settings(BaseSettings):
         "https://raw.githubusercontent.com/Green-Software-Foundation/if-data/main/cloud"
         "-metdata-azure-instances.csv"
     )
-    CARMEN_CONFIG_FILEPATH: str = os.getenv(
+    CARMEN_MAIN_CONFIG_FILEPATH: str = os.getenv(
         "CARMEN_CONFIG_FILEPATH", "config/config.yaml"
+    )
+    CARMEN_PROVIDER_CONFIG_FILEPATH: str = os.getenv(
+        "CARMEN_PROVIDER_CONFIG_FILEPATH", "config/cloud_providers"
     )
 
 

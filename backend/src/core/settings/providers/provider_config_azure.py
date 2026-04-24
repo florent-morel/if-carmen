@@ -1,4 +1,3 @@
-
 import logging
 
 
@@ -17,14 +16,14 @@ class Provider_Config_Azure(AbstractProviderConfig):
     def get_pue(self) -> float | None:
         return self.pue
 
-    def get_electricity_ratios(self) -> dict[str: float] | None:
+    def get_electricity_ratios(self) -> dict[str, float] | None:
         return self.electricity_ratios
 
-    def get_storage_replication_factors(self) -> dict[str: int] | None:
+    def get_storage_replication_factors(self) -> dict[str, int] | None:
         return self.storage_replication_factors
 
-    def get_storage_embodied(self) -> dict[str: int] | None:
+    def get_storage_embodied(self) -> dict[str, int] | None:
         return self.storage_embodied
 
-    def get_disk_sku_size_mapping(self) -> dict[str: int] | None:
+    def get_disk_sku_size_mapping(self) -> dict[str, int] | None:
         return self.disk_sku_size_mapping

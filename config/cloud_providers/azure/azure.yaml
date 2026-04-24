@@ -1,35 +1,35 @@
 
 # Electricity ratios
-ELECTRICITY_RATIOS:
-  CPU_MIN: 0.78  # watt per core
-  CPU_MAX: 3.76  # watt per core
-  MEMORY: 0.392  # watt per GB
+electricity_ratios:
+  cpu_min: 0.78  # watt per core
+  cpu_max: 3.76  # watt per core
+  memory: 0.392  # watt per GB
   # Storage ratios
   # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
-  SSD: 0.0000012
-  HDD: 0.00000065
-  STORAGE_UNKNOWN: 0.000000925  # Average
+  ssd: 0.0000012
+  hdd: 0.00000065
+  storage_unknown: 0.000000925  # Average
 
 # in gCO2e/GB from https://hotcarbon.org/assets/2022/pdf/hotcarbon22-tannu.pdf
-STORAGE_EMBODIED_COEFFICIENT_MAPPING:
-  SSD: 160
-  HDD: 20
-  UNKNOWN: 90  # Average
+storage_embodied:
+  ssd: 160
+  hdd: 20
+  unknown: 90  # Average
 
 
 # Replication factors for different Azure storage types
 # https://docs.google.com/spreadsheets/d/1D7mIGKkdO1djPoMVmlXRmzA7_4tTiGZLYdVbfe85xQM/edit?gid=2008238628#gid=2008238628
-STORAGE_REPLICATION_FACTORS:
-  LRS: 3  # Locally redundant storage - 3 copies in single physical location
-  ZRS: 3  # Zone redundant storage - 3 copies across availability zones
-  GRS: 6  # Geo redundant storage - 3 primary + 3 secondary copies
-  RA_GRS: 6  # Read-access geo redundant - same as GRS
-  GZRS: 6  # Geo-zone redundant - 3 copies across zones + 3 secondary
-  RA_GZRS: 6  # Read-access geo-zone - same as GZRS
+storage_replication_factors:
+  lrs: 3  # Locally redundant storage - 3 copies in single physical location
+  zrs: 3  # Zone redundant storage - 3 copies across availability zones
+  grs: 6  # Geo redundant storage - 3 primary + 3 secondary copies
+  ra_grs: 6  # Read-access geo redundant - same as GRS
+  gzrs: 6  # Geo-zone redundant - 3 copies across zones + 3 secondary
+  ra_gzrs: 6  # Read-access geo-zone - same as GZRS
 
 
 # Azure Disk SKU to size mapping in GiB
-DISK_SKU_SIZE_MAPPING:
+disk_sku_size_mapping:
   # Premium SSD (P series)
   P1: 4
   P2: 8
@@ -75,4 +75,4 @@ DISK_SKU_SIZE_MAPPING:
 
 
 # Power usage effectiveness values for this cloud provider
-PUE: 1.185
+pue: 1.185

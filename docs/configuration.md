@@ -56,20 +56,6 @@ carmen_api:
 carmen_daemon:
   # SOURCE: Read VM metrics from local example data
   source:
-    # Files to process - choose one or more:
-    # Option 1: Simple example (2 VMs, 3 hours each)
-    file_names:
-      - "vm_metrics_simple.csv"
-
-    # Option 2: Full monthly data (6 VMs, January)
-    # file_names:
-    #   - "vm_metrics_2024_01.csv"
-
-    # Option 3: Multi-month data (January + February)
-    # file_names:
-    #   - "vm_metrics_2024_01.csv"
-    #   - "vm_metrics_2024_02.csv"
-
     # Path to the example data directory
     # Using relative path from project root
     input_path: "vm-metrics"
@@ -84,6 +70,4 @@ carmen_daemon:
       - Processor_Compute
       - Processor_Storage
       - Processor_Misc_Services
-  infrastructure_providers:
-    - azure
 ```

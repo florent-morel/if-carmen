@@ -27,6 +27,10 @@ from backend.src.common.known_exception import (
 )
 from backend.src.core.settings import settings
 
+from backend.src.core.settings.providers.provider_config_azure import (
+    Provider_Config_Azure,
+)
+
 from backend.src.core.settings.credentials.credentials_config_azure import (
     AzureCredentialsConfig,
 )
@@ -76,6 +80,14 @@ class OrchestratorConfig(BaseSettings):
     list_processors: list[str] | None = None
 
 
+class SourceConfig(BaseSettings):
+    input_path: str | None = None
+
+
+class OutputConfig(BaseSettings):
+    output_path: str | None = None
+
+
 class DaemonConfig(BaseSettings):
     """
     Configuration for the Carbon Engine daemon.
@@ -87,9 +99,11 @@ class DaemonConfig(BaseSettings):
     """
 
     orchestrator: OrchestratorConfig = OrchestratorConfig()
+    source: SourceConfig = SourceConfig()
+    output: OutputConfig = OutputConfig()
 
     @model_validator(mode="after")
-    def validate_daemon_configuration(self) -> DaemonConfig:
+    def validate_source_configuration(self) -> DaemonConfig:
         """
         Validate daemon configuration parameters.
 
@@ -101,61 +115,32 @@ class DaemonConfig(BaseSettings):
         """
 
         # Source configuration validation
-        for source in self.list_source_configs:
-            source.validate_configuration()
-
+        if self.source.input_path is None:
+            raise MissingParametersError(
+                ErrorCode.CONFIG_MISSING_PARAMETERS,
+                ["input_path"],
+            )
         return self
 
-    #     @model_validator(mode="after")
-    #     def validate_source_configuration(self) -> DaemonConfig:
-    #         """
-    #         Validate source configuration parameters.
-    #
-    #         Returns:
-    #             The validated model.
-    #
-    #         Raises:
-    #             MissingParametersError: If required parameters are missing.
-    #         """
-    #
-    #         if self.source.type == "azure":
-    #             # Check Azure credentials
-    #             missing_creds: list[str] = []
-    #             if not self.credentials.client_id:
-    #                 missing_creds.append("client_id")
-    #             if not self.credentials.client_secret:
-    #                 missing_creds.append("client_secret")
-    #             if not self.credentials.tenant_id:
-    #                 missing_creds.append("tenant_id")
-    #
-    #             missing: list[str] = missing_creds
-    #
-    #             # Check Azure source settings
-    #             missing_source: list[str] = []
-    #             if not self.source.azure.storage_account_url:
-    #                 missing_source.append("storage_account_url")
-    #
-    #             missing.append(missing_source)
-    #
-    #             if missing:
-    #                 raise MissingParametersError(
-    #                     ErrorCode.CONFIG_MISSING_PARAMETERS, missing
-    #                 )
-    #
-    #             if (
-    #                 self.source.azure.storage_account_url
-    #                 and not self.source.azure.storage_account_url.startswith("https://")
-    #             ):
-    #                 raise ValueError("storage account url must be a valid https url")
-    #
-    #         elif self.source.type == "local" and not self.source.input_path:
-    #             raise MissingParametersError(
-    #                 ErrorCode.CONFIG_MISSING_PARAMETERS, ["input_path"]
-    #             )
-    #
-    #         return self
-    #
-    #     @model_validator(mode="after")
+    @model_validator(mode="after")
+    def validate_output_configuration(self) -> DaemonConfig:
+        """
+        Validate daemon configuration parameters.
+
+        Returns:
+            The validated model.
+
+        Raises:
+            MissingParametersError: If required parameters are missing.
+        """
+
+        # Output configuration validation
+        if self.output.output_path is None:
+            raise MissingParametersError(
+                ErrorCode.CONFIG_MISSING_PARAMETERS,
+                ["output_path"],
+            )
+        return self
 
     @model_validator(mode="after")
     def validate_orchestrator_configuration(self) -> DaemonConfig:
@@ -176,14 +161,11 @@ class DaemonConfig(BaseSettings):
             self.orchestrator.list_processors = ["Processor_Compute"]
         else:
             # Check that provided processors are supported.
-            for processor in self.orchestrator.list_processors:
-                if not self.orchestrator.list_supported_processors.index(processor):
-                    logger.error(
-                        "Invalid processor found in configuration:"
-                        f" {processor}.  Removing it from list."
-                    )
-                    self.orchestrator.list_processors.remove(processor)
-
+            self.orchestrator.list_processors = [
+                processor
+                for processor in self.orchestrator.list_processors
+                if processor in self.orchestrator.list_supported_processors
+            ]
         return self
 
     @property
@@ -193,12 +175,7 @@ class DaemonConfig(BaseSettings):
 
     @property
     def output_path(self) -> str | None:
-        """Backward compatibility for input_path."""
-        return self.output.output_path
-
-    @property
-    def output_path(self) -> str | None:
-        """Backward compatibility for input_path."""
+        """Backward compatibility for output_path."""
         return self.output.output_path
 
 
@@ -207,6 +184,7 @@ class AppConfig(BaseSettings):
 
     carmen_api: ApiConfig | None = None
     carmen_daemon: DaemonConfig | None = None
+    provider_config: Provider_Config_Azure | None = None
 
 
 def env_constructor(loader: yaml.SafeLoader, node: yaml.ScalarNode) -> str:
@@ -236,54 +214,31 @@ def env_constructor(loader: yaml.SafeLoader, node: yaml.ScalarNode) -> str:
     return value
 
 
-@lru_cache()
-def load_and_validate_config() -> AppConfig:
+def load_yaml(path: Path):
     """
-    Load and validate the configuration file for the Carbon Engine.
-
-    Returns:
-        The validated configuration object.
-
     Raises:
         ConfigFileError: If the configuration file is not found or invalid.
         ConfigValidationError: If configuration validation fails.
         MissingParametersError: If required parameters are missing.
     """
-    main_config_file = settings.CARMEN_CONFIG_FILEPATH
-    main_config_file_path = Path(main_config_file)
-
-    if not main_config_file_path.exists():
-        logger.error("Configuration file not found: %s", main_config_file)
-        raise ConfigFileError(ErrorCode.CONFIG_FILE_MISSING, file_path=main_config_file)
+    if not path.exists():
+        logger.error("Configuration file not found: %s", path)
+        raise ConfigFileError(ErrorCode.CONFIG_FILE_MISSING, file_path=path)
 
     loader = yaml.SafeLoader
     loader.add_constructor("!env", env_constructor)
 
     try:
-        with main_config_file_path.open("r", encoding="utf-8") as file:
+        with path.open("r", encoding="utf-8") as file:
             raw_config = yaml.load(file, Loader=loader)  # type: ignore[misc]
 
         if not raw_config or not isinstance(raw_config, dict):
-            logger.error("Configuration file is empty or invalid: %s", main_config_file)
-            raise ConfigFileError(
-                ErrorCode.CONFIG_INVALID_FILE, file_path=main_config_file
-            )
-
-        if "carmen_api" not in raw_config and "carmen_daemon" not in raw_config:
-            logger.error(
-                "Required configuration sections missing in: %s", main_config_file
-            )
-            raise MissingParametersError(
-                ErrorCode.CONFIG_MISSING_PARAMETERS, ["carmen_api", "carmen_daemon"]
-            )
-
-        yaml_config = AppConfig(**raw_config)  # type: ignore[arg-type]
+            logger.error("Configuration file is empty or invalid: %s", path)
+            raise ConfigFileError(ErrorCode.CONFIG_INVALID_FILE, file_path=path)
 
     except yaml.YAMLError as e:
-        logger.error("YAML parsing error in %s: %s", main_config_file, str(e))
-        raise ConfigFileError(
-            ErrorCode.CONFIG_INVALID_YAML, file_path=main_config_file
-        ) from e
+        logger.error("YAML parsing error in %s: %s", path, str(e))
+        raise ConfigFileError(ErrorCode.CONFIG_INVALID_YAML, file_path=path) from e
     except ValidationError as e:
         logger.error("Configuration validation failed: %s", str(e))
         validation_errors = [f"{err['loc']}: {err['msg']}" for err in e.errors()]
@@ -294,11 +249,49 @@ def load_and_validate_config() -> AppConfig:
         raise
     except Exception as e:
         logger.error("Unexpected error loading configuration: %s", str(e))
-        raise ConfigFileError(
-            ErrorCode.CONFIG_INVALID_FILE, file_path=main_config_file
-        ) from e
+        raise ConfigFileError(ErrorCode.CONFIG_INVALID_FILE, file_path=path) from e
 
-    return yaml_config
+    return raw_config
+
+
+@lru_cache()
+def load_and_validate_config() -> AppConfig:
+    """
+    Load and validate the configuration files.
+
+    Returns:
+        The validated configuration object.
+
+    """
+    main_config_file = settings.CARMEN_MAIN_CONFIG_FILEPATH
+    main_config_file_path = Path(main_config_file)
+
+    main_config_raw = load_yaml(main_config_file_path)
+
+    if "carmen_api" not in main_config_raw or "carmen_daemon" not in main_config_raw:
+        logger.error(
+            "Required configuration sections missing in: %s", main_config_file_path
+        )
+        raise MissingParametersError(
+            ErrorCode.CONFIG_MISSING_PARAMETERS, ["carmen_api", "carmen_daemon"]
+        )
+
+    # Fill in APIConfig and DaemonConfig based on data retrieved from config.yaml
+    carmen_api = ApiConfig.model_validate(main_config_raw["carmen_api"])
+    carmen_daemon = DaemonConfig.model_validate(main_config_raw["carmen_daemon"])
+
+    # Fill in provider_config based on data retrieved from cloud_providers
+    provider_config_file = settings.CARMEN_PROVIDER_CONFIG_FILEPATH
+    provider_config_file_path = Path(provider_config_file)
+    provider_config_raw = load_yaml(provider_config_file_path)
+
+    provider_config = Provider_Config_Azure.model_validate(provider_config_raw)
+
+    return AppConfig(
+        carmen_api=carmen_api,
+        carmen_daemon=carmen_daemon,
+        provider_config=provider_config,
+    )
 
 
 def get_config() -> AppConfig:
@@ -321,7 +314,8 @@ def get_config() -> AppConfig:
 try:
     config = load_and_validate_config()
     logger.info(
-        "configuration loaded successfully from: %s", settings.CARMEN_CONFIG_FILEPATH
+        "configuration loaded successfully from: %s",
+        settings.CARMEN_MAIN_CONFIG_FILEPATH,
     )
 except (ConfigFileError, ConfigValidationError, MissingParametersError) as e:
     logger.error("Failed to load configuration: %s", e.formatted_string)
