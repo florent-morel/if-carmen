@@ -27,6 +27,27 @@ from backend.src.common.known_exception import (
 )
 from backend.src.core.settings import settings
 
+from backend.src.core.settings.upload.abstract_credentials_config import (
+    AbstractCredentialsConfig
+)
+
+from backend.src.core.settings.upload.abstract_source_config import (
+    AbstractSourceConfig
+)
+
+from backend.src.core.settings.source.source_config_local import (
+    LocalSourceConfig
+)
+
+from backend.src.core.settings.upload.abstract_upload_config import (
+    AbstractUploadConfig
+)
+
+from backend.src.core.settings.upload.upload_config_local import (
+    LocalUploadConfig
+)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,15 +82,6 @@ class ApiConfig(BaseSettings):
         return self
 
 
-class SourceConfig(BaseSettings):
-    """Data source configuration."""
-
-    type: Literal["azure", "local"] = "local"
-    file_names: list[str] = []
-    azure: AzureSourceConfig = AzureSourceConfig()
-    local: LocalSourceConfig = LocalSourceConfig()
-
-
 class UploadConfig(BaseSettings):
     """Upload destination configuration."""
 
@@ -99,9 +111,39 @@ class DaemonConfig(BaseSettings):
     """
 
     credentials: AzureCredentials = AzureCredentials()
-    source: SourceConfig = SourceConfig()
-    upload: UploadConfig = UploadConfig()
+    # TODO: check how to make this dynamic from conf file
+    # TODO: support Azure config
+    # TODO: create a list of source configs
+    source: AbstractSourceConfig = LocalSourceConfig()
+    list_source_configs: list[AbstractSourceConfig] = source
+    # TODO: check how to make this dynamic from conf file
+    # TODO: support Azure config
+    # TODO: create a list of upload configs
+    upload: AbstractUploadConfig = LocalUploadConfig()
     orchestrator: OrchestratorConfig = OrchestratorConfig()
+
+    @model_validator(mode="after")
+    def validate_daemon_configuration(self) -> DaemonConfig:
+        """
+        Validate daemon configuration parameters.
+
+        Returns:
+            The validated model.
+
+        Raises:
+            MissingParametersError: If required parameters are missing.
+        """
+
+        # Source configuration validation
+        # Credentials are validated inside the source validation
+        for source in self.list_source_configs:
+            source.validate_configuration()
+
+        # Upload configuration validation
+        # Credentials are validated inside the upload validation
+        self.upload.validate_configuration()
+
+        return self
 
     @model_validator(mode="after")
     def validate_source_configuration(self) -> DaemonConfig:
@@ -130,6 +172,8 @@ class DaemonConfig(BaseSettings):
             if not self.credentials.tenant_id:
                 missing_creds.append("tenant_id")
 
+            missing: list[str] = missing_creds
+
             # Check Azure source settings
             missing_source: list[str] = []
             if not self.source.azure.storage_account_url:
@@ -137,7 +181,8 @@ class DaemonConfig(BaseSettings):
             if not self.source.azure.container_name_read:
                 missing_source.append("container_name_read")
 
-            missing: list[str] = missing_creds + missing_source
+            missing.append(missing_source)
+
             if missing:
                 raise MissingParametersError(
                     ErrorCode.CONFIG_MISSING_PARAMETERS, missing
