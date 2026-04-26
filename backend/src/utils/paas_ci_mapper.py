@@ -50,13 +50,5 @@ class PaasCiMapper:
 
     @staticmethod
     def get_ci_from_paas(paas: str) -> float:
-        """
-        For now this block is commented out until we are sure that the
-        API call to electricity maps can be made through the deployed environment, relates to JIRA: AMACM-178.
-        zone = CICalculator.__extract_zone_from_paas(paas)
-        start = start.strftime(settings.CAW_DATETIME_FORMAT)
-        end = end.strftime(settings.CAW_DATETIME_FORMAT)
-        return CICalculator.__calculate_ci(zone, start, end)
-        """
         zone = PaasCiMapper.__extract_zone_from_paas(paas)
         return PaasCiMapper.calculate_ci(zone)

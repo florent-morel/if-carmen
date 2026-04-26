@@ -1,4 +1,3 @@
-
 """
 This file contains the necessary mocks for the methods in FinopsDatalake class.
 """
@@ -10,8 +9,10 @@ import re
 
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
+from backend.src.daemon.readers.helpers.daemon_helpers import get_row_data
 
 from backend.src.common.constants import CARBON_INTENSITY_EUROPE
+
 
 def read_sample_vm_data(file_dict, _destination_forlder):
     """
@@ -123,13 +124,14 @@ def create_virtual_machine(row):
         id=row["Id"],
         region=row["Region"],
         vm_size=row["Size"],
-        service=row["Service"] if row["Service"] != "-" else "",
-        component=row["Component"] if row["Component"] != "-" else "",
-        subscription=row["Subscription"] if row["Subscription"] != "-" else "",
-        name=row["Name"],
-        instance=row["Instance"] if row["Instance"] != "-" else "",
-        environment=row["Environment"] if row["Environment"] != "-" else "",
-        partition=row["Partition"] if row["Partition"] != "-" else "",
+        service=get_row_data(row["Service"]),
+        component=get_row_data(row["Component"]),
+        subscription=get_row_data(row["Subscription"]),
+        name=get_row_data(row["Name"]),
+        instance=get_row_data(row["Instance"]),
+        environment=get_row_data(row["Environment"]),
+        partition=get_row_data(row["Partition"]),
+        provider=get_row_data(row["Provider"]),
         storage_size=[],
         carbon_intensity=319,
     )

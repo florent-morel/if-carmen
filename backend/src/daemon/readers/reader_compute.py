@@ -4,14 +4,16 @@ Base module for reading and processing compute resource data.
 
 import csv
 import logging
+from logging import config
+from logging import config
 from pathlib import Path
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 
 from pydantic import ValidationError
+from collections import Counter
 
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.readers.helpers.daemon_helpers import (
-    calculate_vm_count_for_missing_regions,
     create_vm,
 )
 from backend.src.schemas.virtual_machine import VirtualMachine
@@ -47,6 +49,8 @@ class Reader_Compute(AbstractReader):
         # Resolve path to absolute to handle relative paths correctly
         self.input_path: Path = Path(str(self.config.source.input_path)).resolve()
 
+        self.missing_regions: Counter = Counter()
+        self.missing_providers: Counter = Counter()
         logger.info(
             "local compute reader initialized with source path %s",
             self.input_path,
@@ -70,11 +74,10 @@ class Reader_Compute(AbstractReader):
 
         try:
             vm_dict: dict[str, VirtualMachine] = {}
-            missing_region_vm_count: dict[str, int] = {}
 
-            self.process_csv_data(csv_data, vm_dict, missing_region_vm_count)
+            self.process_csv_data(self, csv_data, vm_dict)
 
-            self._log_processing_results(vm_dict, missing_region_vm_count)
+            self._log_processing_results(self, vm_dict)
 
             return list(vm_dict.values())
 
@@ -109,9 +112,10 @@ class Reader_Compute(AbstractReader):
             vm_id = row["Id"]
             try:
                 if vm_id not in vm_dict:
-                    calculate_vm_count_for_missing_regions(
-                        missing_region_vm_count, row["Region"]
-                    )
+                    if row["Region"] not in known_regions:
+                        self.missing_regions[row["Region"]] += 1
+                    if row["Provider"] not in config.provider_configs:
+                        self.missing_providers[row["Provider"]] += 1
                     new_vm = create_vm(row, vm_id, vm_size)
                     vm_dict[vm_id] = new_vm
 
@@ -146,8 +150,8 @@ class Reader_Compute(AbstractReader):
 
         logger.info("local compute reader processing finished successfully")
 
-    def calculate_vm_count_for_missing_regions(self,
-        missing_region_vm_count: dict[str, int], region: str
+    def calculate_vm_count_for_missing_regions(
+        self, missing_region_vm_count: dict[str, int], region: str
     ):
         """
         Fills the missing_region_vm_count dictionary.
@@ -162,4 +166,3 @@ class Reader_Compute(AbstractReader):
                 missing_region_vm_count[region] = 1
             else:
                 missing_region_vm_count[region] += 1
-

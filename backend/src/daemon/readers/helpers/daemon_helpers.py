@@ -3,6 +3,7 @@ This module contains helper functions for the daemon, including VM creation and 
 """
 
 import logging
+from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.common.constants import (
@@ -12,7 +13,6 @@ from backend.src.common.constants import (
 )
 
 logger = logging.getLogger(__name__)
-
 
 
 def log_missing_regions(missing_region_vm_count: dict[str, int]):
@@ -31,25 +31,47 @@ def log_missing_regions(missing_region_vm_count: dict[str, int]):
         )
 
 
+def log_missing_providers(missing_provider_vm_count: dict[str, int]):
+    """
+    Logs missing providers with the information of total number of VMs these providers contain.
+    Args:
+        missing_provider_vm_count (Dict[str, int]): Dictionary with the information of missing providers and
+        the corresponding VM count
+    """
+    for provider in missing_provider_vm_count:
+        logger.warning(
+            "unknown provider '%s' detected with %d VMs - using default PUE value (%d).",
+            provider,
+            missing_provider_vm_count[provider],
+            PUE_AZURE,
+        )
+
+
+def get_row_data(row_data: str) -> str:
+    """
+    Helper function to get row data, returns empty string if the data is missing or represented as '-'.
+    """
+    return row_data if row_data != "-" and row_data else ""
+
+
 def create_vm(row: dict[str, str], vm_id: str, vm_size: str) -> VirtualMachine:
     """
     Creates a new VirtualMachine instance based on the provided row data.
     """
+    region = get_row_data(row["Region"])
+    provider = get_row_data(row["Provider"])
     return VirtualMachine(
         id=vm_id,
-        region=row["Region"],
+        region=region,
         vm_size=vm_size,
-        service=row["Service"] if row["Service"] != "-" else "",
-        component=row["Component"] if row["Component"] != "-" else "",
-        subscription=(row["Subscription"] if row["Subscription"] != "-" else ""),
-        name=row["Name"],
-        instance=row["Instance"] if row["Instance"] != "-" else "",
-        environment=row["Environment"] if row["Environment"] != "-" else "",
-        partition=row["Partition"] if row["Partition"] != "-" else "",
-        carbon_intensity=PaasCiMapper.calculate_ci(
-            row["Region"]
-            if row["Region"] != "-" and row["Region"]
-            else "germanywestcentral"
-        ),
-        pue=PUE_AZURE,  # improvement: add pue value dynamically
+        service=get_row_data(row["Service"]),
+        component=get_row_data(row["Component"]),
+        subscription=get_row_data(row["Subscription"]),
+        name=get_row_data(row["Name"]),
+        instance=get_row_data(row["Instance"]),
+        environment=get_row_data(row["Environment"]),
+        partition=get_row_data(row["Partition"]),
+        carbon_intensity=PaasCiMapper.calculate_ci(region),
+        provider=provider,
+        pue=config.provider_configs.get(provider, {}).get("pue", PUE_AZURE),
     )
