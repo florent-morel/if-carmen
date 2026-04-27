@@ -13,8 +13,8 @@ This release clarifies Carmen scope which can now be summarized like this:
 - This release enables Carmen to be platform/environment agnostic: one can chose to run Carmen to measure bare-metal servers, own-premise data center, Cloud deployed infrastructure, a mix of both, etc.
 
 - To properly compute CO2 impact (and fill the IF Manifest file), Carmen needs to include functional values related to models, machine lifespan, Carbon intensity, etc.
-- Some of these settings are generic and provided in Carmen's main configuration file.
-- Some are provider specific (especially Cloud Service Provider) and are defined in provider specific configuration file.
+- Some of these settings are generic and provided in Carmen's main configuration file (TODO: provide main conf file path here).
+- Some are provider specific (especially Cloud Service Provider) and are defined in provider specific configuration file (TODO: provide main conf file path here).
 - Current supported Cloud Provider: Microsoft Azure.
 
 
@@ -36,7 +36,7 @@ This release clarifies Carmen scope which can now be summarized like this:
 
 #### vX.Y New technical architecture
 - Carbon Orchestrator handles the overall flow, calling in sequence classes dedicated to a given resource:
-    * Reader: reading input file.
+    * Reader: reading Carmen input file.
     * Runner: calling the IF thanks to models.
     * Writer: writing output file.
 
