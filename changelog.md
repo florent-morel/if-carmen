@@ -1,6 +1,6 @@
+# Changelog
 
-
-## Unreleased
+## Unreleased - 2026-04-27
 
 ### Carmen refined scope
 
@@ -14,9 +14,34 @@ This release clarifies Carmen scope which can now be summarized like this:
 
 - To properly compute CO2 impact (and fill the IF Manifest file), Carmen needs to include functional values related to models, machine lifespan, Carbon intensity, etc.
 - Some of these settings are generic and provided in Carmen's main configuration file (TODO: provide main conf file path here).
-- Some are provider specific (especially Cloud Service Provider) and are defined in provider specific configuration file (TODO: provide main conf file path here).
+- Some are provider specific (especially Cloud Service Provider) and are defined in provider specific configuration file (TODO: provide specific conf file path here).
 - Current supported Cloud Provider: Microsoft Azure.
 
+### Added
+
+#### vX.Y New functional computations
+- Compute storage services impact thanks to the IF.
+- Compute miscellaneous services impact thanks to the IF.
+
+#### vX.Y New technical architecture
+- Carbon Orchestrator handles the overall flow, calling in sequence classes dedicated to a given resource:
+    * Reader: reading Carmen input file.
+    * Runner: calling the IF thanks to models.
+    * Writer: writing output file.
+
+#### Multi-Cloud Provider Support
+- Carmen architecture now supports Multi-Cloud Provider variables such as regions, energy ratios, pue, etc.
+- A "Provider" column is present in Carmen input file. This means that each provided resource can come from a distinct infrastructure.
+- Current implementation only supports Microsoft Azure.
+- To add a new CSP, one needs to fill dedicated configuration in (TODO: provide specific conf file path here).
+
+#### vX.Y Moving variables to configuration files
+- Load functional configuration from conf files.
+- Cloud Service Provider specific configuration in dedicated conf file.
+
+### Changed
+
+### Deprecated
 
 ### Removed
 
@@ -28,22 +53,11 @@ This release clarifies Carmen scope which can now be summarized like this:
 - vX.Y 
 - vX.Y 
 
-### Added
+### Fixed
 
-#### vX.Y New functional computations
-- Storage services impact computed thanks to the IF.
-- Miscellaneous services impact computed thanks to the IF.
+### Security
 
-#### vX.Y New technical architecture
-- Carbon Orchestrator handles the overall flow, calling in sequence classes dedicated to a given resource:
-    * Reader: reading Carmen input file.
-    * Runner: calling the IF thanks to models.
-    * Writer: writing output file.
-
-#### vX.Y Moving variables to configuration files
-- Load functional configuration from conf files.
-- Cloud Service Provider specific configuration in dedicated conf file.
 
 ## vX.Y - 1
 
-
+Note: changelog file written following [https://common-changelog.org/] guidelines.
