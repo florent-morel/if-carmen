@@ -29,8 +29,6 @@ class Resource(ABC, BaseModel):
     that are shared across all resource types.
     """
 
-    # TODO: add provider field to Resource, and use it to select the correct cloud metadata lookup,
-    # as part of multi-provider support implementation.
     resource_type: ResourceType = None
     provider: str | None = None
 

@@ -34,6 +34,9 @@ from backend.src.core.settings.providers.provider_config_azure import (
 from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )
+from backend.src.core.settings.config_carbon_intensity import (
+    CarbonIntensityConfig,
+)
 
 from backend.src.core.settings.credentials.credentials_config_azure import (
     AzureCredentialsConfig,
@@ -183,12 +186,21 @@ class DaemonConfig(BaseSettings):
         return self.output.output_path
 
 
+class DefaultsConfig(BaseSettings):
+    """Global fallback values used when region or provider data is unavailable."""
+
+    carbon_intensity: int
+    pue: float
+
+
 class AppConfig(BaseSettings):
     """Root configuration class containing all Carbon Engine settings."""
 
+    defaults: DefaultsConfig
     carmen_api: ApiConfig | None = None
     carmen_daemon: DaemonConfig | None = None
     provider_configs: dict[str, AbstractProviderConfig] = {}
+    carbon_intensity_config: CarbonIntensityConfig | None = None
 
 
 def env_constructor(loader: yaml.SafeLoader, node: yaml.ScalarNode) -> str:
@@ -266,7 +278,7 @@ def load_yaml(path: Path) -> dict:
     return raw_config
 
 
-def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None]:
+def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None, DefaultsConfig]:
     """
     Load the main configuration file and validate required sections.
 
@@ -302,8 +314,23 @@ def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None]:
         if "carmen_daemon" in main_config_raw
         else None
     )
+    defaults = DefaultsConfig.model_validate(main_config_raw["defaults"])
 
-    return carmen_api, carmen_daemon
+    return carmen_api, carmen_daemon, defaults
+
+
+def load_carbon_intensity_config() -> CarbonIntensityConfig:
+    """
+    Load the carbon intensity configuration from its YAML file.
+
+    Returns:
+        CarbonIntensityConfig: The loaded carbon intensity configuration.
+    Raises:
+        ConfigFileError: If the configuration file is not found or invalid.
+    """
+    path = Path(settings.CARMEN_CARBON_INTENSITY_FILEPATH)
+    raw = load_yaml(path)
+    return CarbonIntensityConfig.model_validate(raw)
 
 
 def _instantiate_provider_config(name: str, raw: dict) -> AbstractProviderConfig | None:
@@ -367,13 +394,16 @@ def load_and_validate_config() -> AppConfig:
         The validated configuration object.
 
     """
-    carmen_api, carmen_daemon = load_main_config()
+    carmen_api, carmen_daemon, defaults = load_main_config()
     provider_configs = load_provider_configs()
+    carbon_intensity_config = load_carbon_intensity_config()
 
     return AppConfig(
+        defaults=defaults,
         carmen_api=carmen_api,
         carmen_daemon=carmen_daemon,
         provider_configs=provider_configs,
+        carbon_intensity_config=carbon_intensity_config,
     )
 
 

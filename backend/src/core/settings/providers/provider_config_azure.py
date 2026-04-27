@@ -27,3 +27,6 @@ class Provider_Config_Azure(AbstractProviderConfig):
 
     def get_disk_sku_size_mapping(self) -> dict[str, int] | None:
         return self.disk_sku_size_mapping
+
+    def get_regions(self) -> dict[str, str] | None:
+        return self.regions

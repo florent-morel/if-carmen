@@ -6,6 +6,7 @@ sample_vms = [
         id="vm1",
         name="test_vm_1",
         component="component_1",
+        provider="azure",
         region="region_1",
         subscription="subscription_1",
         vm_size="size_1",
@@ -25,6 +26,7 @@ sample_storage_resources = [
     StorageResource(
         id="storage1",
         name="test_premium_ssd",
+        provider="azure",
         storage_type="Premium_SSD",
         replication_type="LRS",
         size_gb=128.0,
@@ -39,6 +41,7 @@ sample_storage_resources = [
     StorageResource(
         id="storage2",
         name="test_standard_hdd",
+        provider="azure",
         storage_type="Standard_HDD",
         replication_type="GRS",
         size_gb=500.0,

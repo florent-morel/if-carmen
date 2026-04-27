@@ -12,6 +12,7 @@ from enum import Enum
 # MEMORY_ELECTRICITY_RATIO_AZURE = 0.392  # watt per GB
 
 # European Average for 2024 (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
+# Carbon intensity fallback is now loaded from config/carbon_intensity.yaml (default_carbon_intensity)
 # CARBON_INTENSITY_EUROPE = 281  # gCO2 per kWh
 # CPU_THRESHOLD: int = 1000000  # 1.000.000 cores
 # MEMORY_THRESHOLD: int = 100000000000000  # 100.000 TB
@@ -148,12 +149,14 @@ ZONES = {
 #     "S80": 32767,
 # }
 #
-# # Power usage effectiveness values for different cloud providers
+# Power usage effectiveness values for different cloud providers are now loaded from
+# the provider YAML configs (e.g. config/cloud_providers/azure/azure.yaml)
 # PUE_AZURE = 1.185
 # PUE_AWS = 1.135
 # PUE_GCP = 1.1
 
 # 2024 Data (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
+# Carbon intensity per Azure region is now loaded from config/carbon_intensity.yaml
 # REGION_TO_COUNTRY_CARBON_INTENSITY = {
 #     "australiaeast": {"country": "New South Wales", "carbon_intensity": 552},
 #     "centralus": {"country": "Iowa", "carbon_intensity": 384},

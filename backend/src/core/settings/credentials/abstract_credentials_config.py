@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import logging
@@ -15,7 +14,6 @@ class AbstractCredentialsConfig(ABC, BaseSettings):
     used by the dameon.
     """
 
-    @abstractmethod
     def validate_configuration(self):
         """
         Validate credentials configuration parameters.

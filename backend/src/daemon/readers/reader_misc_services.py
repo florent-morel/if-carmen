@@ -1,4 +1,3 @@
-
 """
 Storage module for reading and processing compute resource data.
 """
@@ -46,12 +45,7 @@ class Reader_Misc_Services(AbstractReader):
 
     def __init__(self, input_file, config: DaemonConfig):
         self.config: DaemonConfig = config
-        self.list_resources_to_process: list[Resource]
         self.input_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
-
-    @property
-    def list_resources_to_process(self) -> list[Resource] | None:
-        return self.list_resources_to_process
 
     def read(self, csv_data) -> list[Resource]:
         """
@@ -65,7 +59,9 @@ class Reader_Misc_Services(AbstractReader):
 
         # COST MODEL PROCESSING
         # TODO: CSV path will be changed when we start fetching the files from finops
-        cost_resources, total_compute_cost, total_storage_cost = self.process_cost_csv(csv_data)
+        cost_resources, total_compute_cost, total_storage_cost = self.process_cost_csv(
+            csv_data
+        )
         logger.info(
             "Loaded %d cost resources from local test file",
             len(cost_resources),
@@ -86,7 +82,9 @@ class Reader_Misc_Services(AbstractReader):
 
         return self.list_resources_to_process
 
-    def process_cost_csv(self, csv_data: str) -> tuple[list[CostResource], float, float]:
+    def process_cost_csv(
+        self, csv_data: str
+    ) -> tuple[list[CostResource], float, float]:
         """
         Process CSV data into a CostResource list.
 
@@ -111,9 +109,13 @@ class Reader_Misc_Services(AbstractReader):
         for row in csv_reader:
             consumed_service = row.get("ConsumedService", "").lower()
             if "microsoft.compute" == consumed_service:
-                total_compute_cost += str_to_float(row.get("CostInBillingCurrencyEUR", "0"))
+                total_compute_cost += str_to_float(
+                    row.get("CostInBillingCurrencyEUR", "0")
+                )
             elif "microsoft.storage" == consumed_service:
-                total_storage_cost += str_to_float(row.get("CostInBillingCurrencyEUR", "0"))
+                total_storage_cost += str_to_float(
+                    row.get("CostInBillingCurrencyEUR", "0")
+                )
             else:
                 cost_resource = self.create_cost_resource(row)
                 if cost_resource.id == "":

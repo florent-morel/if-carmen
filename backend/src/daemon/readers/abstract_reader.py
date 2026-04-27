@@ -15,20 +15,8 @@ class AbstractReader(ABC):
     Abstract base class for reading compute resource data from various sources.
     """
 
-    def __init__(
-        self,
-    ):
-        """
-        Initialize reader.
-
-        Args:
-
-        """
-
-    @property
-    @abstractmethod
-    def list_resources_to_process(self) -> list[Resource] | None:
-        pass
+    def __init__(self):
+        self.list_resources_to_process: list[Resource] | None = None
 
     @abstractmethod
     def read(self, csv_data: str) -> list[Resource]:
@@ -44,14 +32,11 @@ class AbstractReader(ABC):
         self,
         blob_data: str,
         resource_dict: dict[str, Resource],
-        missing_region_resource_count: dict[str, int],
     ) -> bool:
         """
         Processes CSV data from the blob and updates the resource dictionary.
 
         Args:
-            missing_region_resource_count (Dict[str, int]): Dictionary with the information of missing regions and
-            the corresponding resources count.
             blob_data (str): The CSV data read from the blob, as a string.
             resource_dict (Dict[str, Resource]): The dictionary containing Resource objects, indexed by their ID.
         Returns:

@@ -4,9 +4,9 @@ and used to calculate carbon intensity depending on their region and time range 
 """
 
 from functools import lru_cache
-from backend.src.common import constants
 from backend.src.utils.helpers import remove_unnecessary
 from backend.src.common.constants import ZONES
+from backend.src.core.yaml_config_loader import config
 
 
 class PaasCiMapper:
@@ -38,15 +38,16 @@ class PaasCiMapper:
         return None
 
     @staticmethod
-    @lru_cache(1000)  # we have 14 different azure regions
+    @lru_cache(1000)  # we have ~20 different azure regions
     def calculate_ci(zone: str) -> float:
-        if zone in constants.REGION_TO_COUNTRY_CARBON_INTENSITY:
-            return constants.REGION_TO_COUNTRY_CARBON_INTENSITY[zone][
-                "carbon_intensity"
-            ]
-        return (
-            constants.CARBON_INTENSITY_EUROPE
-        )  # fallback to default european average in case of a new region
+        ci_config = config.carbon_intensity_config
+        default_ci = config.defaults.carbon_intensity
+        for provider_config in config.provider_configs.values():
+            regions = provider_config.get_regions()
+            if regions and zone in regions:
+                country = regions[zone]
+                return float(ci_config.get_ci_for_location(country, default_ci))
+        return float(default_ci)
 
     @staticmethod
     def get_ci_from_paas(paas: str) -> float:

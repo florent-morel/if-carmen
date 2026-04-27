@@ -35,12 +35,7 @@ class Reader_Storage(AbstractReader):
         self.config: DaemonConfig = config
         # TODO: Instantiate provider config
         self.provider_config: AbstractProviderConfig
-        self.list_resources_to_process: list[Resource]
         self.storage_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
-
-    @property
-    def list_resources_to_process(self) -> list[Resource] | None:
-        return self.list_resources_to_process
 
     def read(self, csv_data) -> list[Resource]:
         """
@@ -53,7 +48,7 @@ class Reader_Storage(AbstractReader):
         logger.info(f"Inside reader Storage: {self}")
         storage_resources = list[Resource]
         storage_dict = {}
-        self.process_csv_data(csv_data, storage_dict, None)
+        self.process_csv_data(csv_data, storage_dict)
         storage_resources = list(storage_dict.values())
 
         logger.info(
@@ -68,7 +63,6 @@ class Reader_Storage(AbstractReader):
         self,
         csv_data: str,
         storage_dict: dict[str, StorageResource],
-        missing_region_resource_count: dict[str, int],
     ) -> bool:
         """
         Parse CSV data into StorageResource objects.
@@ -138,8 +132,11 @@ class Reader_Storage(AbstractReader):
 
         return data_found
 
-    def process_storage_row(self,
-        row: dict, billing_period_days: int, storage_dict: dict[str, StorageResource]
+    def process_storage_row(
+        self,
+        row: dict,
+        billing_period_days: int,
+        storage_dict: dict[str, StorageResource],
     ) -> bool:
         """
         Process a single CSV row and add storage resource.
@@ -154,7 +151,9 @@ class Reader_Storage(AbstractReader):
             bool: True if valid storage was processed, False otherwise
         """
         # Calculate storage size and duration
-        size_gb, duration_seconds = self.calculate_storage_size(row, billing_period_days)
+        size_gb, duration_seconds = self.calculate_storage_size(
+            row, billing_period_days
+        )
 
         if size_gb <= 0 or duration_seconds <= 0:
             return False  # Not a valid disk
@@ -176,7 +175,12 @@ class Reader_Storage(AbstractReader):
         # Create or update storage resource
         if storage_id not in storage_dict:
             storage_dict[storage_id] = self.create_storage_resource(
-                row, storage_id, size_gb, storage_type, replication_type, duration_seconds
+                row,
+                storage_id,
+                size_gb,
+                storage_type,
+                replication_type,
+                duration_seconds,
             )
 
         # Add temporal data
@@ -220,9 +224,8 @@ class Reader_Storage(AbstractReader):
 
         return "LRS"  # Default
 
-
-    def calculate_storage_size(self,
-        row: dict[str, str], billing_period_days: int
+    def calculate_storage_size(
+        self, row: dict[str, str], billing_period_days: int
     ) -> tuple[float, int]:
         """
         Calculate storage size AND duration according to UnitOfMeasure methodology.
@@ -275,7 +278,9 @@ class Reader_Storage(AbstractReader):
         ):  # Network transfers (e.g., geo-replication, retrieval)
             return 0.0, 0
 
-        if unit_of_measure == "1M":  # Operations per million (Blob inventory, Change Feed)
+        if (
+            unit_of_measure == "1M"
+        ):  # Operations per million (Blob inventory, Change Feed)
             return 0.0, 0
 
         # Unknown UnitOfMeasure
@@ -306,5 +311,3 @@ class Reader_Storage(AbstractReader):
                 return float(disk_sku_mapping[match])
 
         return 0.0
-
-

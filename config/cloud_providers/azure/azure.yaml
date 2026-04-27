@@ -1,4 +1,27 @@
 
+# Mapping of Azure region codes to country names used in carbon_intensity.yaml
+regions:
+  australiaeast: Australia
+  centralus: United_States
+  eastasia: Hong_Kong
+  eastus: United_States
+  eastus2: United_States
+  francecentral: France
+  francesouth: France
+  germanywestcentral: Germany
+  northcentralus: United_States
+  northeurope: Ireland
+  southeastasia: Singapore
+  swedencentral: Sweden
+  uaenorth: Dubai
+  uksouth: United_Kingdom
+  westeurope: Netherlands
+  westus: United_States
+  westus2: United_States
+  westus3: United_States
+  centralindia: India
+  southindia: India
+
 # Electricity ratios
 electricity_ratios:
   cpu_min: 0.78  # watt per core

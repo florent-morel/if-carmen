@@ -16,6 +16,7 @@ class AbstractProviderConfig(BaseSettings, ABC):
     storage_embodied: dict[str, int] | None = None
     storage_replication_factors: dict[str, int] | None = None
     disk_sku_size_mapping: dict[str, int] | None = None
+    regions: dict[str, str] | None = None
 
     @property
     @abstractmethod
@@ -40,4 +41,9 @@ class AbstractProviderConfig(BaseSettings, ABC):
     @property
     @abstractmethod
     def get_disk_sku_size_mapping(self) -> dict[str, int] | None:
+        pass
+
+    @property
+    @abstractmethod
+    def get_regions(self) -> dict[str, str] | None:
         pass

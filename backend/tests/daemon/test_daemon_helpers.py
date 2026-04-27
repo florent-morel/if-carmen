@@ -54,6 +54,4 @@ class TestDaemonHelpers(unittest.TestCase):
 
         with self.assertLogs(level="WARNING") as log:
             log_missing_regions(mock_dict)
-            self.assertIn(
-                "unknown region 'example_region' detected with 5 VMs", log.output[0]
-            )
+            self.assertIn("unknown region 'example_region': 5 VMs", log.output[0])

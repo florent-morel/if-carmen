@@ -6,11 +6,6 @@ import logging
 from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
-from backend.src.common.constants import (
-    REGION_TO_COUNTRY_CARBON_INTENSITY,
-    CARBON_INTENSITY_EUROPE,
-    PUE_AZURE,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +19,9 @@ def log_missing_regions(missing_region_vm_count: dict[str, int]):
     """
     for region in missing_region_vm_count:
         logger.warning(
-            "unknown region '%s' detected with %d VMs - using European average carbon intensity (%d gCO2/kWh).",
+            "unknown region '%s': %d VMs — using default carbon intensity",
             region,
             missing_region_vm_count[region],
-            CARBON_INTENSITY_EUROPE,
         )
 
 
@@ -40,10 +34,9 @@ def log_missing_providers(missing_provider_vm_count: dict[str, int]):
     """
     for provider in missing_provider_vm_count:
         logger.warning(
-            "unknown provider '%s' detected with %d VMs - using default PUE value (%d).",
+            "unknown provider '%s': %d VMs — using default PUE",
             provider,
             missing_provider_vm_count[provider],
-            PUE_AZURE,
         )
 
 
@@ -54,16 +47,18 @@ def get_row_data(row_data: str) -> str:
     return row_data if row_data != "-" and row_data else ""
 
 
-def create_vm(row: dict[str, str], vm_id: str, vm_size: str) -> VirtualMachine:
+def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
     """
     Creates a new VirtualMachine instance based on the provided row data.
     """
     region = get_row_data(row["Region"])
     provider = get_row_data(row["Provider"])
+    provider_config = config.provider_configs.get(provider)
+    pue = provider_config.get_pue() if provider_config else config.defaults.pue
     return VirtualMachine(
         id=vm_id,
         region=region,
-        vm_size=vm_size,
+        vm_size=get_row_data(row["Size"]),
         service=get_row_data(row["Service"]),
         component=get_row_data(row["Component"]),
         subscription=get_row_data(row["Subscription"]),
@@ -73,5 +68,5 @@ def create_vm(row: dict[str, str], vm_id: str, vm_size: str) -> VirtualMachine:
         partition=get_row_data(row["Partition"]),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,
-        pue=config.provider_configs.get(provider, {}).get("pue", PUE_AZURE),
+        pue=pue,
     )

@@ -47,17 +47,6 @@ class AbstractProcessor(ABC):
     def writer(self) -> AbstractWriter:
         pass
 
-    @property
-    @abstractmethod
-    def list_resources_to_process(self) -> list[Resource] | None:
-        pass
-
-    # Resources built by the reader to be handled by the runner
-    @property
-    @abstractmethod
-    def resource_type_result(self) -> ResourceTypeResult | None:
-        pass
-
     def __init__(self, config: DaemonConfig):
         """
         Initialize the abstract carbon daemon processor.
@@ -67,6 +56,8 @@ class AbstractProcessor(ABC):
             writer_factory: Factory for creating writer instances (optional)
         """
         self.config = config
+        self.list_resources_to_process: list[Resource] | None = None
+        self.resource_type_result: ResourceTypeResult | None = None
 
     def read(self, csv_data: str) -> list[Resource]:
         """
