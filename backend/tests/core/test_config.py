@@ -50,7 +50,6 @@ def test_get_settings_success(
             "TIME_OUT": 180,
         },
         "LOG_LEVEL": "INFO",
-        "FINOPS": {},
         "THANOS": {"CLUSTER_GROUPING_LEVEL": 3},
     }
     validated_settings = MagicMock(spec=Settings)  # type: ignore[misc]

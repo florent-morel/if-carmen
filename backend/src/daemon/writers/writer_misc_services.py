@@ -1,4 +1,3 @@
-
 import logging
 
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
@@ -10,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 class Writer_Misc_Services(AbstractWriter):
     def write_content(resources: list[MiscServicesResource]):
-        logger.info(
-            "Starting write_results for Misc Services resources.")
+        logger.info("Starting write_results for Misc Services resources.")
 
         # Add resources
         for resource in resources:
@@ -19,8 +17,7 @@ class Writer_Misc_Services(AbstractWriter):
             row = super.write_common_content(resource)
 
             # resource specific columns
-            row[ReportConfig.HEADER[ReportConfig.STORAGE]
-                [ReportConfig.MISC_SERVICES]] = resource.services_cost
+            row[ReportConfig.MISC_SERVICES_COST] = resource.services_cost
 
             super.writer.write(row)
 

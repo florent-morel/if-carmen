@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timedelta
 
 from backend.src.common.known_exception import KnownException
-from backend.src.core.settings import settings
+from backend.src.core.settings import ReportConfig
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
@@ -55,7 +55,7 @@ def create_cost_report(
     logger.info("Creating cost model report...")
     with open(out_file, mode="w", newline="", encoding="utf-8") as report:
         writer = csv.writer(report)
-        writer.writerows(settings.FINOPS.COST_REPORT_HEADERS)
+        writer.writerows(ReportConfig.COST_REPORT_HEADERS)
         for cost_resource in cost_resources:
             row = [
                 date,

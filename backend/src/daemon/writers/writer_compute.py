@@ -15,18 +15,12 @@ class Writer_Compute(AbstractWriter):
             row = super.write_common_content(vm)
 
             # VM specific columns
-            row[ReportConfig.HEADER[ReportConfig.COMPUTE]
-                [ReportConfig.COMPUTE_VM_SIZE]] = vm.vm_size
-            row[ReportConfig.HEADER[ReportConfig.COMPUTE]
-                [ReportConfig.COMPUTE_SERVICE]] = vm.service
-            row[ReportConfig.HEADER[ReportConfig.COMPUTE]
-                [ReportConfig.COMPUTE_INSTANCE]] = vm.instance
-            row[ReportConfig.HEADER[ReportConfig.COMPUTE]
-                [ReportConfig.COMPUTE_ENVIRONMENT]] = vm.environment
-            row[ReportConfig.HEADER[ReportConfig.COMPUTE]
-                [ReportConfig.COMPUTE_PARTITION]] = vm.partition
-            row[ReportConfig.HEADER[ReportConfig.COMPUTE]
-                [ReportConfig.COMPUTE_COMPONENT]] = vm.component
+            row[ReportConfig.COMPUTE_VM_SIZE] = vm.vm_size
+            row[ReportConfig.COMPUTE_SERVICE] = vm.service
+            row[ReportConfig.COMPUTE_INSTANCE] = vm.instance
+            row[ReportConfig.COMPUTE_ENVIRONMENT] = vm.environment
+            row[ReportConfig.COMPUTE_PARTITION] = vm.partition
+            row[ReportConfig.COMPUTE_COMPONENT] = vm.component
 
             super.writer.write(row)
 

@@ -74,81 +74,44 @@ class ThanosConfig(BaseSettings):
         return level
 
 
-class ReportConfig(BaseSettings):
+class ReportConfig:
     """
-    Configuration class for CO2 Report generation settings.
+    Fixed CSV column names for CO2 report generation.
+    Plain class — not a pydantic model — since these values are constants,
+    not environment-specific settings.
     """
-
-    COMMON: str = "COMMON"
-    COMPUTE: str = "COMPUTE"
-    STORAGE: str = "STORAGE"
-    MISC_SERVICES: str = "MISC_SERVICES"
 
     # Common columns
-    COMMON_DATE: str = "COMMON_DATE"
-    COMMON_RESOURCE_TYPE: str = "COMMON_RESOURCE_TYPE"
-    COMMON_ID: str = "COMMON_ID"
-    COMMON_NAME: str = "COMMON_NAME"
-    COMMON_REGION: str = "COMMON_REGION"
-    COMMON_SUBSCRIPTION: str = "COMMON_SUBSCRIPTION"
-    COMMON_ENERGY: str = "COMMON_ENERGY"
-    COMMON_OPERATIONAL_CARBON: str = "COMMON_OPERATIONAL_CARBON"
-    COMMON_EMBODIED_CARBON: str = "COMMON_EMBODIED_CARBON"
-    COMMON_TOTAL_CARBON: str = "COMMON_TOTAL_CARBON"
-    COMMON_CARBON_INTENSITY: str = "COMMON_CARBON_INTENSITY"
+    COMMON_DATE = "Date"
+    COMMON_RESOURCE_TYPE = "ResourceType"
+    COMMON_ID = "Id"
+    COMMON_NAME = "Name"
+    COMMON_PROVIDER = "Provider"
+    COMMON_REGION = "Region"
+    COMMON_SUBSCRIPTION = "Subscription"
+    COMMON_ENERGY = "EnergyKWH"
+    COMMON_OPERATIONAL_CARBON = "OperationalCarbonGramsCO2eq"
+    COMMON_EMBODIED_CARBON = "EmbodiedCarbonGramsCO2eq"
+    COMMON_TOTAL_CARBON = "TotalCarbonGramsCO2eq"
+    COMMON_CARBON_INTENSITY = "CarbonIntensity"
 
     # VM columns
-    COMPUTE_VM_SIZE: str = "COMPUTE_VM_SIZE"
-    COMPUTE_SERVICE: str = "COMPUTE_SERVICE"
-    COMPUTE_INSTANCE: str = "COMPUTE_INSTANCE"
-    COMPUTE_ENVIRONMENT: str = "COMPUTE_ENVIRONMENT"
-    COMPUTE_PARTITION: str = "COMPUTE_PARTITION"
-    COMPUTE_COMPONENT: str = "COMPUTE_COMPONENT"
+    COMPUTE_VM_SIZE = "VMSize"
+    COMPUTE_SERVICE = "Service"
+    COMPUTE_INSTANCE = "Instance"
+    COMPUTE_ENVIRONMENT = "Environment"
+    COMPUTE_PARTITION = "Partition"
+    COMPUTE_COMPONENT = "Component"
 
     # Storage columns
-    STORAGE_TYPE: str = "STORAGE_TYPE"
-    STORAGE_REPLICATION_TYPE: str = "STORAGE_REPLICATION_TYPE"
-    STORAGE_SIZE_GB: str = "STORAGE_SIZE_GB"
+    STORAGE_TYPE = "StorageType"
+    STORAGE_REPLICATION_TYPE = "ReplicationType"
+    STORAGE_SIZE_GB = "SizeGB"
 
     # Misc services columns
-    MISC_SERVICES_COST: str = "MISC_SERVICES_COST"
+    MISC_SERVICES_COST = "ServicesCost"
 
-    HEADER: dict = {
-        # Common columns
-        COMMON: {
-            COMMON_DATE: "Date",
-            COMMON_RESOURCE_TYPE: "ResourceType",
-            COMMON_ID: "Id",
-            COMMON_NAME: "Name",
-            COMMON_REGION: "Region",
-            COMMON_SUBSCRIPTION: "Subscription",
-            COMMON_ENERGY: "EnergyKWH",
-            COMMON_OPERATIONAL_CARBON: "OperationalCarbonGramsCO2eq",
-            COMMON_EMBODIED_CARBON: "EmbodiedCarbonGramsCO2eq",
-            COMMON_TOTAL_CARBON: "TotalCarbonGramsCO2eq",
-            COMMON_CARBON_INTENSITY: "CarbonIntensity",
-        },
-        # VM columns
-        COMPUTE: {
-            COMPUTE_VM_SIZE: "VMSize",
-            COMPUTE_SERVICE: "Service",
-            COMPUTE_INSTANCE: "Instance",
-            COMPUTE_ENVIRONMENT: "Environment",
-            COMPUTE_PARTITION: "Partition",
-            COMPUTE_COMPONENT: "Component",
-        },
-        # Storage columns
-        STORAGE: {
-            STORAGE_TYPE: "StorageType",
-            STORAGE_REPLICATION_TYPE: "ReplicationType",
-            STORAGE_SIZE_GB: "SizeGB",
-        },
-        # Misc services columns
-        MISC_SERVICES: {
-            MISC_SERVICES_COST: "ServicesCost",
-        },
-    }
-
+    # Full ordered fieldname lists used to initialise csv.DictWriter
     REPORT_HEADERS: list[list[str]] = [
         [
             # Common columns
@@ -156,6 +119,7 @@ class ReportConfig(BaseSettings):
             "ResourceType",
             "Id",
             "Name",
+            "Provider",
             "Region",
             "Subscription",
             "EnergyKWH",
@@ -184,6 +148,7 @@ class ReportConfig(BaseSettings):
             "Date",
             "Id",
             "Name",
+            "Provider",
             "Region",
             "Subscription",
             "CarbonIntensity",
@@ -202,7 +167,6 @@ class Settings(BaseSettings):
 
     FASTAPI: FastAPIConfig = FastAPIConfig()
     THANOS: ThanosConfig
-    FINOPS: ReportConfig
     UVICORN: UvicornConfig
     TEST_ENV: bool = os.getenv("TEST_ENV", "False").lower() in ("true", "1", "t")
     LOG_LEVEL: LogLevel = LogLevel.INFO

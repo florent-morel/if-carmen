@@ -19,12 +19,9 @@ class Writer_Storage(AbstractWriter):
             row = super.write_common_content(resource)
 
             # resource specific columns
-            row[ReportConfig.HEADER[ReportConfig.STORAGE]
-                [ReportConfig.STORAGE_TYPE]] = resource.storage_type
-            row[ReportConfig.HEADER[ReportConfig.STORAGE]
-                [ReportConfig.STORAGE_REPLICATION_TYPE]] = resource.replication_type
-            row[ReportConfig.HEADER[ReportConfig.STORAGE]
-                [ReportConfig.STORAGE_SIZE_GB]] = resource.size_gb
+            row[ReportConfig.STORAGE_TYPE] = resource.storage_type
+            row[ReportConfig.STORAGE_REPLICATION_TYPE] = resource.replication_type
+            row[ReportConfig.STORAGE_SIZE_GB] = resource.size_gb
 
             super.writer.write(row)
 

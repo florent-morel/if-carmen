@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch, mock_open
 
 from backend.src.common.known_exception import KnownException
-from backend.src.core.settings import settings
+from backend.src.core.settings import settings, ReportConfig
 from backend.src.daemon.readers.helpers.cost_helpers import (
     get_carbon_and_energy_values,
     process_cost_csv,
@@ -147,7 +147,7 @@ class TestCostHelpers(unittest.TestCase):
         """
         mock_date = datetime.now() - timedelta(days=7)
         test_file_name = "test_cost_report.csv"
-        expected_headers = settings.FINOPS.COST_REPORT_HEADERS[0]
+        expected_headers = ReportConfig.COST_REPORT_HEADERS[0]
 
         with self.assertLogs(level="INFO") as log:
             create_cost_report(

@@ -16,9 +16,12 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractWriter(ABC):
-    def __init__(self, config: DaemonConfig,
-                 writer: csv.DictWriter,
-                 resource_result: ResourceTypeResult):
+    def __init__(
+        self,
+        config: DaemonConfig,
+        writer: csv.DictWriter,
+        resource_result: ResourceTypeResult,
+    ):
         self.resource_result: ResourceTypeResult = resource_result
         self.config: DaemonConfig = config
         self.writer: csv.DictWriter = writer
@@ -32,12 +35,7 @@ class AbstractWriter(ABC):
         Abstract method to let each resource dedicated writer list the header
         rows it needs.
         """
-        list_headers = []
-        for header in ReportConfig.HEADER.values():
-            for header_sub in header.values():
-                list_headers.append(header_sub)
-
-        return list_headers
+        return ReportConfig.REPORT_HEADERS
 
     @abstractmethod
     def write_content() -> Iterable[Iterable[Any]]:
@@ -55,17 +53,17 @@ class AbstractWriter(ABC):
         # Add information to fill common columns
         row = {
             # Common columns
-            ReportConfig.HEADER_COMMON.DATE: self.date,
-            ReportConfig.HEADER_COMMON.RESOURCE_TYPE: resource.resource_type,
-            ReportConfig.HEADER_COMMON.ID: resource.id,
-            ReportConfig.HEADER_COMMON.NAME: resource.name,
-            ReportConfig.HEADER_COMMON.REGION: resource.region,
-            ReportConfig.HEADER_COMMON.SUBSCRIPTION: resource.subscription,
-            ReportConfig.HEADER_COMMON.ENERGY: resource.total_energy_consumed,
-            ReportConfig.HEADER_COMMON.OPERATIONAL_CARBON: resource.total_carbon_operational,
-            ReportConfig.HEADER_COMMON.EMBODIED_CARBON: resource.total_carbon_embodied,
-            ReportConfig.HEADER_COMMON.TOTAL_CARBON: resource.total_carbon_emitted,
-            ReportConfig.HEADER_COMMON.CARBON_INTENSITY: resource.carbon_intensity,
+            ReportConfig.COMMON_DATE: self.date,
+            ReportConfig.COMMON_RESOURCE_TYPE: resource.resource_type,
+            ReportConfig.COMMON_ID: resource.id,
+            ReportConfig.COMMON_NAME: resource.name,
+            ReportConfig.COMMON_PROVIDER: resource.provider,
+            ReportConfig.COMMON_REGION: resource.region,
+            ReportConfig.COMMON_SUBSCRIPTION: resource.subscription,
+            ReportConfig.COMMON_ENERGY: resource.total_energy_consumed,
+            ReportConfig.COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
+            ReportConfig.COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
+            ReportConfig.COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
+            ReportConfig.COMMON_CARBON_INTENSITY: resource.carbon_intensity,
         }
-
         return row
