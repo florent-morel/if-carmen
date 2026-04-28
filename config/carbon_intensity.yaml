@@ -2,7 +2,7 @@
 # Carbon intensity per country
 # 2024 Data (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
 # CSP region → country mapping is defined in each provider's YAML config.
-# The fallback default_carbon_intensity value is defined in config.yaml under defaults.
+# The fallback default carbon_intensity value is defined in config.yaml under defaults.
 # Add new countries at the end of the file.
 
 carbon_intensity_by_country:

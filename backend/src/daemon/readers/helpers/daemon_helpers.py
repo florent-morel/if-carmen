@@ -1,5 +1,6 @@
 """
 This module contains helper functions for the daemon, including VM creation and logging of missing regions.
+TODO: this is actually a VM_helpers module
 """
 
 import logging

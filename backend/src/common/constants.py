@@ -55,11 +55,6 @@ PLUGIN_PATH = os.path.join(
     "cost-model-plugin/build",
 )
 
-# Germany: both germanywestcentral & germanynorth gives the same CI from CAW SDK
-# France: both francecentral & francesouth gives the same CI from CAW SDK
-# There are 3 different zones for west US in CAW SDK, all of them gives different CI.
-#   Improvement: Be sure on 1 zone
-# WUS = westus -> US-CAL-CISO, westus2 -> US-NW-GCPD, westus3 -> US-SW-SRP
 ZONES = {
     "EUS": "eastus",
     "WUS": "westus",

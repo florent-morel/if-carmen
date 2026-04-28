@@ -46,11 +46,9 @@ def get_carbon_and_energy_values(
     return storage_total_carbon, storage_total_energy, vm_total_carbon, vm_total_energy
 
 
-
-
-
-
-def create_cost_report(cost_resources: list[MiscServicesResource], date: str, out_file: str):
+def create_cost_report(
+    cost_resources: list[MiscServicesResource], date: str, out_file: str
+):
     """
     Creates a cost report for the given cost resource list.
     """
@@ -73,3 +71,31 @@ def create_cost_report(cost_resources: list[MiscServicesResource], date: str, ou
             ]
             writer.writerow(row)
     logger.info("Cost model report saved to: %s", out_file)
+
+
+def process_cost_csv(self, csv_data: str):
+    """
+    TODO: is it necessary ?
+    """
+    pass
+
+
+def create_cost_resource(row):
+    """
+    Creates a cost resource from the given row
+    """
+    region = row.get("ResourceLocation", "unknown")
+    cost_resource = MiscServicesResource(
+        id=row.get("ResourceId"),
+        name=row.get("ProductName", ""),
+        provider=row.get("Provider", ""),
+        region=region,
+        subscription=row.get("SubscriptionId", "unknown"),
+        carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
+        services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
+    )
+    timestamp = row.get(
+        "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    )
+    cost_resource.time_points = [timestamp]
+    return cost_resource

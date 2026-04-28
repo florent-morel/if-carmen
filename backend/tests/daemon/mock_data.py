@@ -8,25 +8,30 @@ import csv
 import re
 
 from backend.src.schemas.virtual_machine import VirtualMachine
+from backend.src.schemas.storage_resource import StorageResource
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.utils.helpers import str_to_float
 from backend.src.daemon.readers.helpers.daemon_helpers import get_row_data
 
-from backend.src.common.constants import CARBON_INTENSITY_EUROPE
+# Fallback values used when building mock VMs that have no real provider/region data.
+_DEFAULT_CARBON_INTENSITY = 281  # gCO2/kWh
+_DEFAULT_PUE = 1.5
 
 
-def read_sample_vm_data(file_dict, _destination_forlder):
+def read_sample_vm_data(file_dict, _destination_folder):
     """
     Reads VM data from multiple hourly sample CSV files and merges all hourly entries for each VM into a single object.
+    TODO: Maybe this is out of Carmen scope...
     """
     vms_dict = {}
     for group, files in file_dict.items():
         print(f"Reading file group '{group}'...")
         for file_name in files:
-            process_file(file_name, vms_dict)
+            _process_vm_file(file_name, vms_dict)
     return list(vms_dict.values())
 
 
-def process_file(file_name, vms_dict):
+def _process_vm_file(file_name, vms_dict):
     """
     Processes a file by extracting the hour from the file name, determining the sample file path,
     and reading and processing the CSV file if it exists.
@@ -36,16 +41,16 @@ def process_file(file_name, vms_dict):
     Returns:
         None
     """
-    hour = extract_hour_from_file_name(file_name)
-    sample_file = get_sample_file_path(hour)
+    hour = _extract_hour_from_file_name(file_name)
+    sample_file = _get_vm_sample_file_path(hour)
     print(f"Attempting to read file: {file_name} -> {sample_file}")
     if os.path.exists(sample_file):
-        read_and_process_csv(sample_file, vms_dict)
+        _read_and_process_vm_csv(sample_file, vms_dict)
     else:
         print(f"Sample file not found: {sample_file}")
 
 
-def get_sample_file_path(hour):
+def _get_vm_sample_file_path(hour):
     """
     Returns the path to the sample file for the given hour.
     Args:
@@ -58,7 +63,7 @@ def get_sample_file_path(hour):
     )
 
 
-def read_and_process_csv(sample_file, vms_dict):
+def _read_and_process_vm_csv(sample_file, vms_dict):
     """
     Reads a CSV file and processes each row using the provided dictionary.
     Args:
@@ -68,18 +73,17 @@ def read_and_process_csv(sample_file, vms_dict):
         FileNotFoundError: If the specified file does not exist.
         IOError: If there is an error reading the file.
     """
-
     with open(sample_file, "r", encoding="utf-8") as file:
         csv_reader = csv.DictReader(file)
         rows_found = False
         for row in csv_reader:
             rows_found = True
-            process_csv_row(row, vms_dict)
+            _process_vm_row(row, vms_dict)
         if not rows_found:
             print(f"Resource is empty! Skipped file: {sample_file}")
 
 
-def process_csv_row(row, vms_dict):
+def _process_vm_row(row, vms_dict):
     """
     Processes a single row of CSV data and updates the virtual machines dictionary.
     Args:
@@ -89,7 +93,6 @@ def process_csv_row(row, vms_dict):
     Returns:
         None
     """
-
     vm_id = row.get("Id", "")
     avg_cpu = (
         str_to_float(row["AverageCpuPercentage"]) / 100
@@ -106,20 +109,15 @@ def process_csv_row(row, vms_dict):
         vms_dict[vm_id].time_points.append(time_point)
         vms_dict[vm_id].storage_size.append(storage)
     else:
-        new_vm = create_virtual_machine(row)
+        new_vm = _create_virtual_machine(row)
         new_vm.cpu_util.append(avg_cpu)
         new_vm.time_points.append(time_point)
         new_vm.storage_size.append(storage)
-        new_vm.pue = 1.185
-        new_vm.carbon_intensity = CARBON_INTENSITY_EUROPE
         vms_dict[vm_id] = new_vm
 
 
-def create_virtual_machine(row):
-    """
-    Creates a VirtualMachine instance from a given row of data.
-    """
-
+def _create_virtual_machine(row):
+    """Constructs a VirtualMachine from a single CSV row using default fallback values for carbon intensity and PUE."""
     return VirtualMachine(
         id=row["Id"],
         region=row["Region"],
@@ -133,11 +131,12 @@ def create_virtual_machine(row):
         partition=get_row_data(row["Partition"]),
         provider=get_row_data(row["Provider"]),
         storage_size=[],
-        carbon_intensity=319,
+        pue=_DEFAULT_PUE,
+        carbon_intensity=_DEFAULT_CARBON_INTENSITY,
     )
 
 
-def extract_hour_from_file_name(file_name):
+def _extract_hour_from_file_name(file_name):
     """
     Extracts the hour from a file name like usage_YYYY-MM-DD_H.csv
     Example: usage_2024-12-09_0.csv -> hour = 0
@@ -146,3 +145,158 @@ def extract_hour_from_file_name(file_name):
     if match:
         return int(match.group(1))
     return 0
+
+
+# ---------------------------------------------------------------------------
+# Storage
+# ---------------------------------------------------------------------------
+
+
+def read_sample_storage_data(file_dict, _destination_folder):
+    """
+    Reads storage data from CSV files and returns a list of StorageResource objects.
+    Mirrors read_sample_vm_data — each unique ResourceId maps to one StorageResource.
+    """
+    storage_dict = {}
+    for group, files in file_dict.items():
+        print(f"Reading storage file group '{group}'...")
+        for file_name in files:
+            _process_storage_file(file_name, storage_dict)
+    return list(storage_dict.values())
+
+
+def _process_storage_file(file_name, storage_dict):
+    """Resolves the sample file path for a storage file name and delegates to the CSV reader."""
+    sample_file = os.path.join(os.path.dirname(__file__), "test_data", file_name)
+    print(f"Attempting to read storage file: {sample_file}")
+    if os.path.exists(sample_file):
+        _read_and_process_storage_csv(sample_file, storage_dict)
+    else:
+        print(f"Storage sample file not found: {sample_file}")
+
+
+def _read_and_process_storage_csv(sample_file, storage_dict):
+    """Opens a storage CSV file and processes each row into storage_dict."""
+    with open(sample_file, "r", encoding="utf-8") as file:
+        csv_reader = csv.DictReader(file)
+        rows_found = False
+        for row in csv_reader:
+            rows_found = True
+            _process_storage_row(row, storage_dict)
+        if not rows_found:
+            print(f"Storage file is empty! Skipped: {sample_file}")
+
+
+def _process_storage_row(row, storage_dict):
+    """Adds a StorageResource for a new ResourceId; skips rows already present in storage_dict."""
+    resource_id = row.get("ResourceId", "")
+    if resource_id not in storage_dict:
+        storage_dict[resource_id] = _create_storage_resource(row)
+
+
+def _create_storage_resource(row):
+    """
+    Creates a StorageResource from a billing CSV row (storage_test.csv format).
+    Columns: UnitOfMeasure, Quantity, ProductName, ResourceId, Date,
+             ResourceLocation, MeterName, SubscriptionId, ResourceGroup, ...
+    """
+    meter_name = row.get("MeterName", "")
+    product_name = row.get("ProductName", "")
+
+    # Derive storage_type from meter/product name
+    if "Premium SSD" in product_name or "Premium LRS" in meter_name:
+        storage_type = "Premium_SSD"
+    elif "Ultra" in product_name or "Ultra" in meter_name:
+        storage_type = "Ultra_Disk"
+    else:
+        storage_type = "Standard_HDD"
+
+    # Derive replication type from meter name (LRS, GRS, ZRS, GZRS)
+    for rep in ("GZRS", "ZRS", "GRS", "LRS"):
+        if rep in meter_name or rep in product_name:
+            replication_type = rep
+            break
+    else:
+        replication_type = "LRS"
+
+    return StorageResource(
+        id=row.get("ResourceId", ""),
+        name=row.get("ProductName", ""),
+        provider=row.get("Provider", ""),
+        region=row.get("ResourceLocation", ""),
+        subscription=row.get("SubscriptionId", ""),
+        resource_group=row.get("ResourceGroup", ""),
+        storage_type=storage_type,
+        replication_type=replication_type,
+        size_gb=str_to_float(row.get("Quantity", "0")),
+        carbon_intensity=_DEFAULT_CARBON_INTENSITY,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Misc Services
+# ---------------------------------------------------------------------------
+
+
+def read_sample_misc_services_data(file_dict, _destination_folder):
+    """
+    Reads misc-services (cost model) data from CSV files and returns a list of
+    MiscServicesResource objects.  Mirrors read_sample_vm_data.
+    """
+    misc_dict = {}
+    for group, files in file_dict.items():
+        print(f"Reading misc-services file group '{group}'...")
+        for file_name in files:
+            _process_misc_services_file(file_name, misc_dict)
+    return list(misc_dict.values())
+
+
+def _process_misc_services_file(file_name, misc_dict):
+    """Resolves the sample file path for a misc-services file name and delegates to the CSV reader."""
+    sample_file = os.path.join(os.path.dirname(__file__), "test_data", file_name)
+    print(f"Attempting to read misc-services file: {sample_file}")
+    if os.path.exists(sample_file):
+        _read_and_process_misc_services_csv(sample_file, misc_dict)
+    else:
+        print(f"Misc-services sample file not found: {sample_file}")
+
+
+def _read_and_process_misc_services_csv(sample_file, misc_dict):
+    """Opens a misc-services CSV file and processes each row into misc_dict."""
+    with open(sample_file, "r", encoding="utf-8") as file:
+        csv_reader = csv.DictReader(file)
+        rows_found = False
+        for row in csv_reader:
+            rows_found = True
+            _process_misc_services_row(row, misc_dict)
+        if not rows_found:
+            print(f"Misc-services file is empty! Skipped: {sample_file}")
+
+
+def _process_misc_services_row(row, misc_dict):
+    """Upserts a MiscServicesResource into misc_dict, accumulating cost across multiple billing rows for the same ResourceId."""
+    resource_id = row.get("ResourceId", "")
+    if resource_id not in misc_dict:
+        misc_dict[resource_id] = _create_misc_services_resource(row)
+    else:
+        # Accumulate cost across multiple billing rows for the same resource
+        misc_dict[resource_id].services_cost += str_to_float(
+            row.get("CostInBillingCurrencyEUR", "0")
+        )
+
+
+def _create_misc_services_resource(row):
+    """
+    Creates a MiscServicesResource from a billing CSV row (cost-model format).
+    Columns: ResourceId, ProductName, ResourceLocation, SubscriptionId,
+             Date, CostInBillingCurrencyEUR, ...
+    """
+    return MiscServicesResource(
+        id=row.get("ResourceId", ""),
+        name=row.get("ProductName", ""),
+        provider=row.get("Provider", ""),
+        region=row.get("ResourceLocation", ""),
+        subscription=row.get("SubscriptionId", ""),
+        carbon_intensity=_DEFAULT_CARBON_INTENSITY,
+        services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
+    )

@@ -13,7 +13,7 @@ from backend.src.daemon.readers.helpers.cost_helpers import (
     create_cost_resource,
     create_cost_report,
 )
-from backend.src.schemas.costResource import CostResource
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.tests.daemon.test_data.test_data import (
     sample_vms,
     sample_storage_resources,

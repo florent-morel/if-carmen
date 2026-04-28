@@ -1,57 +1,56 @@
 """
-Unit tests for the daemon_helpers class.
+Unit tests for the daemon_helpers module.
+
+Missing-region/provider tracking is now done via collections.Counter inside
+Reader_Compute; daemon_helpers is only responsible for logging and VM creation.
 """
 
 import unittest
 from backend.src.daemon.readers.helpers.daemon_helpers import (
-    calculate_vm_count_for_missing_regions,
     log_missing_regions,
+    log_missing_providers,
+    get_row_data,
 )
 
 
-class TestDaemonHelpers(unittest.TestCase):
-    """
-    Unit tests for the DaemonHelpers class.
-    """
-
-    def test_calculate_vm_count_for_missing_regions_region_in_constants(self):
-        """
-        Test that calculate_vm_count_for_missing_regions correctly behaves when the region is in constants dictionary.
-        """
-        mock_dict = {"example_region": 5}
-        calculate_vm_count_for_missing_regions(mock_dict, "eastus")
-
-        self.assertEqual(mock_dict, {"example_region": 5})
-
-    def test_calculate_vm_count_for_missing_regions_missing_region_not_in_dictionary(
-        self,
-    ):
-        """
-        Test that calculate_vm_count_for_missing_regions correctly adds missing region to dictionary.
-        """
-        mock_dict = {"example_region": 5}
-
-        calculate_vm_count_for_missing_regions(mock_dict, "ex_region")
-
-        self.assertEqual(mock_dict, {"example_region": 5, "ex_region": 1})
-
-    def test_calculate_vm_count_for_missing_regions_missing_region_in_dictionary(self):
-        """
-        Test that calculate_vm_count_for_missing_regions correctly increments vm count when
-        missing region is in dictionary.
-        """
-        mock_dict = {"example_region": 5}
-
-        calculate_vm_count_for_missing_regions(mock_dict, "example_region")
-
-        self.assertEqual(mock_dict, {"example_region": 6})
-
-    def test_log_missing_regions(self):
-        """
-        Test that log_missing_regions correctly logs warning for missing regions.
-        """
-        mock_dict = {"example_region": 5}
-
+class TestLogMissingRegions(unittest.TestCase):
+    def test_logs_warning_per_region(self):
         with self.assertLogs(level="WARNING") as log:
-            log_missing_regions(mock_dict)
-            self.assertIn("unknown region 'example_region': 5 VMs", log.output[0])
+            log_missing_regions({"eastus2": 3, "unknown_region": 1})
+        messages = "\n".join(log.output)
+        self.assertIn("unknown region 'eastus2': 3 VMs", messages)
+        self.assertIn("unknown region 'unknown_region': 1 VMs", messages)
+
+    def test_empty_dict_produces_no_logs(self):
+        # assertLogs would fail if nothing is logged — use assertRaises to confirm
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(level="WARNING"):
+                log_missing_regions({})
+
+
+class TestLogMissingProviders(unittest.TestCase):
+    def test_logs_warning_per_provider(self):
+        with self.assertLogs(level="WARNING") as log:
+            log_missing_providers({"gcp": 7, "unknown_csp": 2})
+        messages = "\n".join(log.output)
+        self.assertIn("unknown provider 'gcp': 7 VMs", messages)
+        self.assertIn("unknown provider 'unknown_csp': 2 VMs", messages)
+
+    def test_empty_dict_produces_no_logs(self):
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(level="WARNING"):
+                log_missing_providers({})
+
+
+class TestGetRowData(unittest.TestCase):
+    def test_returns_value_when_present(self):
+        self.assertEqual(get_row_data("eastus"), "eastus")
+
+    def test_returns_empty_string_for_dash(self):
+        self.assertEqual(get_row_data("-"), "")
+
+    def test_returns_empty_string_for_empty_string(self):
+        self.assertEqual(get_row_data(""), "")
+
+    def test_returns_empty_string_for_none(self):
+        self.assertEqual(get_row_data(None), "")

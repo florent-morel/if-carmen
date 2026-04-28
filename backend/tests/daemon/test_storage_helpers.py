@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 from backend.src.daemon.readers.helpers.storage_helpers import (
     calculate_storage_size,
-    calculation_period_days,
+    date_delta,
     create_storage_resource,
     extract_size_from_product_name,
     get_replication_type,
@@ -83,8 +83,7 @@ class TestStorageHelpers(unittest.TestCase):
             "Quantity": "240.0",  # 10 GiB for 24 hours
             "ProductName": "Premium SSD v2",
         }
-        size_gb, duration_seconds = calculate_storage_size(row, 30)
-
+        size_gb, duration_seconds = calculate_storage_size(row, 30, {})
         expected_size = (240.0 / 24) * 1.07374182  # GiB to GB conversion
         self.assertEqual(size_gb, expected_size)
         self.assertEqual(duration_seconds, 86400)  # 24 hours
@@ -96,9 +95,8 @@ class TestStorageHelpers(unittest.TestCase):
             "Quantity": "2.0",
             "ProductName": "Premium SSD Managed Disks - P10 LRS",
         }
-        size_gb, duration_seconds = calculate_storage_size(row, 30)
-
-        self.assertEqual(size_gb, 128.0)  # P10 = 128 GB
+        size_gb, duration_seconds = calculate_storage_size(row, 30, {"P10": 128})
+        self.assertEqual(size_gb, 128.0)
         self.assertEqual(duration_seconds, 30 * 2 * 86400)  # 30 days * 2 disks * 24h
 
     def test_calculate_storage_size_unknown_unit(self):
@@ -110,7 +108,7 @@ class TestStorageHelpers(unittest.TestCase):
         }
 
         with self.assertLogs(level="WARNING") as log:
-            size_gb, duration_seconds = calculate_storage_size(row, 30)
+            size_gb, duration_seconds = calculate_storage_size(row, 30, {})
 
         self.assertEqual(size_gb, 0.0)
         self.assertEqual(duration_seconds, 0)
@@ -123,12 +121,13 @@ class TestStorageHelpers(unittest.TestCase):
             "Quantity": "100.0",
             "ProductName": "Blob Storage Snapshots",
         }
-        size_gb, duration_seconds = calculate_storage_size(row, 30)
-
-        self.assertEqual(size_gb, 0.0)  # Snapshots excluded
+        size_gb, duration_seconds = calculate_storage_size(row, 30, {})
+        self.assertEqual(size_gb, 0.0)
         self.assertEqual(duration_seconds, 0)
 
-    @patch("backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci")
+    @patch(
+        "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
+    )
     def test_create_storage_resource(self, mock_ci_calculator):
         """Test creation of StorageResource object."""
         mock_ci_calculator.return_value = 250.0
@@ -193,11 +192,23 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertFalse(result)
         self.assertEqual(len(storage_dict), 0)
 
-    def test_extract_size_from_sku_comprehensive(self):
+    def test_extract_size_from_sku_comprehensive_azure(self):
         """
         Test SKU extraction for all Azure disk types.
         Protects against incorrect billing when new SKUs are added.
         """
+        azure_sku_mapping = {
+            "P4": 32,
+            "P10": 128,
+            "P15": 256,
+            "P20": 512,
+            "P80": 32767,
+            "E10": 128,
+            "E20": 512,
+            "S4": 32,
+            "S20": 512,
+            "S80": 32767,
+        }
         # Test all major SKU series
         test_cases = [
             # Premium SSD (P series)
@@ -219,7 +230,7 @@ class TestStorageHelpers(unittest.TestCase):
 
         for product_name, expected_size in test_cases:
             with self.subTest(product_name=product_name):
-                result = extract_size_from_product_name(product_name)
+                result = extract_size_from_product_name(product_name, azure_sku_mapping)
                 self.assertEqual(
                     result,
                     expected_size,
@@ -320,21 +331,21 @@ class TestStorageHelpers(unittest.TestCase):
 
             self.assertEqual(storage.carbon_intensity, 281)  # Should use default
 
-    def test_calculation_period_days_success(self):
+    def test_date_delta_success(self):
         """Test billing period calculation - normal case"""
         csv_data = """BillingPeriodStartDate,BillingPeriodEndDate,ProductName
 3/1/2025,3/31/2025,Premium SSD
 3/1/2025,3/31/2025,Standard HDD"""
 
-        result = calculation_period_days(csv_data)
+        result = date_delta(csv_data)
         self.assertEqual(result, 31)  # March = 31 days
 
-    def test_calculation_period_days_fallback(self):
+    def test_date_delta_fallback(self):
         """Test fallback to 30 days when CSV is invalid"""
         csv_data = "invalid,csv,data"
 
         with self.assertLogs(level="ERROR") as log:
-            result = calculation_period_days(csv_data)
+            result = date_delta(csv_data)
 
         self.assertEqual(result, 30)
         self.assertIn("CSV error", log.output[0])

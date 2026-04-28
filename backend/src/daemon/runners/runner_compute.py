@@ -10,7 +10,7 @@ from backend.src.common.known_exception import KnownException, DataFetchError
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
-from backend.src.schemas.resource.virtual_machine import ComputeResource
+from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
@@ -51,7 +51,9 @@ class Runner_Compute(AbstractRunner):
                     details="No virtual machines found in data source",
                 )
 
-            processed_resources = self.process_carbon_calculations(list_resources_to_process)
+            processed_resources = self.process_carbon_calculations(
+                list_resources_to_process
+            )
 
             execution_time = time.time() - start_time
 
@@ -79,7 +81,10 @@ class Runner_Compute(AbstractRunner):
             logger.error(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.VIRTUAL_MACHINE, execution_time=execution_time, error_message=error_msg
+                success=False,
+                resource_type=ResourceType.VIRTUAL_MACHINE,
+                execution_time=execution_time,
+                error_message=error_msg,
             )
 
         except Exception as e:
@@ -88,7 +93,10 @@ class Runner_Compute(AbstractRunner):
             logger.exception(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.VIRTUAL_MACHINE, execution_time=execution_time, error_message=error_msg
+                success=False,
+                resource_type=ResourceType.VIRTUAL_MACHINE,
+                execution_time=execution_time,
+                error_message=error_msg,
             )
 
     def process_carbon_calculations(

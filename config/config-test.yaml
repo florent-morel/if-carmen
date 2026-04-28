@@ -1,0 +1,36 @@
+---
+# Test configuration — used when TEST_ENV=True (set automatically by conftest.py).
+# Mirrors config.yaml with dummy credentials and temp filesystem paths.
+
+defaults:
+  carbon_intensity: 281  # gCO2/kWh — fallback when region cannot be mapped to a known country
+  pue: 1.5              # Power Usage Effectiveness — fallback when provider config is missing
+
+carmen_api:
+  thanos_url: "http://localhost:9090"
+  authentication: "azure"
+  credentials:
+    client_id: "12345678-1234-1234-1234-123456789012"
+    client_secret: "test-client-secret~dummy-value-for-testing"
+    tenant_id: "12345678-1234-1234-1234-123456789012"
+  scope: "https://graph.microsoft.com/.default"
+  external_labels:
+    cluster: "test-cluster"
+    environment: "test"
+  labels:
+    app_label: "label_app_kubernetes_io/part_of"
+    cluster_label: "stack"
+    pod_label: "pod"
+    namespace_label: "namespace"
+  verify_ssl: false
+
+carmen_daemon:
+  source:
+    input_path: "/tmp/test-data"
+  output:
+    output_path: "/tmp/test-output"
+  orchestrator:
+    list_processors:
+      - Processor_Compute
+      - Processor_Storage
+      - Processor_Misc_Services

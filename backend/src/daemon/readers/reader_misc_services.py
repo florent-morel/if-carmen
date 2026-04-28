@@ -13,11 +13,11 @@ from backend.src.common.known_exception import KnownException
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.schemas.resource import Resource
-from backend.src.schemas.cost_resource import CostResource
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.core.yaml_config_loader import DaemonConfig
-from backend.src.daemon.readers.helpers.storage_helpers import (
-    calculation_period_days,
-    process_storage_row,
+from backend.src.daemon.readers.helpers.cost_helpers import (
+    create_cost_resource,
+    process_cost_row,
 )
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
@@ -117,28 +117,9 @@ class Reader_Misc_Services(AbstractReader):
                     row.get("CostInBillingCurrencyEUR", "0")
                 )
             else:
-                cost_resource = self.create_cost_resource(row)
+                cost_resource = create_cost_resource(row)
                 if cost_resource.id == "":
                     continue
                 cost_resources.append(cost_resource)
         logger.info("Cost CSV processed")
         return cost_resources, total_compute_cost, total_storage_cost
-
-    def create_cost_resource(row):
-        """
-        Creates a cost resource from the given row
-        """
-        region = row.get("ResourceLocation", "unknown")
-        cost_resource = CostResource(
-            id=row.get("ResourceId"),
-            name=row.get("ProductName", ""),
-            region=region,
-            subscription=row.get("SubscriptionId", "unknown"),
-            carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-            services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
-        )
-        timestamp = row.get(
-            "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
-        )
-        cost_resource.time_points = [timestamp]
-        return cost_resource
