@@ -20,7 +20,7 @@ Scaphandre is an open-source energy monitoring agent designed to measure the pow
 
 Carmen distinguishes itself from Scaphandre through its cloud-native design and turnkey carbon reporting capabilities. While Scaphandre is optimized for bare-metal hosts and provides process-level energy monitoring, Carmen is specifically designed for cloud applications and Kubernetes environments, offering application-level carbon attribution that maps directly to business services and microservices. Scaphandre focuses on energy measurement and requires external tools to map those measurements to actual carbon emissions based on grid intensity, whereas Carmen includes built-in carbon calculations using regional grid carbon intensity data. 
 
-## When to Choose Carmen
+## When to choose Carmen
 
 The carbon measurement landscape offers diverse tools, each optimized for different use cases and organizational needs. Carmen is the ideal choice for organizations that need comprehensive carbon tracking across both infrastructure and applications, particularly those running Kubernetes workloads where pod-level and namespace-level insights are valuable. Organizations that want to integrate carbon metrics into developer workflows and CI/CD pipelines will benefit from Carmen's API-driven architecture and real-time querying capabilities. 
 
