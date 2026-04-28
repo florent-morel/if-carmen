@@ -77,8 +77,6 @@ class ThanosConfig(BaseSettings):
 class ReportConfig:
     """
     Fixed CSV column names for CO2 report generation.
-    Plain class — not a pydantic model — since these values are constants,
-    not environment-specific settings.
     """
 
     # Common columns
