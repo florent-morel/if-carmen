@@ -1,14 +1,17 @@
 import logging
-from abc import ABC, abstractmethod
 from pydantic_settings import BaseSettings
 
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractProviderConfig(BaseSettings, ABC):
+class AbstractProviderConfig(BaseSettings):
     """
-    Configuration class for supported providers.
+    Configuration class for all supported providers.
+
+    All fields are optional — a provider YAML only needs to supply what it supports.
+    Adding a new provider requires only a new directory and YAML file under
+    config/cloud_providers/<name>/<name>.yaml; no code changes are needed.
     """
 
     pue: float | None = None
@@ -18,32 +21,20 @@ class AbstractProviderConfig(BaseSettings, ABC):
     disk_sku_size_mapping: dict[str, int] | None = None
     regions: dict[str, str] | None = None
 
-    @property
-    @abstractmethod
     def get_pue(self) -> float | None:
-        pass
+        return self.pue
 
-    @property
-    @abstractmethod
     def get_electricity_ratios(self) -> dict[str, float] | None:
-        pass
+        return self.electricity_ratios
 
-    @property
-    @abstractmethod
     def get_storage_replication_factors(self) -> dict[str, int] | None:
-        pass
+        return self.storage_replication_factors
 
-    @property
-    @abstractmethod
     def get_storage_embodied(self) -> dict[str, int] | None:
-        pass
+        return self.storage_embodied
 
-    @property
-    @abstractmethod
     def get_disk_sku_size_mapping(self) -> dict[str, int] | None:
-        pass
+        return self.disk_sku_size_mapping
 
-    @property
-    @abstractmethod
     def get_regions(self) -> dict[str, str] | None:
-        pass
+        return self.regions

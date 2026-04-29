@@ -27,10 +27,6 @@ from backend.src.common.known_exception import (
 )
 from backend.src.core.settings import settings
 
-from backend.src.core.settings.providers.provider_config_azure import (
-    Provider_Config_Azure,
-)
-
 from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )
@@ -335,25 +331,25 @@ def load_carbon_intensity_config() -> CarbonIntensityConfig:
 
 def _instantiate_provider_config(name: str, raw: dict) -> AbstractProviderConfig | None:
     """
-    Factory function to instantiate provider configuration objects based on provider name.
+    Factory function to instantiate a provider configuration from raw YAML data.
+
+    Fully data-driven: any directory under config/cloud_providers/<name>/ with a
+    valid YAML file is automatically treated as a supported provider. No code
+    change is needed to add a new CSP or on-premises setup.
 
     Args:
-        name (str): The name of the provider.
-        raw (dict): The raw configuration data for the provider.
+        name (str): The name of the provider (used only for logging).
+        raw (dict): The raw configuration data from the provider YAML file.
 
     Returns:
-        AbstractProviderConfig | None: The instantiated provider configuration object, or None if the provider is not implemented or unknown.
+        AbstractProviderConfig | None: The validated provider configuration, or
+        None if the YAML does not conform to the expected schema.
     """
-    match name:
-        case "azure":
-            return Provider_Config_Azure.model_validate(raw)
-        # IMP: Code is ready, but dataset is missing for these providers, so we will include them fully in the scope after we have the datasets.
-        case "aws" | "gcp":
-            logger.warning("Provider '%s' is not yet implemented. Skipping.", name)
-            return None
-        case _:
-            logger.warning("Unknown provider '%s'. Skipping.", name)
-            return None
+    try:
+        return AbstractProviderConfig.model_validate(raw)
+    except ValidationError as e:
+        logger.warning("Provider '%s' config invalid, skipping: %s", name, e)
+        return None
 
 
 def load_provider_configs() -> dict[str, AbstractProviderConfig]:
