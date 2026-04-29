@@ -1,7 +1,8 @@
 # Configuration
+TODO: review this file.
 
 This file documents all possible configuration options for running Carmen.
-The default configuration path is `config/config.yaml`, but can be overriden through the `CARMEN_CONFIG_FILEPATH` environment variable.
+The default configuration path is `config/config.yaml`, but can be overridden through the `CARMEN_CONFIG_FILEPATH` environment variable.
 
 ```yaml
 # API Configuration (optional)

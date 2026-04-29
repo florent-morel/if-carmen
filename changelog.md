@@ -7,9 +7,9 @@
 Carmen refined scope  
 
 This release clarifies Carmen scope which can now be summarized like this:
-- Carmen is computing CO2 impact of your infrastructure thanks to the [GSF's Impact Framework](https://if.greensoftware.foundation/)
+- [Carmen](https://greensoftware.foundation/tools/carmen/) is computing CO2 impact of your infrastructure thanks to the [GSF's Impact Framework](https://if.greensoftware.foundation/)
 - It takes in input a CSV file and will output a CSV file both located on local file system (path is configurable).
-- It is up to Carmen's administrator to retrieve and convert their infrastructure data into Carmen's input file. TODO: See [[docs-requirements]] for more information.
+- It is up to Carmen's administrator to retrieve and convert their infrastructure data into Carmen daemon's input file. TODO: See [[carmen-daemon#Expected Source File Format]] for more information.
 - It is up to Carmen's administrator to export and convert the output for further usage (UI...).
 
 - This release enables Carmen to be platform/environment agnostic: one can choose to run Carmen to measure CO2 impact of bare-metal servers, on-premise data center, Cloud deployed infrastructure, a mix of all, etc. TODO: create a local.yaml for on-premise

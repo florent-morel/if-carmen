@@ -1,4 +1,4 @@
-# Carbon Daemon
+# Carmen Daemon
 The Carbon Daemon is a specialized reporting tool designed to help you track and understand the environmental footprint of your cloud infrastructure **in Azure**. It generates comprehensive reports detailing the carbon emissions and energy consumption of your cloud resources, with particular emphasis on compute resources like virtual machines.
 
 ## Expected Source File Format

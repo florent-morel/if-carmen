@@ -1,6 +1,7 @@
 # Methodology
 
-Carmen is built on top of the Impact Framework, an open-source solution developed by the Green Software Foundation. We chose the Impact Framework for several key reasons:   
+[Carmen](https://greensoftware.foundation/tools/carmen/) is built on top of the [Impact Framework](https://if.greensoftware.foundation/), an open-source solution developed by the Green Software Foundation.  
+We chose the Impact Framework for several key reasons:   
 - First, as highlighted in its documentation, it is designed to support the two essential dimensions of software sustainability metrics: vertical (per-component) analysis and horizontal (over-time) aggregation.
 - Second, the framework relies entirely on a manifest-based execution model, ensuring that all calculations are transparent, reproducible, and verifiable, any user can rerun the manifest to validate results and inspect the exact models used.
 - Finally, the Impact Framework provides a flexible plugin architecture, enabling us to easily integrate and reuse community-maintained models, while also extending the system with our own. This combination of transparency, extensibility, and methodological rigor makes it a strong foundation for Carmen.
@@ -55,7 +56,7 @@ memory/energy (kWh) = memory/power (kW) × duration (hours)
 
 ### Storage Power and Energy Calculations
 
-Storage follows a similar coefficient-based methodology, with different coefficients for SSD, and HHD disks.
+Storage follows a similar coefficient-based methodology, with different coefficients for SSD, and HDD disks.
 
 **Equation:**
 ```
