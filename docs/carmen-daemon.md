@@ -13,17 +13,18 @@ Carmen daemon reads input files from a directory configured in main config file 
 The structure is the following:
 ``` sh
 if-carmen/config/
-├── carbon_intensity.yaml
-├── cloud_providers
-│   ├── aws
-│   │   └── aws.yaml
-│   ├── azure
-│   │   ├── azure_instances.csv
-│   │   └── azure.yaml
-│   └── gcp
-│       └── gcp.yaml
 ├── config-test.yaml
-└── config.yaml
+├── config.yaml
+└── modelling_constants
+    ├── carbon_intensity.yaml
+    └── cloud_providers
+        ├── aws
+        │   └── aws.yaml
+        ├── azure
+        │   ├── azure_instances.csv
+        │   └── azure.yaml
+        └── gcp
+            └── gcp.yaml
 ```
 
 #### config.yaml
@@ -46,9 +47,11 @@ It contains:
 This file is following the same structure as config.yaml.
 It is used for Unit Tests only.
 
-#### carbon-intensity.yaml
+#### carbon-values.yaml
 
-This file defines the carbon intensity mapping per location.
+This file defines several carbon computation related values.
+
+This includes the carbon intensity mapping per location.
 A location can be: 
 - A country (e.g. Sweden).
 - A state (e.g. California).
@@ -57,18 +60,29 @@ A location can be:
 
 To support a new location in one's computation, a new entry should be added.
 
-#### cloud_providers/azure/azure.yaml
+It also defines the embodied storage values for the following technologies:
+- HDD.
+- SSD.
+- A default value is provided in case the technology is unknown.
+
+#### cloud_providers folder
+
+##### /azure/azure.yaml
+
+This file is dedicated to Microsoft Azure Cloud Service Provider.
+It defines constants related to:
+- Mapping between Azure defined regions and carbon-intensity.yaml location definition.
+- Electricity ratios: energy consumption of different resources.
 
 
+##### /azure/azure_instances.yaml
 
-
-#### cloud_providers/azure/azure_instances.yaml
-#### cloud_providers/aws/aws.yaml
+##### /aws/aws.yaml
 
 Follows same structure.  
 Not implemented yet.
 
-#### cloud_providers/gcp/gcp.yaml
+##### /gcp/gcp.yaml
 
 Follows same structure.  
 Not implemented yet.

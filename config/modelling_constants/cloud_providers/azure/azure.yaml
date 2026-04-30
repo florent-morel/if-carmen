@@ -33,13 +33,6 @@ electricity_ratios:
   hdd: 0.00000065
   storage_unknown: 0.000000925  # Average
 
-# in gCO2e/GB from https://hotcarbon.org/assets/2022/pdf/hotcarbon22-tannu.pdf
-storage_embodied:
-  ssd: 160
-  hdd: 20
-  unknown: 90  # Average
-
-
 # Replication factors for different Azure storage types
 # https://docs.google.com/spreadsheets/d/1D7mIGKkdO1djPoMVmlXRmzA7_4tTiGZLYdVbfe85xQM/edit?gid=2008238628#gid=2008238628
 storage_replication_factors:
