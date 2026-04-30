@@ -1,12 +1,83 @@
 # Carmen Daemon
 The Carbon Daemon is a specialized reporting tool designed to help you track and understand the environmental footprint of your cloud infrastructure **in Azure**. It generates comprehensive reports detailing the carbon emissions and energy consumption of your cloud resources, with particular emphasis on compute resources like virtual machines.
 
+## Carmen Daemon configuration
+
+This section explains the configuration structure for the Carmen daemon and details the configuration files content.
+
+TODO: Review this list
+### Input files directory structure
+
+Carmen daemon reads input files from a directory configured in main config file located in `config/config.yaml`.
+
+The structure is the following:
+``` sh
+if-carmen/config/
+├── carbon_intensity.yaml
+├── cloud_providers
+│   ├── aws
+│   │   └── aws.yaml
+│   ├── azure
+│   │   ├── azure_instances.csv
+│   │   └── azure.yaml
+│   └── gcp
+│       └── gcp.yaml
+├── config-test.yaml
+└── config.yaml
+```
+
+#### config.yaml
+
+This is Carmen's main configuration file.
+
+It contains: 
+- Carbon intensity & PUE default values.
+- Configuration settings for Carmen API (see [[carmen-as-a-service]] for more information).
+- Input folder path.
+- Output folder path.
+- List of supported processors.
+    - This corresponds to the implemented resources CO2 computation: TODO: properly define resources.
+        * Compute: VM, pod, etc.
+        * Storage: storage services.
+        * Misc_Services: all other services required.
+
+#### config-test.yaml
+
+This file is following the same structure as config.yaml.
+It is used for Unit Tests only.
+
+#### carbon-intensity.yaml
+
+This file defines the carbon intensity mapping per location.
+A location can be: 
+- A country (e.g. Sweden).
+- A state (e.g. California).
+- A city (e.g. Mumbai).
+- Anything as long as it is provided in the input file dedicated column.
+
+To support a new location in one's computation, a new entry should be added.
+
+#### cloud_providers/azure/azure.yaml
+
+
+
+
+#### cloud_providers/azure/azure_instances.yaml
+#### cloud_providers/aws/aws.yaml
+
+Follows same structure.  
+Not implemented yet.
+
+#### cloud_providers/gcp/gcp.yaml
+
+Follows same structure.  
+Not implemented yet.
+
 ## Expected Source File Format
 
 The daemon expects to read a group of csv files containing resource usage data. Below is a description for each column expected in the CSV input.
 
-
-# TODO: Review this list
+### Input file structure (=columns)
 
 
 | Field | Description | Example |
@@ -25,6 +96,9 @@ The daemon expects to read a group of csv files containing resource usage data. 
 | AverageCpuPercentage | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | DiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
 | ReplicationType | Storage replication type | GRS, LRS |
+
+
+### Technical required data
 
 
 ## Report File
