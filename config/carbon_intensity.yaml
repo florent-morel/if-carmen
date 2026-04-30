@@ -1,11 +1,11 @@
 
-# Carbon intensity per country
+# Carbon intensity per location
 # 2024 Data (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
-# CSP region → country mapping is defined in each provider's YAML config.
+# CSP region → location mapping is defined in each provider's YAML config.
 # The fallback default carbon_intensity value is defined in config.yaml under defaults.
 # Add new countries at the end of the file.
 
-carbon_intensity_by_country:
+carbon_intensity_by_location:
   Australia:
     carbon_intensity: 552
   Hong_Kong:

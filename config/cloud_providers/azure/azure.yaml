@@ -97,5 +97,5 @@ disk_sku_size_mapping:
   S80: 32767
 
 
-# Power usage effectiveness values for this cloud provider
+# Power usage effectiveness for this cloud provider
 pue: 1.185

@@ -15,11 +15,11 @@ class CarbonIntensityConfig(BaseSettings):
     Loaded from carbon_intensity.yaml.
     """
 
-    carbon_intensity_by_country: dict[str, CountryCarbonIntensity] = {}
+    carbon_intensity_by_location: dict[str, CountryCarbonIntensity] = {}
 
     def get_known_regions(self) -> set[str]:
-        return set(self.carbon_intensity_by_country.keys())
+        return set(self.carbon_intensity_by_location.keys())
 
     def get_ci_for_location(self, location: str, default: int) -> int:
-        entry = self.carbon_intensity_by_country.get(location)
+        entry = self.carbon_intensity_by_location.get(location)
         return entry.carbon_intensity if entry else default

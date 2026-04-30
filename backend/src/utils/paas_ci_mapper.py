@@ -12,7 +12,7 @@ from backend.src.core.yaml_config_loader import config
 class PaasCiMapper:
     """
     Provides methods to calculate carbon intensity based on PaaS values and time range,
-    and to map PaaS values to their respective Azure regions.
+    and to map PaaS values to their respective regions.
     """
 
     @staticmethod
