@@ -7,7 +7,7 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 from backend.src.schemas.virtual_machine import VirtualMachine
-import backend.src.services.carbon_service.impact_framework.files as files_module
+from backend.src.core.settings import settings
 
 
 class CloudMetadata(ModelUtilities):
@@ -19,8 +19,11 @@ class CloudMetadata(ModelUtilities):
     # TODO accept provider as a str and select {provider}_instances.csv accordingly,
     # instead of hardcoding Azure, as part of multi-provider support implementation.
     def __init__(self):
-        files_dir = Path(files_module.__file__).parent / "config"
-        csv_path = files_dir / "azure_instances.csv"
+        csv_path = (
+            Path(settings.CARMEN_PROVIDER_CONFIG_FILEPATH)
+            / "azure"
+            / "azure_instances.csv"
+        ).resolve()
 
         config = {
             "filepath": str(csv_path),
