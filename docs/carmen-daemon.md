@@ -27,7 +27,7 @@ if-carmen/config/
             └── gcp.yaml
 ```
 
-#### config.yaml
+#### ~/config/config.yaml
 
 This is Carmen's main configuration file.
 
@@ -42,16 +42,17 @@ It contains:
         * Storage: storage services.
         * Misc_Services: all other services required.
 
-#### config-test.yaml
+#### ~/config/config-test.yaml
 
 This file is following the same structure as config.yaml.
 It is used for Unit Tests only.
 
-#### carbon-values.yaml
+#### ~/config/modelling_constants/carbon-values.yaml
 
 This file defines several carbon computation related values.
+These are common to all providers.
 
-This includes the carbon intensity mapping per location.
+This file defines the carbon intensity mapping per location.
 A location can be: 
 - A country (e.g. Sweden).
 - A state (e.g. California).
@@ -65,24 +66,25 @@ It also defines the embodied storage values for the following technologies:
 - SSD.
 - A default value is provided in case the technology is unknown.
 
-#### cloud_providers folder
+#### ~/config/modelling_constants/cloud_providers folder
 
-##### /azure/azure.yaml
+##### ~/config/modelling_constants/azure/azure.yaml
 
 This file is dedicated to Microsoft Azure Cloud Service Provider.
 It defines constants related to:
-- Mapping between Azure defined regions and carbon-intensity.yaml location definition.
+- Power Usage Effectiveness ratio (PUE).
+- Mapping between Azure defined regions and carbon intensity values defined in carbon-values.yaml.
 - Electricity ratios: energy consumption of different resources.
 
 
-##### /azure/azure_instances.yaml
+##### ~/config/modelling_constants/azure/azure_instances.yaml
 
-##### /aws/aws.yaml
+##### ~/config/modelling_constants/aws/aws.yaml
 
 Follows same structure.  
 Not implemented yet.
 
-##### /gcp/gcp.yaml
+##### ~/config/modelling_constants/gcp/gcp.yaml
 
 Follows same structure.  
 Not implemented yet.
