@@ -16,10 +16,14 @@ class CarbonIntensityConfig(BaseSettings):
     """
 
     carbon_intensity_by_location: dict[str, CountryCarbonIntensity] = {}
+    storage_embodied: dict[str, int] | None = None
 
-    def get_known_regions(self) -> set[str]:
+    def get_known_locations(self) -> set[str]:
         return set(self.carbon_intensity_by_location.keys())
 
     def get_ci_for_location(self, location: str, default: int) -> int:
         entry = self.carbon_intensity_by_location.get(location)
         return entry.carbon_intensity if entry else default
+
+    def get_storage_embodied(self) -> dict[str, int] | None:
+        return self.storage_embodied

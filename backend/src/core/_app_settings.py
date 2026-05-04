@@ -176,10 +176,10 @@ class Settings(BaseSettings):
         "CARMEN_CONFIG_FILEPATH", "config/config.yaml"
     )
     CARMEN_PROVIDER_CONFIG_FILEPATH: str = os.getenv(
-        "CARMEN_PROVIDER_CONFIG_FILEPATH", "config/cloud_providers"
+        "CARMEN_PROVIDER_CONFIG_FILEPATH", "config/modelling_constants/cloud_providers"
     )
     CARMEN_CARBON_INTENSITY_FILEPATH: str = os.getenv(
-        "CARMEN_CARBON_INTENSITY_FILEPATH", "config/carbon_intensity.yaml"
+        "CARMEN_CARBON_INTENSITY_FILEPATH", "config/modelling_constants/carbon_values.yaml"
     )
 
 
