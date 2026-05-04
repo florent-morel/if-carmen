@@ -72,7 +72,7 @@ class IFStorageService(IFService):
         chunk_size = min(chunk_size, len(storage_resources))
 
         chunks = [
-            storage_resources[x: x + chunk_size]
+            storage_resources[x : x + chunk_size]
             for x in range(0, len(storage_resources), chunk_size)
         ]
         lock = threading.Lock()
@@ -133,11 +133,11 @@ class IFStorageService(IFService):
 
         return storage_resources
 
-    def get_models_info(self, data):
+    def get_models_info(self, data, provider: str = "azure"):
         """
         Load storage-specific models
         """
-        super().get_models_info(data)
+        super().get_models_info(data, provider)
 
         if "p-storage" in data["hardware_models"]:
             data["hardware_models"]["p-storage"] = PStorage().__dict__

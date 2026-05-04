@@ -78,16 +78,16 @@ class IFVMService(IFService, ABC):
             concurrent.futures.wait(futures)
         return vms
 
-    def get_models_info(self, data):
+    def get_models_info(self, data, provider: str = "azure"):
         """
         Concrete method that fills the model dictionary with basic model information depending on the defined pipeline.
 
         This is a concrete method in the IFService abstract class because it is commonly shared between
         the two types of IF services as of (21/05/2024).
         """
-        super().get_models_info(data)
+        super().get_models_info(data, provider)
         if "cloud-metadata" in data["hardware_models"]:
-            data["hardware_models"]["cloud-metadata"] = CloudMetadata().__dict__
+            data["hardware_models"]["cloud-metadata"] = CloudMetadata(provider).__dict__
         if "p-cpu" in data["hardware_models"]:
             data["hardware_models"]["p-cpu"] = PCpu().__dict__
         if "p-vm-storage" in data["hardware_models"]:

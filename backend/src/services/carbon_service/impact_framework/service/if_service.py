@@ -157,7 +157,7 @@ class IFService(ABC, CarbonService):
         )
 
     @staticmethod
-    def get_models_info(data):
+    def get_models_info(data, provider: str = "azure"):
         """
         Concrete method that fills the model dictionary with basic model information depending on the defined pipeline.
 
@@ -185,9 +185,7 @@ class IFService(ABC, CarbonService):
         return data
 
     @staticmethod
-    def get_resource_inputs(
-        resource: Resource, models: tuple[ModelUtilities] = None
-    ):
+    def get_resource_inputs(resource: Resource, models: tuple[ModelUtilities] = None):
         """
         Generates input data for each time point of a compute unit using the specified models.
 
@@ -207,9 +205,7 @@ class IFService(ABC, CarbonService):
             combined_inputs = {
                 key: value
                 for model in common_models
-                for key, value in model.fill_inputs(
-                    resource, time_index
-                ).items()
+                for key, value in model.fill_inputs(resource, time_index).items()
             }
             resource_inputs.append(combined_inputs)
         return resource_inputs
@@ -220,14 +216,17 @@ class IFService(ABC, CarbonService):
         """
         compute_resources = defaultdict(dict)
         for compute_resource in resources:
-            compute_resources[compute_resource.id] = self.get_resource_inputs(compute_resource)
+            compute_resources[compute_resource.id] = self.get_resource_inputs(
+                compute_resource
+            )
         data["resources"] = compute_resources
 
     def fill_parser_data(self, data, resources: list[Resource]):
         """
         Fills the data dictionary with the needed values of each model
         """
-        self.get_models_info(data)
+        provider = resources[0].provider if resources else "azure"
+        self.get_models_info(data, provider)
         self.get_resource_data(data, resources)
 
     @staticmethod
@@ -285,9 +284,7 @@ class IFService(ABC, CarbonService):
         if emission_breakdown_at_pod_level:
             output = IFService.aggregate_pod_level(resources, if_output)
         else:
-            output = IFService.aggregate_app_level(
-                resources, if_output, file_id
-            )
+            output = IFService.aggregate_app_level(resources, if_output, file_id)
         logger.info(
             "Output parsing completed in %d seconds for file %d",
             round(time.time() - start),
@@ -306,9 +303,7 @@ class IFService(ABC, CarbonService):
             "Parsing IF output for file number %s at application level", str(file_id)
         )
         for resource in resources:
-            metrics = IFService.get_measurements_from_output(
-                if_output, resource.id
-            )
+            metrics = IFService.get_measurements_from_output(if_output, resource.id)
             MetricsMapper.map_metrics_to_resource(metrics, resource)
         return resources
 

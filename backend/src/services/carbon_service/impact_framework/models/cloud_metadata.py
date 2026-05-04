@@ -16,13 +16,11 @@ class CloudMetadata(ModelUtilities):
     name and CPU TDP based on cloud instance type and vendor (which is Azure by default)
     """
 
-    # TODO accept provider as a str and select {provider}_instances.csv accordingly,
-    # instead of hardcoding Azure, as part of multi-provider support implementation.
-    def __init__(self):
+    def __init__(self, provider: str = "azure"):
         csv_path = (
             Path(settings.CARMEN_PROVIDER_CONFIG_FILEPATH)
-            / "azure"
-            / "azure_instances.csv"
+            / provider
+            / f"{provider}_instances.csv"
         ).resolve()
 
         config = {

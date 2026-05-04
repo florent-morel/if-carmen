@@ -86,7 +86,7 @@ class IFAppService(IFService):
         """
         return IFService.get_resource_inputs(pod, models)
 
-    def get_models_info(self, data):
+    def get_models_info(self, data, provider: str = "azure"):
         """
         Concrete method that fills the model dictionary with basic model information depending on the defined
         pipeline.
@@ -94,6 +94,6 @@ class IFAppService(IFService):
         This is a concrete method in the IFService abstract class because it is commonly shared between
         the two types of IF services as of (21/05/2024).
         """
-        super().get_models_info(data)
+        super().get_models_info(data, provider)
         if "p-cores" in data["hardware_models"]:
             data["hardware_models"]["p-cores"] = PCores().__dict__

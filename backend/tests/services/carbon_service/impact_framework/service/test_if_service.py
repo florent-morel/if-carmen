@@ -558,7 +558,7 @@ class TestIFService(unittest.TestCase):
         mock_service = IFService()
         mock_data = {}
 
-        mock_get_models_info.side_effect = lambda data: data.update(
+        mock_get_models_info.side_effect = lambda data, provider="azure": data.update(
             {"hardware_models": {}}
         )
         mock_get_resource_data.side_effect = (
