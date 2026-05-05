@@ -1,3 +1,8 @@
 [run]
+source = backend/src
 omit =
-    backend/src/services/carbon_service/amadeus/*
+    */__init__.py
+
+[report]
+omit =
+    */__init__.py

@@ -66,10 +66,16 @@ uv run pytest ...
 To generate coverage report
 
 ```sh
-python -m pytest backend/tests/ --cov=backend/src --cov-report=html && python -m coverage report --skip-covered --sort=cover
+python -m pytest backend/tests/ --cov-report=html && python -m coverage report --skip-covered --sort=cover
 ```
-Report is generated under htmlcov/index.html
-Line coverage value as of 2026-05-05: 79%
+
+Report is generated under `htmlcov/index.html`. Coverage source and exclusions are configured in `.coveragerc`.
+
+To update the coverage badge after running tests
+
+```sh
+python -m coverage xml -o coverage.xml && genbadge coverage -i coverage.xml -o docs/static/coverage-badge.svg --local
+```
 
 ### Manual Installation
 
