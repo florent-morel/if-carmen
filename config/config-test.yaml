@@ -8,6 +8,7 @@ defaults:
 
 carmen_api:
   thanos_url: "http://localhost:9090"
+  provider: azure
   authentication: "azure"
   credentials:
     client_id: "12345678-1234-1234-1234-123456789012"

@@ -3,7 +3,6 @@ Impact Framework service for cost model - extends IFService
 """
 import concurrent
 import logging
-import threading
 from typing import List
 
 from backend.src.schemas.misc_services_resource import MiscServicesResource
@@ -38,20 +37,15 @@ class IFCostService(IFService):
         """
         # Divide into chunks
         chunk_size = 10000
-        chunk_size = min(chunk_size, len(cost_resources))
 
         chunks = [
             cost_resources[x : x + chunk_size]
             for x in range(0, len(cost_resources), chunk_size)
         ]
-        lock = threading.Lock()
 
         def compute_metrics_for_chunk(chunk, index):
-            self.run_if(cost_resources, file_id=index)
-            self.parse_if_output(cost_resources, file_id=index)
-            with lock:
-                for i, cost_resource in enumerate(chunk):
-                    cost_resources[index * chunk_size + i] = cost_resource
+            self.run_if(chunk, file_id=index)
+            self.parse_if_output(chunk, file_id=index)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             futures = [
@@ -62,7 +56,7 @@ class IFCostService(IFService):
 
         return cost_resources
 
-    def get_models_info(self, data, provider: str = "azure"):
+    def get_models_info(self, data, provider: str = ""):
         """
         Load cost-specific models
         """

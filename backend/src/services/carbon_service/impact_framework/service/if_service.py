@@ -157,7 +157,7 @@ class IFService(ABC, CarbonService):
         )
 
     @staticmethod
-    def get_models_info(data, provider: str = "azure"):
+    def get_models_info(data, provider: str = ""):
         """
         Concrete method that fills the model dictionary with basic model information depending on the defined pipeline.
 
@@ -225,8 +225,8 @@ class IFService(ABC, CarbonService):
         """
         Fills the data dictionary with the needed values of each model
         """
-        provider = resources[0].provider if resources else "azure"
-        self.get_models_info(data, provider)
+        provider = resources[0].provider if resources else ""
+        self.get_models_info(data, provider or "")
         self.get_resource_data(data, resources)
 
     @staticmethod

@@ -14,6 +14,7 @@ from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )
 
+
 class PStorage(ModelUtilities):
     """
     Concrete class for the Storage Power Consumption model made with IF builtins.
@@ -24,9 +25,8 @@ class PStorage(ModelUtilities):
     - power: kW
     """
 
-    def __init__(self):
-        # TODO: Instantiate provider config
-        self.provider_config: AbstractProviderConfig
+    def __init__(self, provider_config: AbstractProviderConfig | None = None):
+        self.provider_config = provider_config
         config = {
             "input-parameters": ["storage/requested", "power/coefficient"],
             "output-parameter": "storage/power",  # in kW
@@ -36,8 +36,6 @@ class PStorage(ModelUtilities):
         ]
         super().__init__("builtin", "Multiply", config, output_metadata)
 
-    # @staticmethod
-    # TODO: check why this was static
     def fill_inputs(self, storage_resource: StorageResource, time_index: int):
         """
         Fills the storage input values from the storage resource.
@@ -49,21 +47,29 @@ class PStorage(ModelUtilities):
         Returns:
             Dict containing storage input in GB and the power coefficient based on storage type
         """
-        # Get the power coefficient based on storage type
-            # TODO: check if dict.get() works
-        ratio = self.provider_config.get_electricity_ratios().get("UNKNOWN"),  # kW/GB
-        power_coefficient = self.provider_config.get_electricity_ratios().get(
-            storage_resource.storage_type.upper(),
-            ratio,
+        ratios = (
+            (self.provider_config.get_electricity_ratios() or {})
+            if self.provider_config
+            else {}
+        )
+        storage_type = storage_resource.storage_type.lower()
+        power_coefficient = ratios.get(storage_type, ratios.get("storage_unknown"))
+        if power_coefficient is None:
+            raise ValueError(
+                f"No electricity ratio for storage type '{storage_type}' and no 'storage_unknown' "
+                "fallback in provider config. Add a 'storage_unknown' entry under "
+                "'electricity_ratios' in the provider YAML, or ensure a provider is set on the resource."
+            )
+
+        replication_factors = (
+            (self.provider_config.get_storage_replication_factors() or {})
+            if self.provider_config
+            else {}
+        )
+        replication_factor = replication_factors.get(
+            storage_resource.replication_type.lower(), 1
         )
 
-        # Get the replication factor
-            # TODO: check if dict.get() works
-        replication_factor = self.provider_config.get_storage_replication_factors().get(
-            storage_resource.replication_type.upper(), 1
-        )
-
-        # Calculate the effective storage size (considering replication)
         effective_size = storage_resource.size_gb * replication_factor
 
         return {

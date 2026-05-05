@@ -22,9 +22,10 @@ class MStorage(ModelUtilities):
     Output: emissions in gCO2e
     """
 
-    def __init__(self):
-        # TODO: Instantiate provider config
-        self.provider_config: AbstractProviderConfig
+    def __init__(self, provider_config: AbstractProviderConfig | None = None):
+        # provider_config kept for API compatibility; embodied coefficients come
+        # from carbon_values.yaml via config.carbon_intensity_config.
+        self.provider_config = provider_config
         config = {
             "input-parameters": [
                 "storage/requested",
@@ -40,17 +41,27 @@ class MStorage(ModelUtilities):
         ]
         super().__init__("builtin", "Multiply", config, output_metadata)
 
-    # @staticmethod
-    # TODO: check why this was static
     def fill_inputs(self, storage_resource: StorageResource, time_index: int):
         """
         Fills the storage embodied inputs based on storage type.
+        Coefficients are read from carbon_values.yaml (config.carbon_intensity_config).
         """
-        # Get the embodied coefficient based on storage type
-        embodied_storage_dict = self.provider_config.get_storage_embodied()
-        embodied_coefficient = embodied_storage_dict.get(
-            storage_resource.storage_type.upper(),
-            embodied_storage_dict.get("UNKNOWN"),
+        from backend.src.core.yaml_config_loader import config as app_config
+
+        embodied_dict = (
+            app_config.carbon_intensity_config.get_storage_embodied()
+            if app_config.carbon_intensity_config
+            else None
+        ) or {}
+        storage_type = storage_resource.storage_type.lower()
+        embodied_coefficient = embodied_dict.get(
+            storage_type, embodied_dict.get("unknown")
         )
+        if embodied_coefficient is None:
+            raise ValueError(
+                f"No storage embodied coefficient for type '{storage_type}' and no 'unknown' "
+                "fallback defined in carbon_values.yaml. Add an 'unknown' entry under "
+                "'storage_embodied'."
+            )
 
         return {"storage/embodied-coefficient": embodied_coefficient}

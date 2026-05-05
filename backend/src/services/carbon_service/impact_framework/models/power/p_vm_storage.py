@@ -14,6 +14,7 @@ from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )
 
+
 class PVmStorage(ModelUtilities):
     """
     Concrete class for the Storage Power Consumption model made with IF builtins.
@@ -24,12 +25,21 @@ class PVmStorage(ModelUtilities):
     - power: kW
     """
 
-    def __init__(self):
-        # TODO: Instantiate provider config
-        self.provider_config: AbstractProviderConfig
+    def __init__(self, provider_config: AbstractProviderConfig | None = None):
+        self.provider_config = provider_config
+        ratios = (
+            (provider_config.get_electricity_ratios() or {}) if provider_config else {}
+        )
+        coefficient = ratios.get("storage_unknown")
+        if coefficient is None:
+            raise ValueError(
+                "No 'storage_unknown' electricity ratio in provider config. "
+                "Add a 'storage_unknown' entry under 'electricity_ratios' in the provider YAML, "
+                "or ensure a provider is set on the resource."
+            )
         config = {
-            "input-parameter": "storage/requested",  # in GB and
-            "coefficient": self.provider_config.get_electricity_ratios().get("UNKNOWN"),  # kW/GB
+            "input-parameter": "storage/requested",  # in GB
+            "coefficient": coefficient,  # kW/GB
             "output-parameter": "storage/power",  # in kW
         }
         output_metadata = [

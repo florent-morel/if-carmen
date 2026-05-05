@@ -3,9 +3,11 @@ Impact Framework service for storage resources - extends IFService
 """
 from __future__ import annotations
 
-import threading
 import concurrent
 import logging
+from itertools import groupby
+
+from backend.src.core.yaml_config_loader import config
 from backend.src.services.carbon_service.impact_framework.service.if_service import (
     IFService,
 )
@@ -67,15 +69,18 @@ class IFStorageService(IFService):
             hdd_count,
         )
 
-        # Divide into chunks
         chunk_size = 10000
-        chunk_size = min(chunk_size, len(storage_resources))
 
-        chunks = [
-            storage_resources[x : x + chunk_size]
-            for x in range(0, len(storage_resources), chunk_size)
-        ]
-        lock = threading.Lock()
+        # Group by provider so each IF run uses the correct provider-specific config.
+        def _provider_key(s: StorageResource) -> str:
+            return s.provider if isinstance(s.provider, str) else ""
+
+        sorted_resources = sorted(storage_resources, key=_provider_key)
+        all_chunks: list[list[StorageResource]] = []
+        for _, group in groupby(sorted_resources, key=_provider_key):
+            group_list = list(group)
+            for x in range(0, len(group_list), chunk_size):
+                all_chunks.append(group_list[x : x + chunk_size])
 
         def compute_metrics_for_chunk(chunk, index):
             """Process a chunk of storage resources."""
@@ -83,15 +88,10 @@ class IFStorageService(IFService):
             # Parse IF output file with file_id=index
             self.parse_if_output(chunk, file_id=index)
 
-            # Thread-safe update of original list
-            with lock:
-                for i, storage in enumerate(chunk):
-                    storage_resources[index * chunk_size + i] = storage
-
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             futures = [
                 executor.submit(compute_metrics_for_chunk, chunk, i)
-                for i, chunk in enumerate(chunks)
+                for i, chunk in enumerate(all_chunks)
             ]
             concurrent.futures.wait(futures)
 
@@ -133,23 +133,38 @@ class IFStorageService(IFService):
 
         return storage_resources
 
-    def get_models_info(self, data, provider: str = "azure"):
+    def get_models_info(self, data, provider: str = ""):
         """
         Load storage-specific models
         """
+        provider_config = config.provider_configs.get(provider)
         super().get_models_info(data, provider)
 
         if "p-storage" in data["hardware_models"]:
-            data["hardware_models"]["p-storage"] = PStorage().__dict__
+            data["hardware_models"]["p-storage"] = PStorage(provider_config).__dict__
         if "e-storage" in data["hardware_models"]:
             data["hardware_models"]["e-storage"] = EStorage().__dict__
         if "m-storage" in data["hardware_models"]:
-            data["hardware_models"]["m-storage"] = MStorage().__dict__
+            data["hardware_models"]["m-storage"] = MStorage(provider_config).__dict__
+
+    def fill_parser_data(self, data, resources):
+        """
+        Override to pass provider-specific model instances to get_resource_inputs
+        so fill_inputs can access provider_config.
+        """
+        provider = (resources[0].provider if resources else None) or ""
+        provider_config = config.provider_configs.get(provider)
+        self.get_models_info(data, provider)
+        models = (PStorage(provider_config), EStorage(), MStorage(provider_config))
+        data["resources"] = {
+            resource.id: self.get_resource_inputs(resource, models)
+            for resource in resources
+        }
 
     @staticmethod
     def get_resource_inputs(
         storage_resource: StorageResource,
-        models: tuple[ModelUtilities] = (PStorage, EStorage, MStorage),
+        models: tuple[ModelUtilities, ...],
     ):
         """
         Generates input data for each time point of a storage resource using storage-specific models.
@@ -178,7 +193,7 @@ class IFStorageService(IFService):
                 except (AttributeError, KeyError, ValueError, TypeError) as e:
                     logger.warning(
                         "Error getting inputs from %s for storage %s: %s",
-                        model.__name__,
+                        type(model).__name__,
                         storage_resource.id,
                         e,
                     )

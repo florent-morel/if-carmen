@@ -60,6 +60,7 @@ class ApiConfig(BaseSettings):
     external_labels: dict[str, str]
     labels: Labels = Labels()
     verify_ssl: bool = True
+    provider: str | None = None
 
     @model_validator(mode="after")
     def validate_api_config(self) -> ApiConfig:

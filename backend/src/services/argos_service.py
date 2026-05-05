@@ -48,8 +48,8 @@ class ArgosService:
 
     def __init__(self) -> None:
         self.external_labels = config.carmen_api.external_labels
-        # TODO: Instantiate provider config
-        self.provider_config: AbstractProviderConfig
+        provider = config.carmen_api.provider if config.carmen_api else None
+        self.provider_config = config.provider_configs.get(provider or "")
         self.labels = config.carmen_api.labels
         self.resource_label_value = lambda resources: (
             "|".join(resources) if resources else ".*"
@@ -271,7 +271,9 @@ class ArgosService:
                     namespace=namespace,
                     name=pod,
                     carbon_intensity=carbon_intensity,
-                    pue=self.provider_config.get_pue(),
+                    pue=self.provider_config.get_pue()
+                    if self.provider_config
+                    else config.defaults.pue,
                     time_points=desired_timestamps,
                 ),
             )

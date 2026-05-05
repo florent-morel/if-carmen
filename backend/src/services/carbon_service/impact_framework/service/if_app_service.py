@@ -86,7 +86,7 @@ class IFAppService(IFService):
         """
         return IFService.get_resource_inputs(pod, models)
 
-    def get_models_info(self, data, provider: str = "azure"):
+    def get_models_info(self, data, provider: str = ""):
         """
         Concrete method that fills the model dictionary with basic model information depending on the defined
         pipeline.

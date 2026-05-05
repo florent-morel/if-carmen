@@ -35,6 +35,7 @@ def base_storage():
         carbon_intensity=44.0,
         time_points=["2021-01-01"],
         duration_seconds=DAILY_SECONDS,
+        provider="azure",
     )
 
 

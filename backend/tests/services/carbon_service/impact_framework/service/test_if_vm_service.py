@@ -4,6 +4,7 @@ Unit tests for IF_VM_service in impact framework.
 """
 from unittest.mock import patch, MagicMock
 import pytest
+
 # from robot.utils.asserts import assert_true
 
 from backend.src.services.carbon_service.impact_framework.service.if_vm_service import (
@@ -25,6 +26,7 @@ def mock_vm_1():
     vm.cpu_util = [0.5, 0.7, 0.9]
     vm.carbon_intensity = 100
     vm.vm_size = "Standard_D2_v2"
+    vm.provider = None
     return vm
 
 
@@ -51,16 +53,16 @@ def test_run_engine_success(mock_parse_if_output, mock_run_if, mock_vm_1):
 def test_get_models_info(mock_super_get_models_info):
     """
     Test the get_models_info method of IFVMService.
+    When provider is empty, raises ValueError because cloud-metadata requires a provider CSV.
     """
     mock_if_service = MagicMock(spec=IFService)
     service = IFVMService(mock_if_service)
     mock_data = {"hardware_models": {"cloud-metadata": {}}}
 
-    service.get_models_info(mock_data)
+    with pytest.raises(ValueError, match="provider is required"):
+        service.get_models_info(mock_data)
 
     mock_super_get_models_info.assert_called_once()
-    assert "cloud-metadata" in mock_data["hardware_models"]
-    assert mock_data["hardware_models"]["cloud-metadata"]
 
 
 @patch.object(IFVMService, "__init__", lambda self, duration: None)
@@ -81,3 +83,47 @@ def test_get_resource_inputs(mock_get_resource_inputs, mock_vm_1):
 
     mock_get_resource_inputs.assert_called_once_with(mock_vm_1, mock_models)
     assert result == ["mock_value"]
+
+
+@patch.object(IFVMService, "__init__", lambda self, duration: None)
+@patch.object(IFVMService, "run_if", autospec=True)
+@patch.object(IFVMService, "parse_if_output", autospec=True)
+def test_run_engine_groups_vms_by_provider(mock_parse_if_output, mock_run_if):
+    """
+    Test that run_engine groups VMs by provider so each IF run only contains
+    a single provider's VMs, enabling correct CSV/config selection.
+    """
+    service = IFVMService(None)
+
+    vm_azure_1 = MagicMock(spec=VirtualMachine)
+    vm_azure_1.provider = "azure"
+    vm_azure_1.time_points = [1, 2]
+
+    vm_azure_2 = MagicMock(spec=VirtualMachine)
+    vm_azure_2.provider = "azure"
+    vm_azure_2.time_points = [1, 2]
+
+    vm_aws = MagicMock(spec=VirtualMachine)
+    vm_aws.provider = "aws"
+    vm_aws.time_points = [1, 2]
+
+    result = service.run_engine([vm_azure_1, vm_aws, vm_azure_2])
+
+    # Should be called twice — once per provider
+    assert mock_run_if.call_count == 2
+    assert mock_parse_if_output.call_count == 2
+
+    # Each call receives only one provider's VMs
+    chunks_passed = [call_args[0][1] for call_args in mock_run_if.call_args_list]
+    provider_sets = [{vm.provider for vm in chunk} for chunk in chunks_passed]
+    assert {"azure"} in provider_sets
+    assert {"aws"} in provider_sets
+
+    # The azure chunk has both azure VMs
+    azure_chunk = next(
+        c for c in chunks_passed if {vm.provider for vm in c} == {"azure"}
+    )
+    assert len(azure_chunk) == 2
+
+    # Original list is returned unchanged
+    assert result == [vm_azure_1, vm_aws, vm_azure_2]

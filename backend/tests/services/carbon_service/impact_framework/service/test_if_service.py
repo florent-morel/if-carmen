@@ -356,7 +356,7 @@ class TestIFService(unittest.TestCase):
             }
         }
 
-        IFService.get_models_info(mock_data)
+        IFService.get_models_info(mock_data, provider="")
 
         self.assertEqual(
             mock_data["hardware_models"]["teads-curve"],

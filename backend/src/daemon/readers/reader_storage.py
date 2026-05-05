@@ -12,7 +12,7 @@ from backend.src.utils.helpers import str_to_float
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.schemas.resource import Resource
-from backend.src.core.yaml_config_loader import DaemonConfig
+from backend.src.core.yaml_config_loader import DaemonConfig, config
 from backend.src.daemon.readers.helpers.storage_helpers import (
     date_delta,
     create_storage_resource,
@@ -22,9 +22,6 @@ from backend.src.daemon.readers.helpers.storage_helpers import (
     process_storage_row as _process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.core.settings.providers.abstract_provider_config import (
-    AbstractProviderConfig,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +33,6 @@ class Reader_Storage(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
-        # TODO: Instantiate provider config
-        self.provider_config: AbstractProviderConfig
         self.storage_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
 
     def read(self, csv_data) -> list[Resource]:
@@ -80,8 +75,11 @@ class Reader_Storage(AbstractReader):
         Returns:
             bool: True if valid storage was processed, False otherwise
         """
-        # Calculate storage size and duration
-        disk_sku_mapping = self.provider_config.get_disk_sku_size_mapping() or {}
+        provider = row.get("Provider", "")
+        provider_config = config.provider_configs.get(provider or "")
+        disk_sku_mapping = (
+            provider_config.get_disk_sku_size_mapping() if provider_config else None
+        ) or {}
         return _process_storage_row(
             row, billing_period_days, storage_dict, disk_sku_mapping
         )

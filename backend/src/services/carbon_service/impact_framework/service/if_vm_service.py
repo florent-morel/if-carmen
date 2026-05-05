@@ -4,10 +4,11 @@ It provides functionality to compute carbon and energy metrics at infrastructure
 """
 
 import concurrent
-import threading
 from abc import ABC
+from itertools import groupby
 from typing import List, Tuple
 
+from backend.src.core.yaml_config_loader import config
 from backend.src.services.carbon_service.impact_framework.models.cloud_metadata import (
     CloudMetadata,
 )
@@ -59,39 +60,57 @@ class IFVMService(IFService, ABC):
             List[Pod]: List of VMs with updated energy consumption and carbon emissions' metrics.
         """
         chunk_size = 430
-        chunk_size = min(chunk_size, len(vms))
-        chunks = [vms[x : x + chunk_size] for x in range(0, len(vms), chunk_size)]
-        lock = threading.Lock()
+
+        # Group by provider so each IF run uses the correct provider-specific CSV and config.
+        # Sort first so groupby sees consecutive equal keys.
+        def _provider_key(vm: VirtualMachine) -> str:
+            return vm.provider if isinstance(vm.provider, str) else ""
+
+        sorted_vms = sorted(vms, key=_provider_key)
+        all_chunks: list[list[VirtualMachine]] = []
+        for _, group in groupby(sorted_vms, key=_provider_key):
+            group_list = list(group)
+            for x in range(0, len(group_list), chunk_size):
+                all_chunks.append(group_list[x : x + chunk_size])
 
         def compute_metrics_for_chunk(chunk, index):
             self.run_if(chunk, file_id=index)
             self.parse_if_output(chunk, file_id=index)
-            with lock:
-                for i, vm in enumerate(chunk):
-                    vms[index * chunk_size + i] = vm
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             futures = [
                 executor.submit(compute_metrics_for_chunk, chunk, i)
-                for i, chunk in enumerate(chunks)
+                for i, chunk in enumerate(all_chunks)
             ]
             concurrent.futures.wait(futures)
         return vms
 
-    def get_models_info(self, data, provider: str = "azure"):
+    def get_models_info(self, data, provider: str = ""):
         """
         Concrete method that fills the model dictionary with basic model information depending on the defined pipeline.
 
         This is a concrete method in the IFService abstract class because it is commonly shared between
         the two types of IF services as of (21/05/2024).
         """
+        provider_config = config.provider_configs.get(provider)
         super().get_models_info(data, provider)
         if "cloud-metadata" in data["hardware_models"]:
+            if not provider:
+                # cloud-metadata is a mandatory pipeline step (infrastructure_pipeline.yml)
+                # that performs a CSV lookup to resolve cpu-tdp, vcpus-total, etc. from the
+                # provider instances file. Without a provider there is no CSV, so IF would
+                # crash with an unhelpful error deep inside the pipeline. Fail early instead.
+                raise ValueError(
+                    "provider is required for VM carbon calculation: cloud-metadata "
+                    "needs a provider instances CSV to resolve CPU specs."
+                )
             data["hardware_models"]["cloud-metadata"] = CloudMetadata(provider).__dict__
         if "p-cpu" in data["hardware_models"]:
             data["hardware_models"]["p-cpu"] = PCpu().__dict__
         if "p-vm-storage" in data["hardware_models"]:
-            data["hardware_models"]["p-vm-storage"] = PVmStorage().__dict__
+            data["hardware_models"]["p-vm-storage"] = PVmStorage(
+                provider_config
+            ).__dict__
         if "e-vm-storage" in data["hardware_models"]:
             data["hardware_models"]["e-vm-storage"] = EVmStorage().__dict__
         if "m-vm-storage" in data["hardware_models"]:
