@@ -4,6 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GSF Project](https://img.shields.io/badge/GSF-Software_Project-brightgreen)](https://greensoftware.foundation)
+[![Coverage](./docs/static/coverage-badge.svg)](htmlcov/index.html)
 
 > **Carbon Measurement Engine for Cloud Applications**
 
@@ -61,6 +62,14 @@ or
 ```sh
 uv run pytest ...
 ```
+
+To generate coverage report
+
+```sh
+python -m pytest backend/tests/ --cov=backend/src --cov-report=html && python -m coverage report --skip-covered --sort=cover
+```
+Report is generated under htmlcov/index.html
+Line coverage value as of 2026-05-05: 79%
 
 ### Manual Installation
 

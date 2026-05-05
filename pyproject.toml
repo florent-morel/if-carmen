@@ -136,3 +136,10 @@ markers = [
     "unit: marks tests as unit tests",
 ]
 asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["backend/src"]
+omit = ["**/__init__.py"]
+
+[tool.coverage.report]
+omit = ["**/__init__.py"]
