@@ -77,7 +77,7 @@ It defines constants related to:
 - Electricity ratios: energy consumption of different resources.
 
 
-##### ~/config/modelling_constants/azure/azure_instances.yaml
+##### ~/config/modelling_constants/azure/azure_instances.csv
 
 ##### ~/config/modelling_constants/aws/aws.yaml
 
