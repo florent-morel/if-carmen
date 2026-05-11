@@ -288,6 +288,7 @@ def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None, DefaultsC
         MissingParametersError: If required parameters are missing in the configuration.
     """
     main_config_file = settings.CARMEN_MAIN_CONFIG_FILEPATH
+    logger.info(f"main_config_file: {main_config_file}")
     main_config_file_path = Path(main_config_file)
 
     main_config_raw = load_yaml(main_config_file_path)

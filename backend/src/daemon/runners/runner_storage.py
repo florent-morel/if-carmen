@@ -21,6 +21,7 @@ from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.utils import ioc_util
+from backend.src.common.errors import ErrorCode
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class Runner_Storage(AbstractRunner):
             execution_time = time.time() - start_time
 
             resourceDaemonResult = self.create_resource_type_result(
-                True, execution_time, ResourceType.STORAGE, processed_resources
+                True, execution_time, ResourceType.STORAGE, processed_resources, []
             )
 
             logger.info(
@@ -78,7 +79,9 @@ class Runner_Storage(AbstractRunner):
             logger.error(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.STORAGE, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.STORAGE,
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                execution_time=execution_time, error_message=error_msg
             )
 
         except Exception as e:
@@ -87,7 +90,9 @@ class Runner_Storage(AbstractRunner):
             logger.exception(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.STORAGE, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.STORAGE,
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                execution_time=execution_time, error_message=error_msg
             )
 
     def process_carbon_calculations(

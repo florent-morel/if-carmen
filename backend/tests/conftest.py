@@ -13,7 +13,7 @@ current_file = Path(__file__)
 project_root = (
     current_file.parent.parent.parent
 )  # backend/tests/conftest.py -> carbon-engine/
-config_path = project_root / "config/config-test.yaml"
+config_path = project_root / "etc/sample_data/config-test.yaml"
 os.environ["CARMEN_CONFIG_FILEPATH"] = str(config_path)
 
 

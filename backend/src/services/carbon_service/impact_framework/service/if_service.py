@@ -62,16 +62,18 @@ class IFService(ABC, CarbonService):
     to compute carbon and energy metrics for given resources.
     """
 
+    # TODO: Should be in conf
     INFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_input")
+    logger.info(f"IF_FILES_DIR: {IF_FILES_DIR}")
     OUTFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_output")
     FILE_EXTENSION = ".yaml"
 
     def __init__(
         self, template_filename, pipeline_filename, aggregation_type, duration
     ):
-        self.template = read_file(os.path.join(IF_FILES_DIR, template_filename))
+        self.template = read_file(os.path.join(IF_FILES_DIR, "templates", template_filename))
         self.data = read_file(
-            os.path.join(IF_FILES_DIR, pipeline_filename)
+            os.path.join(IF_FILES_DIR, "templates", pipeline_filename)
         )  # named as data even though it reads the pipeline.yml, since it will be filled with input.yaml data for IF
         self.data["aggregation_type"] = aggregation_type
         self.data["duration"] = duration

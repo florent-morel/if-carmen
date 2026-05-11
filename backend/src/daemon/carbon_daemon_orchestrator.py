@@ -81,6 +81,10 @@ class CarbonDaemonOrchestrator:
                     total_carbon_emitted=0.0,
                     execution_time=0,
                 )
+        self.carbon_daemon_result = self.create_carbon_daemon_result(
+            success=True,
+            execution_time=0,
+        )
 
         register_models()
 
@@ -131,32 +135,14 @@ class CarbonDaemonOrchestrator:
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
 
-            return CarbonDaemonResult(
-                success=False,
-                dict_resource_result={},
-                total_energy_consumed=0.0,
-                total_carbon_operational=0.0,
-                total_carbon_embodied=0.0,
-                total_carbon_emitted=0.0,
-                execution_time=execution_time,
-                error_message=error_msg,
-            )
+            self.carbon_daemon_result.success=False
 
         except Exception as e:
             execution_time = time.time() - start_time
             error_msg = f"unexpected error during daemon execution: {str(e)}"
             logger.exception(error_msg)
 
-            return CarbonDaemonResult(
-                success=False,
-                dict_resource_result={},
-                total_energy_consumed=0.0,
-                total_carbon_operational=0.0,
-                total_carbon_embodied=0.0,
-                total_carbon_emitted=0.0,
-                execution_time=execution_time,
-                error_message=error_msg,
-            )
+            self.carbon_daemon_result.success=False
 
     def read_data_source(self):
         """
@@ -296,17 +282,21 @@ class CarbonDaemonOrchestrator:
                 logger.info(
                     f"Creating CarbonDaemonResult for dict_resource_results: {dict_resource_results}"
                 )
-                self.carbon_daemon_result = self.create_carbon_daemon_result(
+                self.update_carbon_daemon_result(
+                    self.carbon_daemon_result,
                     success=True,
                     execution_time=execution_time,
+                    list_exceptions=[],
                     dict_resource_results=dict_resource_results,
                 )
         except Exception:
             logger.error("Failed to run engine for the given processors.")
             execution_time = time.time() - start_time
-            self.carbon_daemon_result = self.create_carbon_daemon_result(
+            self.update_carbon_daemon_result(
+                self.carbon_daemon_result,
                 success=False,
                 execution_time=execution_time,
+                list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR)],
                 dict_resource_results=dict_resource_results,
             )
             raise
@@ -315,7 +305,6 @@ class CarbonDaemonOrchestrator:
         self,
         success,
         execution_time,
-        dict_resource_results: dict[ResourceType, ResourceTypeResult],
     ) -> CarbonDaemonResult:
         """
         Create a CarbonDaemonResult from the list of resource type results.
@@ -331,13 +320,28 @@ class CarbonDaemonOrchestrator:
 
         carbon_daemon_result = CarbonDaemonResult(
             success=success,
-            dict_resource_result=dict_resource_results,
+            dict_resource_result={},
+            list_exceptions=[],
             total_energy_consumed=0,
             total_carbon_operational=0,
             total_carbon_embodied=0,
             total_carbon_emitted=0,
             execution_time=execution_time,
         )
+
+        return carbon_daemon_result
+
+    def update_carbon_daemon_result(
+        self,
+        carbon_daemon_result,
+        success,
+        execution_time,
+        list_exceptions: list[Exception],
+        dict_resource_results: dict[ResourceType, ResourceTypeResult],
+    ):
+        carbon_daemon_result.success = success
+        carbon_daemon_result.execution_time = execution_time
+        carbon_daemon_result.list_exceptions.append(list_exceptions)
 
         for resource_result in dict_resource_results.values():
             carbon_daemon_result.total_carbon_operational += (
@@ -353,7 +357,6 @@ class CarbonDaemonOrchestrator:
                 resource_result.total_energy_consumed
             )
 
-        return carbon_daemon_result
 
     def write_report(self):
         """

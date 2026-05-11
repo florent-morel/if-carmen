@@ -6,6 +6,7 @@ import os
 from datetime import timedelta
 from backend.src.common.enums import SamplingRate
 from enum import Enum
+from pathlib import Path
 
 # CPU_MIN_ELECTRICITY_RATIO_AZURE = 0.78  # watt per core
 # CPU_MAX_ELECTRICITY_RATIO_AZURE = 3.76  # watt per core
@@ -40,12 +41,15 @@ EXECUTION_DATE: str = "EXECUTION_DATE"
 DATE_FORMAT: str = "%Y-%m-%d"
 
 # TODO: change this path to /backend/generated
+current_file = Path(__file__)
+project_root = (
+    current_file.parent.parent.parent.parent
+)  # backend/tests/conftest.py -> carbon-engine/
 IF_FILES_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "services",
-    "carbon_service",
+    #os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    project_root,
+    "etc",
     "impact_framework",
-    "files",
 )
 
 PLUGIN_PATH = os.path.join(
@@ -55,6 +59,7 @@ PLUGIN_PATH = os.path.join(
     "cost-model-plugin/build",
 )
 
+# TODO: Should be removed
 ZONES = {
     "EUS": "eastus",
     "WUS": "westus",

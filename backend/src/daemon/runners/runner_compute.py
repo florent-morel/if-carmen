@@ -58,7 +58,7 @@ class Runner_Compute(AbstractRunner):
             execution_time = time.time() - start_time
 
             resourceDaemonResult = self.create_resource_type_result(
-                True, execution_time, ResourceType.VIRTUAL_MACHINE, processed_resources
+                True, execution_time, ResourceType.VIRTUAL_MACHINE, processed_resources, []
             )
 
             logger.info(
@@ -83,6 +83,7 @@ class Runner_Compute(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.VIRTUAL_MACHINE,
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )
@@ -95,6 +96,7 @@ class Runner_Compute(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.VIRTUAL_MACHINE,
+                list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )

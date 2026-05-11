@@ -20,6 +20,7 @@ from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.utils import ioc_util
+from backend.src.common.errors import ErrorCode
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class Runner_Misc_Services(AbstractRunner):
             execution_time = time.time() - start_time
 
             resourceDaemonResult = self.create_resource_type_result(
-                True, execution_time, ResourceType.MISC_SERVICES, processed_resources
+                True, execution_time, ResourceType.MISC_SERVICES, processed_resources, []
             )
 
             logger.info(
@@ -77,7 +78,9 @@ class Runner_Misc_Services(AbstractRunner):
             logger.error(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.MISC_SERVICES, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.MISC_SERVICES,
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                execution_time=execution_time, error_message=error_msg
             )
 
         except Exception as e:
@@ -86,5 +89,7 @@ class Runner_Misc_Services(AbstractRunner):
             logger.exception(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.MISC_SERVICES, execution_time=execution_time, error_message=error_msg
+                success=False, resource_type=ResourceType.MISC_SERVICES,
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                execution_time=execution_time, error_message=error_msg
             )

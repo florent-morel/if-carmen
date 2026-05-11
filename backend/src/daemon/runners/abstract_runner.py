@@ -64,6 +64,7 @@ class AbstractRunner(ABC):
         execution_time,
         resource_type: ResourceType,
         list_processed_resources: list[Resource],
+        list_exceptions: list[Exception],
     ) -> ResourceTypeResult:
         """
         Create a ResourceTypeResult from the list of processed resources.
@@ -80,6 +81,7 @@ class AbstractRunner(ABC):
             success=success,
             resource_type=resource_type,
             list_processed_resources=list_processed_resources,
+            list_exceptions=list_exceptions,
             total_energy_consumed=0,
             total_carbon_operational=0,
             total_carbon_embodied=0,
