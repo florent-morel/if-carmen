@@ -28,6 +28,7 @@ class ErrorCode(str, Enum):
     Enumeration of error codes used throughout the application.
 
     Error codes are organized by category:
+    - 0xxx: Unknown errors
     - 1xxx: Configuration errors
     - 2xxx: Authentication errors
     - 3xxx: Data fetch errors
@@ -39,6 +40,9 @@ class ErrorCode(str, Enum):
     - 9xxx: External API errors
     - 10xxx: Report generation errors
     """
+
+    # Unknown errors (0xxx)
+    UNKNOWN_ERROR = "0001"
 
     # Configuration errors (1xxx)
     CONFIG_FILE_MISSING = "1001"

@@ -28,8 +28,8 @@ class CarbonDaemonResult:
         total_carbon_operational: float,
         total_carbon_embodied: float,
         total_carbon_emitted: float,
+        dict_errors: dict[str, str],
         execution_time: float = 0.0,
-        error_message: str = "",
     ):
         self.success: bool = success
         self.dict_resource_result: dict = dict_resource_result
@@ -38,7 +38,7 @@ class CarbonDaemonResult:
         self.total_carbon_embodied: float = total_carbon_embodied
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
-        self.error_message: str = error_message
+        self.dict_errors: str = dict_errors
 
 
 class ResourceTypeResult:
@@ -53,8 +53,8 @@ class ResourceTypeResult:
         total_carbon_operational: float,
         total_carbon_embodied: float,
         total_carbon_emitted: float,
+        dict_errors: dict[str, str],
         execution_time: float = 0.0,
-        error_message: str = "",
     ):
         self.success: bool = success
         self.resource_type: ResourceType = resource_type
@@ -64,4 +64,4 @@ class ResourceTypeResult:
         self.total_carbon_embodied: float = total_carbon_embodied
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
-        self.error_message: str = error_message
+        self.dict_errors: str = dict_errors
