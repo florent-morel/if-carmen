@@ -41,6 +41,7 @@ from backend.src.daemon.processors.abstract_processor import (
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.daemon.writers.writer_storage import Writer_Storage
 from backend.src.daemon.writers.writer_compute import Writer_Compute
+from backend.src.daemon.writers.writer_misc_services import Writer_Misc_Services
 
 from backend.src.common.constants import (
     CSV_PATH,
@@ -63,8 +64,7 @@ class CarbonDaemonOrchestrator:
 
         Args:
             daemon_config: Configuration for daemon operations
-            reader_factory: Factory for creating reader instances (optional)
-            writer_factory: Factory for creating writer instances (optional)
+            list_resource_processors: List of resource processors to execute in the daemon
         """
         self.config: DaemonConfig = daemon_config
 
@@ -72,15 +72,15 @@ class CarbonDaemonOrchestrator:
             AbstractProcessor
         ] = list_resource_processors
         self.carbon_daemon_result: CarbonDaemonResult = CarbonDaemonResult(
-                    success=True,
-                    dict_resource_result={},
-                    list_exceptions=[],
-                    total_energy_consumed=0.0,
-                    total_carbon_operational=0.0,
-                    total_carbon_embodied=0.0,
-                    total_carbon_emitted=0.0,
-                    execution_time=0,
-                )
+            success=True,
+            dict_resource_result={},
+            list_exceptions=[],
+            total_energy_consumed=0.0,
+            total_carbon_operational=0.0,
+            total_carbon_embodied=0.0,
+            total_carbon_emitted=0.0,
+            execution_time=0,
+        )
         self.carbon_daemon_result = self.create_carbon_daemon_result(
             success=True,
             execution_time=0,
@@ -213,7 +213,7 @@ class CarbonDaemonOrchestrator:
                                     ErrorCode.DATA_FETCH_NO_RESULTS,
                                     details="No resources found for"
                                     f"{abstract_processor.resource_type.value}"
-                                    "in data source"
+                                    "in data source",
                                 )
                             )
                     except FileNotFoundError:
@@ -221,7 +221,7 @@ class CarbonDaemonOrchestrator:
                         self.carbon_daemon_result.list_exceptions.append(
                             KnownException(
                                 ErrorCode.FILE_NOT_FOUND,
-                                details=f"file not found: {input_file}"
+                                details=f"file not found: {input_file}",
                             )
                         )
                     except PermissionError as e:
@@ -231,7 +231,7 @@ class CarbonDaemonOrchestrator:
                         self.carbon_daemon_result.list_exceptions.append(
                             KnownException(
                                 ErrorCode.FILE_PERMISSION_DENIED,
-                                details=f"permission denied: {input_file}"
+                                details=f"permission denied: {input_file}",
                             )
                         )
                     except UnicodeDecodeError as e:
@@ -241,7 +241,7 @@ class CarbonDaemonOrchestrator:
                         self.carbon_daemon_result.list_exceptions.append(
                             KnownException(
                                 ErrorCode.FILE_INVALID_FORMAT,
-                                details=f"failed to decode file: {input_file} {str(e)}"
+                                details=f"failed to decode file: {input_file} {str(e)}",
                             )
                         )
                     except Exception as e:
@@ -373,7 +373,6 @@ class CarbonDaemonOrchestrator:
                     resource_result.total_energy_consumed
                 )
 
-
     def write_report(self):
         """
         Creates a CSV report containing all resource types.
@@ -397,7 +396,6 @@ class CarbonDaemonOrchestrator:
             for (
                 resource_type_result
             ) in self.carbon_daemon_result.dict_resource_result.values():
-                # TODO: need to go via the factory
                 # Instantiate writer dedicated to ResourceType
                 if resource_type_result.resource_type == ResourceType.STORAGE:
                     writer = Writer_Storage(writer)
@@ -405,11 +403,18 @@ class CarbonDaemonOrchestrator:
                 elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
                     writer = Writer_Compute(writer)
                     writer.write_content()
+                elif resource_type_result.resource_type == ResourceType.MISC_SERVICES:
+                    writer = Writer_Misc_Services(writer)
+                    writer.write_content()
+                else:
+                    logger.warning(
+                        "No writer implemented for resource type %s. Skipping writing results for this resource type.",
+                        resource_type_result.resource_type.value,
+                    )
 
             self.output_file = report_csv_file
 
         else:
-            # Carbon daemon run was not succesful, write error in output file.
             logger.info(
                 "Carbon daemon run was not succesful, write error in output file."
             )

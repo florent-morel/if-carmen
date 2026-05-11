@@ -48,4 +48,4 @@ class ErrorTemplate:
         return "\n".join(lines)
 
 
-ERRORS: list[ErrorTemplate] = {}
+ERRORS: list[ErrorTemplate] = []

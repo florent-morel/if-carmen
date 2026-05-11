@@ -58,7 +58,6 @@ class Reader_Misc_Services(AbstractReader):
         logger.info(f"Inside reader misc services: {self}")
 
         # COST MODEL PROCESSING
-        # TODO: CSV path will be changed when we start fetching the files from finops
         cost_resources, total_compute_cost, total_storage_cost = self.process_cost_csv(
             csv_data
         )

@@ -38,7 +38,7 @@ class AbstractWriter(ABC):
         return ReportConfig.REPORT_HEADERS
 
     @abstractmethod
-    def write_content() -> Iterable[Iterable[Any]]:
+    def write_content(self, resources: list[Resource]) -> Iterable[Iterable[Any]]:
         """
         Abstract method to let each resource dedicated writer build the
         content it needs.

@@ -8,23 +8,26 @@ logger = logging.getLogger(__name__)
 
 
 class Writer_Compute(AbstractWriter):
-    def write_content(vms: list[VirtualMachine]):
-        # Add VMs
-        for vm in vms:
+    def write_content(self, resources: list[VirtualMachine]):
+        logger.info(
+            "Starting write_content for resource %s.", VirtualMachine.resource_type
+        )
+
+        for resource in resources:
             # Build common columns
-            row = super.write_common_content(vm)
+            row = super().write_common_content(resource)
 
             # VM specific columns
-            row[ReportConfig.COMPUTE_VM_SIZE] = vm.vm_size
-            row[ReportConfig.COMPUTE_SERVICE] = vm.service
-            row[ReportConfig.COMPUTE_INSTANCE] = vm.instance
-            row[ReportConfig.COMPUTE_ENVIRONMENT] = vm.environment
-            row[ReportConfig.COMPUTE_PARTITION] = vm.partition
-            row[ReportConfig.COMPUTE_COMPONENT] = vm.component
+            row[ReportConfig.COMPUTE_VM_SIZE] = resource.vm_size
+            row[ReportConfig.COMPUTE_SERVICE] = resource.service
+            row[ReportConfig.COMPUTE_INSTANCE] = resource.instance
+            row[ReportConfig.COMPUTE_ENVIRONMENT] = resource.environment
+            row[ReportConfig.COMPUTE_PARTITION] = resource.partition
+            row[ReportConfig.COMPUTE_COMPONENT] = resource.component
 
-            super.writer.write(row)
+            super().writer.write(row)
 
         logger.info(
             " Rows built for %d resources",
-            len(vms),
+            len(resources),
         )

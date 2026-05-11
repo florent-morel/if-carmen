@@ -15,7 +15,6 @@ from backend.src.daemon.carbon_daemon_result import (
 )
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.daemon.readers.abstract_reader import AbstractReader
-from backend.src.daemon.runners.abstract_runner import AbstractReader
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 
 logger = logging.getLogger(__name__)

@@ -8,18 +8,21 @@ logger = logging.getLogger(__name__)
 
 
 class Writer_Misc_Services(AbstractWriter):
-    def write_content(resources: list[MiscServicesResource]):
-        logger.info("Starting write_results for Misc Services resources.")
+    def write_content(self, resources: list[MiscServicesResource]):
+        logger.info(
+            "Starting write_content for resource %s.",
+            MiscServicesResource.resource_type,
+        )
 
         # Add resources
         for resource in resources:
             # Build common columns
-            row = super.write_common_content(resource)
+            row = super().write_common_content(resource)
 
-            # resource specific columns
+            # Misc services specific columns
             row[ReportConfig.MISC_SERVICES_COST] = resource.services_cost
 
-            super.writer.write(row)
+            super().writer.write(row)
 
         logger.info(
             " Rows built for %d resources",

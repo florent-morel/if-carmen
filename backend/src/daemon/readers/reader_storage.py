@@ -22,6 +22,11 @@ from backend.src.daemon.readers.helpers.storage_helpers import (
     process_storage_row as _process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
+from backend.src.common.constants import (
+    CSV_PATH,
+    CSV_FILE_TEST,
+    CSV_FILE_ENCODING,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,19 +48,22 @@ class Reader_Storage(AbstractReader):
             list[StorageResource]: List of storage resources extracted from the
             data source.
         """
-        logger.info(f"Inside reader Storage: {self}")
-        storage_resources = list[Resource]
-        storage_dict = {}
-        self.process_csv_data(csv_data, storage_dict)
-        storage_resources = list(storage_dict.values())
 
-        logger.info(
-            "Loaded %d storage resources from local test file",
-            len(storage_resources),
-        )
-        self.list_resources_to_process = storage_resources
+        logger.info("starting to read storage data from local filesystem")
 
-        return self.list_resources_to_process
+        try:
+            storage_dict: dict[str, StorageResource] = {}
+
+            self.process_csv_data(csv_data, storage_dict)
+
+            self._log_processing_results(storage_dict)
+
+            self.list_resources_to_process = list(storage_dict.values())
+            return self.list_resources_to_process
+
+        except Exception as e:
+            logger.error("failed to read files from local filesystem %s", str(e))
+            raise
 
     def process_storage_row(
         self,

@@ -25,7 +25,7 @@ class Runner_Compute(AbstractRunner):
     """
 
     def __init__(self):
-        self.resource_type_result: ResourceTypeResult | None
+        self.resource_type_result: ResourceTypeResult | None = None
 
     #
     # Resources built by the reader to be handled by the runner
@@ -58,7 +58,11 @@ class Runner_Compute(AbstractRunner):
             execution_time = time.time() - start_time
 
             resourceDaemonResult = self.create_resource_type_result(
-                True, execution_time, ResourceType.VIRTUAL_MACHINE, processed_resources, []
+                True,
+                execution_time,
+                ResourceType.VIRTUAL_MACHINE,
+                processed_resources,
+                [],
             )
 
             logger.info(
@@ -129,6 +133,9 @@ class Runner_Compute(AbstractRunner):
                 len(list_resources_to_process),
             )
 
+            # TODO: duration should not be hardcoded
+            # => design decision needed on how to handle
+            # env variable? input file parameter?
             carbon_service = ioc_util.resolve(
                 CarbonService, "IFVm", HOURLY_INTERVAL_SECONDS
             )

@@ -32,7 +32,7 @@ class Runner_Storage(AbstractRunner):
     """
 
     def __init__(self):
-        self.resource_type_result: ResourceTypeResult | None
+        self.resource_type_result: ResourceTypeResult | None = None
 
     # Resources built by the reader to be handled by the runner
     @property
@@ -79,9 +79,11 @@ class Runner_Storage(AbstractRunner):
             logger.error(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.STORAGE,
+                success=False,
+                resource_type=ResourceType.STORAGE,
                 list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
-                execution_time=execution_time, error_message=error_msg
+                execution_time=execution_time,
+                error_message=error_msg,
             )
 
         except Exception as e:
@@ -90,14 +92,31 @@ class Runner_Storage(AbstractRunner):
             logger.exception(error_msg)
 
             return ResourceTypeResult(
-                success=False, resource_type=ResourceType.STORAGE,
+                success=False,
+                resource_type=ResourceType.STORAGE,
                 list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
-                execution_time=execution_time, error_message=error_msg
+                execution_time=execution_time,
+                error_message=error_msg,
             )
 
     def process_carbon_calculations(
         self, storage_resources: list[StorageResource]
     ) -> list[StorageResource]:
+        """
+        Process storage resources through the carbon calculation engine.
+
+        Scope:
+            - storage services
+
+        Args:
+            storage_resources: List of storage resources to process
+
+        Returns:
+            List of storage resources with carbon calculations
+
+        Raises:
+            Exception: If carbon processing fails
+        """
         process_start_time = time.time()
         if storage_resources:
             try:
@@ -106,7 +125,9 @@ class Runner_Storage(AbstractRunner):
                     len(storage_resources),
                 )
 
-                ## TODO: check why we have this DAILY_SECONDS (really needed?)
+                # TODO: duration should not be hardcoded
+                # => design decision needed on how to handle
+                # env variable? input file parameter?
                 storage_service = ioc_util.resolve(
                     CarbonService, "IFStorage", DAILY_SECONDS
                 )
