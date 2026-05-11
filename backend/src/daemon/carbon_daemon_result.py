@@ -2,16 +2,6 @@ from __future__ import annotations
 
 import logging
 
-# from backend.src.daemon.writers.writer_factory import (
-#    DefaultWriterFactory,
-#    WriterFactory,
-# )
-
-
-# from backend.src.daemon.readers.reader_factory import (
-#    DefaultReaderFactory,
-#    ReaderFactory,
-# )
 from backend.src.schemas.resource import Resource, ResourceType
 
 logger = logging.getLogger(__name__)
@@ -24,11 +14,11 @@ class CarbonDaemonResult:
         self,
         success: bool,
         dict_resource_result: dict[ResourceType, ResourceTypeResult],
+        list_exceptions: list[Exception],
         total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,
         total_carbon_emitted: float,
-        dict_errors: dict[str, str],
         execution_time: float = 0.0,
     ):
         self.success: bool = success
@@ -38,7 +28,7 @@ class CarbonDaemonResult:
         self.total_carbon_embodied: float = total_carbon_embodied
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
-        self.dict_errors: str = dict_errors
+        self.list_exceptions: list = list_exceptions
 
 
 class ResourceTypeResult:
@@ -49,11 +39,11 @@ class ResourceTypeResult:
         success: bool,
         resource_type: ResourceType,
         list_processed_resources: list[Resource],
+        list_exceptions: list[Exception],
         total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,
         total_carbon_emitted: float,
-        dict_errors: dict[str, str],
         execution_time: float = 0.0,
     ):
         self.success: bool = success
@@ -64,4 +54,4 @@ class ResourceTypeResult:
         self.total_carbon_embodied: float = total_carbon_embodied
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
-        self.dict_errors: str = dict_errors
+        self.list_exceptions: list = list_exceptions

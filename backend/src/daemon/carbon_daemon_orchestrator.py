@@ -71,7 +71,16 @@ class CarbonDaemonOrchestrator:
         self.list_resource_processors: list[
             AbstractProcessor
         ] = list_resource_processors
-        self.carbon_daemon_result: CarbonDaemonResult = None
+        self.carbon_daemon_result: CarbonDaemonResult = CarbonDaemonResult(
+                    success=True,
+                    dict_resource_result={},
+                    list_exceptions=[],
+                    total_energy_consumed=0.0,
+                    total_carbon_operational=0.0,
+                    total_carbon_embodied=0.0,
+                    total_carbon_emitted=0.0,
+                    execution_time=0,
+                )
 
         register_models()
 
@@ -198,45 +207,57 @@ class CarbonDaemonOrchestrator:
                                 read_time,
                             )
                         else:
-                            raise DataFetchError(
-                                ErrorCode.DATA_FETCH_NO_RESULTS,
-                                details=f"No resources found for {abstract_processor.resource_type.value} in data source",
+                            self.carbon_daemon_result.list_exceptions.append(
+                                DataFetchError(
+                                    ErrorCode.DATA_FETCH_NO_RESULTS,
+                                    details="No resources found for"
+                                    f"{abstract_processor.resource_type.value}"
+                                    "in data source"
+                                )
                             )
-                    except FileNotFoundError as e:
+                    except FileNotFoundError:
                         logger.error("file not found %s", input_file)
-                        raise KnownException(
-                            ErrorCode.FILE_NOT_FOUND,
-                            details=f"file not found: {input_file}",
-                        ) from e
-                        return None
+                        self.carbon_daemon_result.list_exceptions.append(
+                            KnownException(
+                                ErrorCode.FILE_NOT_FOUND,
+                                details=f"file not found: {input_file}"
+                            )
+                        )
                     except PermissionError as e:
                         logger.error(
                             "permission denied reading file %s %s", input_file, str(e)
                         )
-                        raise KnownException(
-                            ErrorCode.FILE_PERMISSION_DENIED,
-                            details=f"permission denied: {input_file}",
-                        ) from e
-                        return None
+                        self.carbon_daemon_result.list_exceptions.append(
+                            KnownException(
+                                ErrorCode.FILE_PERMISSION_DENIED,
+                                details=f"permission denied: {input_file}"
+                            )
+                        )
                     except UnicodeDecodeError as e:
                         logger.error(
                             "failed to decode file data for %s %s", input_file, str(e)
                         )
-                        raise KnownException(
-                            ErrorCode.FILE_INVALID_FORMAT,
-                            details=f"failed to decode file: {input_file} {str(e)}",
-                        ) from e
-                        return None
+                        self.carbon_daemon_result.list_exceptions.append(
+                            KnownException(
+                                ErrorCode.FILE_INVALID_FORMAT,
+                                details=f"failed to decode file: {input_file} {str(e)}"
+                            )
+                        )
                     except Exception as e:
                         logger.error(
                             "unexpected error reading file %s %s", input_file, str(e)
+                        )
+                        self.carbon_daemon_result.list_exceptions.append(
+                            Exception(ErrorCode.UNKNOWN_ERROR)
                         )
             else:
                 logger.error("No processor provided.")
 
         except Exception:
             logger.error("Failed to read data source")
-            raise
+            self.carbon_daemon_result.list_exceptions.append(
+                Exception(ErrorCode.UNKNOWN_ERROR)
+            )
 
     def run_engine(self):
         """
