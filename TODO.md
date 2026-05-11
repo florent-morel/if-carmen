@@ -1,50 +1,45 @@
+## Code implem
 
+### Config
 
-## Finalize workflow
-
-- Orchestrator.
-- Reader.
-- Runner.
-- Writer.
+V1: Configure and propagate output/generated folders for IF files, CSV reports...
 
 ### Orchestrator
 
-- main: Read list of processors & DaemonConfig from settings.
+V1: Make E2E test with sample data
+-- Includes VM, storage, services
 
-### Reader
+### UTs
 
-### Runner
-
-### Writer
-
-- Build CSV columns and data depending on listed processors.
-
-Output CSV example:
-| Resource | VM Energy| Total Energy | Total CO2 |
-| --- | --- | --- | ---|
-| abc | 560 | 560 | 2500 |
-
-| Resource | VM Energy | Storage energy | Total Energy | Total CO2 |
-| --- | --- | --- | --- | ---|
-| abc | 560 | 100 | 660 | 2500 |
-Algo:
-- writer-0: based on CarbonDaemonResult.
-    - Csv file structure (=add columns to be output regardless number of processors - aka total columns).
-    - "pre-processors columns".
-    - "post-processors columns".
-- writer-i: based on ResourceTypeResult.
-    - columns dedicated to this resource.
-
-### Fixing UTs
-
-## Implement Cost use case.
-
-- Dedicated Reader, Runner.
-- Adapt Writer.
-- From Berkay's PR.
-
-## Fixes
+100% fix
 
 
-- calculate_vm_count_for_missing_regions -> it applies to any resource.
-- remove THANOS: ThanosConfig
+### Features
+
+V1: Validate storage and services computation
+Vnext: implement embodied emissions TE retrieved from config file per instance_type
+
+## Documentation
+
+### Changelog
+
+### Review documentation, examples
+
+``` sh
+if-carmen/
+├── backend
+├── docs
+├── etc
+│   ├── config
+│   │   ├── config.yaml
+│   │   └── modelling_constants
+│   │       ├── carbon_values.yaml
+│   │       └── cloud_providers
+│   ├── impact_framework
+│   │   ├── generated
+│   │   └── templates
+│   ├── report
+│   └── sample_data
+│       └── config-test.yaml
+
+```
