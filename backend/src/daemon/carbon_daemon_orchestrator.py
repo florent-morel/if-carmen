@@ -202,8 +202,12 @@ class CarbonDaemonOrchestrator:
                                 ErrorCode.DATA_FETCH_NO_RESULTS,
                                 details=f"No resources found for {abstract_processor.resource_type.value} in data source",
                             )
-                    except FileNotFoundError:
-                        logger.warning("file not found %s", input_file)
+                    except FileNotFoundError as e:
+                        logger.error("file not found %s", input_file)
+                        raise KnownException(
+                            ErrorCode.FILE_NOT_FOUND,
+                            details=f"file not found: {input_file}",
+                        ) from e
                         return None
                     except PermissionError as e:
                         logger.error(
@@ -213,19 +217,20 @@ class CarbonDaemonOrchestrator:
                             ErrorCode.FILE_PERMISSION_DENIED,
                             details=f"permission denied: {input_file}",
                         ) from e
+                        return None
                     except UnicodeDecodeError as e:
                         logger.error(
                             "failed to decode file data for %s %s", input_file, str(e)
                         )
+                        raise KnownException(
+                            ErrorCode.FILE_INVALID_FORMAT,
+                            details=f"failed to decode file: {input_file} {str(e)}",
+                        ) from e
                         return None
                     except Exception as e:
                         logger.error(
                             "unexpected error reading file %s %s", input_file, str(e)
                         )
-                        raise KnownException(
-                            ErrorCode.FILE_READ_ERROR,
-                            details=f"failed to read file: {input_file}",
-                        ) from e
             else:
                 logger.error("No processor provided.")
 

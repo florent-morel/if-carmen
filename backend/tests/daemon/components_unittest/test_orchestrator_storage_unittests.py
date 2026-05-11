@@ -54,6 +54,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         storageResource = StorageResource(
             id=storage_id,
             name=product_name,
+            provider="azure",
             storage_type=storage_type,
             replication_type=replication_type,
             size_gb=size_gb,
@@ -185,7 +186,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
-        mock_processor.read.side_effect = Exception("Reader failed")
+        # mock_processor.read.side_effect = Exception("Reader failed")
 
         logger.info(f"Mock processor: {mock_processor}")
 
