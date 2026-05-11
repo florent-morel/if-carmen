@@ -387,32 +387,30 @@ class CarbonDaemonOrchestrator:
         if self.carbon_daemon_result.success:
             # Carbon daemon run was succesful, write report output file.
             logger.info("Carbon daemon run was succesful, write report output file.")
-            # init csv writer
             with open(self.output_file, "w", newline="") as report_csv_file:
                 fieldnames = AbstractWriter.get_report_headers()
-                writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
+                dict_writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
+                dict_writer.writeheader()
 
-            # iterate on writers
-            for (
-                resource_type_result
-            ) in self.carbon_daemon_result.dict_resource_result.values():
-                # Instantiate writer dedicated to ResourceType
-                if resource_type_result.resource_type == ResourceType.STORAGE:
-                    writer = Writer_Storage(writer)
-                    writer.write_content()
-                elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
-                    writer = Writer_Compute(writer)
-                    writer.write_content()
-                elif resource_type_result.resource_type == ResourceType.MISC_SERVICES:
-                    writer = Writer_Misc_Services(writer)
-                    writer.write_content()
-                else:
-                    logger.warning(
-                        "No writer implemented for resource type %s. Skipping writing results for this resource type.",
-                        resource_type_result.resource_type.value,
-                    )
-
-            self.output_file = report_csv_file
+                # iterate on writers
+                for (
+                    resource_type_result
+                ) in self.carbon_daemon_result.dict_resource_result.values():
+                    # Instantiate writer dedicated to ResourceType
+                    if resource_type_result.resource_type == ResourceType.STORAGE:
+                        writer = Writer_Storage(self.config, dict_writer, resource_type_result)
+                        writer.write_content(resource_type_result.list_processed_resources)
+                    elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
+                        writer = Writer_Compute(self.config, dict_writer, resource_type_result)
+                        writer.write_content(resource_type_result.list_processed_resources)
+                    elif resource_type_result.resource_type == ResourceType.MISC_SERVICES:
+                        writer = Writer_Misc_Services(self.config, dict_writer, resource_type_result)
+                        writer.write_content(resource_type_result.list_processed_resources)
+                    else:
+                        logger.warning(
+                            "No writer implemented for resource type %s. Skipping writing results for this resource type.",
+                            resource_type_result.resource_type.value,
+                        )
 
         else:
             logger.info(
