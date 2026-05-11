@@ -40,13 +40,15 @@ SAMPLING_RATE_IN_SECONDS = 86400  # 24 hours
 EXECUTION_DATE: str = "EXECUTION_DATE"
 DATE_FORMAT: str = "%Y-%m-%d"
 
+# TODO: add VM, storage and services chunk size as configurable settings
+
 # TODO: do this in a cleaner way (project root)
 current_file = Path(__file__)
 project_root = (
     current_file.parent.parent.parent.parent
 )  # backend/tests/conftest.py -> carbon-engine/
 IF_FILES_DIR = os.path.join(
-    #os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    # os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     project_root,
     "etc",
     "impact_framework",

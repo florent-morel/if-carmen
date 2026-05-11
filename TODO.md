@@ -13,11 +13,13 @@ V1: Make E2E test with sample data
 
 100% fix
 
-
 ### Features
 
-V1: Validate storage and services computation
-Vnext: implement embodied emissions TE retrieved from config file per instance_type
+V1: 
+- Implement missing regions/providers for storage and services
+- Validate storage and services computation
+Vnext: 
+- Implement embodied emissions TE retrieved from config file per instance_type
 
 ## Documentation
 
