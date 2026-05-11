@@ -40,7 +40,7 @@ SAMPLING_RATE_IN_SECONDS = 86400  # 24 hours
 EXECUTION_DATE: str = "EXECUTION_DATE"
 DATE_FORMAT: str = "%Y-%m-%d"
 
-# TODO: change this path to /backend/generated
+# TODO: do this in a cleaner way (project root)
 current_file = Path(__file__)
 project_root = (
     current_file.parent.parent.parent.parent

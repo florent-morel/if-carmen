@@ -107,6 +107,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         mock_processor.run.return_value = resource_type_result
 
         logger.info(f"Mock processor: {mock_processor}")
+        logger.info(f"Mock config: {self.mock_config}")
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
@@ -194,15 +195,20 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
+        logger.info(f"Carbon Daemon Result: {carbonDaemonResult}")
+
         # resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
         # self.assertIsNone(carbonDaemonResult.dict_resource_result[ResourceType.STORAGE])
 
         # self.assertIsInstance(resultStorage, ResourceTypeResult)
         self.assertFalse(carbonDaemonResult.success)
-        self.assertIn(
-            "unexpected error during daemon execution", carbonDaemonResult.error_message
-        )
-        self.assertIn("Reader failed", carbonDaemonResult.error_message)
+        self.assertIsNotNone(carbonDaemonResult.list_exceptions)
+        for exception in carbonDaemonResult.list_exceptions:
+            logger.info(f"exception {Exception.__str__(exception)}")
+            self.assertIn(
+                "unexpected error during daemon execution", exception.args[1]
+            )
+            self.assertIn("Reader failed", exception.args[1])
 
 
 #     @patch("backend.src.daemon.carbon_daemon.register_models")

@@ -91,6 +91,7 @@ class CarbonDaemonOrchestrator:
         self.date: str = self.get_execution_date()
         # TODO: Implement support for list
         self.list_input_file = []
+        # TODO: read from config file
         self.list_input_file.append(os.getenv(CSV_PATH, CSV_FILE_TEST))
 
         self.output_file: str = os.path.join(
@@ -135,14 +136,28 @@ class CarbonDaemonOrchestrator:
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
 
-            self.carbon_daemon_result.success=False
+            self.update_carbon_daemon_result(
+                self.carbon_daemon_result,
+                success=False,
+                execution_time=execution_time,
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR, error_msg)],
+                dict_resource_results=None,
+            )
+            return self.carbon_daemon_result
 
         except Exception as e:
             execution_time = time.time() - start_time
             error_msg = f"unexpected error during daemon execution: {str(e)}"
             logger.exception(error_msg)
 
-            self.carbon_daemon_result.success=False
+            self.update_carbon_daemon_result(
+                self.carbon_daemon_result,
+                success=False,
+                execution_time=execution_time,
+                list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR, error_msg)],
+                dict_resource_results=None,
+            )
+            return self.carbon_daemon_result
 
     def read_data_source(self):
         """
@@ -341,21 +356,22 @@ class CarbonDaemonOrchestrator:
     ):
         carbon_daemon_result.success = success
         carbon_daemon_result.execution_time = execution_time
-        carbon_daemon_result.list_exceptions.append(list_exceptions)
+        carbon_daemon_result.list_exceptions.extend(list_exceptions)
 
-        for resource_result in dict_resource_results.values():
-            carbon_daemon_result.total_carbon_operational += (
-                resource_result.total_carbon_operational
-            )
-            carbon_daemon_result.total_carbon_embodied += (
-                resource_result.total_carbon_embodied
-            )
-            carbon_daemon_result.total_carbon_emitted += (
-                resource_result.total_carbon_emitted
-            )
-            carbon_daemon_result.total_energy_consumed += (
-                resource_result.total_energy_consumed
-            )
+        if dict_resource_results:
+            for resource_result in dict_resource_results.values():
+                carbon_daemon_result.total_carbon_operational += (
+                    resource_result.total_carbon_operational
+                )
+                carbon_daemon_result.total_carbon_embodied += (
+                    resource_result.total_carbon_embodied
+                )
+                carbon_daemon_result.total_carbon_emitted += (
+                    resource_result.total_carbon_emitted
+                )
+                carbon_daemon_result.total_energy_consumed += (
+                    resource_result.total_energy_consumed
+                )
 
 
     def write_report(self):
