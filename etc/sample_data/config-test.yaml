@@ -27,7 +27,7 @@ carmen_api:
 
 carmen_daemon:
   source:
-    input_path: "/tmp/test-data"
+    input_path: "etc/sample_data/test_data"
   output:
     output_path: "/tmp/test-output"
   orchestrator:

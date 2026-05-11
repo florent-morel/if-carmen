@@ -25,6 +25,7 @@ from backend.src.services.carbon_service.impact_framework.service.if_storage_ser
 
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 import logging
+from backend.src.core.yaml_config_loader import config
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,10 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         logger.info(f"Mock processor: {mock_processor}")
         logger.info(f"Mock config: {self.mock_config}")
+        logger.warning(f"config input path: {config.carmen_daemon.input_path}")
+        logger.warning(f"config output path: {config.carmen_daemon.output_path}")
+
+        self.mock_config.output.output_path = config.carmen_daemon.output_path
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
