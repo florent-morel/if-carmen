@@ -13,7 +13,7 @@ from backend.src.common.known_exception import KnownException
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.readers.helpers.cost_helpers import (
-    create_misc_services_resource
+    create_misc_services_resource,
 )
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
@@ -57,9 +57,11 @@ class Reader_Misc_Services(AbstractReader):
         logger.info(f"Inside reader misc services: {self}")
 
         # MISC SERVICES MODEL PROCESSING
-        misc_services_resources, total_compute_cost, total_storage_cost = self.process_csv_data(
-            csv_data
-        )
+        (
+            misc_services_resources,
+            total_compute_cost,
+            total_storage_cost,
+        ) = self.process_csv_data(csv_data)
         logger.info(
             "Loaded %d misc services resources from input file",
             len(misc_services_resources),
@@ -113,33 +115,43 @@ class Reader_Misc_Services(AbstractReader):
             self.process_unknown_providers(row["Provider"])
 
             consumed_service = row.get("ConsumedService", "").lower()
-            # TODO: We should get rid of msft magic parameter
+            # TODO V1: Set a test CSV with ConsumedService, since it's never tested.
+            # TODO V1 Critical: Missing logic - there is no mapping between Compute/Storage items' cost, and their emissions/consumptions.
+            # It will lead to computing the energy/cost ratios based on
+            # - the summed cost of all Compute/Storage services from the input file used here,
+            # - and on the energy computed from other input files (the ones used for Compute/Storage processing).
+            # There is a critical gap to compute ratios based on cost of Compute/Storage items together with their associated computed energy.
+            # Possible solution: add a new BillingCost column in the input files for Compute/Storage, and compute total_compute_misc_services
+            # (to be renamed to total_cost_compute / total_cost_storage) from Compute/Storage processing, to then be reused here.
             # TODO: This switch/case should be dynamic to ease future new resource implementation
-            if "microsoft.compute" == consumed_service:
-                total_compute_misc_services += str_to_float(
-            # TODO: We should update column name 
-                    row.get("CostInBillingCurrencyEUR", "0")
-                )
-            elif "microsoft.storage" == consumed_service:
-                total_storage_misc_services += str_to_float(
-                    row.get("CostInBillingCurrencyEUR", "0")
-                )
+            if "Compute" == consumed_service:
+                total_compute_misc_services += str_to_float(row.get("BillingCost", "0"))
+            elif "Storage" == consumed_service:
+                total_storage_misc_services += str_to_float(row.get("BillingCost", "0"))
             else:
                 misc_services_resource = create_misc_services_resource(row)
                 if misc_services_resource.id == "":
                     continue
                 misc_services_resources.append(misc_services_resource)
         logger.info("Misc services CSV processed")
-        return misc_services_resources, total_compute_misc_services, total_storage_misc_services
+        return (
+            misc_services_resources,
+            total_compute_misc_services,
+            total_storage_misc_services,
+        )
 
     def log_processing_results(self) -> None:
         """
         Log the results of the processing operation.
         """
-        logger.info("Processing completed found %d misc services resources",
-                    len(self.list_resources_to_process))
+        logger.info(
+            "Processing completed found %d misc services resources",
+            len(self.list_resources_to_process),
+        )
 
         self.log_unknown_info(self)
 
-        logger.info("Local Reader processing finished successfully"
-                    "for resource type misc services.")
+        logger.info(
+            "Local Reader processing finished successfully"
+            "for resource type misc services."
+        )

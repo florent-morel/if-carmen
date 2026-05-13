@@ -80,11 +80,11 @@ class TestCostHelpers(unittest.TestCase):
         Test process_cost_csv function with CSV data.
         """
         mock_csv_data = (
-            "ResourceId,ConsumedService,CostInBillingCurrencyEUR\n"
-            "cost1,microsoft.compute,100.0\n"
-            "cost2,microsoft.compute,75.0\n"
-            "cost3,microsoft.storage,50.0\n"
-            "cost4,microsoft.storage,60.0\n"
+            "ResourceId,ConsumedService,BillingCost\n"
+            "cost1,Compute,100.0\n"
+            "cost2,Compute,75.0\n"
+            "cost3,Storage,50.0\n"
+            "cost4,Storage,60.0\n"
             "cost5,network,80.0\n"
             ",,\n"
             "cost6,keyvault,90.0\n"
@@ -108,7 +108,7 @@ class TestCostHelpers(unittest.TestCase):
             "ProductName": "costName",
             "ResourceLocation": "eastus",
             "SubscriptionId": "sub1",
-            "CostInBillingCurrencyEUR": "120.0",
+            "BillingCost": "120.0",
             "Date": "2025-11-01",
         }
         mock_ci_calculator.return_value = 200.0

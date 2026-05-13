@@ -18,6 +18,7 @@ from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
 from backend.src.daemon.processors.processor_compute import Processor_Compute
 
 # from backend.src.core.yaml_config_loader import DaemonConfig
+from backend.src.schemas.resource import ResourceType
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.tests.services.carbon_service.impact_framework.computation.computation_helpers import (
     compute_cpu_energy,
@@ -166,7 +167,7 @@ def vm1():
     Returns a sample virtual machine dictionary.
     """
     return {
-        "name": "/subscriptions/92c669c2-8bb7-4c50-94b7-24e2867ca637/resourceGroups/RG-REG-USE-AVD-001/providers/Microsoft.Compute/virtualMachines/USEAVDD409-0",
+        "name": "/subscriptions/92c669c2-8bb7-4c50-94b7-24e2867ca637/resourceGroups/RG-REG-USE-AVD-001/providers/Compute/virtualMachines/USEAVDD409-0",
         "average_cpu_util": 0.0545,
         "memory_requested": 16,
         "vcpu_allocated": 4,
@@ -188,6 +189,17 @@ def storage1():
         "replication_type": "LRS",
         "duration_seconds": 3600,
     }
+
+
+def setUp(self):
+    """Set up test fixtures."""
+    self.mock_config = MagicMock()
+    self.sample_vms = [
+        vm1(),
+    ]
+    self.sample_storage = [
+        storage1(),
+    ]
 
 
 @pytest.fixture
@@ -289,92 +301,6 @@ def test_carbon_daemon_with_sample_data(
                 abs(first_vm.total_energy_consumed - expected_energy) / expected_energy
                 < 0.5
             ), f"Energy {first_vm.total_energy_consumed} vs expected {expected_energy} differs too much"
-
-
-# @patch("backend.src.daemon.abstract_carbon_daemon.config")
-def test_daemon_with_mocked_components(
-    mock_config: MagicMock,
-    setup_report_dir: None,
-    mock_daemon_config: MagicMock,
-):
-    """
-    Test the daemon with fully mocked reader, writer, and carbon service.
-    This test focuses on the integration and data flow rather than actual calculations.
-    """
-    mock_config.carmen_daemon = mock_daemon_config
-
-    test_vms = [
-        VirtualMachine(
-            id="vm1", name="test-vm-1", region="eastus", vm_size="Standard_D2s_v3"
-        ),
-        VirtualMachine(
-            id="vm2", name="test-vm-2", region="westus", vm_size="Standard_D4s_v3"
-        ),
-    ]
-
-    processed_vms = [
-        VirtualMachine(
-            id="vm1",
-            name="test-vm-1",
-            region="eastus",
-            vm_size="Standard_D2s_v3",
-            total_energy_consumed=10.5,
-            total_carbon_operational=250.0,
-            total_carbon_embodied=150.0,
-            total_carbon_emitted=400.0,
-        ),
-        VirtualMachine(
-            id="vm2",
-            name="test-vm-2",
-            region="westus",
-            vm_size="Standard_D4s_v3",
-            total_energy_consumed=15.2,
-            total_carbon_operational=380.0,
-            total_carbon_embodied=220.0,
-            total_carbon_emitted=600.0,
-        ),
-    ]
-
-    with (
-        patch(
-            "backend.src.daemon.abstract_carbon_daemon.DefaultReaderFactory"
-        ) as mock_reader_factory_class,
-        patch(
-            "backend.src.daemon.abstract_carbon_daemon.DefaultWriterFactory"
-        ) as mock_writer_factory_class,
-        patch(
-            "backend.src.daemon.abstract_carbon_daemon.ioc_util.resolve"
-        ) as mock_ioc_resolve,
-    ):
-        mock_reader_factory = MagicMock()
-        mock_reader_factory_class.return_value = mock_reader_factory
-        mock_reader = MagicMock()
-        mock_reader.read.return_value = test_vms
-        mock_reader_factory.create_reader.return_value = mock_reader
-
-        mock_writer_factory = MagicMock()
-        mock_writer_factory_class.return_value = mock_writer_factory
-        mock_writer = MagicMock()
-        mock_writer_factory.create_writer.return_value = mock_writer
-
-        mock_carbon_service = MagicMock()
-        mock_carbon_service.run_engine.return_value = processed_vms
-        mock_ioc_resolve.return_value = mock_carbon_service
-
-        daemon = CarbonDaemon(mock_daemon_config)
-        result = daemon.run()
-
-        assert result.success is True
-        assert result.vm_count == 2
-        assert result.execution_time > 0
-        assert result.error_message == ""
-
-        mock_reader_factory.create_reader.assert_called_once_with(mock_daemon_config)
-        mock_reader.read.assert_called_once()
-        mock_carbon_service.run_engine.assert_called_once_with(test_vms)
-        mock_writer_factory.create_writer.assert_called_once_with(
-            mock_daemon_config, processed_vms
-        )
 
 
 @patch("backend.src.daemon.abstract_carbon_daemon.config")

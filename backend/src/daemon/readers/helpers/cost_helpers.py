@@ -85,7 +85,7 @@ def create_misc_services_resource(row):
         region=region,
         subscription=row.get("SubscriptionId", "unknown"),
         carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-        services_misc_services=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
+        services_misc_services=str_to_float(row.get("BillingCost", "0")),
     )
     timestamp = row.get(
         "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")

@@ -281,7 +281,7 @@ def _process_misc_services_row(row, misc_dict):
     else:
         # Accumulate cost across multiple billing rows for the same resource
         misc_dict[resource_id].services_cost += str_to_float(
-            row.get("CostInBillingCurrencyEUR", "0")
+            row.get("BillingCost", "0")
         )
 
 
@@ -289,7 +289,7 @@ def _create_misc_services_resource(row):
     """
     Creates a MiscServicesResource from a billing CSV row (cost-model format).
     Columns: ResourceId, ProductName, ResourceLocation, SubscriptionId,
-             Date, CostInBillingCurrencyEUR, ...
+             Date, BillingCost, ...
     """
     return MiscServicesResource(
         id=row.get("ResourceId", ""),
@@ -298,5 +298,5 @@ def _create_misc_services_resource(row):
         region=row.get("ResourceLocation", ""),
         subscription=row.get("SubscriptionId", ""),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
-        services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
+        services_cost=str_to_float(row.get("BillingCost", "0")),
     )
