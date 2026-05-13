@@ -232,7 +232,7 @@ def calculate_storage_size(
     return 0.0, 0
 
 
-def process_storage_row(
+def _process_storage_row(
     row: dict,
     billing_period_days: int,
     storage_dict: dict[str, StorageResource],

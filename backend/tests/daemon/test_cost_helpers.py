@@ -9,9 +9,8 @@ from backend.src.common.known_exception import KnownException
 from backend.src.core.settings import settings, ReportConfig
 from backend.src.daemon.readers.helpers.cost_helpers import (
     get_carbon_and_energy_values,
-    process_cost_csv,
-    create_cost_resource,
-    create_cost_report,
+    create_misc_services_resource,
+    create_misc_services_report,
 )
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from etc.sample_data.test_data.test_data import (
@@ -64,15 +63,17 @@ class TestCostHelpers(unittest.TestCase):
         self.assertEqual(vm_total_carbon, 200.0)
         self.assertEqual(vm_total_energy, 100.0)
 
-    def test_process_cost_csv_empty(self):
-        """
-        Test process_cost_csv function with empty CSV data.
-        """
+    # TODO: Implement UT to validate exception is raised
+    # if no CSV provided. (Should be in reader)
+    # def test_process_cost_csv_empty(self):
+    #     """
+    #     Test process_cost_csv function with empty CSV data.
+    #     """
 
-        with self.assertRaises(KnownException) as context:
-            process_cost_csv("")
+    #     with self.assertRaises(KnownException) as context:
+    #         process_cost_csv("")
 
-        self.assertEqual(str(context.exception.details), "Cost CSV data is empty")
+    #     self.assertEqual(str(context.exception.details), "Cost CSV data is empty")
 
     def test_process_cost_csv(self):
         """

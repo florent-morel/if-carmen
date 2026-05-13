@@ -12,6 +12,9 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
+from backend.src.daemon.readers.helpers.cost_helpers import (
+    create_misc_services_resource
+)
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.core.yaml_config_loader import DaemonConfig
@@ -53,27 +56,29 @@ class Reader_Misc_Services(AbstractReader):
         """
         logger.info(f"Inside reader misc services: {self}")
 
-        # COST MODEL PROCESSING
-        cost_resources, total_compute_cost, total_storage_cost = self.process_csv_data(
+        # MISC SERVICES MODEL PROCESSING
+        misc_services_resources, total_compute_cost, total_storage_cost = self.process_csv_data(
             csv_data
         )
         logger.info(
             "Loaded %d misc services resources from input file",
-            len(cost_resources),
+            len(misc_services_resources),
         )
         #     TODO: what is this?
         #     cost_resources = []
         #     total_compute_cost, total_storage_cost = 1.0, 1.0
 
-        # # Add missing fields to cost resources
-        # for cost_resource in cost_resources:
-        #     cost_resource.compute_embodied = vm_total_carbon
-        #     cost_resource.compute_energy = vm_total_energy
-        #     cost_resource.storage_embodied = storage_total_carbon
-        #     cost_resource.storage_energy = storage_total_energy
-        #     cost_resource.compute_cost = total_compute_cost
-        #     cost_resource.storage_cost = total_storage_cost
-        self.list_resources_to_process = cost_resources
+        # Add missing fields to cost resources
+        for misc_service_resource in misc_services_resources:
+            # TODO: implementation to be done for these values
+            # misc_service_resource.compute_embodied = vm_total_carbon
+            # misc_service_resource.compute_energy = vm_total_energy
+            # misc_service_resource.storage_embodied = storage_total_carbon
+            # misc_service_resource.storage_energy = storage_total_energy
+            misc_service_resource.compute_cost = total_compute_cost
+            misc_service_resource.storage_cost = total_storage_cost
+
+        self.list_resources_to_process = misc_services_resources
 
         self.log_processing_results()
 
@@ -83,13 +88,13 @@ class Reader_Misc_Services(AbstractReader):
         self, csv_data: str
     ) -> tuple[list[MiscServicesResource], float, float]:
         """
-        Process CSV data into a CostResource list.
+        Process CSV data into a MiscServicesResourcelist.
 
         Args:
             csv_data: Raw CSV data
 
         Returns:
-            list[CostResource]: Processed cost resource list
+            list[CostResource]: Processed misc services resource list
             float: Total compute cost
             float: Total storage cost
         """
@@ -104,21 +109,23 @@ class Reader_Misc_Services(AbstractReader):
         total_compute_misc_services = 0.0
         total_storage_misc_services = 0.0
         for row in csv_reader:
-            self.process_missing_regions(row["Region"])
-            self.process_missing_providers(row["Provider"])
+            self.process_unknown_regions(row["Region"])
+            self.process_unknown_providers(row["Provider"])
 
             consumed_service = row.get("ConsumedService", "").lower()
             # TODO: We should get rid of msft magic parameter
+            # TODO: This switch/case should be dynamic to ease future new resource implementation
             if "microsoft.compute" == consumed_service:
                 total_compute_misc_services += str_to_float(
-                    row.get("misc_servicesInBillingCurrencyEUR", "0")
+            # TODO: We should update column name 
+                    row.get("CostInBillingCurrencyEUR", "0")
                 )
             elif "microsoft.storage" == consumed_service:
                 total_storage_misc_services += str_to_float(
-                    row.get("misc_servicesInBillingCurrencyEUR", "0")
+                    row.get("CostInBillingCurrencyEUR", "0")
                 )
             else:
-                misc_services_resource = self.create_misc_services_resource(row)
+                misc_services_resource = create_misc_services_resource(row)
                 if misc_services_resource.id == "":
                     continue
                 misc_services_resources.append(misc_services_resource)
@@ -132,27 +139,7 @@ class Reader_Misc_Services(AbstractReader):
         logger.info("Processing completed found %d misc services resources",
                     len(self.list_resources_to_process))
 
-        self.log_missing_info(self)
+        self.log_unknown_info(self)
 
         logger.info("Local Reader processing finished successfully"
                     "for resource type misc services.")
-
-    def create_misc_services_resource(self, row):
-        """
-        Creates a misc_services resource from the given row
-        """
-        region = row.get("ResourceLocation", "unknown")
-        misc_services_resource = MiscServicesResource(
-            id=row.get("ResourceId"),
-            name=row.get("ProductName", ""),
-            provider=row.get("Provider", ""),
-            region=region,
-            subscription=row.get("SubscriptionId", "unknown"),
-            carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-            services_misc_services=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
-        )
-        timestamp = row.get(
-            "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
-        )
-        misc_services_resource.time_points = [timestamp]
-        return misc_services_resource

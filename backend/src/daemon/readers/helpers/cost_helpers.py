@@ -73,3 +73,22 @@ def create_misc_services_report(
     logger.info("misc_services model report saved to: %s", out_file)
 
 
+def create_misc_services_resource(row):
+    """
+    Creates a misc_services resource from the given row
+    """
+    region = row.get("ResourceLocation", "unknown")
+    misc_services_resource = MiscServicesResource(
+        id=row.get("ResourceId"),
+        name=row.get("ProductName", ""),
+        provider=row.get("Provider", ""),
+        region=region,
+        subscription=row.get("SubscriptionId", "unknown"),
+        carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
+        services_misc_services=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
+    )
+    timestamp = row.get(
+        "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    )
+    misc_services_resource.time_points = [timestamp]
+    return misc_services_resource

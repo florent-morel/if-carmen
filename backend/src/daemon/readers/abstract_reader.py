@@ -32,8 +32,8 @@ class AbstractReader(ABC):
             if pc.get_regions()
             for region in pc.get_regions()
         }
-        self.missing_regions: Counter = Counter()
-        self.missing_providers: Counter = Counter()
+        self.unknown_regions: Counter = Counter()
+        self.unknown_providers: Counter = Counter()
 
     @abstractmethod
     def read(self, csv_data: str) -> list[Resource]:
@@ -67,28 +67,28 @@ class AbstractReader(ABC):
         Log the results of the processing operation.
         """
 
-    def process_missing_regions(self, region_csv):
+    def process_unknown_regions(self, region_csv):
         """
         If region coming from csv input file, store it to log it afterwards.
         """
         if region_csv not in self.known_regions:
-            self.missing_regions[region_csv] += 1
+            self.unknown_regions[region_csv] += 1
 
-    def process_missing_provider(self, provider_csv):
+    def process_unknown_provider(self, provider_csv):
         """
         If provider coming from csv input file, store it to log it afterwards.
         """
         if provider_csv not in config.provider_configs:
-            self.missing_providers[provider_csv] += 1
+            self.unknown_providers[provider_csv] += 1
 
-    def log_missing_info(self) -> None:
-        for region, count in self.missing_regions.items():
+    def log_unknown_info(self) -> None:
+        for region, count in self.unknown_regions.items():
             logger.warning(
                 "Unknown Region '%s': %d — using default carbon intensity",
                 region,
                 count,
             )
-        for provider, count in self.missing_providers.items():
+        for provider, count in self.unknown_providers.items():
             logger.warning(
                 "unknown provider '%s': %d — using default PUE",
                 provider,

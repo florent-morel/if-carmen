@@ -75,8 +75,8 @@ class Reader_Compute(AbstractReader):
             vm_id = row["Id"]
             try:
                 if vm_id not in vm_dict:
-                    self.process_missing_regions(row["Region"])
-                    self.process_missing_providers(row["Provider"])
+                    self.process_unknown_regions(row["Region"])
+                    self.process_unknown_providers(row["Provider"])
                     new_vm = create_vm(row, vm_id)
                     vm_dict[vm_id] = new_vm
 
@@ -98,7 +98,7 @@ class Reader_Compute(AbstractReader):
         logger.info("Processing completed found %d compute resources",
                     len(self.list_resources_to_process))
 
-        self.log_missing_info(self)
+        self.log_unknown_info(self)
 
         logger.info("Local Reader processing finished successfully"
                     "for resource type compute.")

@@ -19,7 +19,7 @@ from backend.src.daemon.readers.helpers.storage_helpers import (
     get_storage_type,
     get_replication_type,
     calculate_storage_size,
-    process_storage_row as _process_storage_row,
+    _process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.common.constants import (
@@ -38,6 +38,7 @@ class Reader_Storage(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
+        # TODO: remove hard coded file path: this should be in config-test.yaml
         self.storage_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
 
         self.dict_log_info: dict[str, str] | None = None
@@ -131,8 +132,8 @@ class Reader_Storage(AbstractReader):
         for row in csv_reader:
             total_rows += 1
 
-            self.process_missing_regions(row["Region"])
-            self.process_missing_providers(row["Provider"])
+            self.process_unknown_regions(row["Region"])
+            self.process_unknown_providers(row["Provider"])
 
             # Filter for MeterCategory = "Storage"
             meter_category = row.get("MeterCategory", "").lower()
@@ -190,7 +191,7 @@ class Reader_Storage(AbstractReader):
         logger.debug("  Billing period days: %s", self.dict_log_info[
                      "period_days"])
 
-        self.log_missing_info(self)
+        self.log_unknown_info(self)
 
         logger.info("Local Reader processing finished successfully"
                     "for resource type storage.")
