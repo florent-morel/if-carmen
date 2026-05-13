@@ -15,10 +15,6 @@ from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.core.yaml_config_loader import DaemonConfig
-from backend.src.daemon.readers.helpers.cost_helpers import (
-    create_cost_resource,
-    process_cost_row,
-)
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.schemas.storage_resource import StorageResource
@@ -58,11 +54,11 @@ class Reader_Misc_Services(AbstractReader):
         logger.info(f"Inside reader misc services: {self}")
 
         # COST MODEL PROCESSING
-        cost_resources, total_compute_cost, total_storage_cost = self.process_cost_csv(
+        cost_resources, total_compute_cost, total_storage_cost = self.process_csv_data(
             csv_data
         )
         logger.info(
-            "Loaded %d cost resources from local test file",
+            "Loaded %d misc services resources from input file",
             len(cost_resources),
         )
         #     TODO: what is this?
@@ -79,11 +75,13 @@ class Reader_Misc_Services(AbstractReader):
         #     cost_resource.storage_cost = total_storage_cost
         self.list_resources_to_process = cost_resources
 
+        self.log_processing_results()
+
         return self.list_resources_to_process
 
-    def process_cost_csv(
+    def process_csv_data(
         self, csv_data: str
-    ) -> tuple[list[CostResource], float, float]:
+    ) -> tuple[list[MiscServicesResource], float, float]:
         """
         Process CSV data into a CostResource list.
 
@@ -101,24 +99,60 @@ class Reader_Misc_Services(AbstractReader):
 
         csv_reader = csv.DictReader(rows)
 
-        logger.info("Processing Cost CSV...")
-        cost_resources: list[CostResource] = []
-        total_compute_cost = 0.0
-        total_storage_cost = 0.0
+        logger.info("Processing Misc services CSV...")
+        misc_services_resources: list[MiscServicesResource] = []
+        total_compute_misc_services = 0.0
+        total_storage_misc_services = 0.0
         for row in csv_reader:
+            self.process_missing_regions(row["Region"])
+            self.process_missing_providers(row["Provider"])
+
             consumed_service = row.get("ConsumedService", "").lower()
+            # TODO: We should get rid of msft magic parameter
             if "microsoft.compute" == consumed_service:
-                total_compute_cost += str_to_float(
-                    row.get("CostInBillingCurrencyEUR", "0")
+                total_compute_misc_services += str_to_float(
+                    row.get("misc_servicesInBillingCurrencyEUR", "0")
                 )
             elif "microsoft.storage" == consumed_service:
-                total_storage_cost += str_to_float(
-                    row.get("CostInBillingCurrencyEUR", "0")
+                total_storage_misc_services += str_to_float(
+                    row.get("misc_servicesInBillingCurrencyEUR", "0")
                 )
             else:
-                cost_resource = create_cost_resource(row)
-                if cost_resource.id == "":
+                misc_services_resource = self.create_misc_services_resource(row)
+                if misc_services_resource.id == "":
                     continue
-                cost_resources.append(cost_resource)
-        logger.info("Cost CSV processed")
-        return cost_resources, total_compute_cost, total_storage_cost
+                misc_services_resources.append(misc_services_resource)
+        logger.info("Misc services CSV processed")
+        return misc_services_resources, total_compute_misc_services, total_storage_misc_services
+
+    def log_processing_results(self) -> None:
+        """
+        Log the results of the processing operation.
+        """
+        logger.info("Processing completed found %d misc services resources",
+                    len(self.list_resources_to_process))
+
+        self.log_missing_info(self)
+
+        logger.info("Local Reader processing finished successfully"
+                    "for resource type misc services.")
+
+    def create_misc_services_resource(self, row):
+        """
+        Creates a misc_services resource from the given row
+        """
+        region = row.get("ResourceLocation", "unknown")
+        misc_services_resource = MiscServicesResource(
+            id=row.get("ResourceId"),
+            name=row.get("ProductName", ""),
+            provider=row.get("Provider", ""),
+            region=region,
+            subscription=row.get("SubscriptionId", "unknown"),
+            carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
+            services_misc_services=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
+        )
+        timestamp = row.get(
+            "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+        )
+        misc_services_resource.time_points = [timestamp]
+        return misc_services_resource

@@ -1,5 +1,5 @@
 """
-Helper functions for cost model
+Helper functions for misc_services model
 """
 
 import csv
@@ -46,56 +46,30 @@ def get_carbon_and_energy_values(
     return storage_total_carbon, storage_total_energy, vm_total_carbon, vm_total_energy
 
 
-def create_cost_report(
-    cost_resources: list[MiscServicesResource], date: str, out_file: str
+def create_misc_services_report(
+    misc_services_resources: list[MiscServicesResource], date: str, out_file: str
 ):
     """
-    Creates a cost report for the given cost resource list.
+    Creates a misc_services report for the given cost resource list.
     """
-    logger.info("Creating cost model report...")
+    logger.info("Creating misc_services model report...")
     with open(out_file, mode="w", newline="", encoding="utf-8") as report:
         writer = csv.writer(report)
-        writer.writerows(ReportConfig.COST_REPORT_HEADERS)
-        for cost_resource in cost_resources:
+        writer.writerows(ReportConfig.misc_services_REPORT_HEADERS)
+        for misc_services_resource in misc_services_resources:
             row = [
                 date,
-                cost_resource.id,
-                cost_resource.resource_type,
-                cost_resource.region,
-                cost_resource.subscription,
-                cost_resource.carbon_intensity,
-                cost_resource.services_cost,
-                cost_resource.total_energy_consumed,
-                cost_resource.total_carbon_operational,
-                cost_resource.total_carbon_embodied,
+                misc_services_resource.id,
+                misc_services_resource.resource_type,
+                misc_services_resource.region,
+                misc_services_resource.subscription,
+                misc_services_resource.carbon_intensity,
+                misc_services_resource.services_cost,
+                misc_services_resource.total_energy_consumed,
+                misc_services_resource.total_carbon_operational,
+                misc_services_resource.total_carbon_embodied,
             ]
             writer.writerow(row)
-    logger.info("Cost model report saved to: %s", out_file)
+    logger.info("misc_services model report saved to: %s", out_file)
 
 
-def process_cost_csv(self, csv_data: str):
-    """
-    TODO: is it necessary ?
-    """
-    pass
-
-
-def create_cost_resource(row):
-    """
-    Creates a cost resource from the given row
-    """
-    region = row.get("ResourceLocation", "unknown")
-    cost_resource = MiscServicesResource(
-        id=row.get("ResourceId"),
-        name=row.get("ProductName", ""),
-        provider=row.get("Provider", ""),
-        region=region,
-        subscription=row.get("SubscriptionId", "unknown"),
-        carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-        services_cost=str_to_float(row.get("CostInBillingCurrencyEUR", "0")),
-    )
-    timestamp = row.get(
-        "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
-    )
-    cost_resource.time_points = [timestamp]
-    return cost_resource
