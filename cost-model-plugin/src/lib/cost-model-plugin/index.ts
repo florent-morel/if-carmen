@@ -46,6 +46,8 @@ export const CostModelPlugin = PluginFactory({
       const carbonIntensity = input['carbon-intensity'];
 
       // Calculate the outputs
+            // TODO: Magic numbers to be put in config
+            // TODO: Add this formula in documentation (and point explicitely to this file/model)
       const servicesEnergyValue = servicesCost * (0.75 * (computeEnergy / computeCost) + 0.25 * (storageEnergy / storageCost));
 
       const servicesOperationalValue = servicesEnergyValue * carbonIntensity;

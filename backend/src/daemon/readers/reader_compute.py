@@ -4,8 +4,6 @@ Base module for reading and processing compute resource data.
 
 import csv
 import logging
-from collections import Counter
-from pathlib import Path
 
 from pydantic import ValidationError
 
@@ -24,23 +22,8 @@ class Reader_Compute(AbstractReader):
     Implementation base class for reading virtual machines resource data.
     """
 
-    def __init__(self, daemon_config: DaemonConfig):
-        self.config: DaemonConfig = daemon_config
+    def __init__(self):
         logger.info("initializing local compute reader.")
-
-        self.input_path: Path = Path(str(self.config.source.input_path)).resolve()
-        self.known_regions: set[str] = {
-            region
-            for pc in config.provider_configs.values()
-            if pc.get_regions()
-            for region in pc.get_regions()
-        }
-        self.missing_regions: Counter = Counter()
-        self.missing_providers: Counter = Counter()
-        logger.info(
-            "local compute reader initialized with source path %s",
-            self.input_path,
-        )
 
     def read(self, csv_data) -> list[VirtualMachine]:
         """
@@ -59,9 +42,10 @@ class Reader_Compute(AbstractReader):
 
             self.process_csv_data(csv_data, vm_dict)
 
-            self._log_processing_results(vm_dict)
-
             self.list_resources_to_process = list(vm_dict.values())
+
+            self.log_processing_results(self)
+
             return self.list_resources_to_process
 
         except Exception as e:
@@ -91,10 +75,8 @@ class Reader_Compute(AbstractReader):
             vm_id = row["Id"]
             try:
                 if vm_id not in vm_dict:
-                    if row["Region"] not in self.known_regions:
-                        self.missing_regions[row["Region"]] += 1
-                    if row["Provider"] not in config.provider_configs:
-                        self.missing_providers[row["Provider"]] += 1
+                    self.process_unknown_regions(row["Region"])
+                    self.process_unknown_providers(row["Provider"])
                     new_vm = create_vm(row, vm_id)
                     vm_dict[vm_id] = new_vm
 
@@ -109,23 +91,14 @@ class Reader_Compute(AbstractReader):
 
         return True
 
-    def _log_processing_results(self, vm_dict: dict[str, VirtualMachine]) -> None:
+    def log_processing_results(self) -> None:
         """
         Log the results of the processing operation.
         """
-        logger.info("processing completed found %d compute resources", len(vm_dict))
+        logger.info("Processing completed found %d compute resources",
+                    len(self.list_resources_to_process))
 
-        for region, count in self.missing_regions.items():
-            logger.warning(
-                "unknown region '%s': %d VMs — using default carbon intensity",
-                region,
-                count,
-            )
-        for provider, count in self.missing_providers.items():
-            logger.warning(
-                "unknown provider '%s': %d VMs — using default PUE",
-                provider,
-                count,
-            )
+        self.log_unknown_info(self)
 
-        logger.info("local compute reader processing finished successfully")
+        logger.info("Local Reader processing finished successfully"
+                    "for resource type compute.")

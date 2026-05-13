@@ -71,16 +71,6 @@ class CarbonDaemonOrchestrator:
         self.list_resource_processors: list[
             AbstractProcessor
         ] = list_resource_processors
-        self.carbon_daemon_result: CarbonDaemonResult = CarbonDaemonResult(
-            success=True,
-            dict_resource_result={},
-            list_exceptions=[],
-            total_energy_consumed=0.0,
-            total_carbon_operational=0.0,
-            total_carbon_embodied=0.0,
-            total_carbon_emitted=0.0,
-            execution_time=0,
-        )
         self.carbon_daemon_result = self.create_carbon_daemon_result(
             success=True,
             execution_time=0,

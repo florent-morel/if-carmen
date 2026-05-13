@@ -10,37 +10,6 @@ from backend.src.utils.paas_ci_mapper import PaasCiMapper
 
 logger = logging.getLogger(__name__)
 
-
-def log_missing_regions(missing_region_vm_count: dict[str, int]):
-    """
-    Logs missing regions with the information of total number of VMs these regions contain.
-    Args:
-        missing_region_vm_count (Dict[str, int]): Dictionary with the information of missing regions and
-        the corresponding VM count
-    """
-    for region in missing_region_vm_count:
-        logger.warning(
-            "unknown region '%s': %d VMs — using default carbon intensity",
-            region,
-            missing_region_vm_count[region],
-        )
-
-
-def log_missing_providers(missing_provider_vm_count: dict[str, int]):
-    """
-    Logs missing providers with the information of total number of VMs these providers contain.
-    Args:
-        missing_provider_vm_count (Dict[str, int]): Dictionary with the information of missing providers and
-        the corresponding VM count
-    """
-    for provider in missing_provider_vm_count:
-        logger.warning(
-            "unknown provider '%s': %d VMs — using default PUE",
-            provider,
-            missing_provider_vm_count[provider],
-        )
-
-
 def get_row_data(row_data: str) -> str:
     """
     Helper function to get row data, returns empty string if the data is missing or represented as '-'.

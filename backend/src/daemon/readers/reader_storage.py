@@ -19,7 +19,7 @@ from backend.src.daemon.readers.helpers.storage_helpers import (
     get_storage_type,
     get_replication_type,
     calculate_storage_size,
-    process_storage_row as _process_storage_row,
+    _process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.common.constants import (
@@ -38,7 +38,10 @@ class Reader_Storage(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
+        # TODO: remove hard coded file path: this should be in config-test.yaml
         self.storage_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
+
+        self.dict_log_info: dict[str, str] | None = None
 
     def read(self, csv_data) -> list[Resource]:
         """
@@ -56,9 +59,10 @@ class Reader_Storage(AbstractReader):
 
             self.process_csv_data(csv_data, storage_dict)
 
-            self._log_processing_results(storage_dict)
-
             self.list_resources_to_process = list(storage_dict.values())
+
+            self.log_processing_results()
+
             return self.list_resources_to_process
 
         except Exception as e:
@@ -128,6 +132,9 @@ class Reader_Storage(AbstractReader):
         for row in csv_reader:
             total_rows += 1
 
+            self.process_unknown_regions(row["Region"])
+            self.process_unknown_providers(row["Provider"])
+
             # Filter for MeterCategory = "Storage"
             meter_category = row.get("MeterCategory", "").lower()
             if "storage" not in meter_category:
@@ -152,15 +159,39 @@ class Reader_Storage(AbstractReader):
                 excluded_rows += 1
                 continue
 
+        self.dict_log_info["total_rows"] = total_rows
+        self.dict_log_info["total_storage_rows"] = total_storage_rows
+        self.dict_log_info["not_storage_rows"] = not_storage_rows
+        self.dict_log_info["excluded_rows"] = excluded_rows
+        self.dict_log_info["disk_rows"] = disk_rows
+        self.dict_log_info["period_days"] = period_days
+
         logger.info("Storage CSV processed")
+
+        return data_found
+
+    def log_processing_results(self) -> None:
+        """
+        Log the results of the processing operation.
+        """
+        logger.info("Processing completed found %d compute resources",
+                    len(self.list_resources_to_process))
 
         # Summary logging
         logger.debug("Storage processing summary:")
-        logger.debug("  Total rows: %s", total_rows)
-        logger.debug("  Total Storage rows: %s", total_storage_rows)
-        logger.debug("  Not Storage rows: %s", not_storage_rows)
-        logger.debug("  Excluded rows: %s", excluded_rows)
-        logger.debug("  Disk rows (processed): %s", disk_rows)
-        logger.debug("  Billing period days: %s", period_days)
+        logger.debug("  Total rows: %s", self.dict_log_info["total_rows"])
+        logger.debug("  Total Storage rows: %s", self.dict_log_info[
+                     "total_storage_rows"])
+        logger.debug("  Not Storage rows: %s", self.dict_log_info[
+                     "not_storage_rows"])
+        logger.debug("  Excluded rows: %s", self.dict_log_info[
+                     "excluded_rows"])
+        logger.debug("  Disk rows (processed): %s", self.dict_log_info[
+                     "disk_rows"])
+        logger.debug("  Billing period days: %s", self.dict_log_info[
+                     "period_days"])
 
-        return data_found
+        self.log_unknown_info(self)
+
+        logger.info("Local Reader processing finished successfully"
+                    "for resource type storage.")
