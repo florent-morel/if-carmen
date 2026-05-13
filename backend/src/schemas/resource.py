@@ -33,6 +33,7 @@ class Resource(ABC, BaseModel):
     provider: str | None = None
 
     id: str  # Unique identifier for the resource
+    name: str | None = None
     carbon_intensity: float = 0.0
     pue: float = 1.0
     region: str | None = None
