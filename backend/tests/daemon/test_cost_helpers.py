@@ -14,7 +14,7 @@ from backend.src.daemon.readers.helpers.cost_helpers import (
     create_cost_report,
 )
 from backend.src.schemas.misc_services_resource import MiscServicesResource
-from backend.tests.daemon.test_data.test_data import (
+from etc.sample_data.test_data.test_data import (
     sample_vms,
     sample_storage_resources,
 )
@@ -30,7 +30,7 @@ class TestCostHelpers(unittest.TestCase):
         Set up test fixtures.
         """
         self.cost_resources = [
-            CostResource(
+            MiscServicesResource(
                 id="cost1",
                 name="name1",
                 region="eastus",
@@ -38,7 +38,7 @@ class TestCostHelpers(unittest.TestCase):
                 carbon_intensity=100.0,
                 services_cost=50.0,
             ),
-            CostResource(
+            MiscServicesResource(
                 id="cost2",
                 name="name2",
                 region="westus",
