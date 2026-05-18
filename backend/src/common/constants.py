@@ -61,27 +61,6 @@ PLUGIN_PATH = os.path.join(
     "cost-model-plugin/build",
 )
 
-# TODO: Should be removed
-ZONES = {
-    "EUS": "eastus",
-    "WUS": "westus",
-    "NE": "northeurope",
-    "EUN1": "northeurope",
-    "IRL": "northeurope",
-    "FC": "francecentral",
-    "SA": "southeastasia",
-    "GWC": "germanywestcentral",
-    "ERD": "germanywestcentral",
-    "MUC": "germanywestcentral",
-    "CDF": "germanywestcentral",
-    "CDFDEV": "germanywestcentral",
-    "NLD": "westeurope",
-    "WE": "westeurope",
-    "NGI": "northeurope",
-    "NET": "westeurope",
-    "NCE": "francesouth",
-}
-
 # STORAGE_POWER_COEFFICIENT_MAPPING = {  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
 #     "SSD": 0.0000012,
 #     "HDD": 0.00000065,

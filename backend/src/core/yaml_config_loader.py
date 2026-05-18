@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
+from functools import cached_property
 from pydantic import model_validator, ValidationError
 from pydantic_settings import BaseSettings
 
@@ -198,6 +199,16 @@ class AppConfig(BaseSettings):
     carmen_daemon: DaemonConfig | None = None
     provider_configs: dict[str, AbstractProviderConfig] = {}
     carbon_intensity_config: CarbonIntensityConfig | None = None
+
+    @cached_property
+    def zone_aliases(self) -> dict[str, str]:
+        """Merged zone-alias map from all provider configs. Built once on first access."""
+        result: dict[str, str] = {}
+        for provider_config in self.provider_configs.values():
+            aliases = provider_config.get_zone_aliases()
+            if aliases:
+                result.update(aliases)
+        return result
 
 
 def env_constructor(loader: yaml.SafeLoader, node: yaml.ScalarNode) -> str:

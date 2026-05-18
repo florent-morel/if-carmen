@@ -19,6 +19,7 @@ class AbstractProviderConfig(BaseSettings):
     storage_replication_factors: dict[str, int] | None = None
     disk_sku_size_mapping: dict[str, int] | None = None
     regions: dict[str, str] | None = None
+    zone_aliases: dict[str, str] | None = None
 
     def get_pue(self) -> float | None:
         return self.pue
@@ -34,3 +35,6 @@ class AbstractProviderConfig(BaseSettings):
 
     def get_regions(self) -> dict[str, str] | None:
         return self.regions
+
+    def get_zone_aliases(self) -> dict[str, str] | None:
+        return self.zone_aliases

@@ -22,6 +22,28 @@ regions:
   centralindia: India
   southindia: India
 
+# Mapping of internal PaaS zone codes (after digit-stripping) to Azure region names.
+# Keys must be uppercase and digit-free, matching what PaasCiMapper derives from
+# the raw PaaS value via remove_unnecessary(paas.upper()).
+zone_aliases:
+  EUS: eastus
+  WUS: westus
+  NE: northeurope
+  EUN: northeurope       # covers PaaS codes like EUN1, EUN2, …
+  IRL: northeurope
+  FC: francecentral
+  SA: southeastasia
+  GWC: germanywestcentral
+  ERD: germanywestcentral
+  MUC: germanywestcentral
+  CDF: germanywestcentral
+  CDFDEV: germanywestcentral
+  NLD: westeurope
+  WE: westeurope
+  NGI: northeurope
+  NET: westeurope
+  NCE: francesouth
+
 # Electricity ratios
 electricity_ratios:
   cpu_min: 0.78  # watt per core
