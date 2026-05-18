@@ -22,6 +22,10 @@ from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.utils import ioc_util
 from backend.src.common.errors import ErrorCode
 from backend.src.services.carbon_service.carbon_service import CarbonService
+from backend.src.daemon.carbon_daemon_result import (
+    CarbonDaemonResult,
+    ResourceTypeResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +37,7 @@ class Runner_Misc_Services(AbstractRunner):
 
     def __init__(self):
         self.resource_type_result: ResourceTypeResult | None = None
+        self.carbon_daemon_result: CarbonDaemonResult
 
     # Resources built by the reader to be handled by the runner
     @property

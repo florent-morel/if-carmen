@@ -37,6 +37,9 @@ from backend.src.schemas.resource import ResourceType
 from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
 )
+from backend.src.daemon.processors.processor_misc_services import (
+    Processor_Misc_Services,
+)
 
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.daemon.writers.writer_storage import Writer_Storage
@@ -250,6 +253,7 @@ class CarbonDaemonOrchestrator:
                 Exception(ErrorCode.UNKNOWN_ERROR)
             )
 
+    # TODO: Need to ensure Misc Services Runner is called last in the chain
     def run_engine(self):
         """
         Loops over all configured processors and runs the Impact Framework
@@ -274,6 +278,12 @@ class CarbonDaemonOrchestrator:
                         f" runner for {abstract_processor.resource_type.value}"
                         f" resource type."
                     )
+
+                    # End of the process (TODO: ensure this)
+                    if abstract_processor.resource_type.value == ResourceType.MISC_SERVICES:
+                        for resource_result in self.carbon_daemon_result.dict_resource_result.values():
+                            abstract_processor.list_resources_to_process.append(resource_result.list_processed_resources)
+
                     resource_type_result = abstract_processor.run()
 
                     # Populate result dictionary with Resource result

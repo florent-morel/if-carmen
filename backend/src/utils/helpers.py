@@ -329,3 +329,10 @@ def get_timestamps(
         current_timepoint += interval
 
     return timestamps
+
+
+def get_row_data(row_data: str) -> str:
+    """
+    Helper function to get row data, returns empty string if the data is missing or represented as '-'.
+    """
+    return row_data if row_data != "-" and row_data else ""

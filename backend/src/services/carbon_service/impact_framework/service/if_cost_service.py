@@ -5,6 +5,7 @@ import concurrent
 import logging
 from typing import List
 
+from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.services.carbon_service.impact_framework.models.carbon.cost import (
     CostModel,
@@ -19,6 +20,7 @@ from backend.src.services.carbon_service.impact_framework.service.if_service imp
 logger = logging.getLogger(__name__)
 
 
+# TODO: Rename
 class IFCostService(IFService):
     """
     Specialized Impact Framework service for cost model
@@ -29,17 +31,19 @@ class IFCostService(IFService):
             "services_template.yml.j2", "services_pipeline.yml", "horizontal", duration
         )
 
+        # TODO: fill these variables in runner
+        # TODO: put default values
     def run_engine(
-        self, cost_resources: List[MiscServicesResource]
+        self, cost_resources: List[MiscServicesResource],
     ) -> List[MiscServicesResource]:
         """
-        Executes the Impact Framework (IF) model to compute cost metrics for cost resources.
+        Executes the Impact Framework (IF) model to estimate impact for misc resources.
         """
         # Divide into chunks
         chunk_size = 10000
 
         chunks = [
-            cost_resources[x : x + chunk_size]
+            cost_resources[x: x + chunk_size]
             for x in range(0, len(cost_resources), chunk_size)
         ]
 

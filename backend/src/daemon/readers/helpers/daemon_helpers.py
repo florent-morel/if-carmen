@@ -7,14 +7,9 @@ import logging
 from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
+from backend.src.utils.helpers import get_row_data
 
 logger = logging.getLogger(__name__)
-
-def get_row_data(row_data: str) -> str:
-    """
-    Helper function to get row data, returns empty string if the data is missing or represented as '-'.
-    """
-    return row_data if row_data != "-" and row_data else ""
 
 
 def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
@@ -39,4 +34,5 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,
         pue=pue,
+        billing_cost=get_row_data(row["BillingCost"]),
     )

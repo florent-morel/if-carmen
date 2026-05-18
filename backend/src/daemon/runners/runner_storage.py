@@ -59,19 +59,19 @@ class Runner_Storage(AbstractRunner):
             logger.info("Processed resources: %s", processed_resources)
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_resource_type_result(
+            resource_type_result = self.create_resource_type_result(
                 True, execution_time, ResourceType.STORAGE, processed_resources, []
             )
 
             logger.info(
                 "Storage processing: %d storage resources processed, "
                 "%.2f kWh total energy, %.0f gCO2 total emissions",
-                len(resourceDaemonResult.list_processed_resources),
-                resourceDaemonResult.total_energy_consumed,
-                resourceDaemonResult.total_carbon_emitted,
+                len(resource_type_result.list_processed_resources),
+                resource_type_result.total_energy_consumed,
+                resource_type_result.total_carbon_emitted,
             )
 
-            return resourceDaemonResult
+            return resource_type_result
 
         except KnownException as e:
             execution_time = time.time() - start_time

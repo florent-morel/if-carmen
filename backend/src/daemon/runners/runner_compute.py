@@ -57,7 +57,7 @@ class Runner_Compute(AbstractRunner):
 
             execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_resource_type_result(
+            resource_type_result = self.create_resource_type_result(
                 True,
                 execution_time,
                 ResourceType.VIRTUAL_MACHINE,
@@ -69,13 +69,13 @@ class Runner_Compute(AbstractRunner):
                 "Runner: Compute modelling completed successfully. "
                 "Processed %d Virtual Machines in %.2f seconds. "
                 "Total energy consumed: %.2f, Total carbon emitted: %.2f",
-                len(resourceDaemonResult.list_processed_resources),
+                len(resource_type_result.list_processed_resources),
                 execution_time,
-                resourceDaemonResult.total_energy_consumed,
-                resourceDaemonResult.total_carbon_emitted,
+                resource_type_result.total_energy_consumed,
+                resource_type_result.total_carbon_emitted,
             )
 
-            return resourceDaemonResult
+            return resource_type_result
 
         except KnownException as e:
             execution_time = time.time() - start_time

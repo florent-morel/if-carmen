@@ -10,7 +10,7 @@ import re
 from datetime import datetime
 
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.utils.helpers import str_to_float
+from backend.src.utils.helpers import str_to_float, get_row_data
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 
 logger = logging.getLogger(__name__)
@@ -131,6 +131,7 @@ def create_storage_resource(
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         time_points=[],
         duration_seconds=duration_seconds,
+        billing_cost=get_row_data(row["BillingCost"]),
     )
 
 

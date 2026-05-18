@@ -58,6 +58,7 @@ class CostModel(ModelUtilities):
         super().__init__(PLUGIN_PATH, "CostModelPlugin", config, output_metadata)
 
     @staticmethod
+    # Fetch CarbonDaemonResult values to fill compute-energy, etc.
     def fill_inputs(cost_resource: MiscServicesResource, time_index: int):
         """
         Fills the time point specific input values.

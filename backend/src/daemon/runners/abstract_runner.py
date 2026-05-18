@@ -86,6 +86,7 @@ class AbstractRunner(ABC):
             total_carbon_embodied=0,
             total_carbon_emitted=0,
             execution_time=execution_time,
+            total_billing_cost=0,
         )
 
         for resource_result in list_processed_resources:
@@ -101,5 +102,12 @@ class AbstractRunner(ABC):
             resource_type_result.total_carbon_emitted += (
                 resource_result.total_carbon_emitted
             )
+
+            # If this resource is indeed emitting CO2
+            # then consider it for the computation of misc_services impact
+            if resource_result.total_carbon_emitted > 0:
+                resource_type_result.total_billing_cost += (
+                    resource_result.billing_cost
+                )
 
         return resource_type_result

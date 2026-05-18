@@ -20,6 +20,17 @@ class CarbonDaemonResult:
         total_carbon_embodied: float,
         total_carbon_emitted: float,
         execution_time: float = 0.0,
+
+        # Total values computed by different processors
+        # To properly estimate misc services
+        # We need all already computed resources
+        # And get their billing cost
+        compute_energy: float = 0.0,
+        storage_energy: float = 0.0,
+        compute_embodied: float = 0.0,
+        storage_embodied: float = 0.0,
+        compute_cost: float = 0.0,
+        storage_cost: float = 0.0,
     ):
         self.success: bool = success
         self.dict_resource_result: dict = dict_resource_result
@@ -45,6 +56,7 @@ class ResourceTypeResult:
         total_carbon_embodied: float,
         total_carbon_emitted: float,
         execution_time: float = 0.0,
+        total_billing_cost: float = 0.0,
     ):
         self.success: bool = success
         self.resource_type: ResourceType = resource_type
@@ -55,3 +67,4 @@ class ResourceTypeResult:
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
         self.list_exceptions: list = list_exceptions
+        self.total_billing_cost: float = total_billing_cost
