@@ -3,13 +3,10 @@ This module contains helper functions for the daemon, including VM creation and 
 TODO: this is actually a VM_helpers module
 """
 
-import logging
 from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.utils.helpers import get_row_data
-
-logger = logging.getLogger(__name__)
 
 
 def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
@@ -19,7 +16,6 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
     region = get_row_data(row["Region"])
     provider = get_row_data(row["Provider"])
     provider_config = config.provider_configs.get(provider)
-    pue = provider_config.get_pue() if provider_config else config.defaults.pue
     return VirtualMachine(
         id=vm_id,
         region=region,
@@ -33,6 +29,6 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         partition=get_row_data(row["Partition"]),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,
-        pue=pue,
+        pue=provider_config.get_pue() if provider_config else config.defaults.pue,
         billing_cost=get_row_data(row["BillingCost"]),
     )
