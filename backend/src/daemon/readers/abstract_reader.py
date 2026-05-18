@@ -74,7 +74,7 @@ class AbstractReader(ABC):
         if region_csv not in self.known_regions:
             self.unknown_regions[region_csv] += 1
 
-    def process_unknown_provider(self, provider_csv):
+    def process_unknown_providers(self, provider_csv):
         """
         If provider coming from csv input file, store it to log it afterwards.
         """
