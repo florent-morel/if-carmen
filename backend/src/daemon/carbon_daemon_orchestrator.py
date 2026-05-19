@@ -34,6 +34,7 @@ from backend.src.daemon.carbon_daemon_result import (
 )
 
 from backend.src.schemas.resource import ResourceType
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
 )
@@ -56,6 +57,24 @@ from backend.src.common.constants import (
 logger = logging.getLogger(__name__)
 
 
+class OrchestratorContext:
+    """
+    Class to store variables related to this Carmen Daemon run.
+    """
+
+    # Variables set at the end of compute & storage processing.
+    # These will then be used as cost model in the Misc Services process.
+    # TODO: Should be set in Orchestrator context to be used only once.
+    # compute_energy: float = 0.0
+    # storage_energy: float = 0.0
+    # compute_embodied: float = 0.0
+    # storage_embodied: float = 0.0
+
+    # compute_cost: float = 0.0
+    # storage_cost: float = 0.0
+    # storage_cost: float = 0.0
+
+
 class CarbonDaemonOrchestrator:
     def __init__(
         self,
@@ -71,12 +90,20 @@ class CarbonDaemonOrchestrator:
         """
         self.config: DaemonConfig = daemon_config
 
-        # TODO: check if Misc Services process is present in the list.
-        # If yes and not in last position, re-order the list
+        # TODO: we should go for a collection ensuring unicity
         self.list_resource_processors: list[
             AbstractProcessor
         ] = list_resource_processors
-        self.carbon_daemon_result = self.create_carbon_daemon_result(
+
+        # TODO: do it properly
+        # Check if Misc Services process is present in the list.
+        # If yes and not in last position, re-order the list
+        index = list_resource_processors.index("Processor_Misc_Services")
+        if index > -1:
+            list_resource_processors.pop(index)
+            list_resource_processors.append("Processor_Misc_Services")
+
+        self.carbon_daemon_result: CarbonDaemonResult = self.create_carbon_daemon_result(
             success=True,
             execution_time=0,
         )
@@ -110,7 +137,7 @@ class CarbonDaemonOrchestrator:
             # Read infrastructure data
             self.read_data_source()
 
-            # Run IF Engine for each Resource
+            # Run Impact Framework Engine for each Resource
             self.run_engine()
 
             # Write results
@@ -283,8 +310,23 @@ class CarbonDaemonOrchestrator:
 
                     # End of the process (TODO: ensure this)
                     if abstract_processor.resource_type.value == ResourceType.MISC_SERVICES:
-                        for resource_result in self.carbon_daemon_result.dict_resource_result.values():
-                            abstract_processor.list_resources_to_process.append(resource_result.list_processed_resources)
+                        vm_dict_result = self.carbon_daemon_result.dict_resource_result.get(ResourceType.VIRTUAL_MACHINE)
+                        storage_dict_result = self.carbon_daemon_result.dict_resource_result.get(ResourceType.STORAGE)
+                        for misc_services_resource_to_process in abstract_processor.list_resources_to_process:
+                            # Store information related to compute results
+                            # TODO : put configurable default values
+                            if vm_dict_result:
+                                MiscServicesResource(misc_services_resource_to_process).compute_cost = vm_dict_result.total_billing_cost
+                                MiscServicesResource(misc_services_resource_to_process).compute_energy = vm_dict_result.total_energy_consumed
+                                MiscServicesResource(misc_services_resource_to_process).compute_embodied = vm_dict_result.total_carbon_embodied
+
+                            # TODO : put configurable default values
+                            # Store information related to storage results
+                            if storage_dict_result:
+                                MiscServicesResource(misc_services_resource_to_process).storage_cost = storage_dict_result.total_billing_cost
+                                MiscServicesResource(misc_services_resource_to_process).storage_energy = storage_dict_result.total_energy_consumed
+                                MiscServicesResource(misc_services_resource_to_process).storage_embodied = storage_dict_result.total_carbon_embodied
+
 
                     resource_type_result = abstract_processor.run()
 

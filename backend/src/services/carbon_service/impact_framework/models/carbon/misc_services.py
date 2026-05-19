@@ -11,7 +11,6 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
 )
 
 
-# TODO: rename in Misc Service Model
 class MiscServicesModel(ModelUtilities):
     """
     Concrete class for the Misc Services model

@@ -2,12 +2,12 @@ from backend.src.schemas.resource import Resource, ResourceType
 
 
 class MiscServicesResource(Resource):
+    # TODO: Should be set in Orchestrator context to be used only once.
     compute_energy: float = 0.0
     storage_energy: float = 0.0
     compute_embodied: float = 0.0
     storage_embodied: float = 0.0
 
-    # TODO: Might not be need once billing_cost is implemented in Resource
     compute_cost: float = 0.0
     storage_cost: float = 0.0
 

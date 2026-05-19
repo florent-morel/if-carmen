@@ -20,7 +20,6 @@ from backend.src.services.carbon_service.impact_framework.service.if_service imp
 logger = logging.getLogger(__name__)
 
 
-# TODO: Rename
 class IFMiscServicesService(IFService):
     """
     Specialized Impact Framework service for Misc Services model
@@ -34,9 +33,6 @@ class IFMiscServicesService(IFService):
             duration,
         )
 
-        # TODO: fill these variables in runner
-        # TODO: put default values
-
     def run_engine(
         self,
         misc_services_resources: List[MiscServicesResource],
@@ -45,10 +41,11 @@ class IFMiscServicesService(IFService):
         Executes the Impact Framework (IF) model to estimate impact for misc resources.
         """
         # Divide into chunks
+        # TODO: Magic number
         chunk_size = 10000
 
         chunks = [
-            misc_services_resources[x : x + chunk_size]
+            misc_services_resources[x: x + chunk_size]
             for x in range(0, len(misc_services_resources), chunk_size)
         ]
 
