@@ -30,6 +30,7 @@ class TestStorageHelpers(unittest.TestCase):
             "ResourceLocation": "francecentral",
             "SubscriptionId": "test-subscription-id",
             "ResourceGroup": "test-rg",
+            "BillingCost": "0.0",
         }
 
         self.sample_hdd_row = {
@@ -299,6 +300,7 @@ class TestStorageHelpers(unittest.TestCase):
                             "ResourceLocation": region,
                             "LineNumber": "test",
                             "ResourceGroup": "test",
+                            "BillingCost": "0.0",
                         },
                         "test_id",
                         100.0,
@@ -325,6 +327,7 @@ class TestStorageHelpers(unittest.TestCase):
                     "ResourceLocation": "unknown_region",
                     "LineNumber": "test",
                     "ResourceGroup": "test",
+                    "BillingCost": "0.0",
                 },
                 "test_id",
                 100.0,
