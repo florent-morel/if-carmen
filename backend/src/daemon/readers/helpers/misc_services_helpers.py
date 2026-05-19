@@ -55,7 +55,7 @@ def create_misc_services_report(
     logger.info("Creating misc_services model report...")
     with open(out_file, mode="w", newline="", encoding="utf-8") as report:
         writer = csv.writer(report)
-        writer.writerows(ReportConfig.misc_services_REPORT_HEADERS)
+        writer.writerows(ReportConfig.MISC_SERVICES_REPORT_HEADERS)
         for misc_services_resource in misc_services_resources:
             row = [
                 date,
@@ -85,7 +85,7 @@ def create_misc_services_resource(row):
         region=region,
         subscription=row.get("SubscriptionId", "unknown"),
         carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-        services_misc_services=str_to_float(row.get("BillingCost", "0")),
+        misc_services_cost=str_to_float(row.get("BillingCost", "0")),
     )
     timestamp = row.get(
         "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")

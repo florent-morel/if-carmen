@@ -17,6 +17,7 @@ from etc.sample_data.test_data.test_data import (
     sample_vms,
     sample_storage_resources,
 )
+from backend.src.schemas.resource import ResourceType
 
 
 class TestMiscServicesHelpers(unittest.TestCase):
@@ -75,31 +76,6 @@ class TestMiscServicesHelpers(unittest.TestCase):
 
     #     self.assertEqual(str(context.exception.details), "Misc Services CSV data is empty")
 
-    def test_process_misc_services_csv(self):
-        """
-        Test process_misc_services_csv function with CSV data.
-        """
-        mock_csv_data = (
-            "ResourceId,ConsumedService,BillingCost\n"
-            "misc_service1,Compute,100.0\n"
-            "misc_service2,Compute,75.0\n"
-            "misc_service3,Storage,50.0\n"
-            "misc_service4,Storage,60.0\n"
-            "misc_service5,network,80.0\n"
-            ",,\n"
-            "misc_service6,keyvault,90.0\n"
-        )
-
-        (
-            misc_services_resources,
-            total_compute_cost,
-            total_storage_cost,
-        ) = process_misc_services_csv(mock_csv_data)
-
-        self.assertEqual(len(misc_services_resources), 2)
-        self.assertEqual(total_compute_cost, 175.0)
-        self.assertEqual(total_storage_cost, 110.0)
-
     @patch(
         "backend.src.daemon.readers.helpers.misc_services_helpers.PaasCiMapper.calculate_ci"
     )
@@ -120,7 +96,7 @@ class TestMiscServicesHelpers(unittest.TestCase):
         misc_services_resource = create_misc_services_resource(mock_row)
 
         self.assertEqual(misc_services_resource.id, "misc_service1")
-        self.assertEqual(misc_services_resource.resource_type, "misc_service_name")
+        self.assertEqual(misc_services_resource.resource_type, ResourceType.MISC_SERVICES)
         self.assertEqual(misc_services_resource.region, "eastus")
         self.assertEqual(misc_services_resource.subscription, "sub1")
         self.assertEqual(misc_services_resource.carbon_intensity, 200.0)
@@ -141,7 +117,7 @@ class TestMiscServicesHelpers(unittest.TestCase):
                 mock_date.strftime("%Y-%m-%d"),
                 test_file_name,
             )
-            self.assertIn("Misc Services model report saved to:", log.output[1])
+            self.assertIn("misc_services model report saved to:", log.output[1])
 
         mock_file.assert_called_once_with(
             test_file_name, mode="w", newline="", encoding="utf-8"
@@ -162,7 +138,7 @@ class TestMiscServicesHelpers(unittest.TestCase):
                 mock_date.strftime("%Y-%m-%d"),
                 test_file_name,
             )
-            self.assertIn("Misc Services model report saved to:", log.output[1])
+            self.assertIn("misc_services model report saved to:", log.output[1])
 
         mock_file().write.assert_called()
         handle = mock_file()

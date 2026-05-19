@@ -103,9 +103,9 @@ def test_map_metrics_to_misc_services_resource():
     misc_services_resource = MiscServicesResource(id="test_id")
     MetricsMapper.map_metrics_to_resource(metrics, misc_services_resource)
 
-    assert misc_services_resource.services_energy == [50]
+    assert misc_services_resource.misc_services_energy == [50]
     assert misc_services_resource.total_energy_consumed == 50
-    assert misc_services_resource.services_operational == [60]
+    assert misc_services_resource.misc_services_operational == [60]
     assert misc_services_resource.total_carbon_operational == 60
-    assert misc_services_resource.services_embodied == [70]
+    assert misc_services_resource.misc_services_embodied == [70]
     assert misc_services_resource.total_carbon_embodied == 70
