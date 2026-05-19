@@ -31,7 +31,7 @@ RATE_TO_DURATION = {
 
 # Reader Storage constants
 CSV_PATH: str = "CSV_PATH"
-CSV_FILE_TEST: str = "backend/tests/daemon/test_data/storage_test.csv"
+CSV_FILE_TEST: str = "etc/sample_data/test_data/storage_test.csv"
 CSV_FILE_ENCODING: str = "utf-8"
 
 HOURLY_INTERVAL_SECONDS: int = 3600
