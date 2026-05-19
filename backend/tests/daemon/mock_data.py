@@ -240,29 +240,29 @@ def _create_storage_resource(row):
 
 def read_sample_misc_services_data(file_dict, _destination_folder):
     """
-    Reads misc-services (cost model) data from CSV files and returns a list of
+    Reads misc_services (Misc Services model) data from CSV files and returns a list of
     MiscServicesResource objects.  Mirrors read_sample_vm_data.
     """
     misc_dict = {}
     for group, files in file_dict.items():
-        print(f"Reading misc-services file group '{group}'...")
+        print(f"Reading misc_services file group '{group}'...")
         for file_name in files:
             _process_misc_services_file(file_name, misc_dict)
     return list(misc_dict.values())
 
 
 def _process_misc_services_file(file_name, misc_dict):
-    """Resolves the sample file path for a misc-services file name and delegates to the CSV reader."""
+    """Resolves the sample file path for a misc_services file name and delegates to the CSV reader."""
     sample_file = os.path.join(os.path.dirname(__file__), "test_data", file_name)
-    print(f"Attempting to read misc-services file: {sample_file}")
+    print(f"Attempting to read misc_services file: {sample_file}")
     if os.path.exists(sample_file):
         _read_and_process_misc_services_csv(sample_file, misc_dict)
     else:
-        print(f"Misc-services sample file not found: {sample_file}")
+        print(f"misc_services sample file not found: {sample_file}")
 
 
 def _read_and_process_misc_services_csv(sample_file, misc_dict):
-    """Opens a misc-services CSV file and processes each row into misc_dict."""
+    """Opens a misc_services CSV file and processes each row into misc_dict."""
     with open(sample_file, "r", encoding="utf-8") as file:
         csv_reader = csv.DictReader(file)
         rows_found = False
@@ -270,7 +270,7 @@ def _read_and_process_misc_services_csv(sample_file, misc_dict):
             rows_found = True
             _process_misc_services_row(row, misc_dict)
         if not rows_found:
-            print(f"Misc-services file is empty! Skipped: {sample_file}")
+            print(f"misc_services file is empty! Skipped: {sample_file}")
 
 
 def _process_misc_services_row(row, misc_dict):
@@ -280,14 +280,14 @@ def _process_misc_services_row(row, misc_dict):
         misc_dict[resource_id] = _create_misc_services_resource(row)
     else:
         # Accumulate cost across multiple billing rows for the same resource
-        misc_dict[resource_id].services_cost += str_to_float(
+        misc_dict[resource_id].misc_services_cost += str_to_float(
             row.get("BillingCost", "0")
         )
 
 
 def _create_misc_services_resource(row):
     """
-    Creates a MiscServicesResource from a billing CSV row (cost-model format).
+    Creates a MiscServicesResource from a billing CSV row (misc_services-model format).
     Columns: ResourceId, ProductName, ResourceLocation, SubscriptionId,
              Date, BillingCost, ...
     """
@@ -298,5 +298,5 @@ def _create_misc_services_resource(row):
         region=row.get("ResourceLocation", ""),
         subscription=row.get("SubscriptionId", ""),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
-        services_cost=str_to_float(row.get("BillingCost", "0")),
+        misc_services_cost=str_to_float(row.get("BillingCost", "0")),
     )

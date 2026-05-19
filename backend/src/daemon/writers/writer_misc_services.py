@@ -20,7 +20,7 @@ class Writer_Misc_Services(AbstractWriter):
             row = super().write_common_content(resource)
 
             # Misc services specific columns
-            row[ReportConfig.MISC_SERVICES_COST] = resource.services_cost
+            row[ReportConfig.MISC_SERVICES_COST] = resource.misc_services_cost
 
             super().writer.write(row)
 

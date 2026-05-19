@@ -141,7 +141,7 @@ class ReportConfig:
         ]
     ]
 
-    COST_REPORT_HEADERS: list[list[str]] = [
+    MISC_SERVICES_REPORT_HEADERS: list[list[str]] = [
         [
             "Date",
             "Id",
@@ -176,14 +176,14 @@ class Settings(BaseSettings):
         "CARMEN_CONFIG_FILEPATH", "etc/config/config.yaml"
     )
     CARMEN_PROVIDER_CONFIG_FILEPATH: str = os.getenv(
-        "CARMEN_PROVIDER_CONFIG_FILEPATH", "etc/config/modelling_constants/cloud_providers"
+        "CARMEN_PROVIDER_CONFIG_FILEPATH",
+        "etc/config/modelling_constants/cloud_providers",
     )
     CARMEN_CARBON_INTENSITY_FILEPATH: str = os.getenv(
-        "CARMEN_CARBON_INTENSITY_FILEPATH", "etc/config/modelling_constants/carbon_values.yaml"
+        "CARMEN_CARBON_INTENSITY_FILEPATH",
+        "etc/config/modelling_constants/carbon_values.yaml",
     )
-    CARMEN_INPUT_FOLDER_PATH: str = os.getenv(
-        "CARMEN_INPUT_FOLDER_PATH", "etc/input"
-    )
+    CARMEN_INPUT_FOLDER_PATH: str = os.getenv("CARMEN_INPUT_FOLDER_PATH", "etc/input")
 
 
 def configure_logger(validated_settings: Settings) -> None:

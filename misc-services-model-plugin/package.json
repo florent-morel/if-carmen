@@ -1,6 +1,6 @@
 {
-  "name": "cost-model-plugin",
-  "description": "Cost model plugin for Impact Framework.",
+  "name": "misc_services-model-plugin",
+  "description": "Misc Services model plugin for Impact Framework.",
   "version": "0.1.1",
   "author": {
     "name": "Green Software Foundation",
@@ -52,7 +52,7 @@
     "fix:package": "fixpack",
     "lint": "gts lint",
     "pre-commit": "lint-staged",
-    "prepare": "cd .. && husky install cost-model-plugin/.husky || true",
+    "prepare": "cd .. && husky install misc_services-model-plugin/.husky || true",
     "prepublish": "npm run build",
     "test": "jest --verbose"
   }

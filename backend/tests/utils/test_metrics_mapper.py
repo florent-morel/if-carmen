@@ -90,22 +90,22 @@ def test_map_metrics_to_storage_resource():
     assert storage_resource.total_storage_embodied == 72
 
 
-def test_map_metrics_to_cost_resource():
+def test_map_metrics_to_misc_services_resource():
     """
-    Tests if the cost-specific metrics are correctly mapped to the cost resource
+    Tests if the misc-services-specific metrics are correctly mapped to the misc services resource
     """
     metrics = {
-        "services-energy": {"observations": [50], "aggregated": 50},
-        "services-operational": {"observations": [60], "aggregated": 60},
-        "services-embodied": {"observations": [70], "aggregated": 70},
+        "misc-services-energy": {"observations": [50], "aggregated": 50},
+        "misc-services-operational": {"observations": [60], "aggregated": 60},
+        "misc-services-embodied": {"observations": [70], "aggregated": 70},
     }
 
-    cost_resource = MiscServicesResource(id="test_id")
-    MetricsMapper.map_metrics_to_resource(metrics, cost_resource)
+    misc_services_resource = MiscServicesResource(id="test_id")
+    MetricsMapper.map_metrics_to_resource(metrics, misc_services_resource)
 
-    assert cost_resource.services_energy == [50]
-    assert cost_resource.total_energy_consumed == 50
-    assert cost_resource.services_operational == [60]
-    assert cost_resource.total_carbon_operational == 60
-    assert cost_resource.services_embodied == [70]
-    assert cost_resource.total_carbon_embodied == 70
+    assert misc_services_resource.services_energy == [50]
+    assert misc_services_resource.total_energy_consumed == 50
+    assert misc_services_resource.services_operational == [60]
+    assert misc_services_resource.total_carbon_operational == 60
+    assert misc_services_resource.services_embodied == [70]
+    assert misc_services_resource.total_carbon_embodied == 70

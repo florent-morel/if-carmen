@@ -102,7 +102,7 @@ zip-safe = false
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["backend*", "cost-model-plugin"]
+include = ["backend*", "misc_services-model-plugin"]
 exclude = [
     "*.tests",
     "*.tests.*",

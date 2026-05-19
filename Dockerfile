@@ -39,6 +39,6 @@ RUN mkdir -p $NVM_DIR && curl https://raw.githubusercontent.com/creationix/nvm/m
     && ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npm /usr/bin/npm \
     && ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npx /usr/bin/npx
 
-RUN cd ${PROJECT_WORKSPACE}/cost-model-plugin \
+RUN cd ${PROJECT_WORKSPACE}/misc_services-model-plugin \
     && npm install --ignore-scripts \
     && npm run build

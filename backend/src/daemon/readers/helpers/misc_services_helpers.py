@@ -50,7 +50,7 @@ def create_misc_services_report(
     misc_services_resources: list[MiscServicesResource], date: str, out_file: str
 ):
     """
-    Creates a misc_services report for the given cost resource list.
+    Creates a misc_services report for the given misc services resource list.
     """
     logger.info("Creating misc_services model report...")
     with open(out_file, mode="w", newline="", encoding="utf-8") as report:
@@ -64,7 +64,7 @@ def create_misc_services_report(
                 misc_services_resource.region,
                 misc_services_resource.subscription,
                 misc_services_resource.carbon_intensity,
-                misc_services_resource.services_cost,
+                misc_services_resource.misc_services_cost,
                 misc_services_resource.total_energy_consumed,
                 misc_services_resource.total_carbon_operational,
                 misc_services_resource.total_carbon_embodied,

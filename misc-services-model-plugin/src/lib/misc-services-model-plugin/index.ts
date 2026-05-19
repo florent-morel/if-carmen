@@ -2,7 +2,7 @@ import {PluginFactory} from '@grnsft/if-core/interfaces';
 import {PluginParams, ConfigParams} from '@grnsft/if-core/types';
 import { z } from 'zod';
 
-export const CostModelPlugin = PluginFactory({
+export const MiscServicesModelPlugin = PluginFactory({
   configValidation: (config: ConfigParams) => {
     if (!config || !Object.keys(config)?.length) {
       throw new Error('Missing or empty configuration.');
@@ -42,24 +42,24 @@ export const CostModelPlugin = PluginFactory({
       const storageEmbodied = input['storage-embodied'];
       const computeCost = input['compute-cost'];
       const storageCost = input['storage-cost'];
-      const servicesCost = input['services-cost'];
+      const miscServicesCost = input['misc-services-cost'];
       const carbonIntensity = input['carbon-intensity'];
 
       // Calculate the outputs
             // TODO: Magic numbers to be put in config
             // TODO: Add this formula in documentation (and point explicitely to this file/model)
-      const servicesEnergyValue = servicesCost * (0.75 * (computeEnergy / computeCost) + 0.25 * (storageEnergy / storageCost));
+      const miscServicesEnergyValue = miscServicesCost * (0.75 * (computeEnergy / computeCost) + 0.25 * (storageEnergy / storageCost));
 
-      const servicesOperationalValue = servicesEnergyValue * carbonIntensity;
+      const miscServicesOperationalValue = miscServicesEnergyValue * carbonIntensity;
 
-      const servicesEmbodiedValue = servicesCost * (0.75 * (computeEmbodied / computeCost) + 0.25 * (storageEmbodied / storageCost));
+      const miscServicesEmbodiedValue = miscServicesCost * (0.75 * (computeEmbodied / computeCost) + 0.25 * (storageEmbodied / storageCost));
 
 
       return {
         ...input,
-        "services-energy": servicesEnergyValue,
-        "services-operational": servicesOperationalValue,
-        "services-embodied": servicesEmbodiedValue,
+        "misc-services-energy": miscServicesEnergyValue,
+        "misc-services-operational": miscServicesOperationalValue,
+        "misc-services-embodied": miscServicesEmbodiedValue,
       };
     });
   },

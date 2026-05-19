@@ -12,7 +12,7 @@ from backend.src.common.errors import ErrorCode
 from backend.src.common.known_exception import KnownException
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
-from backend.src.daemon.readers.helpers.cost_helpers import (
+from backend.src.daemon.readers.helpers.misc_services_helpers import (
     create_misc_services_resource,
 )
 from backend.src.schemas.resource import Resource
@@ -67,10 +67,10 @@ class Reader_Misc_Services(AbstractReader):
             len(misc_services_resources),
         )
         #     TODO: what is this?
-        #     cost_resources = []
+        #     misc_services_resources = []
         #     total_compute_cost, total_storage_cost = 1.0, 1.0
 
-        # Add missing fields to cost resources
+        # Add missing fields to misc services resources
         for misc_service_resource in misc_services_resources:
             # TODO: implementation to be done for these values
             # misc_service_resource.compute_embodied = vm_total_carbon
@@ -96,13 +96,15 @@ class Reader_Misc_Services(AbstractReader):
             csv_data: Raw CSV data
 
         Returns:
-            list[CostResource]: Processed misc services resource list
+            list[MiscServicesResource]: Processed misc services resource list
             float: Total compute cost
             float: Total storage cost
         """
         rows = csv_data.splitlines()
         if len(rows) <= 1:
-            raise KnownException(ErrorCode.CSV_FILE_NOT_FOUND, "Cost CSV data is empty")
+            raise KnownException(
+                ErrorCode.CSV_FILE_NOT_FOUND, "Misc Services CSV data is empty"
+            )
 
         csv_reader = csv.DictReader(rows)
 
