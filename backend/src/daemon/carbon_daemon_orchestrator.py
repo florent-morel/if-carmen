@@ -34,7 +34,6 @@ from backend.src.daemon.carbon_daemon_result import (
 )
 
 from backend.src.schemas.resource import ResourceType
-from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
 )
@@ -98,11 +97,7 @@ class CarbonDaemonOrchestrator:
         # Check if Misc Services processor is present in the list.
         # If yes and not in last position, re-order the list
         misc_proc = next(
-            (
-                proc
-                for proc in list_resource_processors
-                if isinstance(proc, Processor_Misc_Services)
-            ),
+            (proc for proc in list_resource_processors if isinstance(proc, Processor_Misc_Services)),
             None,
         )
         if misc_proc is not None:
@@ -110,13 +105,13 @@ class CarbonDaemonOrchestrator:
                 list_resource_processors.remove(misc_proc)
                 list_resource_processors.append(misc_proc)
         else:
-            logger.info("No processor found for Misc Services.")
-
-        self.carbon_daemon_result: CarbonDaemonResult = (
-            self.create_carbon_daemon_result(
-                success=True,
-                execution_time=0,
+            logger.info(
+                "No processor found for Misc Services. "
             )
+
+        self.carbon_daemon_result: CarbonDaemonResult = self.create_carbon_daemon_result(
+            success=True,
+            execution_time=0,
         )
 
         register_models()
@@ -293,7 +288,6 @@ class CarbonDaemonOrchestrator:
                 Exception(ErrorCode.UNKNOWN_ERROR)
             )
 
-    # TODO: Need to ensure Misc Services Runner is called last in the chain
     def run_engine(self):
         """
         Loops over all configured processors and runs the Impact Framework
@@ -319,55 +313,9 @@ class CarbonDaemonOrchestrator:
                         f" resource type."
                     )
 
-                    # End of the process (TODO: ensure this)
-                    if (
-                        abstract_processor.resource_type.value
-                        == ResourceType.MISC_SERVICES
-                    ):
-                        vm_dict_result = (
-                            self.carbon_daemon_result.dict_resource_result.get(
-                                ResourceType.VIRTUAL_MACHINE
-                            )
-                        )
-                        storage_dict_result = (
-                            self.carbon_daemon_result.dict_resource_result.get(
-                                ResourceType.STORAGE
-                            )
-                        )
-                        for (
-                            misc_services_resource_to_process
-                        ) in abstract_processor.list_resources_to_process:
-                            # Store information related to compute results
-                            # TODO : put configurable default values
-                            if vm_dict_result:
-                                MiscServicesResource(
-                                    misc_services_resource_to_process
-                                ).compute_cost = vm_dict_result.total_billing_cost
-                                MiscServicesResource(
-                                    misc_services_resource_to_process
-                                ).compute_energy = vm_dict_result.total_energy_consumed
-                                MiscServicesResource(
-                                    misc_services_resource_to_process
-                                ).compute_embodied = (
-                                    vm_dict_result.total_carbon_embodied
-                                )
-
-                            # TODO : put configurable default values
-                            # Store information related to storage results
-                            if storage_dict_result:
-                                MiscServicesResource(
-                                    misc_services_resource_to_process
-                                ).storage_cost = storage_dict_result.total_billing_cost
-                                MiscServicesResource(
-                                    misc_services_resource_to_process
-                                ).storage_energy = (
-                                    storage_dict_result.total_energy_consumed
-                                )
-                                MiscServicesResource(
-                                    misc_services_resource_to_process
-                                ).storage_embodied = (
-                                    storage_dict_result.total_carbon_embodied
-                                )
+                    # Misc Services modelling is executed at the end of the process
+                    if abstract_processor.resource_type.value == ResourceType.MISC_SERVICES:
+                        self._hydrate_misc_services_resources(abstract_processor.list_resources_to_process)
 
                     resource_type_result = abstract_processor.run()
 
@@ -400,6 +348,50 @@ class CarbonDaemonOrchestrator:
                 dict_resource_results=dict_resource_results,
             )
             raise
+
+    def _hydrate_misc_services_resources(self, list_resources_to_process: list) -> None:
+        """
+        Populate compute and storage fields on each MiscServicesResource before
+        the misc services runner executes.
+
+        Values are taken from the VM and Storage ResourceTypeResults already stored
+        in carbon_daemon_result. When a result is absent, configurable defaults
+        from carbon_values.yaml are used instead.
+        """
+        vm_dict_result = self.carbon_daemon_result.dict_resource_result.get(
+            ResourceType.VIRTUAL_MACHINE
+        )
+        storage_dict_result = self.carbon_daemon_result.dict_resource_result.get(
+            ResourceType.STORAGE
+        )
+        misc_defaults = config.carbon_intensity_config.default_misc_services_constants
+
+        for resource in list_resources_to_process:
+            if vm_dict_result:
+                resource.compute_cost = vm_dict_result.total_billing_cost
+                resource.compute_energy = vm_dict_result.total_energy_consumed
+                resource.compute_embodied = vm_dict_result.total_carbon_embodied
+            else:
+                logger.warning(
+                    "No compute results found for Misc Services model. "
+                    "Using default values from carbon_values.yaml."
+                )
+                resource.compute_cost = misc_defaults.compute_cost
+                resource.compute_energy = misc_defaults.compute_energy
+                resource.compute_embodied = misc_defaults.compute_embodied
+
+            if storage_dict_result:
+                resource.storage_cost = storage_dict_result.total_billing_cost
+                resource.storage_energy = storage_dict_result.total_energy_consumed
+                resource.storage_embodied = storage_dict_result.total_carbon_embodied
+            else:
+                logger.warning(
+                    "No storage results found for Misc Services model. "
+                    "Using default values from carbon_values.yaml."
+                )
+                resource.storage_cost = misc_defaults.storage_cost
+                resource.storage_energy = misc_defaults.storage_energy
+                resource.storage_embodied = misc_defaults.storage_embodied
 
     def create_carbon_daemon_result(
         self,
@@ -483,31 +475,14 @@ class CarbonDaemonOrchestrator:
                 ) in self.carbon_daemon_result.dict_resource_result.values():
                     # Instantiate writer dedicated to ResourceType
                     if resource_type_result.resource_type == ResourceType.STORAGE:
-                        writer = Writer_Storage(
-                            self.config, dict_writer, resource_type_result
-                        )
-                        writer.write_content(
-                            resource_type_result.list_processed_resources
-                        )
-                    elif (
-                        resource_type_result.resource_type
-                        == ResourceType.VIRTUAL_MACHINE
-                    ):
-                        writer = Writer_Compute(
-                            self.config, dict_writer, resource_type_result
-                        )
-                        writer.write_content(
-                            resource_type_result.list_processed_resources
-                        )
-                    elif (
-                        resource_type_result.resource_type == ResourceType.MISC_SERVICES
-                    ):
-                        writer = Writer_Misc_Services(
-                            self.config, dict_writer, resource_type_result
-                        )
-                        writer.write_content(
-                            resource_type_result.list_processed_resources
-                        )
+                        writer = Writer_Storage(self.config, dict_writer, resource_type_result)
+                        writer.write_content(resource_type_result.list_processed_resources)
+                    elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
+                        writer = Writer_Compute(self.config, dict_writer, resource_type_result)
+                        writer.write_content(resource_type_result.list_processed_resources)
+                    elif resource_type_result.resource_type == ResourceType.MISC_SERVICES:
+                        writer = Writer_Misc_Services(self.config, dict_writer, resource_type_result)
+                        writer.write_content(resource_type_result.list_processed_resources)
                     else:
                         logger.warning(
                             "No writer implemented for resource type %s. Skipping writing results for this resource type.",

@@ -9,6 +9,17 @@ class CountryCarbonIntensity(BaseModel):
     carbon_intensity: int
 
 
+class DefaultMiscServicesConstants(BaseModel):
+    """Default fallback values for misc services modelling when no compute/storage results are available."""
+
+    compute_energy: float = 0.0
+    compute_embodied: float = 0.0
+    compute_cost: float = 0.0
+    storage_energy: float = 0.0
+    storage_embodied: float = 0.0
+    storage_cost: float = 0.0
+
+
 class CarbonIntensityConfig(BaseSettings):
     """
     Configuration class for carbon intensity per location.
@@ -17,6 +28,9 @@ class CarbonIntensityConfig(BaseSettings):
 
     carbon_intensity_by_location: dict[str, CountryCarbonIntensity] = {}
     storage_embodied: dict[str, int] | None = None
+    default_misc_services_constants: DefaultMiscServicesConstants = (
+        DefaultMiscServicesConstants()
+    )
 
     def get_known_locations(self) -> set[str]:
         return set(self.carbon_intensity_by_location.keys())
