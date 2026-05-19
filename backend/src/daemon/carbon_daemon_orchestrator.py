@@ -71,6 +71,8 @@ class CarbonDaemonOrchestrator:
         """
         self.config: DaemonConfig = daemon_config
 
+        # TODO: check if Misc Services process is present in the list.
+        # If yes and not in last position, re-order the list
         self.list_resource_processors: list[
             AbstractProcessor
         ] = list_resource_processors
