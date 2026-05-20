@@ -58,7 +58,9 @@ class CarbonDaemonResult:
 
         else:
             # Fetch only for given resource_type
+            logger.info(f"Fetching exceptions for ResourceTypeResult {resource_type}")
             resource_result = self.dict_resource_result.get(resource_type)
+            logger.info(f"resource results: {resource_result}")
             if resource_result and resource_result.list_exceptions:
                 dict_resource_result_exceptions[resource_result.resource_type] = resource_result.list_exceptions
 
