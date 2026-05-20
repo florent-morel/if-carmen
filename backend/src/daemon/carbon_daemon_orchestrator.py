@@ -176,7 +176,7 @@ class CarbonDaemonOrchestrator:
 
         except Exception as e:
             execution_time = time.time() - start_time
-            error_msg = f"unexpected error during daemon execution: {str(e)}"
+            error_msg = f"Unexpected error during daemon execution: {str(e)}"
             logger.exception(error_msg)
 
             self.update_carbon_daemon_result(
@@ -309,7 +309,7 @@ class CarbonDaemonOrchestrator:
             if self.list_resource_processors:
                 for abstract_processor in self.list_resource_processors:
                     logger.info(
-                        f"Running engin by {abstract_processor.runner}"
+                        f"Running engine by {abstract_processor.runner}"
                         f" runner for {abstract_processor.resource_type.value}"
                         f" resource type."
                     )
@@ -338,14 +338,15 @@ class CarbonDaemonOrchestrator:
                     list_exceptions=[],
                     dict_resource_results=dict_resource_results,
                 )
-        except Exception:
-            logger.error("Failed to run engine for the given processors.")
+        except Exception as e:
+            error_msg = f"Failed to run engine for the given processors: {str(e)}"
+            logger.exception(error_msg)
             execution_time = time.time() - start_time
             self.update_carbon_daemon_result(
                 self.carbon_daemon_result,
                 success=False,
                 execution_time=execution_time,
-                list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR)],
+                list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR, error_msg)],
                 dict_resource_results=dict_resource_results,
             )
             raise
@@ -432,6 +433,10 @@ class CarbonDaemonOrchestrator:
         list_exceptions: list[Exception],
         dict_resource_results: dict[ResourceType, ResourceTypeResult],
     ):
+        logger.info(
+            f"Updating CarbonDaemonResult with success={success}, execution_time={execution_time}, "
+            f"list_exceptions={list_exceptions}, dict_resource_results={dict_resource_results}"
+        )
         carbon_daemon_result.success = success
         carbon_daemon_result.execution_time = execution_time
         carbon_daemon_result.list_exceptions.extend(list_exceptions)

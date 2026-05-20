@@ -211,7 +211,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         for exception in carbonDaemonResult.list_exceptions:
             logger.info(f"exception {Exception.__str__(exception)}")
             self.assertIn(
-                "unexpected error during daemon execution", exception.args[1]
+                "Unexpected error during daemon execution", exception.args[1]
             )
             self.assertIn("Reader failed", exception.args[1])
 
@@ -247,7 +247,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 #
 #         self.assertIsInstance(result, CarbonDaemonResult)
 #         self.assertFalse(result.success)
-#         self.assertIn("unexpected error during daemon execution", result.error_message)
+#         self.assertIn("Unexpected error during daemon execution", result.error_message)
 #         self.assertIn("Carbon service failed", result.error_message)
 #
 #     @patch("backend.src.daemon.carbon_daemon.register_models")

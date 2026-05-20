@@ -30,8 +30,8 @@ class Processor_Compute(AbstractProcessor):
         """
         super().__init__(config)
 
-        self._reader = Reader_Compute(config)
-        self._runner = Runner_Compute()
+        self.reader = Reader_Compute(config)
+        self.runner = Runner_Compute()
         # TODO: Implement writers
         # self._writer: AbstractWriter
 
@@ -41,11 +41,11 @@ class Processor_Compute(AbstractProcessor):
 
     @property
     def reader(self) -> AbstractReader:
-        return self._reader
+        return self.reader
 
     @property
     def runner(self) -> AbstractRunner:
-        return self._runner
+        return self.runner
 
     @property
     def writer(self) -> AbstractWriter:

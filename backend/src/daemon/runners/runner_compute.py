@@ -24,15 +24,6 @@ class Runner_Compute(AbstractRunner):
     Implementation of the Runner for the Virtual Machine Type.
     """
 
-    def __init__(self):
-        self.resource_type_result: ResourceTypeResult | None = None
-
-    #
-    # Resources built by the reader to be handled by the runner
-    @property
-    def resource_type_result(self) -> ResourceTypeResult | None:
-        return self.resource_type_result
-
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for Virtual Machines Resource Type.
@@ -94,13 +85,13 @@ class Runner_Compute(AbstractRunner):
 
         except Exception as e:
             execution_time = time.time() - start_time
-            error_msg = f"Runner: Compute unexpected error during execution: {str(e)}"
+            error_msg = f"Unexpected error during runner {ResourceType.VIRTUAL_MACHINE} execution: {str(e)}"
             logger.exception(error_msg)
 
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.VIRTUAL_MACHINE,
-                list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )

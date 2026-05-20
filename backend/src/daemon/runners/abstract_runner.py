@@ -34,12 +34,6 @@ class AbstractRunner(ABC):
             ResourceTypeResult containing execution results
         """
 
-    # Resources built by the reader to be handled by the runner
-    @property
-    @abstractmethod
-    def resource_type_result(self) -> ResourceTypeResult | None:
-        pass
-
     @abstractmethod
     def process_carbon_calculations(
         self, list_resources_to_process: list[Resource]

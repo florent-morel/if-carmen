@@ -53,13 +53,14 @@ class CarbonDaemonResult:
             # No resource_type provided in input
             # Iterate on all results
             for resource_result in self.dict_resource_result.values():
-                if resource_result.list_exceptions:
+                if resource_result and resource_result.list_exceptions:
                     dict_resource_result_exceptions[resource_result.resource_type] = resource_result.list_exceptions
 
         else:
             # Fetch only for given resource_type
             resource_result = self.dict_resource_result.get(resource_type)
-            dict_resource_result_exceptions[resource_result.resource_type] = resource_result.list_exceptions
+            if resource_result and resource_result.list_exceptions:
+                dict_resource_result_exceptions[resource_result.resource_type] = resource_result.list_exceptions
 
         return dict_resource_result_exceptions
 
