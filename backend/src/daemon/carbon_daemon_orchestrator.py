@@ -96,6 +96,7 @@ class CarbonDaemonOrchestrator:
 
         # Check if Misc Services processor is present in the list.
         # If yes and not in last position, re-order the list
+        # TODO Vnext: protect against several misc services processor in the list, which should not be the case. 
         misc_proc = next(
             (proc for proc in list_resource_processors if isinstance(proc, Processor_Misc_Services)),
             None,
