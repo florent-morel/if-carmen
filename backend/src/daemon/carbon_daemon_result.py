@@ -8,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 class CarbonDaemonResult:
-    """Container for daemon execution results."""
+    """
+    Container for daemon execution results.
+    """
 
     def __init__(
         self,
@@ -40,6 +42,13 @@ class CarbonDaemonResult:
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
         self.list_exceptions: list = list_exceptions
+
+    def get_resource_type_list_exception(self, resource_type: ResourceType) -> dict[ResourceType, list[Exception]] | None:
+        """
+        Container for daemon execution results.
+        """
+        return None
+
 
 
 class ResourceTypeResult:
