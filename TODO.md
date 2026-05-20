@@ -22,10 +22,12 @@ V1: Make E2E test with sample data
 ### Features
 
 V1:
+
 - Validate storage and services computation.
 - Implement default storage & VMs energy & carbon cost ratios. (should be configurable).
 
 Vnext:
+
 - Implement embodied emissions TE retrieved from config file per instance_type
 
 ## Documentation
