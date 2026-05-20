@@ -35,15 +35,6 @@ class Runner_Misc_Services(AbstractRunner):
     Implementation of the Runner for the Storage Resource Type.
     """
 
-    def __init__(self):
-        self.resource_type_result: ResourceTypeResult | None = None
-        self.carbon_daemon_result: CarbonDaemonResult
-
-    # Resources built by the reader to be handled by the runner
-    @property
-    def resource_type_result(self) -> ResourceTypeResult | None:
-        return self.resource_type_result
-
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for the Storage Resource Type.
@@ -97,7 +88,7 @@ class Runner_Misc_Services(AbstractRunner):
 
         except Exception as e:
             execution_time = time.time() - start_time
-            error_msg = f"unexpected error during daemon execution: {str(e)}"
+            error_msg = f"Unexpected error during runner {ResourceType.MISC_SERVICES} execution: {str(e)}"
             logger.exception(error_msg)
 
             return ResourceTypeResult(

@@ -30,8 +30,8 @@ class Processor_Misc_Services(AbstractProcessor):
         """
         super().__init__(config)
 
-        self.reader = Reader_Misc_Services(config)
-        self.runner = Runner_Misc_Services()
+        self._reader = Reader_Misc_Services(config)
+        self._runner = Runner_Misc_Services()
         # TODO: Implement writers
         # self._writer: AbstractWriter
 
@@ -41,11 +41,11 @@ class Processor_Misc_Services(AbstractProcessor):
 
     @property
     def reader(self) -> AbstractReader:
-        return self.reader
+        return self._reader
 
     @property
     def runner(self) -> AbstractRunner:
-        return self.runner
+        return self._runner
 
     @property
     def writer(self) -> AbstractWriter:
