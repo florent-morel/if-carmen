@@ -135,13 +135,14 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
     @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator.write_report")
     @patch("backend.src.utils.ioc_util.resolve")
-    def test_carbon_orchestrator_exception(self, mock_ioc_util_resolve, mock_write_report):
+    def test_carbon_orchestrator_exception_at_orchestration_level(self, mock_ioc_util_resolve, mock_write_report):
         """
         Test daemon execution when carbon service raises an exception.
         """
         runner_error_msg = "Mock run side_effect"
         orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {runner_error_msg}"
         orchestrator_error_msg_2 = "Unexpected error during daemon execution"
+
         mock_carbon_service = MagicMock()
         mock_carbon_service.run_engine.side_effect = Exception("Carbon service failed")
 
@@ -150,10 +151,53 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
         mock_processor.read.return_value = self.sample_vms.copy()
-        mock_processor.run.side_effect = Exception(runner_error_msg)    
+        mock_processor.run.side_effect = Exception(runner_error_msg)
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
         mock_write_report.return_value = None
+
+        # Call Main orchestrator process
+        carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
+
+        self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
+        print(carbonDaemonResult.list_exceptions)
+        self.assertFalse(carbonDaemonResult.success)
+        self.assertIn(
+            orchestrator_error_msg_1, carbonDaemonResult.list_exceptions[0].args[1]
+        )
+        self.assertIn(
+            orchestrator_error_msg_2, carbonDaemonResult.list_exceptions[1].args[1]
+        )
+
+    @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator.write_report")
+    @patch("backend.src.utils.ioc_util.resolve")
+    def test_carbon_orchestrator_exception_at_resource_level(self, mock_ioc_util_resolve, mock_write_report):
+        """
+        Test daemon execution when carbon service raises an exception.
+        """
+        runner_error_msg = "Mock run side_effect"
+        orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {runner_error_msg}"
+        orchestrator_error_msg_2 = "Unexpected error during daemon execution"
+
+        mock_carbon_service = MagicMock()
+        # mock_carbon_service.run_engine.side_effect = Exception("Carbon service failed")
+
+        mock_ioc_util_resolve.return_value = mock_carbon_service
+
+        mock_processor = MagicMock()
+        mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
+        mock_processor.read.return_value = self.sample_vms.copy()
+        # mock_processor.run.side_effect = Exception(runner_error_msg)
+
+        mock_runner = MagicMock()
+        mock_runner.run.side_effect = Exception(runner_error_msg)
+        print(f"mock_runner: {mock_runner}")
+
+        mock_processor.runner = mock_runner
+
+        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        mock_write_report.return_value = None
+        # Call Main orchestrator process
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
@@ -166,7 +210,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
             orchestrator_error_msg_2, carbonDaemonResult.list_exceptions[1].args[1]
         )
         print(carbonDaemonResult.get_resource_type_list_exception(ResourceType.VIRTUAL_MACHINE))
-        self.assertIn(runner_error_msg, carbonDaemonResult.get_resource_type_list_exception(ResourceType.VIRTUAL_MACHINE)[0].error_message)
+        self.assertIn(runner_error_msg, carbonDaemonResult.get_resource_type_list_exception(ResourceType.VIRTUAL_MACHINE)[0].args[1])
 
     @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_run_known_exception(self, mock_ioc_util_resolve):

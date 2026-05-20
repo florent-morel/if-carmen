@@ -153,7 +153,7 @@ class CarbonDaemonOrchestrator:
             total_execution_time = time.time() - start_time
 
             logger.info(
-                "Carbon Daemon execution completed successfully. Processed %d resource typs in %.2f seconds",
+                "Carbon Daemon execution completed successfully. Processed %d resource type(s) in %.2f seconds",
                 len(self.list_resource_processors),
                 total_execution_time,
             )
