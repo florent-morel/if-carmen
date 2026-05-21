@@ -22,9 +22,6 @@ class Reader_Compute(AbstractReader):
     Implementation base class for reading virtual machines resource data.
     """
 
-    def __init__(self):
-        logger.info("initializing local compute reader.")
-
     def read(self, csv_data) -> list[VirtualMachine]:
         """
         Read and process VM data from local filesystem files.

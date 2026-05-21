@@ -37,6 +37,7 @@ from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
 )
 
+# TODO: put in configuration
 PUE_AZURE = 1.185
 
 # Adjust the Python path
@@ -45,10 +46,12 @@ project_root = os.path.abspath(
 )
 sys.path.insert(0, project_root)
 
+# TODO: put in configuration
 # Set up report directory for tests
 TEST_REPORT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "report"))
 os.makedirs(TEST_REPORT_DIR, exist_ok=True)
 
+# TODO: put in configuration
 # constants for computation
 DURATION_IN_HOURS = 24
 
