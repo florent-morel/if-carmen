@@ -117,6 +117,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
+        logger.info(f"Result: {carbonDaemonResult}")
 
         resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
         self.assertIsNotNone(resultStorage)
@@ -179,9 +180,10 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
     #     @patch("backend.src.daemon.carbon_daemon.register_models")
 
+    @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator.write_report")
     @patch("backend.src.utils.ioc_util.resolve")
     # def test_daemon_run_reader_exception(self, mock_register_models):
-    def test_daemon_reader_storage_exception(self, mock_ioc_util_resolve):
+    def test_daemon_reader_storage_exception(self, mock_ioc_util_resolve, mock_write_report):
         """
         Test daemon execution when reader raises an exception.
         """
@@ -190,6 +192,9 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         mock_ioc_util_resolve.return_value = IFStorageService(DAILY_SECONDS)
 
+        mock_carbon_service = MagicMock()
+        mock_ioc_util_resolve.return_value = mock_carbon_service
+
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
         # mock_processor.read.side_effect = Exception("Reader failed")
@@ -197,6 +202,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         logger.info(f"Mock processor: {mock_processor}")
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        mock_write_report.return_value = None
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 

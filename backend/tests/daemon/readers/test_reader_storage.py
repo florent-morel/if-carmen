@@ -3,12 +3,17 @@ Unit tests for the Storage Reader class in the daemon.readers module.
 
 """
 
+import os
 import unittest
 from unittest.mock import MagicMock
+from collections import Counter
 
 from unittest.mock import patch
 
 from backend.src.common.constants import (
+    CSV_PATH,
+    CSV_FILE_TEST,
+    CSV_FILE_ENCODING,
     HOURLY_INTERVAL_SECONDS,
 )
 from backend.src.schemas.storage_resource import StorageResource
@@ -61,6 +66,8 @@ class TestReaderStorage(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
+        self.list_input_file = []
+        self.list_input_file.append(os.getenv(CSV_PATH, CSV_FILE_TEST))
 
     @patch("backend.src.utils.ioc_util.resolve")
     def test_reader_storage_success(self, mock_ioc_util_resolve):
@@ -84,13 +91,25 @@ class TestReaderStorage(unittest.TestCase):
         ]
 
         reader_storage = Reader_Storage(self.mock_config)
+        reader_storage.known_regions = ["australiaeast", "centralus", "eastasia", "eastus", "francecentral", "centralindia"]
+        reader_storage.unknown_regions = Counter()
+        reader_storage.unknown_providers = Counter()
+        reader_storage.dict_log_info = {}
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
         mock_processor.reader = reader_storage
 
         logger.debug(f"Inside test reader Storage: {self}")
-        list_processed_resources = reader_storage.read()
+        for input_file in self.list_input_file:
+            if os.path.exists(input_file):
+                with open(
+                    input_file, "r", encoding=CSV_FILE_ENCODING
+                ) as file:
+                    logger.info(f"Data source reading from {input_file}")
+                    csv_data = file.read()
+
+        list_processed_resources = reader_storage.read(csv_data)
 
         self.assertEqual(len(list_processed_resources), 1)
 
@@ -100,3 +119,4 @@ class TestReaderStorage(unittest.TestCase):
         self.assertEqual(resultStorageResource.size_gb, 32.0)
         self.assertEqual(resultStorageResource.storage_type, "SSD")
         self.assertEqual(resultStorageResource.replication_type, "LRS")
+        #TODO: need to implement missing regions UTs

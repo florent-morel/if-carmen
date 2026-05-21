@@ -38,8 +38,6 @@ class Reader_Storage(AbstractReader):
 
     def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
-        # TODO: remove hard coded file path: this should be in config-test.yaml
-        self.storage_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
 
         self.dict_log_info: dict[str, str] | None = None
 
@@ -191,7 +189,7 @@ class Reader_Storage(AbstractReader):
         logger.debug("  Billing period days: %s", self.dict_log_info[
                      "period_days"])
 
-        self.log_unknown_info(self)
+        self.log_unknown_info()
 
         logger.info("Local Reader processing finished successfully"
                     "for resource type storage.")
