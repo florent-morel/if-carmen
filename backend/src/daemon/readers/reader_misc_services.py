@@ -42,7 +42,7 @@ class Reader_Misc_Services(AbstractReader):
     Hence a Misc Services implementation.
     """
 
-    def __init__(self, input_file, config: DaemonConfig):
+    def __init__(self, config: DaemonConfig):
         self.config: DaemonConfig = config
         self.input_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
 

@@ -209,6 +209,7 @@ class CarbonDaemonOrchestrator:
                 for input_file in self.list_input_file:
                     # Check if file exists before trying to read it
                     try:
+                        csv_data = ""
                         if os.path.exists(input_file):
                             with open(
                                 input_file, "r", encoding=CSV_FILE_ENCODING
@@ -470,6 +471,7 @@ class CarbonDaemonOrchestrator:
         if self.carbon_daemon_result.success:
             # Carbon daemon run was succesful, write report output file.
             logger.info("Carbon daemon run was succesful, write report output file.")
+            os.makedirs(str(self.config.output.output_path), exist_ok=True)
             with open(self.output_file, "w", newline="") as report_csv_file:
                 fieldnames = AbstractWriter.get_report_headers()
                 dict_writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)

@@ -41,7 +41,7 @@ class Reader_Compute(AbstractReader):
 
             self.list_resources_to_process = list(vm_dict.values())
 
-            self.log_processing_results(self)
+            self.log_processing_results()
 
             return self.list_resources_to_process
 
