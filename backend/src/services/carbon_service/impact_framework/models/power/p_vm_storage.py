@@ -27,15 +27,23 @@ class PVmStorage(ModelUtilities):
 
     def __init__(self, provider_config: AbstractProviderConfig | None = None):
         self.provider_config = provider_config
-        ratios = (
-            (provider_config.get_electricity_ratios() or {}) if provider_config else {}
+        from backend.src.core.yaml_config_loader import config as app_config
+
+        global_ratios = (
+            app_config.carbon_intensity_config.get_storage_electricity_ratios()
+            if app_config.carbon_intensity_config
+            else None
+        ) or {}
+        provider_ratios = (
+            (provider_config.get_storage_electricity_ratios() or {}) if provider_config else {}
         )
-        coefficient = ratios.get("storage_unknown")
+        # Provider-specific values override the global defaults.
+        ratios = {**global_ratios, **provider_ratios}
+        coefficient = ratios.get("unknown")
         if coefficient is None:
             raise ValueError(
-                "No 'storage_unknown' electricity ratio in provider config. "
-                "Add a 'storage_unknown' entry under 'electricity_ratios' in the provider YAML, "
-                "or ensure a provider is set on the resource."
+                "No 'unknown' electricity ratio found. Add an 'unknown' entry"
+                " under 'storage_electricity_ratios' in carbon_values.yaml."
             )
         config = {
             "input-parameter": "storage/requested",  # in GB

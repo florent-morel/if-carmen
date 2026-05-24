@@ -47,18 +47,27 @@ class PStorage(ModelUtilities):
         Returns:
             Dict containing storage input in GB and the power coefficient based on storage type
         """
-        ratios = (
-            (self.provider_config.get_electricity_ratios() or {})
+        from backend.src.core.yaml_config_loader import config as app_config
+
+        global_ratios = (
+            app_config.carbon_intensity_config.get_storage_electricity_ratios()
+            if app_config.carbon_intensity_config
+            else None
+        ) or {}
+        provider_ratios = (
+            (self.provider_config.get_storage_electricity_ratios() or {})
             if self.provider_config
             else {}
         )
+        # Provider-specific values override the global defaults.
+        ratios = {**global_ratios, **provider_ratios}
         storage_type = storage_resource.storage_type.lower()
-        power_coefficient = ratios.get(storage_type, ratios.get("storage_unknown"))
+        power_coefficient = ratios.get(storage_type, ratios.get("unknown"))
         if power_coefficient is None:
             raise ValueError(
-                f"No electricity ratio for storage type '{storage_type}' and no 'storage_unknown' "
-                "fallback in provider config. Add a 'storage_unknown' entry under "
-                "'electricity_ratios' in the provider YAML, or ensure a provider is set on the resource."
+                f"No electricity ratio for storage type '{storage_type}' and no"
+                " 'unknown' fallback found. Add an 'unknown' entry under"
+                " 'storage_electricity_ratios' in carbon_values.yaml."
             )
 
         replication_factors = (
