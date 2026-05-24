@@ -22,12 +22,14 @@ class DefaultMiscServicesConstants(BaseModel):
 
 class CarbonIntensityConfig(BaseSettings):
     """
+    TODO: update description
     Configuration class for carbon intensity per location.
     Loaded from carbon_intensity.yaml.
     """
 
     carbon_intensity_by_location: dict[str, CountryCarbonIntensity] = {}
     storage_embodied: dict[str, int] | None = None
+    storage_electricity_ratios: dict[str, float] | None = None
     default_misc_services_constants: DefaultMiscServicesConstants = (
         DefaultMiscServicesConstants()
     )
@@ -41,3 +43,6 @@ class CarbonIntensityConfig(BaseSettings):
 
     def get_storage_embodied(self) -> dict[str, int] | None:
         return self.storage_embodied
+    
+    def get_storage_electricity_ratios(self) -> dict[str, float] | None:
+        return self.storage_electricity_ratios

@@ -36,6 +36,11 @@ storage_embodied:
   ssd: 160
   hdd: 20
   unknown: 90  # Average
+storage_electricity_ratios: 
+  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
+  ssd: 0.0000012
+  hdd: 0.00000065
+  unknown: 0.000000925  # Average
 
 # Default ratios used when VM/Storage processors are absent.
 # These data should not be used on standard runs: they are extracted from compute/storage modelling,

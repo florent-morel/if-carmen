@@ -46,14 +46,10 @@ zone_aliases:
 
 # Electricity ratios
 electricity_ratios:
+  # from https://www.cloudcarbonfootprint.org/docs/methodology/#azure-1
   cpu_min: 0.78  # watt per core
   cpu_max: 3.76  # watt per core
   memory: 0.392  # watt per GB
-  # Storage ratios
-  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
-  ssd: 0.0000012
-  hdd: 0.00000065
-  storage_unknown: 0.000000925  # Average
 
 # Replication factors for different Azure storage types
 # https://docs.google.com/spreadsheets/d/1D7mIGKkdO1djPoMVmlXRmzA7_4tTiGZLYdVbfe85xQM/edit?gid=2008238628#gid=2008238628

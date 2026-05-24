@@ -16,6 +16,7 @@ class AbstractProviderConfig(BaseSettings):
 
     pue: float | None = None
     electricity_ratios: dict[str, float] | None = None
+    storage_electricity_ratios: dict[str, float] | None = None
     storage_replication_factors: dict[str, int] | None = None
     disk_sku_size_mapping: dict[str, int] | None = None
     regions: dict[str, str] | None = None
@@ -26,6 +27,9 @@ class AbstractProviderConfig(BaseSettings):
 
     def get_electricity_ratios(self) -> dict[str, float] | None:
         return self.electricity_ratios
+
+    def get_storage_electricity_ratios(self) -> dict[str, float] | None:
+        return self.storage_electricity_ratios
 
     def get_storage_replication_factors(self) -> dict[str, int] | None:
         return self.storage_replication_factors
