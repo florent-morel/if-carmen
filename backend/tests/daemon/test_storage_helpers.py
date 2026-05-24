@@ -358,5 +358,63 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertIn("CSV error", log.output[0])
 
 
+class TestReaderStoragePerRowProvider(unittest.TestCase):
+    """
+    Tests that Reader_Storage.process_storage_row looks up disk_sku_mapping
+    using the provider from each row, not a single instance-level provider_config.
+    """
+
+    def _make_reader(self):
+        from backend.src.daemon.readers.reader_storage import Reader_Storage
+        from backend.src.core.yaml_config_loader import DaemonConfig
+        daemon_cfg = MagicMock(spec=DaemonConfig)
+        reader = Reader_Storage.__new__(Reader_Storage)
+        reader.config = daemon_cfg
+        return reader
+
+    @patch("backend.src.daemon.readers.reader_storage.config")
+    @patch("backend.src.daemon.readers.reader_storage._process_storage_row")
+    def test_row_with_known_provider_uses_its_sku_mapping(self, mock_free_fn, mock_config):
+        """When row['Provider'] matches a loaded provider config, that config's SKU mapping is used."""
+        mock_provider_config = MagicMock()
+        mock_provider_config.get_disk_sku_size_mapping.return_value = {"P10": 128}
+        mock_config.provider_configs = {"azure": mock_provider_config}
+        mock_free_fn.return_value = True
+
+        reader = self._make_reader()
+        row = {"Provider": "azure", "ProductName": "Premium SSD - P10", "LineNumber": "1"}
+        result = reader.process_storage_row(row, 30, {})
+
+        mock_free_fn.assert_called_once_with(row, 30, {}, {"P10": 128})
+        assert result is True
+
+    @patch("backend.src.daemon.readers.reader_storage.config")
+    @patch("backend.src.daemon.readers.reader_storage._process_storage_row")
+    def test_row_with_unknown_provider_uses_empty_mapping(self, mock_free_fn, mock_config):
+        """When row['Provider'] is not in provider_configs, an empty SKU mapping is used."""
+        mock_config.provider_configs = {}
+        mock_free_fn.return_value = False
+
+        reader = self._make_reader()
+        row = {"Provider": "onprem", "ProductName": "Some Disk", "LineNumber": "2"}
+        result = reader.process_storage_row(row, 30, {})
+
+        mock_free_fn.assert_called_once_with(row, 30, {}, {})
+        assert result is False
+
+    @patch("backend.src.daemon.readers.reader_storage.config")
+    @patch("backend.src.daemon.readers.reader_storage._process_storage_row")
+    def test_row_with_missing_provider_column_uses_empty_mapping(self, mock_free_fn, mock_config):
+        """When 'Provider' key is absent from the row, falls back to empty mapping."""
+        mock_config.provider_configs = {"azure": MagicMock()}
+        mock_free_fn.return_value = False
+
+        reader = self._make_reader()
+        row = {"ProductName": "Some Disk", "LineNumber": "3"}  # no Provider key
+        reader.process_storage_row(row, 30, {})
+
+        mock_free_fn.assert_called_once_with(row, 30, {}, {})
+
+
 if __name__ == "__main__":
     unittest.main()
