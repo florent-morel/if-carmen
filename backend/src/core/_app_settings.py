@@ -109,36 +109,34 @@ class ReportConfig:
     # Misc services columns
     MISC_SERVICES_COST = "ServicesCost"
 
-    # Full ordered fieldname lists used to initialise csv.DictWriter
-    REPORT_HEADERS: list[list[str]] = [
-        [
-            # Common columns
-            "Date",
-            "ResourceType",
-            "Id",
-            "Name",
-            "Provider",
-            "Region",
-            "Subscription",
-            "EnergyKWH",
-            "OperationalCarbonGramsCO2eq",
-            "EmbodiedCarbonGramsCO2eq",
-            "TotalCarbonGramsCO2eq",
-            "CarbonIntensity",
-            # VM columns
-            "VMSize",
-            "Service",
-            "Instance",
-            "Environment",
-            "Partition",
-            "Component",
-            # Storage columns
-            "StorageType",
-            "ReplicationType",
-            "SizeGB",
-            # Misc services columns
-            "ServicesCost",
-        ]
+    # Flat ordered fieldname list used to initialise csv.DictWriter.
+    REPORT_HEADERS: list[str] = [
+        # Common columns
+        "Date",
+        "ResourceType",
+        "Id",
+        "Name",
+        "Provider",
+        "Region",
+        "Subscription",
+        "EnergyKWH",
+        "OperationalCarbonGramsCO2eq",
+        "EmbodiedCarbonGramsCO2eq",
+        "TotalCarbonGramsCO2eq",
+        "CarbonIntensity",
+        # VM columns
+        "VMSize",
+        "Service",
+        "Instance",
+        "Environment",
+        "Partition",
+        "Component",
+        # Storage columns
+        "StorageType",
+        "ReplicationType",
+        "SizeGB",
+        # Misc services columns
+        "ServicesCost",
     ]
 
     MISC_SERVICES_REPORT_HEADERS: list[list[str]] = [

@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from backend.src.daemon.readers.helpers.storage_helpers import (
+    _process_storage_row,
     calculate_storage_size,
     date_delta,
     create_storage_resource,
@@ -162,8 +163,7 @@ class TestStorageHelpers(unittest.TestCase):
         mock_create_storage.return_value = mock_storage_resource
 
         storage_dict = {}
-        # TODO: Implement this in reader instead?
-        result = None # process_storage_row(self.sample_ssd_row, 30, storage_dict)
+        result = _process_storage_row(self.sample_ssd_row, 30, storage_dict)
 
         self.assertTrue(result)
         self.assertIn("test_line_123", storage_dict)
@@ -174,8 +174,7 @@ class TestStorageHelpers(unittest.TestCase):
         mock_calculate_size.return_value = (0.0, 86400)
 
         storage_dict = {}
-        # TODO: Implement this in reader instead?
-        result = None # process_storage_row(self.sample_ssd_row, 30, storage_dict)
+        result = _process_storage_row(self.sample_ssd_row, 30, storage_dict)
 
         self.assertFalse(result)
         self.assertEqual(len(storage_dict), 0)
@@ -189,8 +188,7 @@ class TestStorageHelpers(unittest.TestCase):
         del row_without_line_number["LineNumber"]
 
         storage_dict = {}
-        # TODO: Implement this in reader instead?
-        result = None # process_storage_row(row_without_line_number, 30, storage_dict)
+        result = _process_storage_row(row_without_line_number, 30, storage_dict)
 
         self.assertFalse(result)
         self.assertEqual(len(storage_dict), 0)
