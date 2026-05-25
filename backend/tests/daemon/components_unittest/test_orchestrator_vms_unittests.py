@@ -6,6 +6,7 @@ processor patterns, YAML configuration, and the CarbonDaemonOrchestrator executi
 """
 
 import logging
+import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -38,6 +39,9 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.mock_config.output.output_path = tmp.name
         self.sample_vms = [
             VirtualMachine(id="vm1", name="test-vm-1"),
             VirtualMachine(id="vm2", name="test-vm-2"),

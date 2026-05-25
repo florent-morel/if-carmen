@@ -40,5 +40,11 @@ class AbstractProviderConfig(BaseSettings):
     def get_regions(self) -> dict[str, str] | None:
         return self.regions
 
+    def get_cpu_max(self) -> float | None:
+        """Return the maximum per-core TDP (W/core) for this provider, or None if not configured."""
+        if self.electricity_ratios is None:
+            return None
+        return self.electricity_ratios.get("cpu_max")
+
     def get_zone_aliases(self) -> dict[str, str] | None:
         return self.zone_aliases

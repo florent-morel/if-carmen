@@ -1,7 +1,6 @@
 # keep the order for SCI pipeline
 name: infrastructure pipeline
 hardware_models:
-  cloud-metadata:
   teads-curve:
   p-cpu:
   e-cpu:
