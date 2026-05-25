@@ -30,10 +30,9 @@ class AbstractWriter(ABC):
         self.writer.writeheader()
 
     @staticmethod
-    def get_report_headers() -> Iterable[Iterable[Any]]:
+    def get_report_headers() -> list[str]:
         """
-        Abstract method to let each resource dedicated writer list the header
-        rows it needs.
+        Returns the flat list of column names used to initialise csv.DictWriter.
         """
         return ReportConfig.REPORT_HEADERS
 
