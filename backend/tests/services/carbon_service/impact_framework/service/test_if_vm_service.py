@@ -37,13 +37,12 @@ def test_run_engine_success(mock_parse_if_output, mock_run_if, mock_vm_1):
     """
     Test the run_engine method of IFVMService with mock VM data.
     """
-    # Creating a new instance of IFVMService
     mock_if_service = MagicMock(spec=IFService)
     service = IFVMService(mock_if_service)
 
     result = service.run_engine([mock_vm_1])
 
-    mock_run_if.assert_called_once_with(service, [mock_vm_1], 0)
+    mock_run_if.assert_called_once_with(service, [mock_vm_1], file_id=0)
     mock_parse_if_output.assert_called_once_with(service, [mock_vm_1], file_id=0)
     assert result == [mock_vm_1]
 
@@ -53,16 +52,17 @@ def test_run_engine_success(mock_parse_if_output, mock_run_if, mock_vm_1):
 def test_get_models_info(mock_super_get_models_info):
     """
     Test the get_models_info method of IFVMService.
-    When provider is empty, raises ValueError because cloud-metadata requires a provider CSV.
+    p-cpu and p-vm-storage are filled with their Python model configurations.
     """
     mock_if_service = MagicMock(spec=IFService)
     service = IFVMService(mock_if_service)
-    mock_data = {"hardware_models": {"cloud-metadata": {}}}
+    mock_data = {"hardware_models": {"p-cpu": {}, "p-vm-storage": {}}}
 
-    with pytest.raises(ValueError, match="provider is required"):
-        service.get_models_info(mock_data)
+    service.get_models_info(mock_data)
 
     mock_super_get_models_info.assert_called_once()
+    assert mock_data["hardware_models"]["p-cpu"] != {}
+    assert "cloud-metadata" not in mock_data["hardware_models"]
 
 
 @patch.object(IFVMService, "__init__", lambda self, duration: None)
@@ -107,7 +107,8 @@ def test_run_engine_groups_vms_by_provider(mock_parse_if_output, mock_run_if):
     vm_aws.provider = "aws"
     vm_aws.time_points = [1, 2]
 
-    result = service.run_engine([vm_azure_1, vm_aws, vm_azure_2])
+    all_vms = [vm_azure_1, vm_aws, vm_azure_2]
+    result = service.run_engine(all_vms)
 
     # Should be called twice — once per provider
     assert mock_run_if.call_count == 2
@@ -126,4 +127,4 @@ def test_run_engine_groups_vms_by_provider(mock_parse_if_output, mock_run_if):
     assert len(azure_chunk) == 2
 
     # Original list is returned unchanged
-    assert result == [vm_azure_1, vm_aws, vm_azure_2]
+    assert result == all_vms

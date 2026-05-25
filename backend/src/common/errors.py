@@ -108,6 +108,7 @@ class ErrorCode(str, Enum):
     IF_OUTPUT_INVALID = "7004"
     IF_METADATA_MISSING = "7005"
     IF_CLOUD_METADATA_FETCH_FAILED = "7006"
+    UNKNOWN_VM_INSTANCE_TYPE = "7007"  # VM type not in instances CSV and vcpu_count not resolvable
 
     # Database errors (8xxx)
     DB_CONNECTION_ERROR = "8001"
@@ -353,6 +354,10 @@ ERRORS: dict[str, ErrorTemplate] = {
     ErrorCode.IF_CLOUD_METADATA_FETCH_FAILED: ErrorTemplate(
         category=ErrorCategory.IMPACT_FRAMEWORK,
         user_message="failed to fetch cloud metadata for impact framework",
+    ),
+    ErrorCode.UNKNOWN_VM_INSTANCE_TYPE: ErrorTemplate(
+        category=ErrorCategory.IMPACT_FRAMEWORK,
+        user_message="VM instance type is unknown and vCPU count could not be resolved; cannot compute CPU energy",
     ),
     # Database errors
     ErrorCode.DB_CONNECTION_ERROR: ErrorTemplate(

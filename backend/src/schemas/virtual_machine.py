@@ -21,6 +21,7 @@ class VirtualMachine(ComputeResource):
     service: str | None = None
     component: str | None = None
     resource_type: ResourceType = ResourceType.VIRTUAL_MACHINE
+    vcpu_count: int | None = None  # from NbVCpus billing column; used as TDP fallback for unknown types
     # TODO: check if this is really necessary
     storage_size: list[float] = Field(default_factory=list)  # in GB
     # storage_energy: list[float] = Field(default_factory=list)
