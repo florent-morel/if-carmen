@@ -26,10 +26,10 @@ from backend.src.common.constants import (
     CSV_PATH,
     CSV_FILE_TEST,
     CSV_FILE_ENCODING,
+    SOURCE_RESOURCE_ID,
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
-    SOURCE_LINE_NUMBER,
 )
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class Reader_Storage(AbstractReader):
             data source.
         """
 
-        logger.info("starting to read storage data from local filesystem")
+        logger.info("Starting to read storage data from local filesystem")
 
         try:
             storage_dict: dict[str, StorageResource] = {}
@@ -89,6 +89,7 @@ class Reader_Storage(AbstractReader):
         Returns:
             bool: True if valid storage was processed, False otherwise
         """
+        logger.info(f"row: {row}")
         provider = row.get(SOURCE_PROVIDER, "")
         provider_config = config.provider_configs.get(provider or "")
         disk_sku_mapping = (
@@ -133,7 +134,6 @@ class Reader_Storage(AbstractReader):
         logger.info(f"csv_data: {csv_data}")
 
         for row in csv_reader:
-            logger.info(f"row: {row}")
             total_rows += 1
 
             self.process_unknown_regions(row[SOURCE_REGION])
@@ -157,7 +157,7 @@ class Reader_Storage(AbstractReader):
             except ValidationError as e:
                 logger.exception(
                     "ValidationError for storage row %s: %s",
-                    row.get(SOURCE_LINE_NUMBER, ""),
+                    row.get(SOURCE_RESOURCE_ID, ""),
                     str(e),
                 )
                 excluded_rows += 1
@@ -172,6 +172,7 @@ class Reader_Storage(AbstractReader):
 
         logger.info("Storage CSV processed")
 
+        logger.info(f"End of process_csv_data, storage_dict: {storage_dict}")
         return data_found
 
     def log_processing_results(self) -> None:

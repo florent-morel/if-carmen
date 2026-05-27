@@ -17,12 +17,12 @@ from backend.src.common.constants import (
     CSV_FILE_TEST,
     CSV_FILE_ENCODING,
     SOURCE_PROVIDER,
+    SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_GROUP,
     SOURCE_SUBSCRIPTION_ID,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
     SOURCE_BILLING_COST,
-    SOURCE_LINE_NUMBER,
     SOURCE_PRODUCT_NAME,
     SOURCE_METER_NAME,
     SOURCE_QUANTITY,
@@ -282,9 +282,9 @@ def _process_storage_row(
     if size_gb <= 0 or duration_seconds <= 0:
         return False
 
-    storage_id = row.get(SOURCE_LINE_NUMBER, "")
+    storage_id = row.get(SOURCE_RESOURCE_ID, "")
     if not storage_id:
-        logger.error("No line number for %s", row.get(SOURCE_PRODUCT_NAME, ""))
+        logger.error("No ResourceID found for %s", row.get(SOURCE_RESOURCE_ID, ""))
         return False
 
     storage_type = get_storage_type(row)
