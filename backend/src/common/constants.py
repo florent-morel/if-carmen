@@ -29,10 +29,29 @@ RATE_TO_DURATION = {
     SamplingRate.ONE_DAY: timedelta(days=1),
 }
 
-# Reader Storage constants
+# Reader constants
 CSV_PATH: str = "CSV_PATH"
 CSV_FILE_TEST: str = "etc/sample_data/test_data/storage_test.csv"
 CSV_FILE_ENCODING: str = "utf-8"
+
+
+SOURCE_RESOURCE_ID = "ResourceId"
+SOURCE_RESOURCE_GROUP = "ResourceGroup"
+SOURCE_PROVIDER = "Provider"
+SOURCE_SUBSCRIPTION_ID = "SubscriptionId"
+SOURCE_REGION = "Region"
+SOURCE_METER_CATEGORY = "MeterCategory"
+SOURCE_LINE_NUMBER = "LineNumber"
+SOURCE_BILLING_COST = "BillingCost"
+SOURCE_COMPUTE = "Compute"
+SOURCE_STORAGE = "Storage"
+SOURCE_CONSUMED_SERVICE = "ConsumedService"
+SOURCE_PRODUCT_NAME = "ProductName"
+SOURCE_METER_NAME = "MeterName"
+SOURCE_DATE = "Date"
+SOURCE_QUANTITY = "Quantity"
+SOURCE_UNIT_OF_MEASURE = "UnitOfMeasure"
+UNKNOWN = "Unknown"
 
 HOURLY_INTERVAL_SECONDS: int = 3600
 DAILY_SECONDS: int = 86400

@@ -12,6 +12,25 @@ from datetime import datetime
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.utils.helpers import str_to_float, get_row_data
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
+from backend.src.common.constants import (
+    CSV_PATH,
+    CSV_FILE_TEST,
+    CSV_FILE_ENCODING,
+    SOURCE_PROVIDER,
+    SOURCE_RESOURCE_GROUP,
+    SOURCE_SUBSCRIPTION_ID,
+    SOURCE_REGION,
+    SOURCE_METER_CATEGORY,
+    SOURCE_BILLING_COST,
+    SOURCE_LINE_NUMBER,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_METER_NAME,
+    SOURCE_QUANTITY,
+    SOURCE_UNIT_OF_MEASURE,
+    SOURCE_DATE,
+    DATE_FORMAT,
+    UNKNOWN,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -115,23 +134,23 @@ def create_storage_resource(
     Returns:
         StorageResource: Complete storage resource object
     """
-    product_name = row.get("ProductName", "")
-    region = row.get("ResourceLocation", "unknown")
+    product_name = row.get(SOURCE_PRODUCT_NAME, "")
+    region = row.get(SOURCE_REGION, UNKNOWN)
 
     return StorageResource(
         id=storage_id,
         name=product_name,
-        provider=row.get("Provider", ""),
+        provider=row.get(SOURCE_PROVIDER, ""),
         storage_type=storage_type,
         replication_type=replication_type,
         size_gb=size_gb,
         region=region,
-        subscription=row.get("SubscriptionId", "unknown"),
-        resource_group=row.get("ResourceGroup", "unknown"),
+        subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
+        resource_group=row.get(SOURCE_RESOURCE_GROUP, UNKNOWN),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         time_points=[],
         duration_seconds=duration_seconds,
-        billing_cost=get_row_data(row["BillingCost"]),
+        billing_cost=get_row_data(row[SOURCE_BILLING_COST]),
     )
 
 
@@ -143,8 +162,8 @@ def get_replication_type(row: dict) -> str:
     Returns:
         str: Replication type (LRS/GRS/ZRS/RA_GRS/etc.)
     """
-    product_name = row.get("ProductName", "").upper()
-    meter_name = row.get("MeterName", "").upper()
+    product_name = row.get(SOURCE_PRODUCT_NAME, "").upper()
+    meter_name = row.get(SOURCE_METER_NAME, "").upper()
     text = f"{product_name} {meter_name}"
 
     if "RA-GZRS" in text or "RAGZRS" in text:
@@ -199,10 +218,11 @@ def calculate_storage_size(
     Returns:
         tuple[float, int]: (size_gb, duration_seconds), or (0.0, 0) for non-disk rows
     """
-    unit_of_measure = row.get("UnitOfMeasure", "")
-    quantity = str_to_float(row.get("Quantity", "0"))
-    product_name = row.get("ProductName", "")
+    unit_of_measure = row.get(SOURCE_UNIT_OF_MEASURE, "")
+    quantity = str_to_float(row.get(SOURCE_QUANTITY, "0"))
+    product_name = row.get(SOURCE_PRODUCT_NAME, "")
 
+    # TODO: Review code and magic numbers
     if unit_of_measure == "1 GiB/Hour":
         # Premium SSD v2 / dynamic disks — GiB → GB conversion
         size_gb = (quantity / 24) * 1.07374182
@@ -262,9 +282,9 @@ def _process_storage_row(
     if size_gb <= 0 or duration_seconds <= 0:
         return False
 
-    storage_id = row.get("LineNumber", "")
+    storage_id = row.get(SOURCE_LINE_NUMBER, "")
     if not storage_id:
-        logger.error("No line number for %s", row.get("ProductName", ""))
+        logger.error("No line number for %s", row.get(SOURCE_PRODUCT_NAME, ""))
         return False
 
     storage_type = get_storage_type(row)
@@ -278,11 +298,11 @@ def _process_storage_row(
             row, storage_id, size_gb, storage_type, replication_type, duration_seconds
         )
 
-    timestamp = row.get("Date", datetime.now().strftime("%Y-%m-%d"))
+    timestamp = row.get(SOURCE_DATE, datetime.now().strftime(DATE_FORMAT))
     storage_dict[storage_id].time_points.append(timestamp)
 
-    region = row.get("ResourceLocation", "unknown")
-    if not region or region == "unknown":
+    region = row.get(SOURCE_REGION, UNKNOWN)
+    if not region or region == UNKNOWN:
         logger.warning("Missing region for %s", storage_id)
 
     return True
