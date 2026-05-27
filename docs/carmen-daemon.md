@@ -1,5 +1,6 @@
 # Carmen Daemon
-The Carbon Daemon is a specialized reporting tool designed to help you track and understand the environmental footprint of your cloud infrastructure **in Azure**. It generates comprehensive reports detailing the carbon emissions and energy consumption of your cloud resources, with particular emphasis on compute resources like virtual machines.
+
+The Carmen Daemon is a specialized reporting tool designed to help you track and understand the environmental footprint of your cloud infrastructure. It generates comprehensive reports detailing the carbon emissions and energy consumption of your cloud resources, with particular emphasis on compute resources like virtual machines.
 
 ## Carmen Daemon configuration
 
@@ -8,11 +9,11 @@ This section explains the configuration structure for the Carmen daemon and deta
 TODO: Review this list
 ### Input files directory structure
 
-Carmen daemon reads input files from a directory configured in main config file located in `config/config.yaml`.
+Carmen daemon reads input files from a directory configured in main config file located in `etc/config/config.yaml`.
 
-The structure is the following:
+The configuration directory structure is the following:
 ``` sh
-if-carmen/config/
+if-carmen/etc/config/
 ├── config-test.yaml
 ├── config.yaml
 └── modelling_constants
@@ -27,7 +28,7 @@ if-carmen/config/
             └── gcp.yaml
 ```
 
-#### ~/config/config.yaml
+#### ~/etc/config/config.yaml
 
 This is Carmen's main configuration file.
 
@@ -42,12 +43,12 @@ It contains:
         * Storage: storage services.
         * Misc_Services: all other services required.
 
-#### ~/config/config-test.yaml
+#### ~/etc/config/config-test.yaml
 
 This file is following the same structure as config.yaml.
 It is used for Unit Tests only.
 
-#### ~/config/modelling_constants/carbon-values.yaml
+#### ~/etc/config/modelling_constants/carbon-values.yaml
 
 This file defines several carbon computation related values.
 These are common to all providers.
@@ -66,9 +67,11 @@ It also defines the embodied storage values for the following technologies:
 - SSD.
 - A default value is provided in case the technology is unknown.
 
-#### ~/config/modelling_constants/cloud_providers folder
+#### ~/etc/config/modelling_constants/cloud_providers folder
 
-##### ~/config/modelling_constants/azure/azure.yaml
+This folder stores cloud providers specific configurations.
+
+##### ~/etc/config/modelling_constants/azure/azure.yaml
 
 This file is dedicated to Microsoft Azure Cloud Service Provider.
 It defines constants related to:
@@ -77,14 +80,16 @@ It defines constants related to:
 - Electricity ratios: energy consumption of different resources.
 
 
-##### ~/config/modelling_constants/azure/azure_instances.csv
+##### ~/etc/config/modelling_constants/azure/azure_instances.csv
 
-##### ~/config/modelling_constants/aws/aws.yaml
+TODO: Explain what's in this file.
 
-Follows same structure.  
+##### ~/etc/config/modelling_constants/aws/aws.yaml
+
+Follows same structure. 
 Not implemented yet.
 
-##### ~/config/modelling_constants/gcp/gcp.yaml
+##### ~/etc/config/modelling_constants/gcp/gcp.yaml
 
 Follows same structure.  
 Not implemented yet.
@@ -94,6 +99,8 @@ Not implemented yet.
 The daemon expects to read a group of csv files containing resource usage data. Below is a description for each column expected in the CSV input.
 
 ### Input file structure (=columns)
+
+TODO: review this.
 
 
 | Field | Description | Example |
@@ -118,6 +125,8 @@ The daemon expects to read a group of csv files containing resource usage data. 
 
 
 ## Report File
+
+TODO: review this.
 
 The Carmen Daemon generates a detailed carbon emissions report in CSV format with the following fields:
 
@@ -146,11 +155,12 @@ The Carmen Daemon generates a detailed carbon emissions report in CSV format wit
 > The report file is unique, regardless the number of resource types (compute, storage, misc services) included in the computation.
 > A single row is specific to a single entry of a given resource type.
 > As a consequence, some fields might be empty if they are not relevant for the given resource type.
+> Applications reading Carmen's output files need to be aware of this.
 
 
 ## Running The Daemon
 
-The example-data directory includes sample VM usage datasets you can use to explore and test Carbon Engine. The configuration below demonstrates how to run the engine in local-reader mode, processing example VM metrics and generating carbon reports locally.
+The example-data directory includes sample VM usage datasets you can use to explore and test Carmen Engine. The configuration below demonstrates how to run the engine in local-reader mode, processing example VM metrics and generating carbon reports locally.
 
 ```yaml
 # Example Configuration for Carbon Engine with Sample Data
@@ -174,6 +184,7 @@ carmen_daemon:
 
 ```
 
+TODO: carbon-daemon does not exist anymore in example-data.
 To run the example, navigate to the `example-data/` directory and execute the following command:
 
 ```bash
