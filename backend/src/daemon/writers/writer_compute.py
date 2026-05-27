@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Writer_Compute(AbstractWriter):
     def write_content(self, resources: list[VirtualMachine]):
         logger.info(
-            "Starting write_content for resource %s.", ResourceType.VIRTUAL_MACHINE
+            "Starting write_content for resource %s.", ResourceType.VIRTUAL_MACHINE 
         )
 
         for resource in resources:

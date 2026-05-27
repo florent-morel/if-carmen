@@ -3,6 +3,7 @@ import logging
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.core.settings import ReportConfig
+from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +12,7 @@ class Writer_Misc_Services(AbstractWriter):
     def write_content(self, resources: list[MiscServicesResource]):
         logger.info(
             "Starting write_content for resource %s.",
-            MiscServicesResource.resource_type,
+            ResourceType.MISC_SERVICES,
         )
 
         # Add resources
