@@ -3,6 +3,7 @@ import logging
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.core.settings import ReportConfig
+from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Writer_Storage(AbstractWriter):
     def write_content(self, resources: list[StorageResource]):
         logger.info(
-            "Starting write_content for resource %s.", StorageResource.resource_type
+            "Starting write_content for resource %s.", ResourceType.STORAGE
         )
 
         # Add resources

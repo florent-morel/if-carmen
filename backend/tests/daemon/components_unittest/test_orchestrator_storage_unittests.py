@@ -117,7 +117,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
-        logger.info(f"Result: {carbonDaemonResult}")
+        logger.info(f"Result: {carbonDaemonResult.dict_resource_result}")
 
         resultStorage = carbonDaemonResult.dict_resource_result[ResourceType.STORAGE]
         self.assertIsNotNone(resultStorage)
