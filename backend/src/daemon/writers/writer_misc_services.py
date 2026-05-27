@@ -22,8 +22,6 @@ class Writer_Misc_Services(AbstractWriter):
             # Misc services specific columns
             row[ReportConfig.MISC_SERVICES_COST] = resource.misc_services_cost
 
-            super().writer.write(row)
-
         logger.info(
             " Rows built for %d resources",
             len(resources),

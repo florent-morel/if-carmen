@@ -482,13 +482,13 @@ class CarbonDaemonOrchestrator:
                 ) in self.carbon_daemon_result.dict_resource_result.values():
                     # Instantiate writer dedicated to ResourceType
                     if resource_type_result.resource_type == ResourceType.STORAGE:
-                        writer = Writer_Storage(self.config, dict_writer, resource_type_result)
+                        writer = Writer_Storage(self.config, self.date, dict_writer, resource_type_result)
                         writer.write_content(resource_type_result.list_processed_resources)
                     elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
-                        writer = Writer_Compute(self.config, dict_writer, resource_type_result)
+                        writer = Writer_Compute(self.config, self.date, dict_writer, resource_type_result)
                         writer.write_content(resource_type_result.list_processed_resources)
                     elif resource_type_result.resource_type == ResourceType.MISC_SERVICES:
-                        writer = Writer_Misc_Services(self.config, dict_writer, resource_type_result)
+                        writer = Writer_Misc_Services(self.config, self.date, dict_writer, resource_type_result)
                         writer.write_content(resource_type_result.list_processed_resources)
                     else:
                         logger.warning(
