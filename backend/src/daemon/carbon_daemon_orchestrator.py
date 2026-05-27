@@ -167,7 +167,6 @@ class CarbonDaemonOrchestrator:
             logger.error(error_msg)
 
             self.update_carbon_daemon_result(
-                self.carbon_daemon_result,
                 success=False,
                 execution_time=execution_time,
                 list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR, error_msg)],
@@ -181,7 +180,6 @@ class CarbonDaemonOrchestrator:
             logger.exception(error_msg)
 
             self.update_carbon_daemon_result(
-                self.carbon_daemon_result,
                 success=False,
                 execution_time=execution_time,
                 list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR, error_msg)],
