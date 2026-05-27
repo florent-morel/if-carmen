@@ -26,6 +26,10 @@ from backend.src.common.constants import (
     CSV_PATH,
     CSV_FILE_TEST,
     CSV_FILE_ENCODING,
+    SOURCE_PROVIDER,
+    SOURCE_REGION,
+    SOURCE_METER_CATEGORY,
+    SOURCE_LINE_NUMBER,
 )
 
 logger = logging.getLogger(__name__)
@@ -85,7 +89,7 @@ class Reader_Storage(AbstractReader):
         Returns:
             bool: True if valid storage was processed, False otherwise
         """
-        provider = row.get("Provider", "")
+        provider = row.get(SOURCE_PROVIDER, "")
         provider_config = config.provider_configs.get(provider or "")
         disk_sku_mapping = (
             provider_config.get_disk_sku_size_mapping() if provider_config else None
@@ -126,15 +130,17 @@ class Reader_Storage(AbstractReader):
         period_days = date_delta(csv_data)
 
         logger.info("Processing CSV...")
+        logger.info(f"csv_data: {csv_data}")
 
         for row in csv_reader:
+            logger.info(f"row: {row}")
             total_rows += 1
 
-            self.process_unknown_regions(row["Region"])
-            self.process_unknown_providers(row["Provider"])
+            self.process_unknown_regions(row[SOURCE_REGION])
+            self.process_unknown_providers(row[SOURCE_PROVIDER])
 
             # Filter for MeterCategory = "Storage"
-            meter_category = row.get("MeterCategory", "").lower()
+            meter_category = row.get(SOURCE_METER_CATEGORY, "").lower()
             if "storage" not in meter_category:
                 not_storage_rows += 1
                 continue
@@ -151,7 +157,7 @@ class Reader_Storage(AbstractReader):
             except ValidationError as e:
                 logger.exception(
                     "ValidationError for storage row %s: %s",
-                    row.get("LineNumber", ""),
+                    row.get(SOURCE_LINE_NUMBER, ""),
                     str(e),
                 )
                 excluded_rows += 1
@@ -192,4 +198,4 @@ class Reader_Storage(AbstractReader):
         self.log_unknown_info()
 
         logger.info("Local Reader processing finished successfully"
-                    "for resource type storage.")
+                    " for resource type storage.")

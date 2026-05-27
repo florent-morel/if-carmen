@@ -11,7 +11,16 @@ from collections import Counter
 from unittest.mock import patch
 
 from backend.src.common.constants import (
-    HOURLY_INTERVAL_SECONDS,
+    CSV_PATH,
+    CSV_FILE_TEST,
+    CSV_FILE_ENCODING,
+    SOURCE_RESOURCE_ID,
+    SOURCE_REGION,
+    SOURCE_PROVIDER,
+    SOURCE_BILLING_COST,
+    SOURCE_COMPUTE,
+    SOURCE_STORAGE,
+    SOURCE_CONSUMED_SERVICE,
 )
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.resource import ResourceType
@@ -24,41 +33,8 @@ logger = logging.getLogger(__name__)
 
 class TestReaderMiscServices(unittest.TestCase):
     """
-    Unit test class for the CarbonDaemon class and related to storage
-    calculation functionality.
+    Unit test class for the Misc Services Reader.
     """
-
-    # def create_sample_storage(
-    #     self,
-    #     storage_id,
-    #     product_name,
-    #     storage_type,
-    #     replication_type,
-    #     size_gb,
-    #     region,
-    #     subscription,
-    #     resource_group,
-    #     carbon_intensity,
-    #     time_points,
-    #     duration_seconds,
-    # ) -> StorageResource:
-    #     """
-    #     Returns a sample storage resource dictionary.
-    #     """
-    #     storageResource = StorageResource(
-    #         id=storage_id,
-    #         name=product_name,
-    #         storage_type=storage_type,
-    #         replication_type=replication_type,
-    #         size_gb=size_gb,
-    #         region=region,
-    #         subscription=subscription,
-    #         resource_group=resource_group,
-    #         carbon_intensity=carbon_intensity,
-    #         time_points=[],
-    #         duration_seconds=duration_seconds,
-    #     )
-    #     return storageResource
 
     def setUp(self):
         """Set up test fixtures."""
@@ -69,7 +45,7 @@ class TestReaderMiscServices(unittest.TestCase):
         Test successful Misc Services Reader execution.
         """
         mock_csv_data = (
-            "ResourceId,ConsumedService,Provider,Region,BillingCost\n"
+            f"{SOURCE_RESOURCE_ID},{SOURCE_CONSUMED_SERVICE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_BILLING_COST}\n"
             "misc_service1,Compute,provider_abc,centralus,100.0\n"
             "misc_service2,Compute,provider_abc,centralus,75.0\n"
             "misc_service3,Storage,provider_abc,centralus,50.0\n"
