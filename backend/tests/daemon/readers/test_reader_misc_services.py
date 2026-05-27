@@ -6,6 +6,7 @@ Unit tests for the Storage Reader class in the daemon.readers module.
 
 import unittest
 from unittest.mock import MagicMock
+from collections import Counter
 
 from unittest.mock import patch
 
@@ -68,17 +69,21 @@ class TestReaderMiscServices(unittest.TestCase):
         Test successful Misc Services Reader execution.
         """
         mock_csv_data = (
-            "ResourceId,ConsumedService,BillingCost\n"
-            "misc_service1,Compute,100.0\n"
-            "misc_service2,Compute,75.0\n"
-            "misc_service3,Storage,50.0\n"
-            "misc_service4,Storage,60.0\n"
-            "misc_service5,network,80.0\n"
+            "ResourceId,ConsumedService,Provider,Region,BillingCost\n"
+            "misc_service1,Compute,provider_abc,centralus,100.0\n"
+            "misc_service2,Compute,provider_abc,centralus,75.0\n"
+            "misc_service3,Storage,provider_abc,centralus,50.0\n"
+            "misc_service4,Storage,provider_abc,centralus,60.0\n"
+            "misc_service5,network,provider_abc,centralus,80.0\n"
             ",,\n"
-            "misc_service6,keyvault,90.0\n"
+            "misc_service6,keyvault,provider_abc,centralus,90.0\n"
         )
 
         reader_misc_services = Reader_Misc_Services(self.mock_config)
+        reader_misc_services.known_regions = ["australiaeast", "centralus", "eastasia", "eastus", "francecentral", "centralindia"]
+        reader_misc_services.unknown_regions = Counter()
+        reader_misc_services.unknown_providers = Counter()
+        reader_misc_services.dict_log_info = {}
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.MISC_SERVICES
@@ -87,15 +92,17 @@ class TestReaderMiscServices(unittest.TestCase):
         logger.debug(f"Inside test reader Misc Services: {self}")
         list_processed_resources = reader_misc_services.read(mock_csv_data)
 
-        self.assertEqual(len(list_processed_resources), 2)
+        self.assertEqual(len(list_processed_resources), 6)
 
         resultMiscServicesResource = list_processed_resources[0]
 
         # Ensure input data is not altered.
         # TODO: check what needs to be validated in output of Misc Services Reader
-        # self.assertEqual(resultMiscServicesResource.size_gb, 32.0)
-        # self.assertEqual(resultMiscServicesResource.storage_type, "SSD")
-        # self.assertEqual(resultMiscServicesResource.replication_type, "LRS")
+        self.assertEqual(resultMiscServicesResource.resource_type, ResourceType.MISC_SERVICES)
+        self.assertEqual(resultMiscServicesResource.id, "misc_service1")
+        self.assertEqual(resultMiscServicesResource.misc_services_cost, 100.0)
+        self.assertEqual(resultMiscServicesResource.provider, "provider_abc")
+        self.assertEqual(resultMiscServicesResource.region, "centralus")
 
         # TODO: these should be UT
         # self.assertEqual(total_compute_cost, 175.0)

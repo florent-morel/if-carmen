@@ -77,18 +77,23 @@ def create_misc_services_resource(row):
     """
     Creates a misc_services resource from the given row
     """
-    region = row.get("ResourceLocation", "unknown")
-    misc_services_resource = MiscServicesResource(
-        id=row.get("ResourceId"),
-        name=row.get("ProductName", ""),
-        provider=row.get("Provider", ""),
-        region=region,
-        subscription=row.get("SubscriptionId", "unknown"),
-        carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-        misc_services_cost=str_to_float(row.get("BillingCost", "0")),
-    )
-    timestamp = row.get(
-        "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
-    )
-    misc_services_resource.time_points = [timestamp]
+    logger.info(f"Inside create misc_services_resource row: {row}")
+    region = row.get("Region", "unknown")
+    logger.info(f"region: {region}")
+    id = row.get("ResourceId")
+    misc_services_resource = None
+    if id:
+        misc_services_resource = MiscServicesResource(
+            name=row.get("ProductName", ""),
+            id=id,
+            provider=row.get("Provider", ""),
+            region=region,
+            subscription=row.get("SubscriptionId", "unknown"),
+            carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
+            misc_services_cost=str_to_float(row.get("BillingCost", "0")),
+        )
+        timestamp = row.get(
+            "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+        )
+        misc_services_resource.time_points = [timestamp]
     return misc_services_resource

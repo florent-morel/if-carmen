@@ -55,6 +55,7 @@ class Reader_Misc_Services(AbstractReader):
             data source.
         """
         logger.info(f"Inside reader misc services: {self}")
+        logger.debug(f"csv_data: {csv_data}")
 
         # MISC SERVICES MODEL PROCESSING
         (
@@ -112,7 +113,9 @@ class Reader_Misc_Services(AbstractReader):
         misc_services_resources: list[MiscServicesResource] = []
         total_compute_misc_services = 0.0
         total_storage_misc_services = 0.0
+        logger.info(f"csv_data: {csv_data}")
         for row in csv_reader:
+            logger.info(f"row: {row}")
             self.process_unknown_regions(row["Region"])
             self.process_unknown_providers(row["Provider"])
 
@@ -132,7 +135,7 @@ class Reader_Misc_Services(AbstractReader):
                 total_storage_misc_services += str_to_float(row.get("BillingCost", "0"))
             else:
                 misc_services_resource = create_misc_services_resource(row)
-                if misc_services_resource.id == "":
+                if not misc_services_resource or misc_services_resource.id == "":
                     continue
                 misc_services_resources.append(misc_services_resource)
         logger.info("Misc services CSV processed")
@@ -151,7 +154,7 @@ class Reader_Misc_Services(AbstractReader):
             len(self.list_resources_to_process),
         )
 
-        self.log_unknown_info(self)
+        self.log_unknown_info()
 
         logger.info(
             "Local Reader processing finished successfully"
