@@ -47,7 +47,7 @@ class TestStorageHelpers(unittest.TestCase):
             "ProductName": "Premium SSD Managed Disks",
             "MeterName": "P10 Disks",
             SOURCE_RESOURCE_ID: "test_line_123",
-            "ResourceLocation": "francecentral",
+            "Region": "francecentral",
             "SubscriptionId": "test-subscription-id",
             "ResourceGroup": "test-rg",
             "BillingCost": "0.0",
@@ -57,7 +57,7 @@ class TestStorageHelpers(unittest.TestCase):
             "ProductName": "Standard HDD Managed Disks",
             "MeterName": "S30 Disks",
             SOURCE_RESOURCE_ID: "test_line_456",
-            "ResourceLocation": "germanywestcentral",
+            "Region": "germanywestcentral",
         }
 
     def test_get_storage_type_premium_ssd(self):
@@ -279,12 +279,13 @@ class TestStorageHelpers(unittest.TestCase):
             "UnitOfMeasure": "1 GiB/Hour",
             "Quantity": "999999.0",  # Unrealistic quantity
             "ProductName": "Premium SSD v2 Managed Disks",
+            "BillingCost": "100.0",
             SOURCE_RESOURCE_ID: "test_huge",
         }
         storage_dict = {}
         with self.assertLogs(level="WARNING") as log:
         # TODO: Implement this in reader instead?
-            result = None # process_storage_row(row_huge, 30, storage_dict)
+            result = _process_storage_row(row_huge, 30, storage_dict)
             # Should log warning for unusually large disk
             self.assertTrue(
                 any("Unusually large disk" in output for output in log.output)
@@ -314,7 +315,7 @@ class TestStorageHelpers(unittest.TestCase):
 
                     storage = create_storage_resource(
                         {
-                            "ResourceLocation": region,
+                            "Region": region,
                             SOURCE_RESOURCE_ID: "test",
                             "ResourceGroup": "test",
                             "BillingCost": "0.0",
@@ -341,7 +342,7 @@ class TestStorageHelpers(unittest.TestCase):
 
             storage = create_storage_resource(
                 {
-                    "ResourceLocation": "unknown_region",
+                    "Region": "unknown_region",
                     SOURCE_RESOURCE_ID: "test",
                     "ResourceGroup": "test",
                     "BillingCost": "0.0",

@@ -229,8 +229,8 @@ class CarbonDaemonOrchestrator:
                         if resources:
                             logger.info(
                                 "Source data reading completed for file %s."
-                                "Reader %s retrieved %d resources of type %s"
-                                "in %.2f seconds",
+                                " Reader %s retrieved %d resources of type %s"
+                                " in %.2f seconds",
                                 input_file,
                                 abstract_processor.reader,
                                 len(resources),
@@ -242,8 +242,8 @@ class CarbonDaemonOrchestrator:
                                 DataFetchError(
                                     ErrorCode.DATA_FETCH_NO_RESULTS,
                                     details="No resources found for"
-                                    f"{abstract_processor.resource_type.value}"
-                                    "in data source",
+                                    f" {abstract_processor.resource_type.value}"
+                                    " in data source",
                                 )
                             )
                     except FileNotFoundError:
