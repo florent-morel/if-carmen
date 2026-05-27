@@ -19,10 +19,12 @@ class AbstractWriter(ABC):
     def __init__(
         self,
         config: DaemonConfig,
+        date: str,
         writer: csv.DictWriter,
         resource_result: ResourceTypeResult,
     ):
         self.resource_result: ResourceTypeResult = resource_result
+        self.date: str = date,
         self.config: DaemonConfig = config
         self.writer: csv.DictWriter = writer
 

@@ -25,8 +25,6 @@ class Writer_Compute(AbstractWriter):
             row[ReportConfig.COMPUTE_PARTITION] = resource.partition
             row[ReportConfig.COMPUTE_COMPONENT] = resource.component
 
-            super().writer.write(row)
-
         logger.info(
             " Rows built for %d resources",
             len(resources),
