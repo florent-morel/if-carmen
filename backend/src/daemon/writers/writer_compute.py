@@ -3,6 +3,7 @@ import logging
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.core.settings import ReportConfig
+from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Writer_Compute(AbstractWriter):
     def write_content(self, resources: list[VirtualMachine]):
         logger.info(
-            "Starting write_content for resource %s.", VirtualMachine.resource_type
+            "Starting write_content for resource %s.", ResourceType.VIRTUAL_MACHINE 
         )
 
         for resource in resources:
