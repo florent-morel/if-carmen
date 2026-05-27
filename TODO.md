@@ -26,6 +26,9 @@ Vnext:
 
 ## Documentation
 
+> [!IMPORTANT]
+> Add the fact that input files should be mono currency.
+
 ### Changelog
 
 ### Review documentation, examples
