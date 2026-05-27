@@ -197,7 +197,8 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
-        # mock_processor.read.side_effect = Exception("Reader failed")
+        mock_processor.read.side_effect = Exception("Reader failed")
+        mock_processor.run.return_value = None
 
         logger.info(f"Mock processor: {mock_processor}")
 
