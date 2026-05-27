@@ -25,6 +25,12 @@ from backend.src.common.constants import (
     CSV_PATH,
     CSV_FILE_TEST,
     CSV_FILE_ENCODING,
+    SOURCE_REGION,
+    SOURCE_PROVIDER,
+    SOURCE_BILLING_COST,
+    SOURCE_COMPUTE,
+    SOURCE_STORAGE,
+    SOURCE_CONSUMED_SERVICE,
 )
 
 logger = logging.getLogger(__name__)
@@ -113,26 +119,17 @@ class Reader_Misc_Services(AbstractReader):
         misc_services_resources: list[MiscServicesResource] = []
         total_compute_misc_services = 0.0
         total_storage_misc_services = 0.0
-        logger.info(f"csv_data: {csv_data}")
+        logger.debug(f"csv_data: {csv_data}")
         for row in csv_reader:
-            logger.info(f"row: {row}")
-            self.process_unknown_regions(row["Region"])
-            self.process_unknown_providers(row["Provider"])
+            logger.debug(f"row: {row}")
+            self.process_unknown_regions(row[SOURCE_REGION])
+            self.process_unknown_providers(row[SOURCE_PROVIDER])
 
-            consumed_service = row.get("ConsumedService", "").lower()
-            # TODO V1: Set a test CSV with ConsumedService, since it's never tested.
-            # TODO V1 Critical: Missing logic - there is no mapping between Compute/Storage items' cost, and their emissions/consumptions.
-            # It will lead to computing the energy/cost ratios based on
-            # - the summed cost of all Compute/Storage services from the input file used here,
-            # - and on the energy computed from other input files (the ones used for Compute/Storage processing).
-            # There is a critical gap to compute ratios based on cost of Compute/Storage items together with their associated computed energy.
-            # Possible solution: add a new BillingCost column in the input files for Compute/Storage, and compute total_compute_misc_services
-            # (to be renamed to total_cost_compute / total_cost_storage) from Compute/Storage processing, to then be reused here.
-            # TODO: This switch/case should be dynamic to ease future new resource implementation
-            if "Compute" == consumed_service:
-                total_compute_misc_services += str_to_float(row.get("BillingCost", "0"))
-            elif "Storage" == consumed_service:
-                total_storage_misc_services += str_to_float(row.get("BillingCost", "0"))
+            consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "").lower()
+            if SOURCE_COMPUTE == consumed_service:
+                total_compute_misc_services += str_to_float(row.get(SOURCE_BILLING_COST, "0"))
+            elif SOURCE_STORAGE == consumed_service:
+                total_storage_misc_services += str_to_float(row.get(SOURCE_BILLING_COST, "0"))
             else:
                 misc_services_resource = create_misc_services_resource(row)
                 if not misc_services_resource or misc_services_resource.id == "":
