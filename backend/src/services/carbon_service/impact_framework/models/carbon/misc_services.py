@@ -52,7 +52,7 @@ class MiscServicesModel(ModelUtilities):
             Metadata(
                 "misc-services-embodied",
                 "gCO2e",
-                "Services capex emissions ",
+                "Services capex emissions",
                 "sum",
                 "sum",
             ),

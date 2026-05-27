@@ -63,31 +63,11 @@ class Reader_Misc_Services(AbstractReader):
         logger.info(f"Inside reader misc services: {self}")
         logger.debug(f"csv_data: {csv_data}")
 
-        # MISC SERVICES MODEL PROCESSING
-        (
-            misc_services_resources,
-            total_compute_cost,
-            total_storage_cost,
-        ) = self.process_csv_data(csv_data)
+        self.list_resources_to_process = self.process_csv_data(csv_data)
         logger.info(
             "Loaded %d misc services resources from input file",
-            len(misc_services_resources),
+            len(self.list_resources_to_process),
         )
-        #     TODO: what is this?
-        #     misc_services_resources = []
-        #     total_compute_cost, total_storage_cost = 1.0, 1.0
-
-        # Add missing fields to misc services resources
-        for misc_service_resource in misc_services_resources:
-            # TODO: implementation to be done for these values
-            # misc_service_resource.compute_embodied = vm_total_carbon
-            # misc_service_resource.compute_energy = vm_total_energy
-            # misc_service_resource.storage_embodied = storage_total_carbon
-            # misc_service_resource.storage_energy = storage_total_energy
-            misc_service_resource.compute_cost = total_compute_cost
-            misc_service_resource.storage_cost = total_storage_cost
-
-        self.list_resources_to_process = misc_services_resources
 
         self.log_processing_results()
 
@@ -117,8 +97,6 @@ class Reader_Misc_Services(AbstractReader):
 
         logger.info("Processing Misc services CSV...")
         misc_services_resources: list[MiscServicesResource] = []
-        total_compute_misc_services = 0.0
-        total_storage_misc_services = 0.0
         logger.debug(f"csv_data: {csv_data}")
         for row in csv_reader:
             logger.debug(f"row: {row}")
@@ -126,21 +104,13 @@ class Reader_Misc_Services(AbstractReader):
             self.process_unknown_providers(row[SOURCE_PROVIDER])
 
             consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "").lower()
-            if SOURCE_COMPUTE == consumed_service:
-                total_compute_misc_services += str_to_float(row.get(SOURCE_BILLING_COST, "0"))
-            elif SOURCE_STORAGE == consumed_service:
-                total_storage_misc_services += str_to_float(row.get(SOURCE_BILLING_COST, "0"))
-            else:
+            if consumed_service not in (SOURCE_COMPUTE, SOURCE_STORAGE):
                 misc_services_resource = create_misc_services_resource(row)
                 if not misc_services_resource or misc_services_resource.id == "":
                     continue
                 misc_services_resources.append(misc_services_resource)
         logger.info("Misc services CSV processed")
-        return (
-            misc_services_resources,
-            total_compute_misc_services,
-            total_storage_misc_services,
-        )
+        return misc_services_resources
 
     def log_processing_results(self) -> None:
         """
