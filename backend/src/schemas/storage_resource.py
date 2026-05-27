@@ -24,6 +24,8 @@ class StorageResource(Resource):
     replication_type: str  # e.g., "LRS", "ZRS", "GRS", "GZRS"
     size_gb: float  # Size in GB
     resource_group: str | None = None
+    storage_energy: list[float] = Field(default_factory=list)
+    total_storage_energy: float = 0.0
     storage_embodied: list[float] = Field(default_factory=list)
     total_storage_embodied: float = 0.0
     duration_seconds: int = DAILY_SECONDS
