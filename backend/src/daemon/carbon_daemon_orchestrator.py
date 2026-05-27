@@ -239,70 +239,66 @@ class CarbonDaemonOrchestrator:
                                 read_time,
                             )
                         else:
+                            message = f"No resources found for {abstract_processor.resource_type.value} in data source"
                             self.update_carbon_daemon_result(
                                 success=False,
                                 execution_time=read_time,
                                 list_exceptions=[
                                     DataFetchError(
                                         ErrorCode.DATA_FETCH_NO_RESULTS,
-                                        details="No resources found for"
-                                        f" {abstract_processor.resource_type.value}"
-                                        " in data source",
+                                        details=message,
                                     )],
                                 dict_resource_results=None,
                             )
                     except FileNotFoundError:
                         read_time = time.time() - read_start_time
-                        logger.error("File not found %s", input_file)
+                        message = f"File not found: {input_file}"
+                        logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
                             execution_time=read_time,
                             list_exceptions=[
                                 KnownException(
                                     ErrorCode.FILE_NOT_FOUND,
-                                    details=f"file not found: {input_file}",
-                                )],
+                                    details=message)],
                             dict_resource_results=None,
                         )
                     except PermissionError as e:
                         read_time = time.time() - read_start_time
-                        logger.error(
-                            "Permission denied reading file %s %s", input_file, str(e)
-                        )
+                        message = f"Permission denied reading file {input_file}, {str(e)}"
+                        logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
                             execution_time=read_time,
                             list_exceptions=[
                                 KnownException(
                                     ErrorCode.FILE_PERMISSION_DENIED,
-                                    details=f"permission denied: {input_file}",
+                                    details=message,
                                 )],
                             dict_resource_results=None,
                         )
                     except UnicodeDecodeError as e:
                         read_time = time.time() - read_start_time
-                        logger.error(
-                            "Failed to decode file data for %s %s", input_file, str(e)
-                        )
+                        message = f"Failed to decode file data for {input_file}, {str(e)}"
+                        logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
                             execution_time=read_time,
                             list_exceptions=[
                                 KnownException(
                                     ErrorCode.FILE_INVALID_FORMAT,
-                                    details=f"failed to decode file: {input_file} {str(e)}",
+                                    details=message,
                                 )],
                             dict_resource_results=None,
                         )
                     except Exception as e:
                         read_time = time.time() - read_start_time
-                        logger.error(
-                            "Unexpected error reading file %s %s", input_file, str(e)
-                        )
+                        message = f"Unexpected error reading file {input_file}, {str(e)}"
+                        logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
                             execution_time=read_time,
-                            list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR)],
+                            list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR,details=message)],
                             dict_resource_results=None,
                         )
             else:
@@ -310,11 +306,13 @@ class CarbonDaemonOrchestrator:
 
         except Exception:
             read_time = time.time() - read_start_time
-            logger.error("Failed to read data source")
+            message = "Failed to read data source"
+            logger.error(message)
             self.update_carbon_daemon_result(
                 success=False,
                 execution_time=read_time,
-                list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR)],
+                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR,
+                                           details=message)],
                 dict_resource_results=None,
             )
 
