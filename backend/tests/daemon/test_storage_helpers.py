@@ -15,6 +15,25 @@ from backend.src.daemon.readers.helpers.storage_helpers import (
     get_storage_type,
 )
 from backend.src.schemas.storage_resource import StorageResource
+from backend.src.common.constants import (
+    CSV_PATH,
+    CSV_FILE_TEST,
+    CSV_FILE_ENCODING,
+    SOURCE_PROVIDER,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_GROUP,
+    SOURCE_SUBSCRIPTION_ID,
+    SOURCE_REGION,
+    SOURCE_METER_CATEGORY,
+    SOURCE_BILLING_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_METER_NAME,
+    SOURCE_QUANTITY,
+    SOURCE_UNIT_OF_MEASURE,
+    SOURCE_DATE,
+    DATE_FORMAT,
+    UNKNOWN,
+)
 
 
 class TestStorageHelpers(unittest.TestCase):
@@ -27,7 +46,7 @@ class TestStorageHelpers(unittest.TestCase):
         self.sample_ssd_row = {
             "ProductName": "Premium SSD Managed Disks",
             "MeterName": "P10 Disks",
-            "LineNumber": "test_line_123",
+            SOURCE_RESOURCE_ID: "test_line_123",
             "ResourceLocation": "francecentral",
             "SubscriptionId": "test-subscription-id",
             "ResourceGroup": "test-rg",
@@ -37,7 +56,7 @@ class TestStorageHelpers(unittest.TestCase):
         self.sample_hdd_row = {
             "ProductName": "Standard HDD Managed Disks",
             "MeterName": "S30 Disks",
-            "LineNumber": "test_line_456",
+            SOURCE_RESOURCE_ID: "test_line_456",
             "ResourceLocation": "germanywestcentral",
         }
 
@@ -180,15 +199,15 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertEqual(len(storage_dict), 0)
 
     @patch("backend.src.daemon.readers.helpers.storage_helpers.calculate_storage_size")
-    def test_process_storage_row_missing_line_number(self, mock_calculate_size):
-        """Test processing of storage row without line number."""
+    def test_process_storage_row_without_resource_id(self, mock_calculate_size):
+        """Test processing of storage row without resource id."""
         mock_calculate_size.return_value = (128.0, 86400)
 
-        row_without_line_number = self.sample_ssd_row.copy()
-        del row_without_line_number["LineNumber"]
+        row_without_resource_id = self.sample_ssd_row.copy()
+        del row_without_resource_id[SOURCE_RESOURCE_ID]
 
         storage_dict = {}
-        result = _process_storage_row(row_without_line_number, 30, storage_dict)
+        result = _process_storage_row(row_without_resource_id, 30, storage_dict)
 
         self.assertFalse(result)
         self.assertEqual(len(storage_dict), 0)
@@ -248,7 +267,7 @@ class TestStorageHelpers(unittest.TestCase):
             "UnitOfMeasure": "1 GiB/Hour",
             "Quantity": "-1.0",  # Negative quantity
             "ProductName": "Premium SSD v2 Managed Disks",
-            "LineNumber": "test_negative",
+            SOURCE_RESOURCE_ID: "test_negative",
         }
         storage_dict = {}
         # TODO: Implement this in reader instead?
@@ -260,7 +279,7 @@ class TestStorageHelpers(unittest.TestCase):
             "UnitOfMeasure": "1 GiB/Hour",
             "Quantity": "999999.0",  # Unrealistic quantity
             "ProductName": "Premium SSD v2 Managed Disks",
-            "LineNumber": "test_huge",
+            SOURCE_RESOURCE_ID: "test_huge",
         }
         storage_dict = {}
         with self.assertLogs(level="WARNING") as log:
@@ -296,7 +315,7 @@ class TestStorageHelpers(unittest.TestCase):
                     storage = create_storage_resource(
                         {
                             "ResourceLocation": region,
-                            "LineNumber": "test",
+                            SOURCE_RESOURCE_ID: "test",
                             "ResourceGroup": "test",
                             "BillingCost": "0.0",
                         },
@@ -323,7 +342,7 @@ class TestStorageHelpers(unittest.TestCase):
             storage = create_storage_resource(
                 {
                     "ResourceLocation": "unknown_region",
-                    "LineNumber": "test",
+                    SOURCE_RESOURCE_ID: "test",
                     "ResourceGroup": "test",
                     "BillingCost": "0.0",
                 },
@@ -380,7 +399,7 @@ class TestReaderStoragePerRowProvider(unittest.TestCase):
         mock_free_fn.return_value = True
 
         reader = self._make_reader()
-        row = {"Provider": "azure", "ProductName": "Premium SSD - P10", "LineNumber": "1"}
+        row = {"Provider": "azure", "ProductName": "Premium SSD - P10", SOURCE_RESOURCE_ID: "1"}
         result = reader.process_storage_row(row, 30, {})
 
         mock_free_fn.assert_called_once_with(row, 30, {}, {"P10": 128})
@@ -394,7 +413,7 @@ class TestReaderStoragePerRowProvider(unittest.TestCase):
         mock_free_fn.return_value = False
 
         reader = self._make_reader()
-        row = {"Provider": "onprem", "ProductName": "Some Disk", "LineNumber": "2"}
+        row = {"Provider": "onprem", "ProductName": "Some Disk", SOURCE_RESOURCE_ID: "2"}
         result = reader.process_storage_row(row, 30, {})
 
         mock_free_fn.assert_called_once_with(row, 30, {}, {})
@@ -408,7 +427,7 @@ class TestReaderStoragePerRowProvider(unittest.TestCase):
         mock_free_fn.return_value = False
 
         reader = self._make_reader()
-        row = {"ProductName": "Some Disk", "LineNumber": "3"}  # no Provider key
+        row = {"ProductName": "Some Disk", SOURCE_RESOURCE_ID: "3"}  # no Provider key
         reader.process_storage_row(row, 30, {})
 
         mock_free_fn.assert_called_once_with(row, 30, {}, {})
