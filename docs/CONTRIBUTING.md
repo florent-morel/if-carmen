@@ -84,11 +84,14 @@ py -m venv .venv
 Carmen relies on the Impact Framework developed by the Green Software Foundation: 
 
 ```bash
-npm install 
-cd misc_services-model-plugin
-npm install --save-dev husky
+npm install
 ```
-# TODO: Move misc_services-model-plugin to a separate repo, and include it as submodule
+
+> **Note:** The `misc-services-model-plugin` build output is committed to the repository, so no local build step is required. If you modify the plugin's TypeScript source, rebuild it with:
+> ```bash
+> cd misc-services-model-plugin && npm run build
+> ```
+> and commit the updated `build/` files alongside your source changes.
 
 ### Verifying Your Installation
 
