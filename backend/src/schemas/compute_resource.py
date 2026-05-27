@@ -13,10 +13,16 @@ class ComputeResource(Resource):
     Base schema for compute resources (VMs, pods, applications).
     Extends Resource with compute-specific fields for CPU, memory, storage capacity,
     and network I/O tracking.
+
+    TODO: annotate each field that represents a physical value with its unit
+          (e.g. using pydantic Field(description="kWh") or a dedicated unit annotation),
+          so that the unit is machine-readable and not buried in comments.
     """
 
     cpu_energy: list[float] = Field(default_factory=list)
     memory_energy: list[float] = Field(default_factory=list)
+    storage_energy: list[float] = Field(default_factory=list)
+    storage_embodied: list[float] = Field(default_factory=list)
     cpu_power: list[float] = Field(default_factory=list)
     requested_cpu: list[float] = Field(default_factory=list)  # in cores (pod),
     # nb_vcpus (virtual_machine) but cloud-metadata retrieves it
@@ -26,3 +32,5 @@ class ComputeResource(Resource):
     requested_memory: list[float] = Field(default_factory=list)  # in bytes
     total_cpu_energy: float = 0.0
     total_memory_energy: float = 0.0
+    total_storage_energy: float = 0.0
+    total_storage_embodied: float = 0.0
