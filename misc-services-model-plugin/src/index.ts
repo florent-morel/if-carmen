@@ -1,1 +1,1 @@
-export * from './lib/misc_services-model-plugin';
+export * from './lib/misc-services-model-plugin';

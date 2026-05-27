@@ -77,7 +77,7 @@ PLUGIN_PATH = os.path.join(
     os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     ),
-    "misc_services-model-plugin/build",
+    "misc-services-model-plugin/build",
 )
 
 # STORAGE_POWER_COEFFICIENT_MAPPING = {  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
