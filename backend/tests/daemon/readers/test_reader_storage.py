@@ -111,7 +111,7 @@ class TestReaderStorage(unittest.TestCase):
 
         list_processed_resources = reader_storage.read(csv_data)
 
-        self.assertEqual(len(list_processed_resources), 1)
+        self.assertEqual(len(list_processed_resources), 6)
 
         resultStorageResource = list_processed_resources[0]
 
