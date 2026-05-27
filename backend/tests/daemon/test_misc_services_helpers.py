@@ -86,7 +86,7 @@ class TestMiscServicesHelpers(unittest.TestCase):
         mock_row = {
             "ResourceId": "misc_service1",
             "ProductName": "misc_service_name",
-            "ResourceLocation": "eastus",
+            "Region": "eastus",
             "SubscriptionId": "sub1",
             "BillingCost": "120.0",
             "Date": "2025-11-01",
