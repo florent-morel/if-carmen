@@ -9,6 +9,17 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 
+from backend.src.common.constants import (
+    IF_INPUT_INPUT_PARAMETERS,
+    IF_INPUT_OUTPUT_PARAMETER,
+    IF_INPUT_ENERGY,
+    IF_INPUT_ENERGY_TXT,
+    IF_INPUT_ENERGY_KWH,
+    IF_INPUT_CPU_SLASH_ENERGY,
+    IF_INPUT_MEMORY_SLASH_ENERGY,
+    IF_INPUT_STORAGE_SLASH_ENERGY,
+    IF_INPUT_SUM,
+)
 
 class SciE(ModelUtilities):
     """
@@ -18,10 +29,10 @@ class SciE(ModelUtilities):
 
     def __init__(self):
         config = {
-            "input-parameters": ["cpu/energy", "memory/energy", "storage/energy"],
-            "output-parameter": "energy",
+            IF_INPUT_INPUT_PARAMETERS: [IF_INPUT_CPU_SLASH_ENERGY, IF_INPUT_MEMORY_SLASH_ENERGY, IF_INPUT_STORAGE_SLASH_ENERGY],
+            IF_INPUT_OUTPUT_PARAMETER: IF_INPUT_ENERGY,
         }
         output_metadata = [
-            Metadata("energy", "kWh", "Energy consumption", "sum", "sum")
+            Metadata(IF_INPUT_ENERGY, IF_INPUT_ENERGY_KWH, IF_INPUT_ENERGY_TXT, IF_INPUT_SUM, IF_INPUT_SUM)
         ]
         super().__init__("builtin", "Sum", config, output_metadata)

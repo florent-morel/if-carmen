@@ -137,7 +137,7 @@ class IFService(ABC, CarbonService):
             file_id (int, optional): An identifier for the input/output files. Defaults to 0.
         """
         logger.info(
-            "Generating Impact Framework input file %d for %d resources...",
+            "Generating Impact Framework input file id %d for %d resources...",
             file_id,
             len(resources),
         )
@@ -184,6 +184,7 @@ class IFService(ABC, CarbonService):
         for model, cls in model_classes.items():
             if model in data["hardware_models"]:
                 data["hardware_models"][model] = cls().__dict__
+        logger.debug(f"data: {data}")
         return data
 
     @staticmethod
@@ -203,11 +204,12 @@ class IFService(ABC, CarbonService):
         common_models = [TeadsCurve, SciO, SciEPue]
         if models:
             common_models.extend(models)
+            logger.info(f"common_models: {common_models}")
         for time_index in range(len(resource.time_points)):
             combined_inputs = {
                 key: value
                 for model in common_models
-                for key, value in model.fill_inputs(resource, time_index).items()
+            for key, value in model.fill_inputs(resource, time_index).items()
             }
             resource_inputs.append(combined_inputs)
         return resource_inputs
@@ -221,7 +223,9 @@ class IFService(ABC, CarbonService):
             compute_resources[compute_resource.id] = self.get_resource_inputs(
                 compute_resource
             )
-        data["resources"] = compute_resources
+        resources_str = "resources"
+        data[resources_str] = compute_resources
+        logger.info(f"data[resources] = {data[resources_str]}")
 
     def fill_parser_data(self, data, resources: list[Resource]):
         """

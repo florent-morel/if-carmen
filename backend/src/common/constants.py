@@ -91,6 +91,70 @@ PLUGIN_PATH = os.path.join(
     "misc-services-model-plugin/build",
 )
 
+# MODELS STRING CONSTANTS
+MODELS_INSTANCE_CLASS = "instance-class"
+MODELS_CPU_CORES_AVAIL = "cpu-cores-available"
+MODELS_CPU_CORES_UTILIZED = "cpu-cores-utilized"
+MODELS_CPU_TDP = "cpu-tdp"
+MODELS_MEMORY_AVAIL = "memory-available"
+
+IF_INPUT_INPUT_PARAMETER = "input-parameter"
+IF_INPUT_INPUT_PARAMETERS = "input-parameters"
+IF_INPUT_OUTPUT_PARAMETER = "output-parameter"
+
+IF_INPUT_CPU_TDP = "cpu/thermal-design-power"
+IF_INPUT_CPU_UTILIZATION = "cpu/utilization"
+IF_INPUT_CPU_TDP_RATIO = "tdp-ratio"
+
+IF_INPUT_VCPU_ALLOCATED = "vcpus-allocated"
+IF_INPUT_VCPU_TOTAL = "vcpus-total"
+
+IF_INPUT_MEMORY_REQUESTED = "memory/requested"
+
+IF_INPUT_ENERGY = "energy"
+IF_INPUT_ENERGY_TXT = "Energy consumption"
+IF_INPUT_ENERGY_KWH = "kWh"
+IF_INPUT_PUE = "pue"
+IF_INPUT_CPU_SLASH_ENERGY = "cpu/energy"
+IF_INPUT_MEMORY_SLASH_ENERGY = "memory/energy"
+IF_INPUT_STORAGE_SLASH_ENERGY = "storage/energy"
+# IF_INPUT_
+
+IF_INPUT_CARBON = "carbon"
+IF_INPUT_CARBON_TXT = "Carbon emissions"
+IF_INPUT_CARBON_EMBODIED = "carbon-embodied"
+IF_INPUT_CARBON_EMBODIED_TXT = "Embodied carbon emissions"
+IF_INPUT_CARBON_OPERATIONAL = "carbon-operational"
+IF_INPUT_CARBON_OPERATIONAL_TXT = "Operational carbon emissions"
+IF_INPUT_CARBON_GCO2 = "gCO2e"
+
+
+IF_INPUT_RESOURCES_RESERVED = "resources-reserved"
+IF_INPUT_RESOURCES_TOTAL = "resources-total"
+
+IF_INPUT_GRID_CARBON_INTENSITY = "grid/carbon-intensity"
+
+IF_INPUT_COMPUTE_ENERGY = "compute-energy"
+IF_INPUT_COMPUTE_EMBODIED = "compute-embodied"
+IF_INPUT_COMPUTE_COST = "compute-cost"
+
+IF_INPUT_STORAGE_ENERGY = "storage-energy"
+IF_INPUT_STORAGE_EMBODIED = "storage-embodied"
+IF_INPUT_STORAGE_COST = "storage-cost"
+
+IF_INPUT_MISC_SERVICES_COST = "misc-services-cost"
+IF_INPUT_MISC_SERVICES_ENERGY = "misc-services-energy",
+IF_INPUT_MISC_SERVICES_ENERGY_TXT = "Total energy consumed for the services"
+IF_INPUT_MISC_SERVICES_OPERATIONAL = "misc-services-operational",
+IF_INPUT_MISC_SERVICES_EMBODIED = "misc-services-embodied",
+IF_INPUT_MISC_SERVICES_CAPEX = "Services capex emissions"
+IF_INPUT_MISC_SERVICES_OPEX = "Services opex emissions"
+
+IF_INPUT_CARBON_INTENSITY = "carbon-intensity"
+
+IF_INPUT_TIMESTAMP = "timestamp"
+IF_INPUT_SUM = "sum"
+
 # STORAGE_POWER_COEFFICIENT_MAPPING = {  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
 #     "SSD": 0.0000012,
 #     "HDD": 0.00000065,

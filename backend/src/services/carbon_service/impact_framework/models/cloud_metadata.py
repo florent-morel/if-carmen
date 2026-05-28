@@ -53,6 +53,19 @@ from backend.src.core.settings import settings
 from backend.src.daemon.readers.helpers.daemon_helpers import parse_vcpu_count_from_azure_vm_size
 from backend.src.schemas.virtual_machine import VirtualMachine
 
+
+from backend.src.common.constants import (
+    MODELS_INSTANCE_CLASS,
+    MODELS_CPU_CORES_AVAIL,
+    MODELS_CPU_CORES_UTILIZED,
+    MODELS_CPU_TDP,
+    MODELS_MEMORY_AVAIL,
+    IF_INPUT_CPU_TDP,
+    IF_INPUT_MEMORY_REQUESTED,
+    IF_INPUT_VCPU_ALLOCATED,
+    IF_INPUT_VCPU_TOTAL,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -86,14 +99,14 @@ def _load_instances(provider: str) -> dict:
         data_lines = (line for line in f if not line.startswith("#"))
         reader = csv.DictReader(data_lines)
         for row in reader:
-            key = row.get("instance-class", "").strip()
+            key = row.get(MODELS_INSTANCE_CLASS, "").strip()
             if not key:
                 continue
             try:
-                raw_avail = row.get("cpu-cores-available", "").strip()
-                raw_util = row.get("cpu-cores-utilized", "").strip()
-                raw_tdp = row.get("cpu-tdp", "").strip()
-                raw_mem = row.get("memory-available", "").strip()
+                raw_avail = row.get(MODELS_CPU_CORES_AVAIL, "").strip()
+                raw_util = row.get(MODELS_CPU_CORES_UTILIZED, "").strip()
+                raw_tdp = row.get(MODELS_CPU_TDP, "").strip()
+                raw_mem = row.get(MODELS_MEMORY_AVAIL, "").strip()
                 cores_utilized = float(raw_util) if raw_util else None
                 cores_available = float(raw_avail) if raw_avail else None
                 cpu_tdp = float(raw_tdp) if raw_tdp else None
@@ -105,10 +118,10 @@ def _load_instances(provider: str) -> dict:
             if not cores_available:
                 cores_available = cores_utilized
             result[key] = {
-                "cpu-cores-available": cores_available,
-                "cpu-cores-utilized": cores_utilized,
-                "cpu-tdp": cpu_tdp,
-                "memory-available": memory,
+                MODELS_CPU_CORES_AVAIL: cores_available,
+                MODELS_CPU_CORES_UTILIZED: cores_utilized,
+                MODELS_CPU_TDP: cpu_tdp,
+                MODELS_MEMORY_AVAIL: memory,
             }
     return result
 
@@ -135,17 +148,17 @@ class CloudMetadata:
         row = instances.get(resource.vm_size or "")
 
         if row is not None:
-            cores_available = row["cpu-cores-available"]
-            cores_utilized = row["cpu-cores-utilized"]
-            cpu_tdp = row["cpu-tdp"]
-            memory = row["memory-available"]
+            cores_available = row[MODELS_CPU_CORES_AVAIL]
+            cores_utilized = row[MODELS_CPU_CORES_UTILIZED]
+            cpu_tdp = row[MODELS_CPU_TDP]
+            memory = row[MODELS_MEMORY_AVAIL]
             # Scale the full host package TDP down to the VM's allocation fraction.
             vm_tdp = cpu_tdp * cores_utilized / cores_available
             return {
-                "cpu/thermal-design-power": vm_tdp,
-                "vcpus-total": cores_available,
-                "vcpus-allocated": cores_utilized,
-                "memory/requested": memory,
+                IF_INPUT_CPU_TDP: vm_tdp,
+                IF_INPUT_VCPU_TOTAL: cores_available,
+                IF_INPUT_VCPU_ALLOCATED: cores_utilized,
+                IF_INPUT_MEMORY_REQUESTED: memory,
             }
 
         # Instance type not in CSV — apply fallback chain.
@@ -163,11 +176,11 @@ class CloudMetadata:
         vcpu_count = CloudMetadata._resolve_vcpu_count(resource, cpu_max)
         vm_tdp = cpu_max * vcpu_count
         return {
-            "cpu/thermal-design-power": vm_tdp,
-            "vcpus-total": vcpu_count,
-            "vcpus-allocated": vcpu_count,
+            IF_INPUT_CPU_TDP: vm_tdp,
+            IF_INPUT_VCPU_TOTAL: vcpu_count,
+            IF_INPUT_VCPU_ALLOCATED: vcpu_count,
             # INV3c: memory fallback not yet implemented; 0 avoids an IF pipeline crash
-            "memory/requested": 0,
+            IF_INPUT_MEMORY_REQUESTED: 0,
         }
 
     @staticmethod

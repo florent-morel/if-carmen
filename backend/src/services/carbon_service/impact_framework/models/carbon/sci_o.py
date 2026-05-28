@@ -1,11 +1,17 @@
 """
 sci-o model of IF
 """
+import logging
 
 from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.services.carbon_service.impact_framework.models.model_utilities import (
     ModelUtilities,
 )
+
+from backend.src.common.constants import (
+    IF_INPUT_GRID_CARBON_INTENSITY,
+)
+logger = logging.getLogger(__name__)
 
 
 class SciO(ModelUtilities):
@@ -22,4 +28,6 @@ class SciO(ModelUtilities):
         """
         Fills the time point specific input values.
         """
-        return {"grid/carbon-intensity": compute_resource.carbon_intensity}
+        carbon_intensity = compute_resource.carbon_intensity
+        logger.info(f"{IF_INPUT_GRID_CARBON_INTENSITY}: {carbon_intensity}")
+        return {IF_INPUT_GRID_CARBON_INTENSITY: carbon_intensity}

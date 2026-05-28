@@ -34,6 +34,8 @@ STORAGE_REPLICATION_FACTORS = {
     "GZRS": 6,  # Geo-zone redundant - 3 copies across zones + 3 secondary
     "RA_GZRS": 6,  # Read-access geo-zone - same as GZRS
 }
+
+# TODO: -> Config
 MEMORY_COEFFICIENT = 0.000392
 DEVICE_EMISSIONS = 1672000
 EXPECTED_LIFESPAN = 126230400  # 4 years in seconds

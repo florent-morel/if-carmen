@@ -3,6 +3,7 @@
 This file contains tests that check if the IF pipelines for apps and infra correctly compute the CPU energy.
 """
 
+import logging
 import numpy as np
 import pytest
 
@@ -20,6 +21,9 @@ from backend.tests.services.carbon_service.impact_framework.computation.computat
     compute_cpu_energy,
 )
 
+logger = logging.getLogger(__name__)
+
+# TODO: Magic
 SAMPLING_RATE_IN_SECONDS = 1800  # 30 min
 TDP_APP = 3.67  # Average watts per core for Azure taken from CCF
 # Standard_A1_v2 from azure_instances.csv: cpu-tdp=205 (full host), cores-utilized=1, cores-available=52
@@ -125,6 +129,7 @@ def test_cpu_energy_computation_for_virtual_machines(sample_vms):
     Test: Verifies CPU energy computation for a single virtual machine.
     """
     expected_result = compute_expected_cpu_energy(TDP_VM, sample_vms[0].cpu_util[0])
+    logger.info(f"sample_vms: {sample_vms}")
     service = IFVMService(SAMPLING_RATE_IN_SECONDS)
     vms = service.run_engine(sample_vms)
 
