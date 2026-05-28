@@ -291,7 +291,7 @@ class CarbonDaemonOrchestrator:
                         )
                     except Exception as e:
                         read_time = time.time() - read_start_time
-                        message = f"Unexpected error reading file {input_file}, {str(e)}"
+                        message = f"Unexpected error reading file {input_file}, {e.formatted_string}"
                         logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
