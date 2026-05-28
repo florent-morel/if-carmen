@@ -9,14 +9,14 @@ import logging
 import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 
 from backend.src.common.constants import (
     DAILY_SECONDS,
     SAMPLING_RATE_IN_SECONDS,
 )
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import ConfigurationError
+from backend.src.common.carmen_exception import ConfigurationError
 from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
     CarbonDaemonResult,
@@ -211,7 +211,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertIn(runner_error_msg, carbonDaemonResult.get_resource_type_list_exception(ResourceType.VIRTUAL_MACHINE)[0].args[1])
 
     @patch("backend.src.utils.ioc_util.resolve")
-    def test_daemon_run_known_exception(self, mock_ioc_util_resolve):
+    def test_daemon_run_carmen_exception(self, mock_ioc_util_resolve):
         """
         Test daemon execution when a ConfigurationError is raised.
         """

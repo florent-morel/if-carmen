@@ -4,7 +4,7 @@ This module contains unit tests for API endpoints related to retrieving resource
 
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
-from backend.src.common.known_exception import DataFetchError
+from backend.src.common.carmen_exception import DataFetchError
 from backend.src.core.settings import settings
 from backend.src.schemas.application import Application
 from backend.src.schemas.pod import Pod

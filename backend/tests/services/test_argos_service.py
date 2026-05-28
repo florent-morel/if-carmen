@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import pytest
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import DataFetchError
+from backend.src.common.carmen_exception import DataFetchError
 from backend.src.schemas.application import Application
 from backend.src.schemas.cluster import Cluster
 

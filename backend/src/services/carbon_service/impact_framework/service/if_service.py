@@ -12,7 +12,7 @@ from collections import defaultdict
 import yaml
 from jinja2 import exceptions
 from backend.src.common.constants import IF_FILES_DIR
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.common.errors import ErrorCode
 from backend.src.schemas.pod import Pod
 from backend.src.schemas.resource import Resource

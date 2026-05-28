@@ -17,7 +17,7 @@ from pydantic_settings import BaseSettings
 from pydantic import field_validator
 from backend.src.common.enums import LogLevel
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import ConfigValidationError
+from backend.src.common.carmen_exception import ConfigValidationError
 from backend.src.utils.helpers import read_file
 
 logger = logging.getLogger(__name__)

@@ -14,7 +14,7 @@ import time
 from backend.src.common.constants import (
     DAILY_SECONDS,
 )
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.schemas.storage_resource import StorageResource

@@ -48,7 +48,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.settings import settings
 from backend.src.daemon.readers.helpers.daemon_helpers import parse_vcpu_count_from_azure_vm_size
 from backend.src.schemas.virtual_machine import VirtualMachine

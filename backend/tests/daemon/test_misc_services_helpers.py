@@ -5,7 +5,7 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch, mock_open
 
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.settings import settings, ReportConfig
 from backend.src.daemon.readers.helpers.misc_services_helpers import (
     get_carbon_and_energy_values,

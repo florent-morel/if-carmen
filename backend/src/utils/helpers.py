@@ -19,7 +19,7 @@ import httpx
 from backend.src.common.constants import RATE_TO_DURATION
 from backend.src.common.enums import SamplingRate
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import (
+from backend.src.common.carmen_exception import (
     DataFetchError,
     QueryParameterError,
     ValidationError,

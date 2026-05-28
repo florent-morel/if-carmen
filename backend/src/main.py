@@ -8,7 +8,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from backend.src.common.constants import CARMEN_LOGO
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.registrar import register_app
 from backend.src.core.settings import settings
 

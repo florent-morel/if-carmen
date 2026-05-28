@@ -22,7 +22,7 @@ from backend.src.common.constants import (
     DATE_FORMAT,
     EXECUTION_DATE,
 )
-from backend.src.common.known_exception import CarmenException, DataFetchError
+from backend.src.common.carmen_exception import CarmenException, DataFetchError
 from backend.src.common.errors import ErrorCode
 
 from backend.src.core.yaml_config_loader import config

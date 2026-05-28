@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 
 from backend.src.schemas.resource import Resource, ResourceType
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 
 logger = logging.getLogger(__name__)
 

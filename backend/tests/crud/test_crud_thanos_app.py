@@ -15,7 +15,7 @@ import pytest
 import httpx
 
 from backend.src.crud.crud_thanos_app import CrudThanosApp
-from backend.src.common.known_exception import ThanosError, TokenError
+from backend.src.common.carmen_exception import ThanosError, TokenError
 
 
 @pytest.fixture

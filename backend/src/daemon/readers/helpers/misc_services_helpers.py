@@ -6,7 +6,7 @@ import csv
 import logging
 from datetime import datetime, timedelta
 
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.settings import ReportConfig
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.storage_resource import StorageResource

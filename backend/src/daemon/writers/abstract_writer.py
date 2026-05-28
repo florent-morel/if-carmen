@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any, Iterable
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult

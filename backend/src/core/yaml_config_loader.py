@@ -21,7 +21,7 @@ from pydantic import model_validator, ValidationError
 from pydantic_settings import BaseSettings
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import (
+from backend.src.common.carmen_exception import (
     ConfigFileError,
     ConfigValidationError,
     MissingParametersError,

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from pydantic import ValidationError
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.readers.helpers.misc_services_helpers import (

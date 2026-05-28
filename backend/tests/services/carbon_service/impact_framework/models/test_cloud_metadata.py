@@ -7,7 +7,7 @@ Unit tests for CloudMetadata methods related to vCPU count resolution:
 import pytest
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import CarmenException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )

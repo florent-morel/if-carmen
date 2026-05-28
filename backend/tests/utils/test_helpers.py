@@ -8,7 +8,7 @@ from datetime import datetime
 from json.decoder import JSONDecodeError
 from unittest.mock import patch, MagicMock
 from backend.src.common.enums import SamplingRate
-from backend.src.common.known_exception import (
+from backend.src.common.carmen_exception import (
     QueryParameterError,
     DataFetchError,
     ValidationError,

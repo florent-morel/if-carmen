@@ -4,7 +4,7 @@ from backend.src.core.settings.credentials.abstract_credentials_config import (
 )
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import (
+from backend.src.common.carmen_exception import (
     MissingParametersError,
 )
 

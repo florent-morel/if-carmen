@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from backend.src.core.settings import configure_logger, get_settings, Settings
 from backend.src.common.enums import LogLevel
-from backend.src.common.known_exception import ConfigValidationError
+from backend.src.common.carmen_exception import ConfigValidationError
 
 logger = logging.getLogger(__name__)
 
