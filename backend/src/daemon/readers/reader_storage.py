@@ -40,11 +40,6 @@ class Reader_Storage(AbstractReader):
     Class for reading storage input data.
     """
 
-    def __init__(self, config: DaemonConfig):
-        self.config: DaemonConfig = config
-
-        self.dict_log_info: dict[str, str] | None = None
-
     def read(self, csv_data) -> list[Resource]:
         """
         Read and process files to extract storage resource information.

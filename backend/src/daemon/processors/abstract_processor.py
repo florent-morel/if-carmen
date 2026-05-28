@@ -67,6 +67,7 @@ class AbstractProcessor(ABC):
         """
         logger.debug(f"Inside AbstractProcessor reader: {self.reader}")
         self.list_resources_to_process = self.reader.read(csv_data)
+        return self.list_resources_to_process
 
     def run(self) -> ResourceTypeResult:
         """

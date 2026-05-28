@@ -22,12 +22,8 @@ from backend.src.utils.helpers import str_to_float
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.common.constants import (
-    CSV_PATH,
-    CSV_FILE_TEST,
-    CSV_FILE_ENCODING,
     SOURCE_REGION,
     SOURCE_PROVIDER,
-    SOURCE_BILLING_COST,
     SOURCE_COMPUTE,
     SOURCE_STORAGE,
     SOURCE_CONSUMED_SERVICE,
@@ -47,10 +43,6 @@ class Reader_Misc_Services(AbstractReader):
     atomic services.
     Hence a Misc Services implementation.
     """
-
-    def __init__(self, config: DaemonConfig):
-        self.config: DaemonConfig = config
-        self.input_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
 
     def read(self, csv_data) -> list[Resource]:
         """

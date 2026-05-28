@@ -12,7 +12,7 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
 
 from backend.src.common.constants import (
     IF_INPUT_INPUT_PARAMETERS,
-    IF_INPUT_OUTPUT_PARAMETER,
+    IF_INPUT_OUTPUT_PARAMETERS,
     IF_INPUT_COMPUTE_ENERGY,
     IF_INPUT_COMPUTE_EMBODIED,
     IF_INPUT_COMPUTE_COST,
@@ -51,7 +51,7 @@ class MiscServicesModel(ModelUtilities):
                 IF_INPUT_MISC_SERVICES_COST,
                 IF_INPUT_CARBON_INTENSITY,
             ],
-            IF_INPUT_OUTPUT_PARAMETER: [
+            IF_INPUT_OUTPUT_PARAMETERS: [
                 IF_INPUT_MISC_SERVICES_ENERGY,
                 IF_INPUT_MISC_SERVICES_OPERATIONAL,
                 IF_INPUT_MISC_SERVICES_EMBODIED,

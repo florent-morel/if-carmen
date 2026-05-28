@@ -26,6 +26,7 @@ class AbstractReader(ABC):
             self.input_path,
         )
         self.list_resources_to_process: list[Resource] | None = None
+        self.dict_log_info: dict[str, int | float] = {}
         self.known_regions: set[str] = {
             region
             for pc in config.provider_configs.values()

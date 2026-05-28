@@ -98,9 +98,11 @@ MODELS_CPU_CORES_UTILIZED = "cpu-cores-utilized"
 MODELS_CPU_TDP = "cpu-tdp"
 MODELS_MEMORY_AVAIL = "memory-available"
 
+#TODO: To be cleaned up. Do we really need singular and plural versions of these constants?
 IF_INPUT_INPUT_PARAMETER = "input-parameter"
 IF_INPUT_INPUT_PARAMETERS = "input-parameters"
 IF_INPUT_OUTPUT_PARAMETER = "output-parameter"
+IF_INPUT_OUTPUT_PARAMETERS = "output-parameters"
 
 IF_INPUT_CPU_TDP = "cpu/thermal-design-power"
 IF_INPUT_CPU_UTILIZATION = "cpu/utilization"
@@ -143,10 +145,10 @@ IF_INPUT_STORAGE_EMBODIED = "storage-embodied"
 IF_INPUT_STORAGE_COST = "storage-cost"
 
 IF_INPUT_MISC_SERVICES_COST = "misc-services-cost"
-IF_INPUT_MISC_SERVICES_ENERGY = "misc-services-energy",
+IF_INPUT_MISC_SERVICES_ENERGY = "misc-services-energy"
 IF_INPUT_MISC_SERVICES_ENERGY_TXT = "Total energy consumed for the services"
-IF_INPUT_MISC_SERVICES_OPERATIONAL = "misc-services-operational",
-IF_INPUT_MISC_SERVICES_EMBODIED = "misc-services-embodied",
+IF_INPUT_MISC_SERVICES_OPERATIONAL = "misc-services-operational"
+IF_INPUT_MISC_SERVICES_EMBODIED = "misc-services-embodied"
 IF_INPUT_MISC_SERVICES_CAPEX = "Services capex emissions"
 IF_INPUT_MISC_SERVICES_OPEX = "Services opex emissions"
 

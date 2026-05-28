@@ -114,7 +114,7 @@ class Reader_Compute(AbstractReader):
         logger.info("Processing completed found %d compute resources",
                     len(self.list_resources_to_process))
 
-        self.log_unknown_info(self)
+        self.log_unknown_info()
 
         logger.info("Local Reader processing finished successfully"
                     "for resource type compute.")

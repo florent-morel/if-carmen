@@ -333,7 +333,7 @@ class CarbonDaemonOrchestrator:
                     )
 
                     # Misc Services modelling is executed at the end of the process
-                    if abstract_processor.resource_type.value == ResourceType.MISC_SERVICES:
+                    if abstract_processor.resource_type == ResourceType.MISC_SERVICES:
                         self._hydrate_misc_services_resources(abstract_processor.list_resources_to_process)
 
                     resource_type_result = abstract_processor.run()
@@ -552,7 +552,7 @@ def main() -> None:
     """
     Main entry point for the carbon daemon.
 
-    Creates and runs a CarbonDaemon instance with the global configuration.
+    Creates and runs a CarbonDaemonOrchestrator instance with the global configuration.
     Exits with appropriate code based on execution result.
     """
     try:
