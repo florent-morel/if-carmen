@@ -205,7 +205,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
-        mock_processor.read.side_effect = CarmenException(ErrorCode.AUTH_CREDENTIALS_MISSING, details="Test Reader failed")
+        mock_processor.read.side_effect = CarmenException(ErrorCode.CONFIG_INVALID_FILE, details="Test Reader failed")
         mock_processor.run.return_value = None
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
