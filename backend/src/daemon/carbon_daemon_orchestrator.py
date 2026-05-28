@@ -162,26 +162,24 @@ class CarbonDaemonOrchestrator:
             return self.carbon_daemon_result
 
         except CarmenException as e:
-            execution_time = time.time() - start_time
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
 
             self.update_carbon_daemon_result(
                 success=False,
-                execution_time=execution_time,
+                start_time=start_time,
                 list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR, error_msg)],
                 dict_resource_results=None,
             )
             return self.carbon_daemon_result
 
         except Exception as e:
-            execution_time = time.time() - start_time
             error_msg = f"Unexpected error during daemon execution: {str(e)}"
             logger.exception(error_msg)
 
             self.update_carbon_daemon_result(
                 success=False,
-                execution_time=execution_time,
+                start_time=start_time,
                 list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR, error_msg)],
                 dict_resource_results=None,
             )
@@ -195,7 +193,7 @@ class CarbonDaemonOrchestrator:
         Raises:
             Exception: If reading fails
         """
-        read_start_time = time.time()
+        start_time = time.time()
 
         try:
             logger.info(
@@ -224,7 +222,7 @@ class CarbonDaemonOrchestrator:
                             )
                             resources = abstract_processor.read(csv_data)
 
-                        read_time = time.time() - read_start_time
+                        read_time = time.time() - start_time
                         if resources:
                             logger.info(
                                 "Source data reading completed for file %s."
@@ -240,7 +238,7 @@ class CarbonDaemonOrchestrator:
                             message = f"No resources found for {abstract_processor.resource_type.value} in data source"
                             self.update_carbon_daemon_result(
                                 success=False,
-                                execution_time=read_time,
+                                start_time=start_time,
                                 list_exceptions=[
                                     DataFetchError(
                                         ErrorCode.DATA_FETCH_NO_RESULTS,
@@ -249,12 +247,11 @@ class CarbonDaemonOrchestrator:
                                 dict_resource_results=None,
                             )
                     except FileNotFoundError:
-                        read_time = time.time() - read_start_time
                         message = f"File not found: {input_file}"
                         logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
-                            execution_time=read_time,
+                            start_time=start_time,
                             list_exceptions=[
                                 CarmenException(
                                     ErrorCode.FILE_NOT_FOUND,
@@ -262,12 +259,11 @@ class CarbonDaemonOrchestrator:
                             dict_resource_results=None,
                         )
                     except PermissionError as e:
-                        read_time = time.time() - read_start_time
                         message = f"Permission denied reading file {input_file}, {str(e)}"
                         logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
-                            execution_time=read_time,
+                            start_time=start_time,
                             list_exceptions=[
                                 CarmenException(
                                     ErrorCode.FILE_PERMISSION_DENIED,
@@ -276,12 +272,11 @@ class CarbonDaemonOrchestrator:
                             dict_resource_results=None,
                         )
                     except UnicodeDecodeError as e:
-                        read_time = time.time() - read_start_time
                         message = f"Failed to decode file data for {input_file}, {str(e)}"
                         logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
-                            execution_time=read_time,
+                            start_time=start_time,
                             list_exceptions=[
                                 CarmenException(
                                     ErrorCode.FILE_INVALID_FORMAT,
@@ -290,12 +285,11 @@ class CarbonDaemonOrchestrator:
                             dict_resource_results=None,
                         )
                     except Exception as e:
-                        read_time = time.time() - read_start_time
                         message = f"Unexpected error reading file {input_file}, {e.formatted_string}"
                         logger.error(message)
                         self.update_carbon_daemon_result(
                             success=False,
-                            execution_time=read_time,
+                            start_time=start_time,
                             list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR,details=message)],
                             dict_resource_results=None,
                         )
@@ -303,12 +297,11 @@ class CarbonDaemonOrchestrator:
                 logger.error("No processor provided.")
 
         except Exception:
-            read_time = time.time() - read_start_time
             message = "Failed to read data source"
             logger.error(message)
             self.update_carbon_daemon_result(
                 success=False,
-                execution_time=read_time,
+                start_time=start_time,
                 list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR,
                                            details=message)],
                 dict_resource_results=None,
@@ -352,23 +345,21 @@ class CarbonDaemonOrchestrator:
                         ] = resource_type_result
 
                 # End of loop, store complete execution time
-                execution_time = time.time() - start_time
                 logger.info(
                     f"Creating CarbonDaemonResult for dict_resource_results: {dict_resource_results}"
                 )
                 self.update_carbon_daemon_result(
                     success=True,
-                    execution_time=execution_time,
+                    start_time=start_time,
                     list_exceptions=[],
                     dict_resource_results=dict_resource_results,
                 )
         except Exception as e:
             error_msg = f"Failed to run engine for the given processors: {str(e)}"
             logger.exception(error_msg)
-            execution_time = time.time() - start_time
             self.update_carbon_daemon_result(
                 success=False,
-                execution_time=execution_time,
+                start_time=start_time,
                 list_exceptions=[Exception(ErrorCode.UNKNOWN_ERROR, error_msg)],
                 dict_resource_results=dict_resource_results,
             )
@@ -451,10 +442,11 @@ class CarbonDaemonOrchestrator:
     def update_carbon_daemon_result(
         self,
         success,
-        execution_time,
+        start_time,
         list_exceptions: list[Exception],
         dict_resource_results: dict[ResourceType, ResourceTypeResult],
     ):
+        execution_time = time.time() - start_time
         logger.info(
             f"Updating CarbonDaemonResult with success={success}, execution_time={execution_time}, "
             f"list_exceptions={list_exceptions}, dict_resource_results={dict_resource_results}"
