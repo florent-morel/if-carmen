@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch, AsyncMock
 from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrator
 from backend.src.daemon.processors.processor_storage import Processor_Storage
-from backend.src.common.known_exception import KnownException, DataFetchError
+from backend.src.common.known_exception import CarmenException, DataFetchError
 from backend.src.common.errors import ERRORS, ErrorCode
 
 from backend.src.common.constants import (
@@ -190,7 +190,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         Test daemon execution when reader raises an exception.
         """
         mock_reader = MagicMock()
-        mock_reader.read.side_effect = KnownException(ErrorCode.UNKNOWN_ERROR, "Reader failed")
+        mock_reader.read.side_effect = CarmenException(ErrorCode.UNKNOWN_ERROR, "Reader failed")
 
         mock_ioc_util_resolve.return_value = IFStorageService(DAILY_SECONDS)
 
@@ -199,7 +199,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
-        mock_processor.read.side_effect = KnownException(ErrorCode.UNKNOWN_ERROR, "Reader failed")
+        mock_processor.read.side_effect = CarmenException(ErrorCode.UNKNOWN_ERROR, "Reader failed")
         mock_processor.run.return_value = None
 
         logger.info(f"Mock processor: {mock_processor}")

@@ -223,7 +223,7 @@ async def test_retrieve_telemetry_data_exception_handling(
     mock_parse_pod_data, mock_exec_query
 ):
     """
-    Test the case where a KnownException is raised during hardware consumption data retrieval.
+    Test the case where a CarmenException is raised during hardware consumption data retrieval.
     """
     start = datetime.strptime("2023-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
     end = datetime.strptime("2023-01-02 00:00:00", "%Y-%m-%d %H:%M:%S")
@@ -403,3 +403,24 @@ def test_split_pods_by_resource_apps(sample_pods):
     assert len(applications) == 2
     assert applications[0].pods == [pod for pod in sample_pods if pod.app == "app1"]
     assert applications[1].pods == [pod for pod in sample_pods if pod.app == "app2"]
+
+
+def test_argos_service_init_sets_provider_config_from_api_config():
+    """
+    ArgosService.__init__ must resolve provider_config from config.carmen_api.provider.
+    When provider matches a loaded provider config (azure in test env), provider_config is set.
+    When provider is None/unknown, provider_config is None and defaults.pue is used instead.
+    """
+    from backend.src.core.yaml_config_loader import config as app_config
+
+    service = ArgosService()
+
+    # The test config has provider: azure, so provider_config should be the azure config
+    expected_provider = app_config.carmen_api.provider
+    expected_config = app_config.provider_configs.get(expected_provider or "")
+    assert service.provider_config is expected_config
+
+    # provider_config should not be the bare uninitialized annotation anymore
+    # (i.e. it is either None or a real AbstractProviderConfig, never an unset annotation)
+    from backend.src.core.settings.providers.abstract_provider_config import AbstractProviderConfig
+    assert service.provider_config is None or isinstance(service.provider_config, AbstractProviderConfig)

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from pydantic import ValidationError
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import CarmenException
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.readers.helpers.misc_services_helpers import (
@@ -89,7 +89,7 @@ class Reader_Misc_Services(AbstractReader):
         """
         rows = csv_data.splitlines()
         if len(rows) <= 1:
-            raise KnownException(
+            raise CarmenException(
                 ErrorCode.CSV_FILE_NOT_FOUND, "Misc Services CSV data is empty"
             )
 

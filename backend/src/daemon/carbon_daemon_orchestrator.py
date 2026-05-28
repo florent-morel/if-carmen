@@ -22,7 +22,7 @@ from backend.src.common.constants import (
     DATE_FORMAT,
     EXECUTION_DATE,
 )
-from backend.src.common.known_exception import KnownException, DataFetchError
+from backend.src.common.known_exception import CarmenException, DataFetchError
 from backend.src.common.errors import ErrorCode
 
 from backend.src.core.yaml_config_loader import config
@@ -161,7 +161,7 @@ class CarbonDaemonOrchestrator:
             logger.info(f"Result: {self.carbon_daemon_result.dict_resource_result}")
             return self.carbon_daemon_result
 
-        except KnownException as e:
+        except CarmenException as e:
             execution_time = time.time() - start_time
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
@@ -169,7 +169,7 @@ class CarbonDaemonOrchestrator:
             self.update_carbon_daemon_result(
                 success=False,
                 execution_time=execution_time,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR, error_msg)],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR, error_msg)],
                 dict_resource_results=None,
             )
             return self.carbon_daemon_result
@@ -256,7 +256,7 @@ class CarbonDaemonOrchestrator:
                             success=False,
                             execution_time=read_time,
                             list_exceptions=[
-                                KnownException(
+                                CarmenException(
                                     ErrorCode.FILE_NOT_FOUND,
                                     details=message)],
                             dict_resource_results=None,
@@ -269,7 +269,7 @@ class CarbonDaemonOrchestrator:
                             success=False,
                             execution_time=read_time,
                             list_exceptions=[
-                                KnownException(
+                                CarmenException(
                                     ErrorCode.FILE_PERMISSION_DENIED,
                                     details=message,
                                 )],
@@ -283,7 +283,7 @@ class CarbonDaemonOrchestrator:
                             success=False,
                             execution_time=read_time,
                             list_exceptions=[
-                                KnownException(
+                                CarmenException(
                                     ErrorCode.FILE_INVALID_FORMAT,
                                     details=message,
                                 )],
@@ -296,7 +296,7 @@ class CarbonDaemonOrchestrator:
                         self.update_carbon_daemon_result(
                             success=False,
                             execution_time=read_time,
-                            list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR,details=message)],
+                            list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR,details=message)],
                             dict_resource_results=None,
                         )
             else:
@@ -309,7 +309,7 @@ class CarbonDaemonOrchestrator:
             self.update_carbon_daemon_result(
                 success=False,
                 execution_time=read_time,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR,
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR,
                                            details=message)],
                 dict_resource_results=None,
             )
@@ -543,7 +543,7 @@ class CarbonDaemonOrchestrator:
             logger.error(
                 "Invalid date format for EXECUTION_DATE: '%s'", execution_date_str
             )
-            raise KnownException(
+            raise CarmenException(
                 ErrorCode.VALIDATION_INVALID_DATE_FORMAT,
                 details="Failed to parse execution date",
             ) from err

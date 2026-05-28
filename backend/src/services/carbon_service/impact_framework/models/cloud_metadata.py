@@ -32,7 +32,7 @@ case.  When the CSV lookup misses, the chain is:
           (e.g. ``Standard_E32-8s_v3``) can encode a different number 
           than the actual vCPU count.
 
-       c. KnownException(UNKNOWN_VM_INSTANCE_TYPE) — the VM cannot be
+       c. CarmenException(UNKNOWN_VM_INSTANCE_TYPE) — the VM cannot be
           attributed and is excluded from the carbon report.
 
      In all fallback cases TDP is approximated as ``cpu_max × vcpu_count``
@@ -48,7 +48,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import CarmenException
 from backend.src.core.settings import settings
 from backend.src.daemon.readers.helpers.daemon_helpers import parse_vcpu_count_from_azure_vm_size
 from backend.src.schemas.virtual_machine import VirtualMachine
@@ -123,7 +123,7 @@ class CloudMetadata:
         cpu/thermal-design-power = cpu-tdp × (vcpus-utilized / vcpus-available)
 
     For VM types not present in the instances CSV the fallback chain is applied
-    (billing NbVCpus → name parsing → KnownException).
+    (billing NbVCpus → name parsing → CarmenException).
     """
 
     @staticmethod
@@ -152,7 +152,7 @@ class CloudMetadata:
         provider_config = app_config.provider_configs.get(provider)
         cpu_max = provider_config.get_cpu_max() if provider_config else None
         if cpu_max is None:
-            raise KnownException(
+            raise CarmenException(
                 ErrorCode.UNKNOWN_VM_INSTANCE_TYPE,
                 details=(
                     f"VM '{resource.name}' (type '{resource.vm_size}'): instance type is not "
@@ -177,7 +177,7 @@ class CloudMetadata:
           1. Billing NbVCpus column (``vm.vcpu_count``, set by ``create_vm``)
           2. Azure name-parsing heuristic (e.g. ``Standard_D32as_v5`` → 32),
              only attempted when ``vm.provider == "azure"``
-          3. Raise KnownException
+          3. Raise CarmenException
         """
         if vm.vcpu_count is not None:
             logger.warning(
@@ -204,7 +204,7 @@ class CloudMetadata:
                 cpu_max * parsed,
             )
             return parsed
-        raise KnownException(
+        raise CarmenException(
             ErrorCode.UNKNOWN_VM_INSTANCE_TYPE,
             details=(
                 f"VM '{vm.name}' has instance type '{vm.vm_size}' which is not in the "

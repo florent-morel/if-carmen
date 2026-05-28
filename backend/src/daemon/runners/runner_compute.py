@@ -6,7 +6,7 @@ import time
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
 )
-from backend.src.common.known_exception import KnownException, DataFetchError
+from backend.src.common.known_exception import CarmenException, DataFetchError
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
@@ -68,7 +68,7 @@ class Runner_Compute(AbstractRunner):
 
             return resource_type_result
 
-        except KnownException as e:
+        except CarmenException as e:
             execution_time = time.time() - start_time
             error_msg = (
                 f"Runner: Compute known error during execution: {e.formatted_string}"
@@ -78,7 +78,7 @@ class Runner_Compute(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.VIRTUAL_MACHINE,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )
@@ -91,7 +91,7 @@ class Runner_Compute(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.VIRTUAL_MACHINE,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )

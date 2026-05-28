@@ -11,7 +11,7 @@ from __future__ import annotations
 from backend.src.common.errors import ERRORS, ErrorCode
 
 
-class KnownException(Exception):
+class CarmenException(Exception):
     """
     Base custom exception class for handling known exceptions.
 
@@ -20,7 +20,7 @@ class KnownException(Exception):
 
     def __init__(self, error_code: ErrorCode, details: str | None = None):
         """
-        Initialize a KnownException.
+        Initialize a CarmenException.
 
         Args:
             error_code: The error code from the ErrorCode enum.
@@ -53,7 +53,7 @@ class KnownException(Exception):
 # Configuration Exceptions
 
 
-class ConfigurationError(KnownException):
+class ConfigurationError(CarmenException):
     """Base class for configuration-related errors."""
 
 
@@ -114,7 +114,7 @@ class ConfigValidationError(ConfigurationError):
 # Authentication Exceptions
 
 
-class AuthenticationError(KnownException):
+class AuthenticationError(CarmenException):
     """Base class for authentication-related errors."""
 
 
@@ -149,7 +149,7 @@ class CredentialsError(AuthenticationError):
 # Data Fetch Exceptions
 
 
-class DataFetchError(KnownException):
+class DataFetchError(CarmenException):
     """Base class for data fetching errors."""
 
     def __init__(
@@ -222,7 +222,7 @@ class PrometheusQueryError(DataFetchError):
 # Validation Exceptions
 
 
-class ValidationError(KnownException):
+class ValidationError(CarmenException):
     """Base class for validation errors."""
 
     def __init__(
@@ -294,7 +294,7 @@ class QueryParameterError(ValidationError):
 # File System Exceptions
 
 
-class FileSystemError(KnownException):
+class FileSystemError(CarmenException):
     """Base class for file system errors."""
 
     def __init__(
@@ -368,7 +368,7 @@ class DirectoryError(FileSystemError):
 # Computation Exceptions
 
 
-class ComputationError(KnownException):
+class ComputationError(CarmenException):
     """Base class for computation errors."""
 
     def __init__(
@@ -426,7 +426,7 @@ class MissingDataError(ComputationError):
 # Impact Framework Exceptions
 
 
-class ImpactFrameworkError(KnownException):
+class ImpactFrameworkError(CarmenException):
     """Base class for Impact Framework errors."""
 
     def __init__(
@@ -475,7 +475,7 @@ class ImpactFrameworkPluginError(ImpactFrameworkError):
 # Database Exceptions
 
 
-class DatabaseError(KnownException):
+class DatabaseError(CarmenException):
     """Base class for database errors."""
 
     def __init__(
@@ -506,7 +506,7 @@ class DatabaseError(KnownException):
 # External API Exceptions
 
 
-class ExternalAPIError(KnownException):
+class ExternalAPIError(CarmenException):
     """Base class for external API errors."""
 
     def __init__(
@@ -541,7 +541,7 @@ class ExternalAPIError(KnownException):
 # Report Generation Exceptions
 
 
-class ReportGenerationError(KnownException):
+class ReportGenerationError(CarmenException):
     """Base class for report generation errors."""
 
     def __init__(

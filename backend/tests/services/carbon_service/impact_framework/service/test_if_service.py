@@ -16,7 +16,7 @@ from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.services.carbon_service.impact_framework.models.model_utilities import (
     ModelUtilities,
 )
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import CarmenException
 
 
 class TestIFService(unittest.TestCase):
@@ -716,7 +716,7 @@ class TestIFService(unittest.TestCase):
     )
     def test_parse_if_output_known_exception(self, mock_logging_error, mock_read_file):
         """
-        Test for parse_if_output raises KnownException when the execution status is failed.
+        Test for parse_if_output raises CarmenException when the execution status is failed.
         """
         mock_read_file.return_value = {
             "execution": {"status": "failure"},
@@ -732,7 +732,7 @@ class TestIFService(unittest.TestCase):
         ]
         mock_service.parse_if_output(mock_compute_resources)
 
-        with self.assertRaises(KnownException):
+        with self.assertRaises(CarmenException):
             IFService.parse_if_output(
                 mock_service,
                 mock_compute_resources,

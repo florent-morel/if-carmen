@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 
 from backend.src.schemas.resource import Resource, ResourceType
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import CarmenException
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class CarbonDaemonResult:
         self,
         success: bool,
         dict_resource_result: dict[ResourceType, ResourceTypeResult],
-        list_exceptions: list[KnownException],
+        list_exceptions: list[CarmenException],
         total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,
@@ -44,11 +44,11 @@ class CarbonDaemonResult:
         self.execution_time: float = execution_time
         self.list_exceptions: list = list_exceptions
 
-    def get_resource_type_list_exception(self, resource_type: ResourceType) -> dict[ResourceType, list[KnownException]] | None:
+    def get_resource_type_list_exception(self, resource_type: ResourceType) -> dict[ResourceType, list[CarmenException]] | None:
         """
         Fetches exceptions in different resource results.
         """
-        dict_resource_result_exceptions: dict[ResourceType, list[KnownException]] = None
+        dict_resource_result_exceptions: dict[ResourceType, list[CarmenException]] = None
 
         if resource_type is None:
             # No resource_type provided in input
@@ -76,7 +76,7 @@ class ResourceTypeResult:
         success: bool,
         resource_type: ResourceType,
         list_processed_resources: list[Resource],
-        list_exceptions: list[KnownException],
+        list_exceptions: list[CarmenException],
         total_energy_consumed: float,
         total_carbon_operational: float,
         total_carbon_embodied: float,

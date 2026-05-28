@@ -12,7 +12,7 @@ from collections import defaultdict
 import yaml
 from jinja2 import exceptions
 from backend.src.common.constants import IF_FILES_DIR
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import CarmenException
 from backend.src.common.errors import ErrorCode
 from backend.src.schemas.pod import Pod
 from backend.src.schemas.resource import Resource
@@ -281,7 +281,7 @@ class IFService(ABC, CarbonService):
                 f"IF has failed to calculate the carbon impact for file ID {file_id}."
             )
             logger.error(err_text)
-            raise KnownException(ErrorCode.IF_EXECUTION_FAILED, details=err_text)
+            raise CarmenException(ErrorCode.IF_EXECUTION_FAILED, details=err_text)
         if_output = if_output["tree"]["children"]
         if emission_breakdown_at_pod_level:
             output = IFService.aggregate_pod_level(resources, if_output)

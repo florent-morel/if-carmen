@@ -14,7 +14,7 @@ import time
 from backend.src.common.constants import (
     DAILY_SECONDS,
 )
-from backend.src.common.known_exception import KnownException
+from backend.src.common.known_exception import CarmenException
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.schemas.storage_resource import StorageResource
@@ -65,7 +65,7 @@ class Runner_Storage(AbstractRunner):
 
             return resource_type_result
 
-        except KnownException as e:
+        except CarmenException as e:
             execution_time = time.time() - start_time
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
@@ -73,7 +73,7 @@ class Runner_Storage(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.STORAGE,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )
@@ -86,7 +86,7 @@ class Runner_Storage(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.STORAGE,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )
@@ -157,7 +157,7 @@ class Runner_Storage(AbstractRunner):
                 logger.exception(
                     "Data parsing error processing storage resources: %s", str(e)
                 )
-            except KnownException as e:
+            except CarmenException as e:
                 logger.exception("Known error processing storage resources: %s", str(e))
             except ImportError as e:
                 logger.exception(

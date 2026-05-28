@@ -75,7 +75,7 @@ def test_get_settings_error(
     """
     Unit test for get_settings when a validation error occurs.
 
-    Verifies that a KnownException is raised if Settings.model_validate fails.
+    Verifies that a CarmenException is raised if Settings.model_validate fails.
     """
     mock_json_data = {
         "INVALID": {
