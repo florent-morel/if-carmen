@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch, AsyncMock
 from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrator
 from backend.src.daemon.processors.processor_storage import Processor_Storage
-from backend.src.common.known_exception import CarmenException, DataFetchError
+from backend.src.common.carmen_exception import CarmenException, DataFetchError
 from backend.src.common.errors import ERRORS, ErrorCode
 from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
@@ -200,7 +200,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
-        mock_processor.read.side_effect = CarmenException(ErrorCode.AUTH_CREDENTIALS_MISSING, details="Test Reader failed")
+        mock_processor.read.side_effect = CarmenException(ErrorCode.CONFIG_INVALID_FILE, details="Test Reader failed")
         mock_processor.run.return_value = None
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
