@@ -9,7 +9,37 @@ from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.utils.helpers import get_row_data
+from backend.src.common.constants import (
+    SOURCE_PROVIDER,
+    SOURCE_NAME,
+    SOURCE_SERVICE,
+    SOURCE_INSTANCE,
+    SOURCE_ENVIRONMENT,
+    SOURCE_PARTITION,
+    SOURCE_COMPONENT,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_GROUP,
+    SOURCE_SUBSCRIPTION_ID,
+    SOURCE_SUBSCRIPTION,
+    SOURCE_REGION,
+    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_METER_CATEGORY,
+    SOURCE_BILLING_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_METER_NAME,
+    SOURCE_QUANTITY,
+    SOURCE_UNIT_OF_MEASURE,
+    SOURCE_DATE,
+    SOURCE_TIME,
+    SOURCE_SIZE,
+    SOURCE_NB_VCPUS,
+    DATE_FORMAT,
+    SOURCE_DISK_SIZE_GB,
+    UNKNOWN,
+)
 
+
+# TODO: Magic Azure
 # Matches Azure VM size names of the form Standard_<family><digits>[suffix]
 # (e.g. Standard_D32as_v5, Standard_E4s_v3, Standard_B2ms) and extracts the
 # digit(s) immediately following the family letters as the vCPU count.
@@ -38,7 +68,7 @@ def parse_vcpu_count_from_azure_vm_size(vm_size: str) -> int | None:
 
 def _parse_vcpu_count_from_row(row: dict[str, str]) -> int | None:
     """Parse NbVCpus from a billing CSV row; returns None if absent or non-numeric."""
-    raw = get_row_data(row.get("NbVCpus", ""))
+    raw = get_row_data(row.get(SOURCE_NB_VCPUS, ""))
     if not raw:
         return None
     try:
@@ -51,23 +81,23 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
     """
     Creates a new VirtualMachine instance based on the provided row data.
     """
-    region = get_row_data(row["Region"])
-    provider = get_row_data(row["Provider"])
+    region = get_row_data(row[SOURCE_REGION])
+    provider = get_row_data(row[SOURCE_PROVIDER])
     provider_config = config.provider_configs.get(provider)
     return VirtualMachine(
         id=vm_id,
         region=region,
-        vm_size=get_row_data(row["Size"]),
-        service=get_row_data(row["Service"]),
-        component=get_row_data(row["Component"]),
-        subscription=get_row_data(row["Subscription"]),
-        name=get_row_data(row["Name"]),
-        instance=get_row_data(row["Instance"]),
-        environment=get_row_data(row["Environment"]),
-        partition=get_row_data(row["Partition"]),
+        vm_size=get_row_data(row[SOURCE_SIZE]),
+        service=get_row_data(row[SOURCE_SERVICE]),
+        component=get_row_data(row[SOURCE_COMPONENT]),
+        subscription=get_row_data(row[SOURCE_SUBSCRIPTION]),
+        name=get_row_data(row[SOURCE_NAME]),
+        instance=get_row_data(row[SOURCE_INSTANCE]),
+        environment=get_row_data(row[SOURCE_ENVIRONMENT]),
+        partition=get_row_data(row[SOURCE_PARTITION]),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,
         pue=provider_config.get_pue() if provider_config else config.defaults.pue,
-        billing_cost=get_row_data(row["BillingCost"]),
+        billing_cost=get_row_data(row[SOURCE_BILLING_COST]),
         vcpu_count=_parse_vcpu_count_from_row(row),
     )

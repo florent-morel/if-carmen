@@ -155,7 +155,7 @@ ERRORS: dict[str, ErrorTemplate] = {
     # Unknown error
     ErrorCode.UNKNOWN_ERROR: ErrorTemplate(
         category=ErrorCategory.UNKNOWN,
-        user_message="Unknown error raised",
+        user_message="unknown error raised",
     ),
     # Configuration errors
     ErrorCode.CONFIG_MISSING_PARAMETERS: ErrorTemplate(

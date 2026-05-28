@@ -9,6 +9,7 @@ import logging
 import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
+from backend.src.common.known_exception import CarmenException
 
 from backend.src.common.constants import (
     DAILY_SECONDS,
@@ -115,16 +116,11 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         """
         Test daemon execution when reader raises an exception.
         """
-        mock_reader = MagicMock()
-        mock_reader.read.side_effect = Exception("Reader failed")
-
         mock_ioc_util_resolve.return_value = IFVMService(DAILY_SECONDS)
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
-        mock_processor.read.side_effect = Exception("Reader failed")
-
-        logger.info(f"Mock processor: {mock_processor}")
+        mock_processor.read.side_effect = CarmenException(ErrorCode.UNKNOWN_ERROR, details="Test Reader failed")
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
 
@@ -132,10 +128,14 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
         self.assertFalse(carbonDaemonResult.success)
-        self.assertIn(
-            "Unexpected error during daemon execution", carbonDaemonResult.error_message
-        )
-        self.assertIn("Reader failed", carbonDaemonResult.error_message)
+        logger.info(f"list_exceptions: {carbonDaemonResult.list_exceptions}")
+
+        for exception in carbonDaemonResult.list_exceptions:
+            logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
+            self.assertIn(
+                "Unexpected error reading file", exception.details
+            )
+            self.assertIn("Test Reader failed", exception.details)
 
     @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator.write_report")
     @patch("backend.src.utils.ioc_util.resolve")
@@ -191,13 +191,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
         mock_processor.read.return_value = self.sample_vms.copy()
-        # mock_processor.run.side_effect = Exception(runner_error_msg)
-
-        mock_runner = MagicMock()
-        mock_runner.run.side_effect = Exception(runner_error_msg)
-        print(f"mock_runner: {mock_runner}")
-
-        mock_processor.runner = mock_runner
+        mock_processor.run.side_effect = Exception(runner_error_msg)
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
         mock_write_report.return_value = None
