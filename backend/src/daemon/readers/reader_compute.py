@@ -13,6 +13,25 @@ from backend.src.daemon.readers.helpers.daemon_helpers import create_vm
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.schemas.resource import Resource
 from backend.src.utils.helpers import str_to_float
+from backend.src.common.constants import (
+    SOURCE_PROVIDER,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_GROUP,
+    SOURCE_SUBSCRIPTION_ID,
+    SOURCE_REGION,
+    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_METER_CATEGORY,
+    SOURCE_BILLING_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_METER_NAME,
+    SOURCE_QUANTITY,
+    SOURCE_UNIT_OF_MEASURE,
+    SOURCE_DATE,
+    SOURCE_TIME,
+    DATE_FORMAT,
+    SOURCE_DISK_SIZE_GB,
+    UNKNOWN,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,19 +88,19 @@ class Reader_Compute(AbstractReader):
             return False
         csv_reader = csv.DictReader(rows)
         for row in csv_reader:
-            vm_id = row["Id"]
+            vm_id = row[SOURCE_RESOURCE_ID]
             try:
                 if vm_id not in vm_dict:
-                    self.process_unknown_regions(row["Region"])
-                    self.process_unknown_providers(row["Provider"])
+                    self.process_unknown_regions(row[SOURCE_REGION])
+                    self.process_unknown_providers(row[SOURCE_PROVIDER])
                     new_vm = create_vm(row, vm_id)
                     vm_dict[vm_id] = new_vm
 
                 vm_dict[vm_id].cpu_util.append(
-                    str_to_float(row["AverageCpuPercentage"]) / 100
+                    str_to_float(row[SOURCE_AVG_CPU_PERCENTAGE]) / 100
                 )
-                vm_dict[vm_id].time_points.append(row["Time"])
-                vm_dict[vm_id].storage_size.append(str_to_float(row["DiskSizeGb"]))
+                vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
+                vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_DISK_SIZE_GB]))
             except ValidationError:
                 logger.exception("Validation error for VM %s", vm_id)
                 raise

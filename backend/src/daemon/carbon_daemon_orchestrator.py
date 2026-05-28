@@ -459,7 +459,7 @@ class CarbonDaemonOrchestrator:
             f"Updating CarbonDaemonResult with success={success}, execution_time={execution_time}, "
             f"list_exceptions={list_exceptions}, dict_resource_results={dict_resource_results}"
         )
-        logger.info(f"Current success value: {self.carbon_daemon_result.success}")
+        logger.info(f"Success value before update: {self.carbon_daemon_result.success}")
         self.carbon_daemon_result.success &= success
         self.carbon_daemon_result.execution_time = execution_time
         self.carbon_daemon_result.list_exceptions.extend(list_exceptions)
@@ -479,6 +479,8 @@ class CarbonDaemonOrchestrator:
                     resource_result.total_energy_consumed
                 )
             self.carbon_daemon_result.dict_resource_result = self.carbon_daemon_result.dict_resource_result | dict_resource_results
+
+        logger.info(f"Success value after update: {self.carbon_daemon_result.success}")
 
     def write_report(self):
         """
