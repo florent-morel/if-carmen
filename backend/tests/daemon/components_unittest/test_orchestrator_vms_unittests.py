@@ -221,7 +221,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
         mock_processor.read.side_effect = ConfigurationError(
-            ErrorCode.CONFIG_INVALID_FILE, details="Test known error occurred"
+            ErrorCode.UNKNOWN_ERROR, details="Test known error occurred"
         )
 
         logger.info(f"Mock processor: {mock_processor}")
@@ -237,7 +237,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
         for exception in carbonDaemonResult.list_exceptions:
             logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
-            self.assertEqual(exception.error_code, ErrorCode.CONFIG_INVALID_FILE)
+            self.assertEqual(exception.error_code, ErrorCode.UNKNOWN_ERROR)
             self.assertIn(
                 "Known error during daemon execution", exception.details
             )
