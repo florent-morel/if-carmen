@@ -13,6 +13,10 @@ from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrat
 from backend.src.daemon.processors.processor_storage import Processor_Storage
 from backend.src.common.known_exception import CarmenException, DataFetchError
 from backend.src.common.errors import ERRORS, ErrorCode
+from backend.src.daemon.carbon_daemon_orchestrator import (
+    CarbonDaemonOrchestrator,
+    CarbonDaemonResult,
+)
 
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
@@ -206,6 +210,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         logger.info(f"Carbon Daemon Result: {carbonDaemonResult}")
 
+        self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
         self.assertFalse(carbonDaemonResult.success)
         self.assertIsNotNone(carbonDaemonResult.list_exceptions)
         logger.info(f"list_exceptions: {carbonDaemonResult.list_exceptions}")
