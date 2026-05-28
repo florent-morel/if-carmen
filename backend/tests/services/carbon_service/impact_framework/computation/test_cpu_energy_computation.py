@@ -22,8 +22,9 @@ from backend.tests.services.carbon_service.impact_framework.computation.computat
 
 SAMPLING_RATE_IN_SECONDS = 1800  # 30 min
 TDP_APP = 3.67  # Average watts per core for Azure taken from CCF
-# https://raw.githubusercontent.com/Green-Software-Foundation/if-data/main/cloud-metdata-azure-instances.csv
-TDP_VM = 205
+# Standard_A1_v2 from azure_instances.csv: cpu-tdp=205 (full host), cores-utilized=1, cores-available=52
+# The IF pipeline scales: vm_tdp = cpu-tdp * cores-utilized / cores-available
+TDP_VM = 205 * 1.0 / 52.0
 
 
 def compute_expected_cpu_energy(
@@ -93,6 +94,7 @@ def sample_vms():
     return [
         VirtualMachine(
             id="0",
+            provider="azure",
             time_points=["2021-01-01T00:00:00Z"],
             cpu_util=[0.3],
             vm_size="Standard_A1_v2",
