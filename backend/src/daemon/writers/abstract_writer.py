@@ -55,7 +55,7 @@ class AbstractWriter(ABC):
         row = {
             # Common columns
             ReportConfig.COMMON_DATE: self.date,
-            ReportConfig.COMMON_RESOURCE_TYPE: resource.resource_type,
+            ReportConfig.COMMON_RESOURCE_TYPE: resource.resource_type.value,
             ReportConfig.COMMON_ID: resource.id,
             ReportConfig.COMMON_NAME: resource.name,
             ReportConfig.COMMON_PROVIDER: resource.provider,

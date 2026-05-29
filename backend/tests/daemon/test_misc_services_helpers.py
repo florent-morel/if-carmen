@@ -2,17 +2,12 @@
 Unit tests for misc services helpers functions.
 """
 import unittest
-from datetime import datetime, timedelta
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 
-from backend.src.common.carmen_exception import CarmenException
-from backend.src.core.settings import settings, ReportConfig
 from backend.src.daemon.readers.helpers.misc_services_helpers import (
     get_carbon_and_energy_values,
     create_misc_services_resource,
-    create_misc_services_report,
 )
-from backend.src.schemas.misc_services_resource import MiscServicesResource
 from etc.sample_data.test_data.test_data import (
     sample_vms,
     sample_storage_resources,
@@ -24,29 +19,6 @@ class TestMiscServicesHelpers(unittest.TestCase):
     """
     Unit tests for misc_services_helpers class functions.
     """
-
-    def setUp(self):
-        """
-        Set up test fixtures.
-        """
-        self.misc_services_resources = [
-            MiscServicesResource(
-                id="misc_service1",
-                name="name1",
-                region="eastus",
-                subscription="sub1",
-                carbon_intensity=100.0,
-                misc_services_cost=50.0,
-            ),
-            MiscServicesResource(
-                id="misc_service2",
-                name="name2",
-                region="westus",
-                subscription="sub2",
-                carbon_intensity=150.0,
-                misc_services_cost=75.0,
-            ),
-        ]
 
     def test_get_carbon_and_energy_values(self):
         """
@@ -102,46 +74,3 @@ class TestMiscServicesHelpers(unittest.TestCase):
         self.assertEqual(misc_services_resource.carbon_intensity, 200.0)
         self.assertEqual(misc_services_resource.misc_services_cost, 120.0)
         self.assertEqual(misc_services_resource.time_points[0], "2025-11-01")
-
-    @patch("builtins.open", new_callable=mock_open)
-    def test_create_misc_services_report(self, mock_file):
-        """
-        Test that create_misc_services_report writes misc services resource data correctly to the CSV file.
-        """
-        mock_date = datetime.now() - timedelta(days=7)
-        test_file_name = "test_misc_services_report.csv"
-
-        with self.assertLogs(level="INFO") as log:
-            create_misc_services_report(
-                self.misc_services_resources,
-                mock_date.strftime("%Y-%m-%d"),
-                test_file_name,
-            )
-            self.assertIn("misc_services model report saved to:", log.output[1])
-
-        mock_file.assert_called_once_with(
-            test_file_name, mode="w", newline="", encoding="utf-8"
-        )
-
-    @patch("builtins.open", new_callable=mock_open)
-    def test_create_misc_services_report_headers(self, mock_file):
-        """
-        Test that create_misc_services_report writes misc services resource data headers correctly to the CSV file.
-        """
-        mock_date = datetime.now() - timedelta(days=7)
-        test_file_name = "test_misc_services_report.csv"
-        expected_headers = ReportConfig.MISC_SERVICES_REPORT_HEADERS[0]
-
-        with self.assertLogs(level="INFO") as log:
-            create_misc_services_report(
-                self.misc_services_resources,
-                mock_date.strftime("%Y-%m-%d"),
-                test_file_name,
-            )
-            self.assertIn("misc_services model report saved to:", log.output[1])
-
-        mock_file().write.assert_called()
-        handle = mock_file()
-        written_data = handle.write.call_args_list[0][0][0]
-        headers = written_data.strip().split(",")
-        self.assertCountEqual(headers, expected_headers)
