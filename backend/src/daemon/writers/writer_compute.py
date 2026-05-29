@@ -28,6 +28,8 @@ class Writer_Compute(AbstractWriter):
 
             self.writer.writerow(row)
 
+            self.writer.writerow(row)
+
         logger.info(
             " Rows built for %d resources",
             len(resources),
