@@ -67,6 +67,7 @@ UNKNOWN = "Unknown"
 HOURLY_INTERVAL_SECONDS: int = 3600
 DAILY_SECONDS: int = 86400
 SAMPLING_RATE_IN_SECONDS = 86400  # 24 hours
+EXPECTED_LIFESPAN = 126230400  # 4 years in seconds
 EXECUTION_DATE: str = "EXECUTION_DATE"
 DATE_FORMAT: str = "%Y-%m-%d"
 
@@ -120,6 +121,9 @@ IF_INPUT_PUE = "pue"
 IF_INPUT_CPU_SLASH_ENERGY = "cpu/energy"
 IF_INPUT_MEMORY_SLASH_ENERGY = "memory/energy"
 IF_INPUT_STORAGE_SLASH_ENERGY = "storage/energy"
+IF_INPUT_STORAGE_SLASH_REQUESTED = "storage/requested"
+IF_INPUT_STORAGE_SLASH_EMBODIED = "storage/embodied-coefficient"
+IF_INPUT_DURATION_SLASH_SECONDS = "duration/seconds"
 # IF_INPUT_
 
 IF_INPUT_CARBON = "carbon"
@@ -142,6 +146,7 @@ IF_INPUT_COMPUTE_COST = "compute-cost"
 
 IF_INPUT_STORAGE_ENERGY = "storage-energy"
 IF_INPUT_STORAGE_EMBODIED = "storage-embodied"
+IF_INPUT_STORAGE_EMBODIED_TXT = "Storage embodied emissions"
 IF_INPUT_STORAGE_COST = "storage-cost"
 
 IF_INPUT_MISC_SERVICES_COST = "misc-services-cost"

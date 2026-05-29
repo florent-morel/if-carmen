@@ -4,6 +4,9 @@ pipeline does when it computes carbon emissions.
 """
 
 import numpy as np
+from backend.src.common.constants import (
+    EXPECTED_LIFESPAN, 
+)
 
 # European Average for 2024 (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
 CARBON_INTENSITY_EUROPE = 281  # gCO2 per kWh
@@ -38,7 +41,6 @@ STORAGE_REPLICATION_FACTORS = {
 # TODO: -> Config
 MEMORY_COEFFICIENT = 0.000392
 DEVICE_EMISSIONS = 1672000
-EXPECTED_LIFESPAN = 126230400  # 4 years in seconds
 
 
 def compute_tdp_ratio(cpu_util: float) -> float:
