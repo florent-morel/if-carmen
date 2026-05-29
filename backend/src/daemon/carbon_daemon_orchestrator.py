@@ -334,7 +334,10 @@ class CarbonDaemonOrchestrator:
 
                     # Misc Services modelling is executed at the end of the process
                     if abstract_processor.resource_type == ResourceType.MISC_SERVICES:
-                        self._hydrate_misc_services_resources(abstract_processor.list_resources_to_process)
+                        self._hydrate_misc_services_resources(
+                            abstract_processor.list_resources_to_process,
+                            dict_resource_results,
+                        )
 
                     resource_type_result = abstract_processor.run()
 
@@ -365,21 +368,22 @@ class CarbonDaemonOrchestrator:
             )
             raise
 
-    def _hydrate_misc_services_resources(self, list_resources_to_process: list) -> None:
+    def _hydrate_misc_services_resources(
+        self,
+        list_resources_to_process: list,
+        dict_resource_results: dict[ResourceType, ResourceTypeResult],
+    ) -> None:
         """
         Populate compute and storage fields on each MiscServicesResource before
         the misc services runner executes.
 
-        Values are taken from the VM and Storage ResourceTypeResults already stored
-        in carbon_daemon_result. When a result is absent, configurable defaults
-        from carbon_values.yaml are used instead.
+        Values are taken from the VM and Storage ResourceTypeResults already
+        accumulated in ``dict_resource_results`` during the current engine loop.
+        When a result is absent, configurable defaults from carbon_values.yaml
+        are used instead.
         """
-        vm_dict_result = self.carbon_daemon_result.dict_resource_result.get(
-            ResourceType.VIRTUAL_MACHINE
-        )
-        storage_dict_result = self.carbon_daemon_result.dict_resource_result.get(
-            ResourceType.STORAGE
-        )
+        vm_dict_result = dict_resource_results.get(ResourceType.VIRTUAL_MACHINE)
+        storage_dict_result = dict_resource_results.get(ResourceType.STORAGE)
         misc_defaults = config.carbon_intensity_config.default_misc_services_constants
 
         for resource in list_resources_to_process:

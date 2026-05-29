@@ -1,10 +1,10 @@
 # Configuration
 
 This file documents all possible configuration options for running Carmen.
-The default configuration path is `config/config.yaml`, but can be overridden through the `CARMEN_CONFIG_FILEPATH` environment variable.
+The default configuration path is `etc/config/config.yaml`, but can be overridden through the `CARMEN_CONFIG_FILEPATH` environment variable.
 
 
-Full explanation of the Carmen daemon configuration can be found in [[carmen-daemon#Carmen Daemon configuration]].
+Full explanation of the Carmen daemon configuration can be found in [Carmen Daemon](./carmen-daemon.md#carmen-daemon-configuration).
 
 
 ## Configuration example

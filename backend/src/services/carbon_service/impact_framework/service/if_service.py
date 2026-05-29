@@ -14,6 +14,7 @@ from jinja2 import exceptions
 from backend.src.common.constants import IF_FILES_DIR
 from backend.src.common.carmen_exception import CarmenException
 from backend.src.common.errors import ErrorCode
+from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.pod import Pod
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.compute_resource import ComputeResource
@@ -77,6 +78,9 @@ class IFService(ABC, CarbonService):
         )  # named as data even though it reads the pipeline.yml, since it will be filled with input.yaml data for IF
         self.data["aggregation_type"] = aggregation_type
         self.data["duration"] = duration
+        self.data["device_emissions_embodied"] = (
+            config.carbon_intensity_config.default_device_emissions_embodied
+        )
 
     def write_if_input(self, data, file_id: int):
         """
