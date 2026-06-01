@@ -26,6 +26,16 @@ class AbstractRunner(ABC):
     """
 
     @abstractmethod
+    def should_run(self, list_resources_to_process: list[Resource]) -> bool:
+        """
+        Check if the runner has the right context to process.
+
+        Returns:
+            True if runner should run, false otherwise.
+        """
+        pass
+
+    @abstractmethod
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for a given ResourceType.

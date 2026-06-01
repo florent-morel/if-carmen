@@ -24,6 +24,18 @@ class Runner_Compute(AbstractRunner):
     Implementation of the Runner for the Virtual Machine Type.
     """
 
+    def should_run(self, list_resources_to_process: list[Resource]) -> bool:
+
+        should_run = True
+        if not list_resources_to_process:
+            should_run = False
+            raise DataFetchError(
+                ErrorCode.DATA_FETCH_NO_RESULTS,
+                details="No virtual machines found in data source",
+            )
+
+        return should_run
+
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for Virtual Machines Resource Type.
@@ -32,39 +44,36 @@ class Runner_Compute(AbstractRunner):
             ResourceTypeResult containing execution results
         """
         start_time = time.time()
+        resource_type_result = None
 
         try:
             logger.info("Starting Virtual Machine runner execution")
 
-            if not list_resources_to_process:
-                raise DataFetchError(
-                    ErrorCode.DATA_FETCH_NO_RESULTS,
-                    details="No virtual machines found in data source",
+            if self.should_run(list_resources_to_process):
+
+                processed_resources = self.process_carbon_calculations(
+                    list_resources_to_process
                 )
 
-            processed_resources = self.process_carbon_calculations(
-                list_resources_to_process
-            )
+                execution_time = time.time() - start_time
 
-            execution_time = time.time() - start_time
+                resource_type_result = self.create_resource_type_result(
+                    True,
+                    execution_time,
+                    ResourceType.VIRTUAL_MACHINE,
+                    processed_resources,
+                    [],
+                )
 
-            resource_type_result = self.create_resource_type_result(
-                True,
-                execution_time,
-                ResourceType.VIRTUAL_MACHINE,
-                processed_resources,
-                [],
-            )
-
-            logger.info(
-                "Runner: Compute modelling completed successfully. "
-                "Processed %d Virtual Machines in %.2f seconds. "
-                "Total energy consumed: %.2f, Total carbon emitted: %.2f",
-                len(resource_type_result.list_processed_resources),
-                execution_time,
-                resource_type_result.total_energy_consumed,
-                resource_type_result.total_carbon_emitted,
-            )
+                logger.info(
+                    "Runner: Compute modelling completed successfully. "
+                    "Processed %d Virtual Machines in %.2f seconds. "
+                    "Total energy consumed: %.2f, Total carbon emitted: %.2f",
+                    len(resource_type_result.list_processed_resources),
+                    execution_time,
+                    resource_type_result.total_energy_consumed,
+                    resource_type_result.total_carbon_emitted,
+                )
 
             return resource_type_result
 
