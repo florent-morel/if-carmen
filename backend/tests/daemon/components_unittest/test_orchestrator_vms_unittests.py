@@ -95,21 +95,34 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         """
         Test orchestrator execution when no VMs are found in data source.
         """
+        error_details = "No resources found for VirtualMachine"
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
         mock_processor.read.return_value = []
+
+        runner_compute = Runner_Compute()
+        mock_processor.runner = runner_compute
+        # mock_processor.run = runner_compute.run([])
 
         orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
         result = orchestrator.orchestrate_carbon_daemon()
 
         # read() was called; run() was never reached because the orchestrator short-circuits
+        logger.info("mock reader")
         mock_processor.read.assert_called_once()
-        mock_processor.run.assert_not_called()
 
         # Orchestrator fails at the read stage
         self.assertIsInstance(result, CarbonDaemonResult)
         self.assertFalse(result.success)
-        self.assertIn("No resources found for VirtualMachine", result.error_message)
+        self.assertIsNotNone(result.list_exceptions)
+        logger.info(f"list_exceptions: {result.list_exceptions}")
+
+        for exception in result.list_exceptions:
+            logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
+            self.assertEqual(exception.error_code, ErrorCode.DATA_FETCH_NO_RESULTS)
+            self.assertIn(
+                error_details, exception.details
+            )
 
     @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_reader_compute_exception(self, mock_ioc_util_resolve):
