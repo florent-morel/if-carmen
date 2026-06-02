@@ -256,6 +256,23 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
                 error_details, exception.details
             )
 
+    def test_carmen_daemon_exception_no_processor(self):
+        error_details = "No resources found for VirtualMachine"
+        mock_config = MagicMock()
+        daemon = CarbonDaemonOrchestrator(mock_config)
+        result = daemon.orchestrate_carbon_daemon()
+
+        assert result.success is False
+        self.assertIsNotNone(result.list_exceptions)
+        logger.info(f"list_exceptions: {result.list_exceptions}")
+
+        for exception in result.list_exceptions:
+            logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
+            self.assertEqual(exception.error_code, ErrorCode.DATA_FETCH_NO_RESULTS)
+            self.assertIn(
+                error_details, exception.details
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

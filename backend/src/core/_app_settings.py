@@ -166,6 +166,7 @@ class Settings(BaseSettings):
     UVICORN: UvicornConfig
     TEST_ENV: bool = os.getenv("TEST_ENV", "False").lower() in ("true", "1", "t")
     LOG_LEVEL: LogLevel = LogLevel.INFO
+
     IF_CLOUD_METADATA_FILEPATH: str = (
         "https://raw.githubusercontent.com/Green-Software-Foundation/if-data/main/cloud"
         "-metdata-azure-instances.csv"
@@ -182,6 +183,10 @@ class Settings(BaseSettings):
         "etc/config/modelling_constants/carbon_values.yaml",
     )
     CARMEN_INPUT_FOLDER_PATH: str = os.getenv("CARMEN_INPUT_FOLDER_PATH", "etc/input")
+
+    CARMEN_TEST_CONFIG_FILEPATH: str = os.getenv(
+        "CARMEN_TEST_CONFIG_FILEPATH", "etc/sample_data/config-test.yaml"
+    )
 
 
 def configure_logger(validated_settings: Settings) -> None:

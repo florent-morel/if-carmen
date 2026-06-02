@@ -94,40 +94,49 @@ class CarbonDaemonOrchestrator:
             AbstractProcessor
         ] = list_resource_processors
 
-        # Check if Misc Services processor is present in the list.
-        # If yes and not in last position, re-order the list
-        # TODO Vnext: protect against several misc services processor in the list, which should not be the case. 
-        misc_proc = next(
-            (proc for proc in list_resource_processors if isinstance(proc, Processor_Misc_Services)),
-            None,
-        )
-        if misc_proc is not None:
-            if list_resource_processors[-1] is not misc_proc:
-                list_resource_processors.remove(misc_proc)
-                list_resource_processors.append(misc_proc)
-        else:
-            logger.info(
-                "No processor found for Misc Services. "
-            )
-
         self.carbon_daemon_result: CarbonDaemonResult = self.create_carbon_daemon_result(
             success=True,
             execution_time=0,
         )
 
-        register_models()
+        try:
+            if list_resource_processors:
+                # Check if Misc Services processor is present in the list.
+                # If yes and not in last position, re-order the list
+                # TODO Vnext: protect against several misc services processor in the list, which should not be the case. 
+                misc_proc = next(
+                    (proc for proc in list_resource_processors if isinstance(proc, Processor_Misc_Services)),
+                    None,
+                )
+                if misc_proc is not None:
+                    if list_resource_processors[-1] is not misc_proc:
+                        list_resource_processors.remove(misc_proc)
+                        list_resource_processors.append(misc_proc)
+                else:
+                    logger.info(
+                        "No processor found for Misc Services. "
+                    )
 
-        self.date: str = self.get_execution_date()
-        # TODO: Implement support for list
-        self.list_input_file = []
-        # TODO: read from config file
-        self.list_input_file.append(os.getenv(CSV_PATH, CSV_FILE_TEST))
+                register_models()
 
-        self.output_file: str = os.path.join(
-            str(self.config.output.output_path), f"CO2_{self.date}.csv"
-        )
+                self.date: str = self.get_execution_date()
+                # TODO: Implement support for list
+                self.list_input_file = []
+                # TODO: read from config file
+                logger.warning(f"input_path: {self.config.source.input_path}")
+                input_path = os.path(self.config.source.input_path)
+                logger.info(f"input_path: {input_path}")
+                self.list_input_file.append(input_path)
 
-        logger.info("Carbon Daemon initialized")
+                self.output_file: str = os.path.join(
+                    str(self.config.output.output_path), f"CO2_{self.date}.csv"
+                )
+
+                logger.info("Carmen Daemon initialized")
+
+        except Exception as e:
+            logger.exception("Critical error in Carmen Daemon initialization: %s", str(e))
+            raise
 
     def orchestrate_carbon_daemon(self):
         """
@@ -139,26 +148,37 @@ class CarbonDaemonOrchestrator:
         start_time = time.time()
 
         try:
-            logger.info("Starting Carbon Daemon execution")
+            if self.list_resource_processors and len(self.list_resource_processors) > 0:
+                logger.info("Starting Carbon Daemon execution")
 
-            # Read infrastructure data
-            self.read_data_source()
+                # Read infrastructure data
+                self.read_data_source()
 
-            # Run Impact Framework Engine for each Resource
-            self.run_engine()
+                # Run Impact Framework Engine for each Resource
+                self.run_engine()
 
-            # Write results
-            self.write_report()
+                # Write results
+                self.write_report()
 
-            total_execution_time = time.time() - start_time
+                total_execution_time = time.time() - start_time
 
-            logger.info(
-                "Carbon Daemon execution completed successfully. Processed %d resource type(s) in %.2f seconds",
-                len(self.list_resource_processors),
-                total_execution_time,
-            )
+                logger.info(
+                    "Carbon Daemon execution completed successfully. Processed %d resource type(s) in %.2f seconds",
+                    len(self.list_resource_processors),
+                    total_execution_time,
+                )
 
-            logger.info(f"Result: {self.carbon_daemon_result.dict_resource_result}")
+                logger.info(f"Result: {self.carbon_daemon_result.dict_resource_result}")
+            else:
+                error_msg = "Carmen Daemon not excuted, no processor fournd."
+                logger.warn(error_msg)
+                self.update_carbon_daemon_result(
+                    success=False,
+                    start_time=start_time,
+                    list_exceptions=[CarmenException(ErrorCode.CONFIG_NO_PROCESSOR, error_msg)],
+                    dict_resource_results=None,
+                )
+
             return self.carbon_daemon_result
 
         except CarmenException as e:
@@ -569,7 +589,7 @@ def main() -> None:
         result = daemon.orchestrate_carbon_daemon()
 
         if not result.success:
-            logger.error("Daemon execution failed: %s", result.error_message)
+            logger.error(f"Daemon execution failed: {result.list_exceptions}")
             exit(1)
 
         logger.info("Daemon execution completed successfully.")

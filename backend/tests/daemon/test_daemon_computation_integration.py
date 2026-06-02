@@ -9,6 +9,8 @@ computed by the functions in the module computation_helpers.py
 import sys
 import os
 import csv
+import logging
+
 from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
 import pytest
@@ -16,6 +18,7 @@ import unittest
 from backend.tests.daemon import mock_data
 from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
 from backend.src.daemon.processors.processor_compute import Processor_Compute
+from backend.src.common.errors import ErrorCode
 
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import ResourceType
@@ -36,6 +39,8 @@ from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonResult,
     CarbonDaemonOrchestrator,
 )
+
+logger = logging.getLogger(__name__)
 
 # TODO: put in configuration
 PUE_AZURE = 1.185
@@ -212,6 +217,8 @@ def mock_daemon_config() -> MagicMock:
     """
     config = MagicMock()
     config.source = MagicMock()
+    config.source.input_path = ""
+    logger.warning(f"output_path: {TEST_REPORT_DIR}")
     config.output.output_path = TEST_REPORT_DIR
     return config
 
@@ -368,8 +375,8 @@ def test_daemon_computation_integration(
 
         mock_writer_factory.create_writer.side_effect = capture_vms
 
-        daemon = CarbonDaemon(mock_daemon_config)
-        result = daemon.run()
+        daemon = CarbonDaemonOrchestrator(mock_daemon_config)
+        result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True
         assert result.vm_count == 1

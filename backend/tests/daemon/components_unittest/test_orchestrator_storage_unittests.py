@@ -77,6 +77,9 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
+        self.mock_config.source = MagicMock()
+        self.mock_config.source.input_path = "etc/sample_data/test_data/storage_test.csv"
+        logger.warning(f"input_path: {self.mock_config.source.input_path}")
 
     @patch("backend.src.utils.ioc_util.resolve")
     # @patch("backend.src.daemon.carbon_daemon.register_models")
