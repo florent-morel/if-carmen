@@ -123,8 +123,8 @@ class CarbonDaemonOrchestrator:
                 # TODO: Implement support for list
                 self.list_input_file = []
                 # TODO: read from config file
-                logger.warning(f"input_path: {self.config.source.input_path}")
-                input_path = os.path(self.config.source.input_path)
+                # logger.warning(f"input_path: {self.config.source.input_path}")
+                input_path = self.config.source.input_path
                 logger.info(f"input_path: {input_path}")
                 self.list_input_file.append(input_path)
 
@@ -170,7 +170,7 @@ class CarbonDaemonOrchestrator:
 
                 logger.info(f"Result: {self.carbon_daemon_result.dict_resource_result}")
             else:
-                error_msg = "Carmen Daemon not excuted, no processor fournd."
+                error_msg = "Carmen Daemon not excuted, no processor found."
                 logger.warn(error_msg)
                 self.update_carbon_daemon_result(
                     success=False,
