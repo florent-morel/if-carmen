@@ -10,6 +10,17 @@ from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
+from backend.src.common.constants import (
+    SOURCE_PROVIDER,
+    SOURCE_RESOURCE_ID,
+    SOURCE_SUBSCRIPTION_ID,
+    SOURCE_REGION,
+    SOURCE_BILLING_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_DATE,
+    DATE_FORMAT,
+    UNKNOWN,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,22 +57,22 @@ def create_misc_services_resource(row):
     Creates a misc_services resource from the given row
     """
     logger.debug(f"Inside create misc_services_resource row: {row}")
-    region = row.get("Region", "unknown")
+    region = row.get(SOURCE_REGION, UNKNOWN)
     logger.debug(f"region: {region}")
-    id = row.get("ResourceId")
+    id = row.get(SOURCE_RESOURCE_ID)
     misc_services_resource = None
     if id:
         misc_services_resource = MiscServicesResource(
-            name=row.get("ProductName", ""),
+            name=row.get(SOURCE_PRODUCT_NAME, ""),
             id=id,
-            provider=row.get("Provider", ""),
+            provider=row.get(SOURCE_PROVIDER, ""),
             region=region,
-            subscription=row.get("SubscriptionId", "unknown"),
+            subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
             carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-            misc_services_cost=str_to_float(row.get("BillingCost", "0")),
+            misc_services_cost=str_to_float(row.get(SOURCE_BILLING_COST, "0")),
         )
         timestamp = row.get(
-            "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+            SOURCE_DATE, (datetime.now() - timedelta(days=2)).strftime(DATE_FORMAT)
         )
         misc_services_resource.time_points = [timestamp]
     return misc_services_resource

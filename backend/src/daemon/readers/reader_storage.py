@@ -3,23 +3,21 @@ Storage module for reading and processing compute resource data.
 """
 
 import csv
-import os
 import logging
 
 from pydantic import ValidationError
 from datetime import datetime
-from backend.src.utils.helpers import str_to_float
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
-from backend.src.schemas.resource import Resource
-from backend.src.core.yaml_config_loader import DaemonConfig, config
+from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.daemon.readers.helpers.storage_helpers import _process_storage_row
+from backend.src.core.yaml_config_loader import config
 from backend.src.daemon.readers.helpers.storage_helpers import (
     date_delta,
     create_storage_resource,
     get_storage_type,
     get_replication_type,
     calculate_storage_size,
-    _process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.common.constants import (
@@ -84,14 +82,14 @@ class Reader_Storage(AbstractReader):
         Returns:
             bool: True if valid storage was processed, False otherwise
         """
-        logger.info(f"row: {row}")
+        logger.info(f"Processing row: {row}")
         provider = row.get(SOURCE_PROVIDER, "")
         provider_config = config.provider_configs.get(provider or "")
         disk_sku_mapping = (
             provider_config.get_disk_sku_size_mapping() if provider_config else None
         ) or {}
         return _process_storage_row(
-            self, row, billing_period_days, storage_dict, disk_sku_mapping
+            row, billing_period_days, storage_dict, disk_sku_mapping
         )
 
     def process_csv_data(
@@ -126,6 +124,8 @@ class Reader_Storage(AbstractReader):
         period_days = date_delta(csv_data)
 
         logger.info("Processing CSV...")
+        logger.info(f"List of mandatory columns for resource type "
+                    f"{ResourceType.STORAGE}: {StorageResource.mandatory_columns()}")
         logger.info(f"csv_data: {csv_data}")
 
         for row in csv_reader:
@@ -195,61 +195,3 @@ class Reader_Storage(AbstractReader):
 
         logger.info("Local Reader processing finished successfully"
                     " for resource type storage.")
-
-    def _process_storage_row(
-        self,
-        row: dict,
-        billing_period_days: int,
-        storage_dict: dict[str, StorageResource],
-        disk_sku_mapping: dict | None = None,
-    ) -> bool:
-        """
-        Process a single CSV row and add storage resource to storage_dict.
-        Returns True if a valid storage resource was processed.
-
-        Args:
-            row: CSV row data
-            billing_period_days: Billing period in days
-            storage_dict: Dictionary to store storage resources
-            disk_sku_mapping: SKU -> size mapping (from provider config)
-
-        Returns:
-            bool: True if valid storage was processed, False otherwise
-        """
-        if disk_sku_mapping is None:
-            disk_sku_mapping = {}
-
-        size_gb, duration_seconds = calculate_storage_size(
-            row, billing_period_days, disk_sku_mapping
-        )
-
-        if size_gb <= 0 or duration_seconds <= 0:
-            return False
-
-        storage_id = row.get(SOURCE_RESOURCE_ID, "")
-        if not storage_id:
-            logger.error("No ResourceID found for %s", row.get(SOURCE_RESOURCE_ID, ""))
-            return False
-
-        storage_type = get_storage_type(row)
-        replication_type = get_replication_type(row)
-
-        if size_gb > 32767:
-            logger.warning("Unusually large disk: %sGB for %s", size_gb, storage_id)
-
-        if storage_id not in storage_dict:
-            storage_dict[storage_id] = create_storage_resource(
-                row, storage_id, size_gb, storage_type, replication_type, duration_seconds
-            )
-
-        timestamp = row.get(SOURCE_DATE, datetime.now().strftime(DATE_FORMAT))
-        storage_dict[storage_id].time_points.append(timestamp)
-
-        region = row.get(SOURCE_REGION, UNKNOWN)
-        if not region or region == UNKNOWN:
-            logger.warning("Missing region for %s", storage_id)
-
-        # End of row process, fetch custom columns
-        self.process_custom_columns(storage_dict[storage_id], row)
-
-        return True

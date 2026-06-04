@@ -7,30 +7,17 @@ import logging
 
 from pydantic import ValidationError
 
-from backend.src.core.yaml_config_loader import DaemonConfig, config
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.readers.helpers.daemon_helpers import create_vm
 from backend.src.schemas.virtual_machine import VirtualMachine
-from backend.src.schemas.resource import Resource
 from backend.src.utils.helpers import str_to_float
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
-    SOURCE_RESOURCE_GROUP,
-    SOURCE_SUBSCRIPTION_ID,
     SOURCE_REGION,
     SOURCE_AVG_CPU_PERCENTAGE,
-    SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
-    SOURCE_PRODUCT_NAME,
-    SOURCE_METER_NAME,
-    SOURCE_QUANTITY,
-    SOURCE_UNIT_OF_MEASURE,
-    SOURCE_DATE,
     SOURCE_TIME,
-    DATE_FORMAT,
     SOURCE_DISK_SIZE_GB,
-    UNKNOWN,
 )
 
 logger = logging.getLogger(__name__)

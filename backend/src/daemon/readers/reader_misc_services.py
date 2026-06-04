@@ -3,31 +3,24 @@ Storage module for reading and processing compute resource data.
 """
 
 import csv
-import os
 import logging
-from datetime import datetime, timedelta
 
-from pydantic import ValidationError
-from backend.src.common.errors import ErrorCode
+
 from backend.src.common.carmen_exception import CarmenException
-
+from backend.src.common.constants import (
+    SOURCE_COMPUTE,
+    SOURCE_CONSUMED_SERVICE,
+    SOURCE_PROVIDER,
+    SOURCE_REGION,
+    SOURCE_STORAGE,
+)
+from backend.src.common.errors import ErrorCode
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.readers.helpers.misc_services_helpers import (
     create_misc_services_resource,
 )
-from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
-from backend.src.core.yaml_config_loader import DaemonConfig
-from backend.src.utils.helpers import str_to_float
-from backend.src.utils.paas_ci_mapper import PaasCiMapper
-from backend.src.schemas.storage_resource import StorageResource
-from backend.src.common.constants import (
-    SOURCE_REGION,
-    SOURCE_PROVIDER,
-    SOURCE_COMPUTE,
-    SOURCE_STORAGE,
-    SOURCE_CONSUMED_SERVICE,
-)
+from backend.src.schemas.resource import Resource
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +95,8 @@ class Reader_Misc_Services(AbstractReader):
                     continue
                 misc_services_resources.append(misc_services_resource)
             # End of row process, fetch custom columns
-            self.process_custom_columns(misc_services_resource, row)
+            self.process_custom_columns(misc_services_resource, row,
+                                        MiscServicesResource.mandatory_columns())
         logger.info("Misc services CSV processed")
         return misc_services_resources
 
