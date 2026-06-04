@@ -101,6 +101,8 @@ class Reader_Compute(AbstractReader):
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
                 vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_DISK_SIZE_GB]))
+                # End of row process, fetch custom columns
+                self.process_custom_columns(vm_dict[vm_id], row)
             except ValidationError:
                 logger.exception("Validation error for VM %s", vm_id)
                 raise

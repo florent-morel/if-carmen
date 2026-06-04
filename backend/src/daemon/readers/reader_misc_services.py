@@ -101,6 +101,8 @@ class Reader_Misc_Services(AbstractReader):
                 if not misc_services_resource or misc_services_resource.id == "":
                     continue
                 misc_services_resources.append(misc_services_resource)
+            # End of row process, fetch custom columns
+            self.process_custom_columns(misc_services_resource, row)
         logger.info("Misc services CSV processed")
         return misc_services_resources
 

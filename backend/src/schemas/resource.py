@@ -54,3 +54,6 @@ class Resource(ABC, BaseModel):
     total_carbon_operational: float = 0.0
     total_carbon_embodied: float = 0.0
     total_carbon_emitted: float = 0.0
+
+    # Dynamic columns dictionary
+    dict_custom_columns: dict[str, str] = dict
