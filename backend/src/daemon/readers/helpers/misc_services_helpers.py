@@ -58,7 +58,7 @@ def create_misc_services_resource(row):
     """
     logger.debug(f"Inside create misc_services_resource row: {row}")
     region = row.get(SOURCE_REGION, UNKNOWN)
-    logger.debug(f"region: {region}")
+    logger.debug(f"{SOURCE_REGION}: {region}")
     id = row.get(SOURCE_RESOURCE_ID)
     misc_services_resource = None
     if id:

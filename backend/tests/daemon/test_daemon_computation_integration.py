@@ -52,6 +52,8 @@ project_root = os.path.abspath(
 sys.path.insert(0, project_root)
 
 # TODO: put in configuration
+# Set up input directory for tests
+TEST_INPUT_DIR = os.path.abspath("etc/sample_data/test_data")
 # Set up report directory for tests
 TEST_REPORT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "report"))
 os.makedirs(TEST_REPORT_DIR, exist_ok=True)
@@ -217,7 +219,7 @@ def mock_daemon_config() -> MagicMock:
     """
     config = MagicMock()
     config.source = MagicMock()
-    config.source.input_path = ""
+    config.source.input_path = TEST_INPUT_DIR
     logger.warning(f"output_path: {TEST_REPORT_DIR}")
     config.output.output_path = TEST_REPORT_DIR
     return config

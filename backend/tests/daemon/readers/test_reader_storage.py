@@ -14,21 +14,7 @@ from backend.src.common.constants import (
     CSV_PATH,
     CSV_FILE_TEST,
     CSV_FILE_ENCODING,
-    SOURCE_PROVIDER,
     HOURLY_INTERVAL_SECONDS,
-    SOURCE_RESOURCE_ID,
-    SOURCE_RESOURCE_GROUP,
-    SOURCE_SUBSCRIPTION_ID,
-    SOURCE_REGION,
-    SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
-    SOURCE_PRODUCT_NAME,
-    SOURCE_METER_NAME,
-    SOURCE_QUANTITY,
-    SOURCE_UNIT_OF_MEASURE,
-    SOURCE_DATE,
-    DATE_FORMAT,
-    UNKNOWN,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.resource import ResourceType
@@ -72,6 +58,7 @@ def _make_row(
     )
 
 
+# TODO: Need to test custom columns
 class TestReaderStorage(unittest.TestCase):
     """
     Unit test class for the CarbonDaemon class and related to storage

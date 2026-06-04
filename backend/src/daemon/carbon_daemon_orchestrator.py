@@ -128,6 +128,7 @@ class CarbonDaemonOrchestrator:
                 logger.info(f"input_path: {input_path}")
                 self.list_input_file.append(input_path)
 
+                logger.info(f"output_path: {self.config.output.output_path}")
                 self.output_file: str = os.path.join(
                     str(self.config.output.output_path), f"CO2_{self.date}.csv"
                 )

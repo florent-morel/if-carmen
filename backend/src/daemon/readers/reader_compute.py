@@ -11,6 +11,10 @@ from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.readers.helpers.daemon_helpers import create_vm
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
+from backend.src.utils.helpers import (
+    process_custom_columns,
+)
+
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
@@ -104,7 +108,7 @@ class Reader_Compute(AbstractReader):
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
                 vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_DISK_SIZE_GB]))
                 # End of row process, fetch custom columns
-                self.process_custom_columns(vm_dict[vm_id], row)
+                process_custom_columns(vm_dict[vm_id], row)
             except ValidationError:
                 logger.exception("Validation error for VM %s", vm_id)
                 excluded_rows += 1

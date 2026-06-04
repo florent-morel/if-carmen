@@ -16,6 +16,10 @@ from backend.src.common.constants import (
 )
 from backend.src.common.errors import ErrorCode
 from backend.src.daemon.readers.abstract_reader import AbstractReader
+from backend.src.utils.helpers import (
+    process_custom_columns,
+)
+
 from backend.src.daemon.readers.helpers.misc_services_helpers import (
     create_misc_services_resource,
 )
@@ -110,7 +114,7 @@ class Reader_Misc_Services(AbstractReader):
             misc_services_resources.append(misc_services_resource)
             misc_services_rows += 1
             # End of row process, fetch custom columns
-            self.process_custom_columns(misc_services_resource, row,
+            process_custom_columns(misc_services_resource, row,
                                         MiscServicesResource.mandatory_columns())
 
         self.dict_log_info["total_rows"] = total_rows
