@@ -67,4 +67,5 @@ class AbstractWriter(ABC):
             ReportConfig.COMMON_CARBON_INTENSITY: resource.carbon_intensity,
             ReportConfig.COMMON_COST: resource.cost,
         }
+        # TODO: Implement custom columns
         return row
