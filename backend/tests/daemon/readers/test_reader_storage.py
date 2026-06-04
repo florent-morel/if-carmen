@@ -14,7 +14,6 @@ from backend.tests.daemon import mock_data
 from backend.src.common.constants import (
     CSV_PATH,
     CSV_FILE_ENCODING,
-    SOURCE_PROVIDER,
     HOURLY_INTERVAL_SECONDS,
     SOURCE_RESOURCE_ID,
     SOURCE_PROVIDER,
