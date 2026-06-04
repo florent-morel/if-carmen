@@ -75,3 +75,32 @@ class MetricsMapper:
                 if attribute_mapping["aggregated"]:
                     aggregated_value = metrics[metric_key]["aggregated"]
                     setattr(resource, attribute_mapping["aggregated"], aggregated_value)
+
+        # Derive total_carbon_emitted from operational + embodied when not set directly
+        # (e.g. misc_services IF output provides carbon-operational and carbon-embodied but not carbon)
+        if resource.total_carbon_emitted == 0.0 and (
+            resource.total_carbon_operational > 0 or resource.total_carbon_embodied > 0
+        ):
+            resource.total_carbon_emitted = round(
+                resource.total_carbon_operational + resource.total_carbon_embodied, 4
+            )
+
+        # Guard against pipelines that do not emit a direct per-observation total carbon series. 
+        # Reconstruct it here so the rest of the code can rely on carbon_emitted being populated.
+        if not resource.carbon_emitted and (
+            resource.carbon_operational or resource.carbon_embodied
+        ):
+            # The two component lists can differ in length. Iterate over the
+            # longest one and treat any missing value on the shorter side as 0.0.
+            observation_count = max(
+                len(resource.carbon_operational), len(resource.carbon_embodied)
+            )
+            resource.carbon_emitted = [
+                # For each observation index, total carbon is operational + embodied.
+                round(
+                    (resource.carbon_operational[index] if index < len(resource.carbon_operational) else 0.0)
+                    + (resource.carbon_embodied[index] if index < len(resource.carbon_embodied) else 0.0),
+                    4,
+                )
+                for index in range(observation_count)
+            ]

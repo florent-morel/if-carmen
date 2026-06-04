@@ -83,20 +83,42 @@ class Reader_Misc_Services(AbstractReader):
         logger.info("Processing Misc services CSV...")
         misc_services_resources: list[MiscServicesResource] = []
         logger.debug(f"csv_data: {csv_data}")
+
+        total_rows = 0
+        compute_rows = 0
+        storage_rows = 0
+        skipped_rows = 0
+        misc_services_rows = 0
+
         for row in csv_reader:
+            total_rows += 1
             logger.debug(f"row: {row}")
             self.process_unknown_regions(row[SOURCE_REGION])
             self.process_unknown_providers(row[SOURCE_PROVIDER])
 
             consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "").lower()
-            if consumed_service not in (SOURCE_COMPUTE, SOURCE_STORAGE):
-                misc_services_resource = create_misc_services_resource(row)
-                if not misc_services_resource or misc_services_resource.id == "":
-                    continue
-                misc_services_resources.append(misc_services_resource)
+            if consumed_service == SOURCE_COMPUTE.lower():
+                compute_rows += 1
+                continue
+            if consumed_service == SOURCE_STORAGE.lower():
+                storage_rows += 1
+                continue
+            misc_services_resource = create_misc_services_resource(row)
+            if not misc_services_resource or misc_services_resource.id == "":
+                skipped_rows += 1
+                continue
+            misc_services_resources.append(misc_services_resource)
+            misc_services_rows += 1
             # End of row process, fetch custom columns
             self.process_custom_columns(misc_services_resource, row,
                                         MiscServicesResource.mandatory_columns())
+
+        self.dict_log_info["total_rows"] = total_rows
+        self.dict_log_info["compute_rows"] = compute_rows
+        self.dict_log_info["storage_rows"] = storage_rows
+        self.dict_log_info["skipped_rows"] = skipped_rows
+        self.dict_log_info["misc_services_rows"] = misc_services_rows
+
         logger.info("Misc services CSV processed")
         return misc_services_resources
 
@@ -108,6 +130,13 @@ class Reader_Misc_Services(AbstractReader):
             "Processing completed found %d misc services resources",
             len(self.list_resources_to_process),
         )
+
+        logger.debug("Misc services processing summary:")
+        logger.debug("  Total rows: %s", self.dict_log_info.get("total_rows", 0))
+        logger.debug("  Compute rows (excluded): %s", self.dict_log_info.get("compute_rows", 0))
+        logger.debug("  Storage rows (excluded): %s", self.dict_log_info.get("storage_rows", 0))
+        logger.debug("  Skipped rows (no id): %s", self.dict_log_info.get("skipped_rows", 0))
+        logger.debug("  Misc services rows: %s", self.dict_log_info.get("misc_services_rows", 0))
 
         self.log_unknown_info()
 

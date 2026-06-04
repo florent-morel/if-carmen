@@ -74,7 +74,19 @@ class Reader_Compute(AbstractReader):
         if len(rows) == 1:
             return False
         csv_reader = csv.DictReader(rows)
+
+        total_rows = 0
+        new_vm_rows = 0
+        duplicate_rows = 0
+        skipped_rows = 0
+        excluded_rows = 0
+
         for row in csv_reader:
+            total_rows += 1
+            consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "")
+            if consumed_service.lower() != SOURCE_COMPUTE.lower():
+                skipped_rows += 1
+                continue
             vm_id = row[SOURCE_RESOURCE_ID]
             try:
                 if vm_id not in vm_dict:
@@ -82,6 +94,9 @@ class Reader_Compute(AbstractReader):
                     self.process_unknown_providers(row[SOURCE_PROVIDER])
                     new_vm = create_vm(row, vm_id)
                     vm_dict[vm_id] = new_vm
+                    new_vm_rows += 1
+                else:
+                    duplicate_rows += 1
 
                 vm_dict[vm_id].cpu_util.append(
                     str_to_float(row[SOURCE_AVG_CPU_PERCENTAGE]) / 100
@@ -92,7 +107,14 @@ class Reader_Compute(AbstractReader):
                 self.process_custom_columns(vm_dict[vm_id], row)
             except ValidationError:
                 logger.exception("Validation error for VM %s", vm_id)
+                excluded_rows += 1
                 raise
+
+        self.dict_log_info["total_rows"] = total_rows
+        self.dict_log_info["new_vm_rows"] = new_vm_rows
+        self.dict_log_info["duplicate_rows"] = duplicate_rows
+        self.dict_log_info["skipped_rows"] = skipped_rows
+        self.dict_log_info["excluded_rows"] = excluded_rows
 
         return True
 
@@ -102,6 +124,12 @@ class Reader_Compute(AbstractReader):
         """
         logger.info("Processing completed found %d compute resources",
                     len(self.list_resources_to_process))
+
+        logger.debug("Compute processing summary:")
+        logger.debug("  Total rows: %s", self.dict_log_info.get("total_rows", 0))
+        logger.debug("  New VM rows: %s", self.dict_log_info.get("new_vm_rows", 0))
+        logger.debug("  Duplicate rows (time-series): %s", self.dict_log_info.get("duplicate_rows", 0))
+        logger.debug("  Excluded rows: %s", self.dict_log_info.get("excluded_rows", 0))
 
         self.log_unknown_info()
 

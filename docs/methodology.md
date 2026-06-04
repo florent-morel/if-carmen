@@ -6,7 +6,11 @@ We chose the Impact Framework for several key reasons:
 - Second, the framework relies entirely on a manifest-based execution model, ensuring that all calculations are transparent, reproducible, and verifiable, any user can rerun the manifest to validate results and inspect the exact models used.
 - Finally, the Impact Framework provides a flexible plugin architecture, enabling us to easily integrate and reuse community-maintained models, while also extending the system with our own. This combination of transparency, extensibility, and methodological rigor makes it a strong foundation for Carmen.
 
-One can find the existing pipelines used by Carmen in backend/src/services/carbon_service/impact_framework/files
+The IF pipeline definitions used by Carmen are in:
+- [etc/impact_framework/templates/infrastructure_pipeline.yml](etc/impact_framework/templates/infrastructure_pipeline.yml)
+- [etc/impact_framework/templates/app_pipeline.yml](etc/impact_framework/templates/app_pipeline.yml)
+- [etc/impact_framework/templates/storage_pipeline.yml](etc/impact_framework/templates/storage_pipeline.yml)
+- [etc/impact_framework/templates/misc_services_pipeline.yml](etc/impact_framework/templates/misc_services_pipeline.yml)
 
 ## Infrastructure Pipeline
 The infrastructure pipeline is used by both the Carbon Daemon and the Run Hardware endpoint of Carmen's API to calculate the Software Carbon Intensity (SCI) for virtual machine workloads. It processes resource usage data, hardware specifications, and sustainability parameters to generate accurate energy and carbon impact metrics for VM infrastructure. This methodology is inspired by the Cloud Carbon Footprint (CCF) approach, with some adaptations.
@@ -98,6 +102,8 @@ carbon-operational (gCO2e) = energy_adjusted (kWh) × grid_carbon_intensity (gCO
 ### Embodied Carbon Emissions - Compute
 
 Embodied emissions represent the carbon cost of manufacturing, transporting, and disposing of hardware. The sci-m-cpu component calculates embodied emissions for compute resources using lifecycle analysis. This formula allocates a portion of the server's total embodied emissions to your specific workload based on how many vCPUs you use, for how long, and what fraction of the server's lifetime your usage represents. The total embodied emissions typically include manufacturing emissions, transportation, and end-of-life disposal.
+
+The default `device/emissions-embodied` value (`1,999,999 mgCO2e`) is a **configurable fleet average** — set in [`carbon_values.yaml`](../etc/config/modelling_constants/carbon_values.yaml) under `default_device_emissions_embodied`. It represents the average total embodied emissions across a representative server fleet and should be updated to reflect the hardware profile of your own inventory. In the future it will be retrieved per instance type from a provider-specific instance database (e.g., `*_instances.csv`).
 
 **Equation:**
 ```
@@ -366,7 +372,7 @@ initialize:
 tree:
   defaults:
     memory/utilization: 100
-    device/emissions-embodied: 1672000
+    device/emissions-embodied: 1999999
     device/expected-lifespan: 126230400
     storage/embodied-coefficient: 90
     duration: 3600
@@ -569,7 +575,7 @@ initialize:
 tree:
   defaults:
     memory/utilization: 100
-    device/emissions-embodied: 1672000
+    device/emissions-embodied: 1999999
     cpu/thermal-design-power: 3.67
     device/expected-lifespan: 126230400
     storage/energy: 0
@@ -591,11 +597,113 @@ tree:
 
 ## Storage Pipeline
 
-The Storage pipeline is used by the Carbon Daemon and the Run Hardware endpoint of Carmen's API to calculate the Software Carbon Intensity (SCI) for virtual machine workloads. It processes resource usage data, hardware specifications, and sustainability parameters to generate accurate energy and carbon impact metrics for VM infrastructure. This methodology is inspired by the Cloud Carbon Footprint (CCF) approach, with some adaptations.
+The storage pipeline computes energy, operational carbon, and embodied carbon for storage resources.
+It is driven by [IFStorageService](backend/src/services/carbon_service/impact_framework/service/if_storage_service.py),
+which binds the models [PStorage](backend/src/services/carbon_service/impact_framework/models/power/p_storage.py),
+[EStorage](backend/src/services/carbon_service/impact_framework/models/energy/e_storage.py),
+and [MStorage](backend/src/services/carbon_service/impact_framework/models/carbon/m_storage.py)
+into [storage_template.yml.j2](etc/impact_framework/templates/storage_template.yml.j2)
+and [storage_pipeline.yml](etc/impact_framework/templates/storage_pipeline.yml).
+
+### Storage input normalization
+
+Before computation, storage size is adjusted by replication factor:
+
+```
+effective_storage_gb = size_gb * replication_factor
+```
+
+- `replication_factor` is read from provider config when available.
+- If provider config is missing or does not define the replication type, fallback is `1`.
+
+### Storage power and energy
+
+Storage power is computed from effective size and storage-type coefficient:
+
+```
+storage/power (kW) = effective_storage_gb * power_coefficient (kW/GB)
+```
+
+Energy over the period:
+
+```
+storage/energy (kWh) = storage/power (kW) * duration_seconds / 3600
+```
+
+### Storage operational carbon
+
+Operational carbon uses per-resource grid intensity:
+
+```
+carbon-operational (gCO2e) = storage/energy (kWh) * grid/carbon-intensity (gCO2e/kWh)
+```
+
+### Storage embodied carbon
+
+Embodied carbon is prorated over device lifespan (4 years = 126230400 seconds):
+
+```
+carbon-embodied (gCO2e) = effective_storage_gb
+                 * storage_embodied_coefficient (gCO2e/GB)
+                 * duration_seconds
+                 / 126230400
+```
+
+### Validation helper references
+
+The expected-value helper formulas are implemented in:
+- [compute_storage_energy_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_storage_operational_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_storage_embodied_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
 
 
 ## Services Pipeline
 
-The services pipeline is used when calling the Run Engine endpoint of Carmen's API. 
-It differs slightly from the infrastructure pipeline in that it focuses on application-level resource usage rather than the full VM footprint. CPU power is calculated based on an interpolated utilization ratio from the Teads curve, and is scaled down according to the number of cores actually reserved for the application.
-```yaml
+The misc-services pipeline estimates impact for cloud spend that is not directly attributable
+to VM or storage rows. It is wired by [IFMiscServicesService](backend/src/services/carbon_service/impact_framework/service/if_misc_services_service.py)
+using [MiscServicesModel](backend/src/services/carbon_service/impact_framework/models/carbon/misc_services.py),
+which delegates computation to the plugin implementation in
+[misc-services-model-plugin](misc-services-model-plugin/src/lib/misc-services-model-plugin/index.ts).
+
+### Input dependencies
+
+For each misc-services resource, the model consumes:
+- compute totals: `compute-energy`, `compute-embodied`, `compute-cost`
+- storage totals: `storage-energy`, `storage-embodied`, `storage-cost`
+- misc-services own cost: `misc-services-cost`
+- location intensity: `carbon-intensity`
+
+These compute and storage totals are injected upstream by orchestrator hydration before
+misc-services runner execution.
+
+### Misc-services formulas
+
+The plugin computes energy and carbon using weighted cost-intensity factors.
+Current weighting is 75% compute and 25% storage:
+
+```
+misc-services-energy = misc_services_cost
+                * (0.75 * (compute_energy / compute_cost)
+                  + 0.25 * (storage_energy / storage_cost))
+```
+
+```
+misc-services-operational = misc-services-energy * carbon-intensity
+```
+
+```
+misc-services-embodied = misc_services_cost
+                 * (0.75 * (compute_embodied / compute_cost)
+                   + 0.25 * (storage_embodied / storage_cost))
+```
+
+### Validation helper references
+
+The corresponding helper implementations are in:
+- [compute_services_energy_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_services_operational_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_services_embodied_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+
+The IF pipeline and template are:
+- [misc_services_pipeline.yml](etc/impact_framework/templates/misc_services_pipeline.yml)
+- [misc_services_template.yml.j2](etc/impact_framework/templates/misc_services_template.yml.j2)

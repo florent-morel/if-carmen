@@ -271,7 +271,6 @@ def _process_storage_row(
     """
     if disk_sku_mapping is None:
         disk_sku_mapping = {}
-
     size_gb, duration_seconds = calculate_storage_size(
         row, billing_period_days, disk_sku_mapping
     )

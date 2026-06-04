@@ -184,10 +184,8 @@ carmen_daemon:
 
 ```
 
-TODO: carbon-daemon does not exist anymore in example-data.
-To run the example, navigate to the `example-data/` directory and execute the following command:
+To run the example, navigate to the project root and execute the orchestrator module entrypoint:
 
 ```bash
-cd example-data/
-carbon-daemon
+uv run python -m backend.src.daemon.carbon_daemon_orchestrator
 ```

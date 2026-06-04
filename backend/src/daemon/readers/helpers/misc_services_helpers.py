@@ -69,6 +69,7 @@ def create_misc_services_resource(row):
             region=region,
             subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
             carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
+            # TODO: change misc_services_cost to billing_cost
             misc_services_cost=str_to_float(row.get(SOURCE_BILLING_COST, "0")),
         )
         timestamp = row.get(
