@@ -60,11 +60,12 @@ class AbstractWriter(ABC):
             ReportConfig.COMMON_NAME: resource.name,
             ReportConfig.COMMON_PROVIDER: resource.provider,
             ReportConfig.COMMON_REGION: resource.region,
-            ReportConfig.COMMON_SUBSCRIPTION: resource.subscription,
+            # ReportConfig.COMMON_SUBSCRIPTION: resource.subscription,
             ReportConfig.COMMON_ENERGY: resource.total_energy_consumed,
             ReportConfig.COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
             ReportConfig.COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
             ReportConfig.COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
             ReportConfig.COMMON_CARBON_INTENSITY: resource.carbon_intensity,
         }
+        # TODO: Implement custom columns
         return row

@@ -15,6 +15,15 @@ from backend.src.common.constants import (
     CSV_FILE_TEST,
     CSV_FILE_ENCODING,
     HOURLY_INTERVAL_SECONDS,
+    SOURCE_RESOURCE_ID,
+    SOURCE_PROVIDER,
+    SOURCE_REGION,
+    SOURCE_METER_CATEGORY,
+    SOURCE_BILLING_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_METER_NAME,
+    SOURCE_QUANTITY,
+    SOURCE_UNIT_OF_MEASURE,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.resource import ResourceType

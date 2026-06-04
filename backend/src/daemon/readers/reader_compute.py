@@ -22,6 +22,8 @@ from backend.src.common.constants import (
     SOURCE_AVG_CPU_PERCENTAGE,
     SOURCE_TIME,
     SOURCE_DISK_SIZE_GB,
+    SOURCE_CONSUMED_SERVICE,
+    SOURCE_COMPUTE,
 )
 
 logger = logging.getLogger(__name__)
@@ -89,6 +91,7 @@ class Reader_Compute(AbstractReader):
             total_rows += 1
             consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "")
             if consumed_service.lower() != SOURCE_COMPUTE.lower():
+                # TODO: Diagnostic log
                 skipped_rows += 1
                 continue
             vm_id = row[SOURCE_RESOURCE_ID]
@@ -100,6 +103,7 @@ class Reader_Compute(AbstractReader):
                     vm_dict[vm_id] = new_vm
                     new_vm_rows += 1
                 else:
+                    # TODO: Diagnostic log
                     duplicate_rows += 1
 
                 vm_dict[vm_id].cpu_util.append(
@@ -108,7 +112,7 @@ class Reader_Compute(AbstractReader):
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
                 vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_DISK_SIZE_GB]))
                 # End of row process, fetch custom columns
-                process_custom_columns(vm_dict[vm_id], row)
+                process_custom_columns(vm_dict[vm_id], row, VirtualMachine.mandatory_columns())
             except ValidationError:
                 logger.exception("Validation error for VM %s", vm_id)
                 excluded_rows += 1

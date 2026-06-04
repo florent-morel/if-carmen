@@ -127,6 +127,7 @@ TODO: review this.
 ## Report File
 
 TODO: review this.
+TODO: Add the expected unit when applicable.
 
 The Carmen Daemon generates a detailed carbon emissions report in CSV format with the following fields:
 

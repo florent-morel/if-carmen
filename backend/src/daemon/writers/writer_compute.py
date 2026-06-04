@@ -20,11 +20,11 @@ class Writer_Compute(AbstractWriter):
 
             # VM specific columns
             row[ReportConfig.COMPUTE_VM_SIZE] = resource.vm_size
-            row[ReportConfig.COMPUTE_SERVICE] = resource.service
+            # row[ReportConfig.COMPUTE_SERVICE] = resource.service
             row[ReportConfig.COMPUTE_INSTANCE] = resource.instance
-            row[ReportConfig.COMPUTE_ENVIRONMENT] = resource.environment
-            row[ReportConfig.COMPUTE_PARTITION] = resource.partition
-            row[ReportConfig.COMPUTE_COMPONENT] = resource.component
+            # row[ReportConfig.COMPUTE_ENVIRONMENT] = resource.environment
+            # row[ReportConfig.COMPUTE_PARTITION] = resource.partition
+            # row[ReportConfig.COMPUTE_COMPONENT] = resource.component
 
             self.writer.writerow(row)
 

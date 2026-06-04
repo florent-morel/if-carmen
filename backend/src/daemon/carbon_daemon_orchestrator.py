@@ -120,7 +120,7 @@ class CarbonDaemonOrchestrator:
                 register_models()
 
                 self.date: str = self.get_execution_date()
-                # TODO: Implement support for list
+                # TODO: Implement support for list of source files to compute
                 self.list_input_file = []
                 # TODO: read from config file
                 # logger.warning(f"input_path: {self.config.source.input_path}")
@@ -229,10 +229,10 @@ class CarbonDaemonOrchestrator:
                     try:
                         csv_data = ""
                         if os.path.exists(input_file):
+                            logger.info(f"Data source reading from {input_file}")
                             with open(
                                 input_file, "r", encoding=CSV_FILE_ENCODING
                             ) as file:
-                                logger.info(f"Data source reading from {input_file}")
                                 csv_data = file.read()
 
                         for abstract_processor in self.list_resource_processors:

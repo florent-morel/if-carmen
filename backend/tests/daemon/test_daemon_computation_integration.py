@@ -245,7 +245,7 @@ def test_carbon_daemon_with_sample_data(
     # Component,Environment,Partition,Provider,Tags
 
     sample_vms = mock_data.read_sample_vm_data(
-        {"ppt": ["usage_2025-06-01_00.csv"] * 24}, ""
+        {"ppt": ["usage_2025-06-01_00.csv"] * 24}, "", mock_daemon_config
     )
 
     with (
@@ -280,6 +280,7 @@ def test_carbon_daemon_with_sample_data(
             mock_daemon_config,
             list_resource_processors=[Processor_Compute(mock_daemon_config)],
         )
+        # TODO: Test will fail as support for multiple data source files not implemented
         result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True

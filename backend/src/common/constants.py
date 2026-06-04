@@ -58,6 +58,7 @@ SOURCE_METER_NAME = "MeterName"
 SOURCE_PARTITION = "Partition"
 SOURCE_DATE = "Date"
 SOURCE_TIME = "Time"
+# TODO: Rename as it is disk size
 SOURCE_QUANTITY = "Quantity"
 SOURCE_UNIT_OF_MEASURE = "UnitOfMeasure"
 SOURCE_AVG_CPU_PERCENTAGE = "AverageCpuPercentage"
