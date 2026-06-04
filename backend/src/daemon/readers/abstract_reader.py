@@ -97,3 +97,11 @@ class AbstractReader(ABC):
                 provider,
                 count,
             )
+
+    def process_custom_columns(self, resource: Resource, row: dict) -> None:
+        """
+        Process custom columns from input file.
+        """
+        for column_name, column_value in row.items():
+            if column_name:
+                resource.dict_custom_columns[column_name] = column_value
