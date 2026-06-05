@@ -26,7 +26,7 @@ class SciMcpu(ModelUtilities):
         """
         Fills the sci-m-cpu input val. from the pod, returns an empty dict if there is no values
         """
-        #TODO: Magic number: 66?
+        #TODO: Magic number: 66? To be moved to carbon_values.yaml
         return {
             IF_INPUT_RESOURCES_RESERVED: pod.requested_cpu[time_index],
             IF_INPUT_RESOURCES_TOTAL: 66,

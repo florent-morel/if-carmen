@@ -26,7 +26,7 @@ class TeadsCurve(ModelUtilities):
         config = {
             "method": "linear",
             # teads-curve data points
-            # TODO: Magic numbers
+            # TODO: Magic numbers representing the curve? To be moved to carbon_values.yaml
             "x": [0, 10, 50, 100],  # x-axis represents cpu/utilization (in %)
             "y": [0.12, 0.32, 0.75, 1.02],  # y-axis represents the tdp ratio (no unit)
             IF_INPUT_INPUT_PARAMETER: IF_INPUT_CPU_UTILIZATION,

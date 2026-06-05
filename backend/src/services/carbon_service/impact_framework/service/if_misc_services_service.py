@@ -41,7 +41,7 @@ class IFMiscServicesService(IFService):
         Executes the Impact Framework (IF) model to estimate impact for misc resources.
         """
         # Divide into chunks
-        # TODO: Magic number
+        # TODO: Magic number. Should be in config.yaml
         chunk_size = 10000
 
         chunks = [
