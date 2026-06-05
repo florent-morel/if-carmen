@@ -12,7 +12,7 @@ from backend.src.utils.helpers import get_row_data
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_NAME,
-    SOURCE_SERVICE,
+    SOURCE_RESOURCE_TYPE_SERVICE,
     SOURCE_INSTANCE,
     SOURCE_ENVIRONMENT,
     SOURCE_PARTITION,
@@ -85,7 +85,7 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         id=vm_id,
         region=region,
         vm_size=get_row_data(row[SOURCE_SIZE]),
-        service=get_row_data(row[SOURCE_SERVICE]),
+        service=get_row_data(row[SOURCE_RESOURCE_TYPE_SERVICE]),
         # component=get_row_data(row[SOURCE_COMPONENT]),
         # subscription=get_row_data(row[SOURCE_SUBSCRIPTION]),
         name=get_row_data(row[SOURCE_NAME]),

@@ -97,7 +97,9 @@ class Reader_Compute(AbstractReader):
                 skipped_rows += 1
                 continue
             vm_id = row[SOURCE_RESOURCE_ID]
+            logger.info("Hello")
             try:
+                logger.info("Hello")
                 if vm_id not in vm_dict:
                     self.process_unknown_regions(row[SOURCE_REGION])
                     self.process_unknown_providers(row[SOURCE_PROVIDER])
@@ -113,6 +115,7 @@ class Reader_Compute(AbstractReader):
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
                 vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_DISK_SIZE_GB]))
+                logger.info("Hello")
                 # End of row process, fetch custom columns
                 process_custom_columns(vm_dict[vm_id], row, VirtualMachine.mandatory_columns())
             except ValidationError:
