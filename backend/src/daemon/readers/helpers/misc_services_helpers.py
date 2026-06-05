@@ -15,7 +15,7 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_SUBSCRIPTION_ID,
     SOURCE_REGION,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_DATE,
     DATE_FORMAT,
@@ -69,8 +69,7 @@ def create_misc_services_resource(row):
             region=region,
             subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
             carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-            # TODO: change misc_services_cost to billing_cost
-            misc_services_cost=str_to_float(row.get(SOURCE_BILLING_COST, "0")),
+            cost=str_to_float(row.get(SOURCE_COST, "0")),
         )
         timestamp = row.get(
             SOURCE_DATE, (datetime.now() - timedelta(days=2)).strftime(DATE_FORMAT)

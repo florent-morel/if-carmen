@@ -11,7 +11,7 @@ from backend.src.common.constants import (
     SOURCE_PRODUCT_NAME,
     SOURCE_RESOURCE_TYPE,
     SOURCE_SUBSCRIPTION_ID,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
 )
 
 
@@ -25,7 +25,7 @@ class MiscServicesResource(Resource):
     compute_cost: float = 0.0
     storage_cost: float = 0.0
 
-    misc_services_cost: float = 0.0
+    cost: float = 0.0
 
     misc_services_energy: float = 0.0
     misc_services_operational: float = 0.0
@@ -43,6 +43,6 @@ class MiscServicesResource(Resource):
             SOURCE_DATE,
             SOURCE_PRODUCT_NAME,
             SOURCE_SUBSCRIPTION_ID,
-            SOURCE_BILLING_COST,
+            SOURCE_COST,
         ]
         return list_mandatory_columns

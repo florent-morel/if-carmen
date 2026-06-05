@@ -51,7 +51,6 @@ class AbstractWriter(ABC):
         Args:
             resource: the resource to fill the columns.
         """
-        # Add information to fill common columns
         row = {
             # Common columns
             ReportConfig.COMMON_DATE: self.date,
@@ -66,6 +65,6 @@ class AbstractWriter(ABC):
             ReportConfig.COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
             ReportConfig.COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
             ReportConfig.COMMON_CARBON_INTENSITY: resource.carbon_intensity,
+            ReportConfig.COMMON_COST: resource.cost,
         }
-        # TODO: Implement custom columns
         return row

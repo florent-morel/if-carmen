@@ -42,17 +42,17 @@ export const MiscServicesModelPlugin = PluginFactory({
       const storageEmbodied = input['storage-embodied'];
       const computeCost = input['compute-cost'];
       const storageCost = input['storage-cost'];
-      const miscServicesCost = input['misc-services-cost'];
+      const cost = input['cost'];
       const carbonIntensity = input['carbon-intensity'];
 
       // Calculate the outputs
             // TODO: Magic numbers to be put in config
             // TODO: Add this formula in documentation (and point explicitely to this file/model)
-      const miscServicesEnergyValue = miscServicesCost * (0.75 * (computeEnergy / computeCost) + 0.25 * (storageEnergy / storageCost));
+      const miscServicesEnergyValue = cost * (0.75 * (computeEnergy / computeCost) + 0.25 * (storageEnergy / storageCost));
 
       const miscServicesOperationalValue = miscServicesEnergyValue * carbonIntensity;
 
-      const miscServicesEmbodiedValue = miscServicesCost * (0.75 * (computeEmbodied / computeCost) + 0.25 * (storageEmbodied / storageCost));
+      const miscServicesEmbodiedValue = cost * (0.75 * (computeEmbodied / computeCost) + 0.25 * (storageEmbodied / storageCost));
 
 
       return {

@@ -62,7 +62,7 @@ _MINIMAL_ROW = {
     "Instance": "",
     "Environment": "prd",
     "Partition": "",
-    "BillingCost": "10.5",
+    "Cost": "10.5",
 }
 
 

@@ -670,7 +670,7 @@ which delegates computation to the plugin implementation in
 For each misc-services resource, the model consumes:
 - compute totals: `compute-energy`, `compute-embodied`, `compute-cost`
 - storage totals: `storage-energy`, `storage-embodied`, `storage-cost`
-- misc-services own cost: `misc-services-cost`
+- misc-services own cost: `cost`
 - location intensity: `carbon-intensity`
 
 These compute and storage totals are injected upstream by orchestrator hydration before
@@ -682,7 +682,7 @@ The plugin computes energy and carbon using weighted cost-intensity factors.
 Current weighting is 75% compute and 25% storage:
 
 ```
-misc-services-energy = misc_services_cost
+misc-services-energy = cost
                 * (0.75 * (compute_energy / compute_cost)
                   + 0.25 * (storage_energy / storage_cost))
 ```
@@ -692,7 +692,7 @@ misc-services-operational = misc-services-energy * carbon-intensity
 ```
 
 ```
-misc-services-embodied = misc_services_cost
+misc-services-embodied = cost
                  * (0.75 * (compute_embodied / compute_cost)
                    + 0.25 * (storage_embodied / storage_cost))
 ```

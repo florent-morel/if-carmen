@@ -38,7 +38,7 @@ class Resource(ABC, BaseModel):
     pue: float = 1.0
     region: str | None = None
     # subscription: Optional[str] = None
-    billing_cost: float = 0.0
+    cost: float = 0.0
 
     # List for each time point
     energy_consumed: list[float] = Field(default_factory=list)

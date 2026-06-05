@@ -19,7 +19,7 @@ from backend.src.common.constants import (
     IF_INPUT_STORAGE_ENERGY,
     IF_INPUT_STORAGE_EMBODIED,
     IF_INPUT_STORAGE_COST,
-    IF_INPUT_MISC_SERVICES_COST,
+    IF_INPUT_COST,
     IF_INPUT_MISC_SERVICES_ENERGY,
     IF_INPUT_MISC_SERVICES_ENERGY_TXT,
     IF_INPUT_MISC_SERVICES_OPERATIONAL,
@@ -48,7 +48,7 @@ class MiscServicesModel(ModelUtilities):
                 IF_INPUT_STORAGE_EMBODIED,
                 IF_INPUT_COMPUTE_COST,
                 IF_INPUT_STORAGE_COST,
-                IF_INPUT_MISC_SERVICES_COST,
+                IF_INPUT_COST,
                 IF_INPUT_CARBON_INTENSITY,
             ],
             IF_INPUT_OUTPUT_PARAMETERS: [
@@ -98,7 +98,7 @@ class MiscServicesModel(ModelUtilities):
             IF_INPUT_STORAGE_EMBODIED: misc_services_resource.storage_embodied,
             IF_INPUT_COMPUTE_COST: misc_services_resource.compute_cost,
             IF_INPUT_STORAGE_COST: misc_services_resource.storage_cost,
-            IF_INPUT_MISC_SERVICES_COST: misc_services_resource.misc_services_cost,
+            IF_INPUT_COST: misc_services_resource.cost,
             IF_INPUT_CARBON_INTENSITY: misc_services_resource.carbon_intensity,
             IF_INPUT_TIMESTAMP: misc_services_resource.time_points[time_index],
         }

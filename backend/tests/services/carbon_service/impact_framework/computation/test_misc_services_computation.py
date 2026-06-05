@@ -30,7 +30,7 @@ def mock_misc_services_resources():
             storage_embodied=100.0,
             compute_cost=250.0,
             storage_cost=100.0,
-            misc_services_cost=50.0,
+            cost=50.0,
             carbon_intensity=100.0,
             time_points=["2025-11-10"],
         ),
@@ -42,7 +42,7 @@ def mock_misc_services_resources():
             storage_embodied=150.0,
             compute_cost=150.0,
             storage_cost=125.0,
-            misc_services_cost=80.0,
+            cost=80.0,
             carbon_intensity=120.0,
             time_points=["2025-11-10"],
         ),
@@ -61,14 +61,14 @@ def test_services_energy_computation_for_misc_services_resources(
         storage_energy=200.0,
         compute_cost=250.0,
         storage_cost=100.0,
-        misc_services_cost=50.0,
+        cost=50.0,
     )
     expected_energy_misc_service2 = compute_services_energy_helper(
         compute_energy=400.0,
         storage_energy=300.0,
         compute_cost=150.0,
         storage_cost=125.0,
-        misc_services_cost=80.0,
+        cost=80.0,
     )
 
     service = IFMiscServicesService(SAMPLING_RATE_IN_SECONDS)
@@ -95,7 +95,7 @@ def test_services_operational_computation_for_misc_services_resources(
         storage_energy=200.0,
         compute_cost=250.0,
         storage_cost=100.0,
-        misc_services_cost=50.0,
+        cost=50.0,
         carbon_intensity=100.0,
     )
     expected_operational_misc_service2 = compute_services_operational_helper(
@@ -103,7 +103,7 @@ def test_services_operational_computation_for_misc_services_resources(
         storage_energy=300.0,
         compute_cost=150.0,
         storage_cost=125.0,
-        misc_services_cost=80.0,
+        cost=80.0,
         carbon_intensity=120.0,
     )
 
@@ -131,14 +131,14 @@ def test_services_embodied_computation_for_misc_services_resources(
         storage_embodied=100.0,
         compute_cost=250.0,
         storage_cost=100.0,
-        misc_services_cost=50.0,
+        cost=50.0,
     )
     expected_embodied_misc_service2 = compute_services_embodied_helper(
         compute_embodied=200.0,
         storage_embodied=150.0,
         compute_cost=150.0,
         storage_cost=125.0,
-        misc_services_cost=80.0,
+        cost=80.0,
     )
 
     service = IFMiscServicesService(SAMPLING_RATE_IN_SECONDS)

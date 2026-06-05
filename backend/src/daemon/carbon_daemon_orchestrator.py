@@ -441,7 +441,7 @@ class CarbonDaemonOrchestrator:
 
         for resource in list_resources_to_process:
             if vm_dict_result:
-                resource.compute_cost = vm_dict_result.total_billing_cost
+                resource.compute_cost = vm_dict_result.total_cost
                 resource.compute_energy = vm_dict_result.total_energy_consumed
                 resource.compute_embodied = vm_dict_result.total_carbon_embodied
             else:
@@ -454,7 +454,7 @@ class CarbonDaemonOrchestrator:
                 resource.compute_embodied = misc_defaults.compute_embodied
 
             if storage_dict_result:
-                resource.storage_cost = storage_dict_result.total_billing_cost
+                resource.storage_cost = storage_dict_result.total_cost
                 resource.storage_energy = storage_dict_result.total_energy_consumed
                 resource.storage_embodied = storage_dict_result.total_carbon_embodied
             else:

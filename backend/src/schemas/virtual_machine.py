@@ -15,7 +15,7 @@ from backend.src.common.constants import (
     SOURCE_AVG_CPU_PERCENTAGE,
     SOURCE_TIME,
     SOURCE_DISK_SIZE_GB,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
 )
 
 
@@ -44,6 +44,6 @@ class VirtualMachine(ComputeResource):
             SOURCE_AVG_CPU_PERCENTAGE,
             SOURCE_TIME,
             SOURCE_DISK_SIZE_GB,
-            SOURCE_BILLING_COST,
+            SOURCE_COST,
         ]
         return list_mandatory_columns

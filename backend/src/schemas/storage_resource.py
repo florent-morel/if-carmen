@@ -20,7 +20,7 @@ from backend.src.common.constants import (
     SOURCE_UNIT_OF_MEASURE,
     SOURCE_QUANTITY,
     SOURCE_PRODUCT_NAME,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
 )
 
 
@@ -55,7 +55,7 @@ class StorageResource(Resource):
             SOURCE_UNIT_OF_MEASURE,
             SOURCE_QUANTITY,
             SOURCE_PRODUCT_NAME,
-            SOURCE_BILLING_COST,
+            SOURCE_COST,
 
         ]
         return list_mandatory_columns

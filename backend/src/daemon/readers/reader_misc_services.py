@@ -73,8 +73,6 @@ class Reader_Misc_Services(AbstractReader):
 
         Returns:
             list[MiscServicesResource]: Processed misc services resource list
-            float: Total compute cost
-            float: Total storage cost
         """
         rows = csv_data.splitlines()
         if len(rows) <= 1:

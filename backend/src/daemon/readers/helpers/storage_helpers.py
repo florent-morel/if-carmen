@@ -27,7 +27,7 @@ from backend.src.common.constants import (
     SOURCE_SUBSCRIPTION_ID,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_METER_NAME,
     SOURCE_QUANTITY,
@@ -157,7 +157,7 @@ def create_storage_resource(
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         time_points=[],
         duration_seconds=duration_seconds,
-        billing_cost=get_row_data(row[SOURCE_BILLING_COST]),
+        cost=get_row_data(row[SOURCE_COST]),
     )
 
 
@@ -230,10 +230,17 @@ def calculate_storage_size(
     product_name = row.get(SOURCE_PRODUCT_NAME, "")
     logger.info(f"hello")
 
-    # TODO: Review code and magic numbers
+    # TODO: V1 Review code and magic numbers.
+    # This implementation is heuristic-based and relies on specific naming conventions and assumptions about the billing data.
+    # It is good for prototyping, but should not exist in the V1 of Carmen. Instead, the billing data should be normalized and enriched with explicit columns for size, duration.
+    # Since this method is computing storage sizes and durations, these should instead be moved to mandatory inputs in the input CSV.
+    # Task 1: add to input CSV spec: StorageSizeGB, StorageDurationHours. Update the documentation and the ingestion layer (readers/helpers).
+    # Task 2: remove provider-specific ingestion layer using provider-specific logic (e.g. for Azure, the existing disk SKU mapping logic to populate StorageSizeGB, BillingPeriodStartDate and BillingPeriodEndDate...).
+    
     if unit_of_measure == FORMAT_STORAGE_ONE_GIB_PER_HOUR:
         # Premium SSD v2 / dynamic disks — GiB → GB conversion
         logger.info(f"aa hello {quantity} ")
+        # TODO: V1 c'est dégueulasse. Ça dégage. À ajouter dans la spec d'input.
         size_gb = (quantity / 24) * 1.07374182
         return size_gb, DAILY_SECONDS
 

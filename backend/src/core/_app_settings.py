@@ -92,6 +92,7 @@ class ReportConfig:
     COMMON_EMBODIED_CARBON = "EmbodiedCarbonGramsCO2eq"
     COMMON_TOTAL_CARBON = "TotalCarbonGramsCO2eq"
     COMMON_CARBON_INTENSITY = "CarbonIntensity"
+    COMMON_COST = "Cost"
 
     # VM columns
     COMPUTE_VM_SIZE = "VMSize"
@@ -106,8 +107,7 @@ class ReportConfig:
     STORAGE_REPLICATION_TYPE = "ReplicationType"
     STORAGE_SIZE_GB = "SizeGB"
 
-    # Misc services columns
-    MISC_SERVICES_COST = "ServicesCost"
+    # No Misc services columns
 
     # Flat ordered fieldname list used to initialise csv.DictWriter.
     REPORT_HEADERS: list[str] = [
@@ -124,6 +124,7 @@ class ReportConfig:
         "EmbodiedCarbonGramsCO2eq",
         "TotalCarbonGramsCO2eq",
         "CarbonIntensity",
+        "Cost",
         # VM columns
         "VMSize",
         "Service",
@@ -135,8 +136,7 @@ class ReportConfig:
         "StorageType",
         "ReplicationType",
         "SizeGB",
-        # Misc services columns
-        "ServicesCost",
+        # No Misc services columns
     ]
 
     MISC_SERVICES_REPORT_HEADERS: list[list[str]] = [
@@ -148,10 +148,10 @@ class ReportConfig:
             "Region",
             "Subscription",
             "CarbonIntensity",
-            "ServicesCost",
             "EnergyKWH",
             "OperationalCarbonGramsCO2eq",
             "EmbodiedCarbonGramsCO2eq",
+            "Cost",
         ]
     ]
 

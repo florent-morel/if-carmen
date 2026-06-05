@@ -23,7 +23,7 @@ class TestWriterMiscServices(unittest.TestCase):
                 region="eastus",
                 subscription="sub1",
                 carbon_intensity=100.0,
-                misc_services_cost=50.0,
+                cost=50.0,
             ),
             MiscServicesResource(
                 id="misc_service2",
@@ -31,7 +31,7 @@ class TestWriterMiscServices(unittest.TestCase):
                 region="westus",
                 subscription="sub2",
                 carbon_intensity=150.0,
-                misc_services_cost=75.0,
+                cost=75.0,
             ),
         ]
 
@@ -62,7 +62,7 @@ class TestWriterMiscServices(unittest.TestCase):
         self.assertEqual(len(rows), len(self.misc_services_resources))
 
     def test_row_content(self):
-        """write_content writes ResourceType, Id, and ServicesCost correctly."""
+        """write_content writes ResourceType, Id, and Cost correctly."""
         writer, buf = self._make_writer(self.misc_services_resources)
         writer.write_content(self.misc_services_resources)
 
@@ -71,9 +71,9 @@ class TestWriterMiscServices(unittest.TestCase):
 
         first = rows[0]
         self.assertEqual(first[ReportConfig.COMMON_RESOURCE_TYPE], ResourceType.MISC_SERVICES.value)
-        self.assertEqual(first[ReportConfig.COMMON_ID], "misc_service1")
-        self.assertEqual(float(first[ReportConfig.MISC_SERVICES_COST]), 50.0)
+        self.assertEqual(first[ReportConfig.COMMON_ID], self.misc_services_resources[0].id)
+        self.assertEqual(float(first[ReportConfig.COMMON_COST]), self.misc_services_resources[0].cost)
 
         second = rows[1]
-        self.assertEqual(second[ReportConfig.COMMON_ID], "misc_service2")
-        self.assertEqual(float(second[ReportConfig.MISC_SERVICES_COST]), 75.0)
+        self.assertEqual(second[ReportConfig.COMMON_ID], self.misc_services_resources[1].id)
+        self.assertEqual(float(second[ReportConfig.COMMON_COST]), self.misc_services_resources[1].cost)

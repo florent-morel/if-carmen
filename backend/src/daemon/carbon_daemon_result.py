@@ -82,7 +82,7 @@ class ResourceTypeResult:
         total_carbon_embodied: float,
         total_carbon_emitted: float,
         execution_time: float = 0.0,
-        total_billing_cost: float = 0.0,
+        total_cost: float = 0.0,
     ):
         self.success: bool = success
         self.resource_type: ResourceType = resource_type
@@ -93,4 +93,4 @@ class ResourceTypeResult:
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
         self.list_exceptions: list = list_exceptions
-        self.total_billing_cost: float = total_billing_cost
+        self.total_cost: float = total_cost

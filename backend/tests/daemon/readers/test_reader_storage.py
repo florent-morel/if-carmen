@@ -19,7 +19,7 @@ from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_METER_NAME,
     SOURCE_QUANTITY,
@@ -39,7 +39,7 @@ _HEADERS = ",".join([
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_METER_NAME,
     SOURCE_QUANTITY,
@@ -52,7 +52,7 @@ _HEADERS = ",".join([
 def _make_row(
     resource_id: str,
     meter_category: str,
-    billing_cost: str,
+    cost: str,
     product_name: str,
     meter_name: str,
     quantity: str,
@@ -61,7 +61,7 @@ def _make_row(
     region: str = "centralus",
 ) -> str:
     return (
-        f"{resource_id},{provider},{region},{meter_category},{billing_cost},"
+        f"{resource_id},{provider},{region},{meter_category},{cost},"
         f"{product_name},{meter_name},{quantity},{unit_of_measure},"
         "05/01/2024,05/31/2024"
     )

@@ -29,7 +29,7 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_AVG_CPU_PERCENTAGE,
     SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_METER_NAME,
     SOURCE_QUANTITY,
@@ -90,7 +90,7 @@ class TestMiscServicesHelpers(unittest.TestCase):
             "ProductName": "misc_service_name",
             "Region": "eastus",
             "SubscriptionId": "sub1",
-            "BillingCost": "120.0",
+            "Cost": "120.0",
             "Date": "2025-11-01",
         }
         mock_ci_calculator.return_value = 200.0
@@ -101,7 +101,7 @@ class TestMiscServicesHelpers(unittest.TestCase):
         self.assertEqual(misc_services_resource.resource_type, ResourceType.MISC_SERVICES)
         self.assertEqual(misc_services_resource.region, "eastus")
         self.assertEqual(misc_services_resource.carbon_intensity, 200.0)
-        self.assertEqual(misc_services_resource.misc_services_cost, 120.0)
+        self.assertEqual(misc_services_resource.cost, 120.0)
         self.assertEqual(misc_services_resource.time_points[0], "2025-11-01")
 
         # No custom columns as we directly create the resource

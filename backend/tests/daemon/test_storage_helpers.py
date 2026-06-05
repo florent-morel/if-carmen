@@ -36,7 +36,7 @@ class TestStorageHelpers(unittest.TestCase):
             "Region": "francecentral",
             "SubscriptionId": "test-subscription-id",
             "ResourceGroup": "test-rg",
-            "BillingCost": "0.0",
+            "Cost": "0.0",
         }
 
         self.sample_hdd_row = {
@@ -216,7 +216,7 @@ class TestStorageHelpers(unittest.TestCase):
             "UnitOfMeasure": "1 GiB/Hour",
             "Quantity": "999999.0",  # Unrealistic quantity
             "ProductName": "Premium SSD v2 Managed Disks",
-            "BillingCost": "100.0",
+            "Cost": "100.0",
             SOURCE_RESOURCE_ID: "test_huge",
         }
         storage_dict = {}
@@ -255,7 +255,7 @@ class TestStorageHelpers(unittest.TestCase):
                             "Region": region,
                             SOURCE_RESOURCE_ID: "test",
                             "ResourceGroup": "test",
-                            "BillingCost": "0.0",
+                            "Cost": "0.0",
                         },
                         "test_id",
                         100.0,
@@ -282,7 +282,7 @@ class TestStorageHelpers(unittest.TestCase):
                     "Region": "unknown_region",
                     SOURCE_RESOURCE_ID: "test",
                     "ResourceGroup": "test",
-                    "BillingCost": "0.0",
+                    "Cost": "0.0",
                 },
                 "test_id",
                 100.0,
@@ -328,7 +328,7 @@ class TestReaderStoragePerRowProvider(unittest.TestCase):
             "Region": "francecentral",
             "SubscriptionId": "test-subscription-id",
             "ResourceGroup": "test-rg",
-            "BillingCost": "0.0",
+            "Cost": "0.0",
         }
 
         self.sample_hdd_row = {
