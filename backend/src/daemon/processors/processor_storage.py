@@ -9,10 +9,11 @@ from backend.src.core.yaml_config_loader import DaemonConfig
 
 from backend.src.daemon.readers.reader_storage import Reader_Storage
 from backend.src.daemon.runners.runner_storage import Runner_Storage
-from backend.src.schemas.resource import ResourceType
+from backend.src.daemon.writers.writer_storage import Writer_Storage
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
+from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class Processor_Storage(AbstractProcessor):
 
         self._reader = Reader_Storage(config)
         self._runner = Runner_Storage()
-        # TODO: Implement writers
+        self._writer = Writer_Storage(config, self.date, self.writer_csv_dict_writer, self.resource_result)
         # self._writer: AbstractWriter
 
     @property
@@ -49,5 +50,4 @@ class Processor_Storage(AbstractProcessor):
 
     @property
     def writer(self) -> AbstractWriter:
-        # TODO: Implement writer
-        return None
+        return self._writer
