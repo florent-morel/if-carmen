@@ -21,7 +21,7 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_AVG_CPU_PERCENTAGE,
     SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_METER_NAME,
     SOURCE_QUANTITY,
@@ -95,6 +95,6 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,
         pue=provider_config.get_pue() if provider_config else config.defaults.pue,
-        billing_cost=get_row_data(row[SOURCE_BILLING_COST]),
+        cost=get_row_data(row[SOURCE_COST]),
         vcpu_count=_parse_vcpu_count_from_row(row),
     )
