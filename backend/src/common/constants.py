@@ -31,8 +31,6 @@ RATE_TO_DURATION = {
 
 # Reader constants
 CSV_PATH: str = "CSV_PATH"
-# TODO: ca degage
-CSV_FILE_TEST: str = "etc/sample_data/test_data/storage_test.csv"
 CSV_FILE_ENCODING: str = "utf-8"
 
 

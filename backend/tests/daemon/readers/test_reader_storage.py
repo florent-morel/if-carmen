@@ -9,10 +9,10 @@ from unittest.mock import MagicMock
 from collections import Counter
 
 from unittest.mock import patch
+from backend.tests.daemon import mock_data
 
 from backend.src.common.constants import (
     CSV_PATH,
-    CSV_FILE_TEST,
     CSV_FILE_ENCODING,
     HOURLY_INTERVAL_SECONDS,
     SOURCE_RESOURCE_ID,
@@ -110,7 +110,7 @@ class TestReaderStorage(unittest.TestCase):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
         self.list_input_file = []
-        self.list_input_file.append(os.getenv(CSV_PATH, CSV_FILE_TEST))
+        self.list_input_file.append(os.getenv(CSV_PATH, mock_data.csv_test_csv_path))
 
     @patch("backend.src.utils.ioc_util.resolve")
     def test_reader_storage_success(self, mock_ioc_util_resolve):

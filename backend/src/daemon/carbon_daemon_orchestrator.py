@@ -51,7 +51,6 @@ from backend.src.daemon.writers.writer_misc_services import Writer_Misc_Services
 
 from backend.src.common.constants import (
     CSV_PATH,
-    CSV_FILE_TEST,
     CSV_FILE_ENCODING,
 )
 

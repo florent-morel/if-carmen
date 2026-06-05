@@ -175,6 +175,7 @@ def _extract_hour_from_file_name(file_name):
 # Storage
 # ---------------------------------------------------------------------------
 
+csv_test_csv_path = "etc/sample_data/test_data/storage_test.csv"
 
 def read_sample_storage_data(file_dict, _destination_folder):
     """

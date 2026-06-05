@@ -19,7 +19,6 @@ from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.common.constants import (
     DAILY_SECONDS,
     CSV_PATH,
-    CSV_FILE_TEST,
     CSV_FILE_ENCODING,
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
