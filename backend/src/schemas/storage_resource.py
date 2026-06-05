@@ -12,6 +12,7 @@ from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.common.constants import (
     DAILY_SECONDS,
     SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_TYPE,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
     SOURCE_DATE,
@@ -46,6 +47,7 @@ class StorageResource(Resource):
     def mandatory_columns() -> list[str]:
         list_mandatory_columns: list[str] = [
             SOURCE_RESOURCE_ID,
+            SOURCE_RESOURCE_TYPE,
             SOURCE_REGION,
             SOURCE_METER_CATEGORY,
             SOURCE_PROVIDER,

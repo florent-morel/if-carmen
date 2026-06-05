@@ -11,16 +11,11 @@ from collections import Counter
 from unittest.mock import patch
 
 from backend.src.common.constants import (
-    CSV_PATH,
-    CSV_FILE_TEST,
-    CSV_FILE_ENCODING,
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
     SOURCE_PROVIDER,
     SOURCE_BILLING_COST,
-    SOURCE_COMPUTE,
-    SOURCE_STORAGE,
-    SOURCE_CONSUMED_SERVICE,
+    SOURCE_RESOURCE_TYPE,
 )
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.resource import ResourceType
@@ -45,7 +40,7 @@ class TestReaderMiscServices(unittest.TestCase):
         Test successful Misc Services Reader execution.
         """
         mock_csv_data = (
-            f"{SOURCE_RESOURCE_ID},{SOURCE_CONSUMED_SERVICE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_BILLING_COST}\n"
+            f"{SOURCE_RESOURCE_ID},{SOURCE_RESOURCE_TYPE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_BILLING_COST}\n"
             "misc_service1,Compute,provider_abc,centralus,100.0\n"
             "misc_service2,Compute,provider_abc,centralus,75.0\n"
             "misc_service3,Storage,provider_abc,centralus,50.0\n"
@@ -93,7 +88,7 @@ class TestReaderMiscServices(unittest.TestCase):
         compute/storage exclusions and a skipped (empty-id) row.
         """
         mock_csv_data = (
-            f"{SOURCE_RESOURCE_ID},{SOURCE_CONSUMED_SERVICE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_BILLING_COST}\n"
+            f"{SOURCE_RESOURCE_ID},{SOURCE_RESOURCE_TYPE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_BILLING_COST}\n"
             "misc_service1,Compute,provider_abc,centralus,100.0\n"   # excluded: compute
             "misc_service2,Compute,provider_abc,centralus,75.0\n"    # excluded: compute
             "misc_service3,Storage,provider_abc,centralus,50.0\n"    # excluded: storage

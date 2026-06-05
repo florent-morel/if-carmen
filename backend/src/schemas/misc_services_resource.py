@@ -9,7 +9,7 @@ from backend.src.common.constants import (
     SOURCE_UNIT_OF_MEASURE,
     SOURCE_QUANTITY,
     SOURCE_PRODUCT_NAME,
-    SOURCE_CONSUMED_SERVICE,
+    SOURCE_RESOURCE_TYPE,
     SOURCE_SUBSCRIPTION_ID,
     SOURCE_BILLING_COST,
 )
@@ -39,7 +39,7 @@ class MiscServicesResource(Resource):
             SOURCE_RESOURCE_ID,
             SOURCE_REGION,
             SOURCE_PROVIDER,
-            SOURCE_CONSUMED_SERVICE,
+            SOURCE_RESOURCE_TYPE,
             SOURCE_DATE,
             SOURCE_PRODUCT_NAME,
             SOURCE_SUBSCRIPTION_ID,

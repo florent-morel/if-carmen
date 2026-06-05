@@ -9,6 +9,7 @@ from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.schemas.resource import ResourceType
 from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_TYPE,
     SOURCE_REGION,
     SOURCE_PROVIDER,
     SOURCE_AVG_CPU_PERCENTAGE,
@@ -37,6 +38,7 @@ class VirtualMachine(ComputeResource):
     def mandatory_columns() -> list[str]:
         list_mandatory_columns: list[str] = [
             SOURCE_RESOURCE_ID,
+            SOURCE_RESOURCE_TYPE,
             SOURCE_PROVIDER,
             SOURCE_REGION,
             SOURCE_AVG_CPU_PERCENTAGE,

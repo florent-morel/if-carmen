@@ -8,11 +8,11 @@ import logging
 
 from backend.src.common.carmen_exception import CarmenException
 from backend.src.common.constants import (
-    SOURCE_COMPUTE,
-    SOURCE_CONSUMED_SERVICE,
+    SOURCE_RESOURCE_TYPE_COMPUTE,
+    SOURCE_RESOURCE_TYPE,
     SOURCE_PROVIDER,
     SOURCE_REGION,
-    SOURCE_STORAGE,
+    SOURCE_RESOURCE_TYPE_STORAGE,
 )
 from backend.src.common.errors import ErrorCode
 from backend.src.daemon.readers.abstract_reader import AbstractReader
@@ -100,11 +100,11 @@ class Reader_Misc_Services(AbstractReader):
             self.process_unknown_regions(row[SOURCE_REGION])
             self.process_unknown_providers(row[SOURCE_PROVIDER])
 
-            consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "").lower()
-            if consumed_service == SOURCE_COMPUTE.lower():
+            consumed_service = row.get(SOURCE_RESOURCE_TYPE, "").lower()
+            if consumed_service == SOURCE_RESOURCE_TYPE_COMPUTE.lower():
                 compute_rows += 1
                 continue
-            if consumed_service == SOURCE_STORAGE.lower():
+            if consumed_service == SOURCE_RESOURCE_TYPE_STORAGE.lower():
                 storage_rows += 1
                 continue
             misc_services_resource = create_misc_services_resource(row)

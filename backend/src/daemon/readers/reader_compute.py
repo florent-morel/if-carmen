@@ -22,8 +22,8 @@ from backend.src.common.constants import (
     SOURCE_AVG_CPU_PERCENTAGE,
     SOURCE_TIME,
     SOURCE_DISK_SIZE_GB,
-    SOURCE_CONSUMED_SERVICE,
-    SOURCE_COMPUTE,
+    SOURCE_RESOURCE_TYPE,
+    SOURCE_RESOURCE_TYPE_COMPUTE,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ class Reader_Compute(AbstractReader):
         Raises:
             Exception: If file reading or processing fails.
         """
-        logger.info("starting to read vm data from local filesystem")
+        logger.info("Starting to read VM data from local filesystem.")
 
         try:
             vm_dict: dict[str, VirtualMachine] = {}
@@ -77,6 +77,7 @@ class Reader_Compute(AbstractReader):
             False if the CSV data is empty (excluding the header row).
         """
         rows = blob_data.splitlines()
+        logger.info(f"Processing {len(rows) - 1} rows for VM.")
         if len(rows) == 1:
             return False
         csv_reader = csv.DictReader(rows)
@@ -88,14 +89,17 @@ class Reader_Compute(AbstractReader):
         excluded_rows = 0
 
         for row in csv_reader:
+            logger.info(f"row: {row}")
             total_rows += 1
-            consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "")
-            if consumed_service.lower() != SOURCE_COMPUTE.lower():
-                # TODO: Diagnostic log
+            consumed_service = row.get(SOURCE_RESOURCE_TYPE, "")
+            if consumed_service.lower() != SOURCE_RESOURCE_TYPE_COMPUTE.lower():
+                logger.info(f"Resource __{consumed_service}__ is not of type {SOURCE_RESOURCE_TYPE_COMPUTE}, skipping it.")
                 skipped_rows += 1
                 continue
             vm_id = row[SOURCE_RESOURCE_ID]
+            logger.info("Hello")
             try:
+                logger.info("Hello")
                 if vm_id not in vm_dict:
                     self.process_unknown_regions(row[SOURCE_REGION])
                     self.process_unknown_providers(row[SOURCE_PROVIDER])
@@ -103,7 +107,7 @@ class Reader_Compute(AbstractReader):
                     vm_dict[vm_id] = new_vm
                     new_vm_rows += 1
                 else:
-                    # TODO: Diagnostic log
+                    logger.info(f"Id __{vm_id}__ already found previously, skipping it and logging a duplicate row.")
                     duplicate_rows += 1
 
                 vm_dict[vm_id].cpu_util.append(
@@ -111,6 +115,7 @@ class Reader_Compute(AbstractReader):
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
                 vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_DISK_SIZE_GB]))
+                logger.info("Hello")
                 # End of row process, fetch custom columns
                 process_custom_columns(vm_dict[vm_id], row, VirtualMachine.mandatory_columns())
             except ValidationError:
@@ -142,4 +147,4 @@ class Reader_Compute(AbstractReader):
         self.log_unknown_info()
 
         logger.info("Local Reader processing finished successfully"
-                    "for resource type compute.")
+                    " for resource type compute.")

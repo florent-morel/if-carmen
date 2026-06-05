@@ -14,6 +14,9 @@ from __future__ import annotations
 import logging
 import time
 import os
+from os import listdir
+from os.path import isfile, join
+
 import csv
 from datetime import datetime, timedelta
 
@@ -99,45 +102,7 @@ class CarbonDaemonOrchestrator:
             execution_time=0,
         )
 
-        try:
-            if list_resource_processors:
-                # Check if Misc Services processor is present in the list.
-                # If yes and not in last position, re-order the list
-                # TODO Vnext: protect against several misc services processor in the list, which should not be the case. 
-                misc_proc = next(
-                    (proc for proc in list_resource_processors if isinstance(proc, Processor_Misc_Services)),
-                    None,
-                )
-                if misc_proc is not None:
-                    if list_resource_processors[-1] is not misc_proc:
-                        list_resource_processors.remove(misc_proc)
-                        list_resource_processors.append(misc_proc)
-                else:
-                    logger.info(
-                        "No processor found for Misc Services. "
-                    )
-
-                register_models()
-
-                self.date: str = self.get_execution_date()
-                # TODO: Implement support for list of source files to compute
-                self.list_input_file = []
-                # TODO: read from config file
-                # logger.warning(f"input_path: {self.config.source.input_path}")
-                input_path = self.config.source.input_path
-                logger.info(f"input_path: {input_path}")
-                self.list_input_file.append(input_path)
-
-                logger.info(f"output_path: {self.config.output.output_path}")
-                self.output_file: str = os.path.join(
-                    str(self.config.output.output_path), f"CO2_{self.date}.csv"
-                )
-
-                logger.info("Carmen Daemon initialized")
-
-        except Exception as e:
-            logger.exception("Critical error in Carmen Daemon initialization: %s", str(e))
-            raise
+        self.pre_process(list_resource_processors)
 
     def orchestrate_carbon_daemon(self):
         """
@@ -205,6 +170,73 @@ class CarbonDaemonOrchestrator:
                 dict_resource_results=None,
             )
             return self.carbon_daemon_result
+
+    def pre_process(self, list_resource_processors):
+        """
+        Preparation steps to ensure daemon is running smoothly.
+
+        Raises:
+            Exception: 
+        """
+        start_time = time.time()
+
+        try:
+            if list_resource_processors:
+                # Check if Misc Services processor is present in the list.
+                # If yes and not in last position, re-order the list
+                # TODO Vnext: protect against several misc services processor in the list, which should not be the case. 
+                misc_proc = next(
+                    (proc for proc in list_resource_processors if isinstance(proc, Processor_Misc_Services)),
+                    None,
+                )
+                if misc_proc is not None:
+                    if list_resource_processors[-1] is not misc_proc:
+                        list_resource_processors.remove(misc_proc)
+                        list_resource_processors.append(misc_proc)
+                else:
+                    logger.info(
+                        "No processor found for Misc Services. "
+                    )
+
+                register_models()
+
+                self.date: str = self.get_execution_date()
+                # TODO: Implement support for list of source files to compute
+                self.list_input_file = []
+                # TODO: read from config file
+                # logger.warning(f"input_path: {self.config.source.input_path}")
+                input_path = self.config.source.input_path
+                logger.info(f"input_path: {input_path}")
+                self.list_input_file = self.load_input_files(input_path)
+
+                logger.info(f"output_path: {self.config.output.output_path}")
+                self.output_file: str = os.path.join(
+                    str(self.config.output.output_path), f"CO2_{self.date}.csv"
+                )
+
+                logger.info("Carmen Daemon initialized")
+
+        except Exception as e:
+            logger.exception("Critical error in Carmen Daemon initialization: %s", str(e))
+            raise
+
+    # Load input files
+    def load_input_files(self, input_path) -> list[str]:
+        """
+        Iterate on all files included in the input_path folder.
+        Append the list of files for each found.
+
+        Return: list of files full path.
+        """
+        list_files: list[str] = []
+        for file in listdir(input_path):
+            if isfile(join(input_path, file)) and file.endswith(".csv"):
+                logger.info(f"input file found: {file}")
+                list_files.append(input_path + "/" + file)
+
+        logger.info(f"list_input_file: {list_files}")
+        logger.info(f"Carmen Dameon loaded {len(list_files)} input file(s).")
+        return list_files
 
     def read_data_source(self):
         """

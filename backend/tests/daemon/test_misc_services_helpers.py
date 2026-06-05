@@ -18,7 +18,6 @@ from backend.src.schemas.resource import ResourceType
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_NAME,
-    SOURCE_SERVICE,
     SOURCE_INSTANCE,
     SOURCE_ENVIRONMENT,
     SOURCE_PARTITION,

@@ -14,6 +14,32 @@ from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.utils.helpers import str_to_float
 from backend.src.daemon.readers.helpers.daemon_helpers import get_row_data
+from backend.src.common.constants import (
+    SOURCE_PROVIDER,
+    SOURCE_NAME,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_TYPE_SERVICE,
+    SOURCE_INSTANCE,
+    SOURCE_ENVIRONMENT,
+    SOURCE_PARTITION,
+    SOURCE_COMPONENT,
+    SOURCE_SUBSCRIPTION,
+    SOURCE_REGION,
+    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_METER_CATEGORY,
+    SOURCE_BILLING_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_METER_NAME,
+    SOURCE_QUANTITY,
+    SOURCE_UNIT_OF_MEASURE,
+    SOURCE_DATE,
+    SOURCE_TIME,
+    SOURCE_SIZE,
+    SOURCE_NB_VCPUS,
+    DATE_FORMAT,
+    SOURCE_DISK_SIZE_GB,
+    UNKNOWN,
+)
 
 # Fallback values used when building mock VMs that have no real provider/region data.
 _DEFAULT_CARBON_INTENSITY = 281  # gCO2/kWh
@@ -122,17 +148,12 @@ def _process_vm_row(row, vms_dict):
 def _create_virtual_machine(row):
     """Constructs a VirtualMachine from a single CSV row using default fallback values for carbon intensity and PUE."""
     return VirtualMachine(
-        id=row["Id"],
-        region=row["Region"],
-        vm_size=row["Size"],
-        service=get_row_data(row["Service"]),
-        component=get_row_data(row["Component"]),
-        subscription=get_row_data(row["Subscription"]),
-        name=get_row_data(row["Name"]),
-        instance=get_row_data(row["Instance"]),
-        environment=get_row_data(row["Environment"]),
-        partition=get_row_data(row["Partition"]),
-        provider=get_row_data(row["Provider"]),
+        id=row[SOURCE_RESOURCE_ID],
+        region=row[SOURCE_REGION],
+        vm_size=row[SOURCE_SIZE],
+        subscription=get_row_data(row[SOURCE_SUBSCRIPTION]),
+        name=get_row_data(row[SOURCE_NAME]),
+        provider=get_row_data(row[SOURCE_PROVIDER]),
         storage_size=[],
         pue=_DEFAULT_PUE,
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
