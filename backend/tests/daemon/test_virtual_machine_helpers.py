@@ -1,9 +1,9 @@
 """
-Unit tests for the daemon_helpers module.
+Unit tests for the virtual_machine_helpers module.
 """
 
 import unittest
-from backend.src.daemon.readers.helpers.daemon_helpers import (
+from backend.src.daemon.readers.helpers.virtual_machine_helpers import (
     get_row_data,
 )
 

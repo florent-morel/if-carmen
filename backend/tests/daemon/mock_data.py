@@ -13,7 +13,7 @@ from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.utils.helpers import str_to_float
-from backend.src.daemon.readers.helpers.daemon_helpers import get_row_data
+from backend.src.daemon.readers.helpers.virtual_machine_helpers import get_row_data
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_NAME,

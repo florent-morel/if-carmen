@@ -8,7 +8,7 @@ import logging
 from pydantic import ValidationError
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
-from backend.src.daemon.readers.helpers.daemon_helpers import create_vm
+from backend.src.daemon.readers.helpers.virtual_machine_helpers import create_vm
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.helpers import (
