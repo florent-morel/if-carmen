@@ -29,5 +29,5 @@ class SciO(ModelUtilities):
         Fills the time point specific input values.
         """
         carbon_intensity = compute_resource.carbon_intensity
-        logger.info(f"{IF_INPUT_GRID_CARBON_INTENSITY}: {carbon_intensity}")
+        logger.debug(f"{IF_INPUT_GRID_CARBON_INTENSITY}: {carbon_intensity}")
         return {IF_INPUT_GRID_CARBON_INTENSITY: carbon_intensity}

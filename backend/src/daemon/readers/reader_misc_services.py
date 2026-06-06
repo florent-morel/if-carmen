@@ -75,6 +75,8 @@ class Reader_Misc_Services(AbstractReader):
             list[MiscServicesResource]: Processed misc services resource list
         """
         rows = csv_data.splitlines()
+        logger.info(f"Processing {len(rows) - 1} rows for misc services "
+                    "resources.")
         if len(rows) <= 1:
             raise CarmenException(
                 ErrorCode.CSV_FILE_NOT_FOUND, "Misc Services CSV data is empty"

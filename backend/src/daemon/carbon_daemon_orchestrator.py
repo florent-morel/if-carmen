@@ -31,6 +31,7 @@ from backend.src.common.errors import ErrorCode
 from backend.src.core.yaml_config_loader import config
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig
+from backend.src.schemas.resource import Resource
 from backend.src.daemon.carbon_daemon_result import (
     CarbonDaemonResult,
     ResourceTypeResult,
@@ -200,12 +201,9 @@ class CarbonDaemonOrchestrator:
                 register_models()
 
                 self.date: str = self.get_execution_date()
-                # TODO: Implement support for list of source files to compute
                 self.list_input_file = []
-                # TODO: read from config file
-                # logger.warning(f"input_path: {self.config.source.input_path}")
+                logger.debug(f"input_path: {self.config.source.input_path}")
                 input_path = self.config.source.input_path
-                logger.info(f"input_path: {input_path}")
                 self.list_input_file = self.load_input_files(input_path)
 
                 logger.info(f"output_path: {self.config.output.output_path}")
@@ -245,6 +243,8 @@ class CarbonDaemonOrchestrator:
         Raises:
             Exception: If reading fails
         """
+        logger.info(":::: Carbon Daemon Orchestrator :::: Start of"
+                    " read_data_source process ::::")
         start_time = time.time()
 
         try:
@@ -255,16 +255,22 @@ class CarbonDaemonOrchestrator:
             )
 
             if self.list_resource_processors:
+                all_resources_to_process: list[Resource] = []
+                nb_input_files:int = 0
                 for input_file in self.list_input_file:
                     # Check if file exists before trying to read it
                     try:
                         csv_data = ""
                         if os.path.exists(input_file):
+                            logger.info("--------------")
                             logger.info(f"Data source reading from {input_file}")
+                            logger.info("--------------")
                             with open(
                                 input_file, "r", encoding=CSV_FILE_ENCODING
                             ) as file:
                                 csv_data = file.read()
+
+                        file_resources: list[Resource] = []
 
                         for abstract_processor in self.list_resource_processors:
                             logger.info(
@@ -272,32 +278,27 @@ class CarbonDaemonOrchestrator:
                                 f" reader for {abstract_processor.resource_type.value}"
                                 f" resource type."
                             )
-                            resources = abstract_processor.read(csv_data)
+                            file_resources.extend(abstract_processor.read(
+                                csv_data))
 
-                        read_time = time.time() - start_time
-                        if resources:
+                        file_read_time = time.time() - start_time
+                        if file_resources:
                             logger.info(
                                 "Source data reading completed for file %s."
                                 " Reader %s retrieved %d resources of type %s"
                                 " in %.2f seconds",
                                 input_file,
                                 abstract_processor.reader,
-                                len(resources),
+                                len(file_resources),
                                 abstract_processor.resource_type.value,
-                                read_time,
+                                file_read_time,
                             )
+                            all_resources_to_process.append(file_resources)
+                            nb_input_files += 1
                         else:
-                            message = f"No resources found for {abstract_processor.resource_type.value} in data source"
-                            self.update_carbon_daemon_result(
-                                success=False,
-                                start_time=start_time,
-                                list_exceptions=[
-                                    DataFetchError(
-                                        ErrorCode.DATA_FETCH_NO_RESULTS,
-                                        details=message,
-                                    )],
-                                dict_resource_results=None,
-                            )
+                            message = "No resources found for "
+                            f"{abstract_processor.resource_type.value} in file"
+                            f" {input_file}."
                     except FileNotFoundError:
                         message = f"File not found: {input_file}"
                         logger.error(message)
@@ -345,6 +346,32 @@ class CarbonDaemonOrchestrator:
                             list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR,details=message)],
                             dict_resource_results=None,
                         )
+
+                logger.info(":::: Carbon Daemon Orchestrator :::: End of"
+                            " read_data_source process ::::")
+                read_time = time.time() - start_time
+                if all_resources_to_process:
+                    logger.info(
+                        "Source data reading completed from %d valid input"
+                        " file(s)."
+                        " Reader(s) retrieved %d resources."
+                        " in %.2f seconds",
+                        nb_input_files,
+                        len(all_resources_to_process),
+                        read_time,
+                    )
+                else:
+                    message = "No resources found."
+                    self.update_carbon_daemon_result(
+                        success=False,
+                        start_time=start_time,
+                        list_exceptions=[
+                            DataFetchError(
+                                ErrorCode.DATA_FETCH_NO_RESULTS,
+                                details=message,
+                            )],
+                        dict_resource_results=None,
+                    )
             else:
                 logger.error("No processor provided.")
 
@@ -367,6 +394,8 @@ class CarbonDaemonOrchestrator:
         Raises:
             Exception: If running fails
         """
+        logger.info(":::: Carbon Daemon Orchestrator :::: Start of"
+                    " run_engine process ::::")
         start_time = time.time()
         dict_resource_results: dict[ResourceType, ResourceTypeResult] = {}
         try:
@@ -409,6 +438,8 @@ class CarbonDaemonOrchestrator:
                     list_exceptions=[],
                     dict_resource_results=dict_resource_results,
                 )
+                logger.info(":::: Carbon Daemon Orchestrator :::: End of"
+                            " run_engine process ::::")
         except Exception as e:
             error_msg = f"Failed to run engine for the given processors: {str(e)}"
             logger.exception(error_msg)
@@ -535,6 +566,8 @@ class CarbonDaemonOrchestrator:
         Creates a CSV report containing all resource types.
         Handles VMs, Storage, and future resource categories in one file.
         """
+        logger.info(":::: Carbon Daemon Orchestrator :::: Start of"
+                    " write_report process ::::")
         logger.info(
             "Starting write_results for %d resource results.",
             len(self.carbon_daemon_result.dict_resource_result),
@@ -577,6 +610,9 @@ class CarbonDaemonOrchestrator:
             # TODO: Implement error case
 
         elapsed_time = time.time() - start
+
+        logger.info(":::: Carbon Daemon Orchestrator :::: End of"
+                    " write_report process ::::")
 
         logger.info("CSV report created in %.2f seconds", elapsed_time)
         logger.info("Report saved to: %s", self.output_file)

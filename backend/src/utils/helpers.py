@@ -343,8 +343,8 @@ def process_custom_columns(resource: Resource, row: dict, list_ignore_column: li
     """
     Process custom columns from input file.
     """
-    logger.info(f"Processing custom columns for {resource}")
+    logger.info(f"Processing custom columns for resource.id: {resource.id}")
     for column_name, column_value in row.items():
         if column_name and column_name not in list_ignore_column:
-            logger.info(f"Storing custom column --{column_name}-- with value --{column_value}--")
+            logger.debug(f"Storing custom column --{column_name}-- with value --{column_value}--")
             resource.dict_custom_columns[column_name] = column_value

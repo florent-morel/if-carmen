@@ -108,6 +108,7 @@ class Reader_Storage(AbstractReader):
             bool: True if data was found and processed, False otherwise
         """
         rows = csv_data.splitlines()
+        logger.info(f"Processing {len(rows) - 1} rows for storage resources.")
         if len(rows) <= 1:
             return False
 

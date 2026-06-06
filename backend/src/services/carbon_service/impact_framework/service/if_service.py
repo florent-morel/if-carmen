@@ -208,7 +208,7 @@ class IFService(ABC, CarbonService):
         common_models = [TeadsCurve, SciO, SciEPue]
         if models:
             common_models.extend(models)
-            logger.info(f"common_models: {common_models}")
+            logger.debug(f"common_models: {common_models}")
         for time_index in range(len(resource.time_points)):
             combined_inputs = {
                 key: value

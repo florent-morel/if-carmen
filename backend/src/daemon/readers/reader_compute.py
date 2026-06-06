@@ -77,7 +77,7 @@ class Reader_Compute(AbstractReader):
             False if the CSV data is empty (excluding the header row).
         """
         rows = blob_data.splitlines()
-        logger.info(f"Processing {len(rows) - 1} rows for VM.")
+        logger.info(f"Processing {len(rows) - 1} rows for compute resources.")
         if len(rows) == 1:
             return False
         csv_reader = csv.DictReader(rows)
@@ -89,17 +89,15 @@ class Reader_Compute(AbstractReader):
         excluded_rows = 0
 
         for row in csv_reader:
-            logger.info(f"row: {row}")
+            logger.debug(f"row: {row}")
             total_rows += 1
             consumed_service = row.get(SOURCE_RESOURCE_TYPE, "")
-            if consumed_service.lower() != SOURCE_RESOURCE_TYPE_COMPUTE.lower():
+            if not consumed_service or consumed_service.lower() != SOURCE_RESOURCE_TYPE_COMPUTE.lower():
                 logger.info(f"Resource __{consumed_service}__ is not of type {SOURCE_RESOURCE_TYPE_COMPUTE}, skipping it.")
                 skipped_rows += 1
                 continue
             vm_id = row[SOURCE_RESOURCE_ID]
-            logger.info("Hello")
             try:
-                logger.info("Hello")
                 if vm_id not in vm_dict:
                     self.process_unknown_regions(row[SOURCE_REGION])
                     self.process_unknown_providers(row[SOURCE_PROVIDER])
@@ -115,7 +113,6 @@ class Reader_Compute(AbstractReader):
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
                 vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_DISK_SIZE_GB]))
-                logger.info("Hello")
                 # End of row process, fetch custom columns
                 process_custom_columns(vm_dict[vm_id], row, VirtualMachine.mandatory_columns())
             except ValidationError:

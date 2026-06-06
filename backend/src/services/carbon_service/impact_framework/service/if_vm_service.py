@@ -62,7 +62,7 @@ class IFVMService(IFService, ABC):
             return vm.provider if isinstance(vm.provider, str) else ""
 
         sorted_vms = sorted(vms, key=_provider_key)
-        logger.info(f"sorted_vms: {sorted_vms}")
+        logger.debug(f"sorted_vms: {sorted_vms}")
         all_chunks: list[list[VirtualMachine]] = []
         for _, group in groupby(sorted_vms, key=_provider_key):
             group_list = list(group)

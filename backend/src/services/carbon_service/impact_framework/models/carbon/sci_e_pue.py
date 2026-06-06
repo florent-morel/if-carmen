@@ -43,5 +43,5 @@ class SciEPue(ModelUtilities):
         Fills the time point specific input values.
         """
         pue = compute_resource.pue
-        logger.info(f"{IF_INPUT_PUE}: {pue}")
+        logger.debug(f"{IF_INPUT_PUE}: {pue}")
         return {IF_INPUT_PUE: pue}

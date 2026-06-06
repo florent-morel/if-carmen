@@ -220,7 +220,7 @@ def mock_daemon_config() -> MagicMock:
     config = MagicMock()
     config.source = MagicMock()
     config.source.input_path = TEST_INPUT_DIR
-    logger.warning(f"output_path: {TEST_REPORT_DIR}")
+    logger.debug(f"output_path: {TEST_REPORT_DIR}")
     config.output.output_path = TEST_REPORT_DIR
     return config
 
@@ -284,7 +284,10 @@ def test_carbon_daemon_with_sample_data(
         result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True
-        assert result.list_processed_resources == sample_vms
+
+        resource_result = result.dict_resource_result[ResourceType.VIRTUAL_MACHINE]
+        assert resource_result
+        assert resource_result.list_processed_resources == sample_vms
 
         assert len(captured_vms) == len(sample_vms)
 

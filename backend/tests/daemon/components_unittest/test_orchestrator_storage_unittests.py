@@ -74,8 +74,8 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
         self.mock_config.source = MagicMock()
-        self.mock_config.source.input_path = "etc/sample_data/test_data/storage_test.csv"
-        logger.warning(f"input_path: {self.mock_config.source.input_path}")
+        self.mock_config.source.input_path = "etc/sample_data/test_data"
+        logger.info(f"input_path: {self.mock_config.source.input_path}")
 
     @patch("backend.src.utils.ioc_util.resolve")
     # @patch("backend.src.daemon.carbon_daemon.register_models")
@@ -114,8 +114,8 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         logger.info(f"Mock processor: {mock_processor}")
         logger.info(f"Mock config: {self.mock_config}")
-        logger.warning(f"config input path: {config.carmen_daemon.input_path}")
-        logger.warning(f"config output path: {config.carmen_daemon.output_path}")
+        logger.info(f"config input path: {config.carmen_daemon.input_path}")
+        logger.info(f"config output path: {config.carmen_daemon.output_path}")
 
         self.mock_config.output.output_path = config.carmen_daemon.output_path
 
