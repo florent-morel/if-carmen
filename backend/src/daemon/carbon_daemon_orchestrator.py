@@ -467,7 +467,7 @@ class CarbonDaemonOrchestrator:
         """
         vm_dict_result = dict_resource_results.get(ResourceType.VIRTUAL_MACHINE)
         storage_dict_result = dict_resource_results.get(ResourceType.STORAGE)
-        misc_defaults = config.carbon_intensity_config.default_misc_services_constants
+        misc_defaults = config.carbon_values_config.default_misc_services_constants
 
         for resource in list_resources_to_process:
             if vm_dict_result:

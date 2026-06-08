@@ -409,7 +409,7 @@ def test_argos_service_init_sets_provider_config_from_api_config():
     """
     ArgosService.__init__ must resolve provider_config from config.carmen_api.provider.
     When provider matches a loaded provider config (azure in test env), provider_config is set.
-    When provider is None/unknown, provider_config is None and defaults.pue is used instead.
+    When provider is None/unknown, provider_config is None and the global fallback PUE is used instead.
     """
     from backend.src.core.yaml_config_loader import config as app_config
 

@@ -94,7 +94,11 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         # partition=get_row_data(row[SOURCE_PARTITION]),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,
-        pue=provider_config.get_pue() if provider_config else config.defaults.pue,
+        pue=(
+            provider_config.get_pue()
+            if provider_config
+            else config.carbon_values_config.default_pue
+        ),
         cost=get_row_data(row[SOURCE_COST]),
         vcpu_count=_parse_vcpu_count_from_row(row),
     )

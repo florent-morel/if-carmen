@@ -2,10 +2,6 @@
 # Test configuration — used when TEST_ENV=True (set automatically by conftest.py).
 # Mirrors config.yaml with dummy credentials and temp filesystem paths.
 
-defaults:
-  carbon_intensity: 281  # gCO2/kWh — fallback when region cannot be mapped to a known country
-  pue: 1.5              # Power Usage Effectiveness — fallback when provider config is missing
-
 carmen_api:
   thanos_url: "http://localhost:9090"
   provider: azure

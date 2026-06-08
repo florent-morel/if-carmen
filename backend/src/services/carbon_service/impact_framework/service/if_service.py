@@ -79,7 +79,7 @@ class IFService(ABC, CarbonService):
         self.data["aggregation_type"] = aggregation_type
         self.data["duration"] = duration
         self.data["device_emissions_embodied"] = (
-            config.carbon_intensity_config.default_device_emissions_embodied
+            config.carbon_values_config.default_device_emissions_embodied
         )
 
     def write_if_input(self, data, file_id: int):

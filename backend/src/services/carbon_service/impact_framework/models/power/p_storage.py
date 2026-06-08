@@ -50,8 +50,8 @@ class PStorage(ModelUtilities):
         from backend.src.core.yaml_config_loader import config as app_config
 
         global_ratios = (
-            app_config.carbon_intensity_config.get_storage_electricity_ratios()
-            if app_config.carbon_intensity_config
+            app_config.carbon_values_config.get_storage_electricity_ratios()
+            if app_config.carbon_values_config
             else None
         ) or {}
         provider_ratios = (

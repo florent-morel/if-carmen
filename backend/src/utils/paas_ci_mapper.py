@@ -42,8 +42,8 @@ class PaasCiMapper:
     @staticmethod
     @lru_cache(1000)
     def calculate_ci(zone: str) -> float:
-        ci_config = config.carbon_intensity_config
-        default_ci = config.defaults.carbon_intensity
+        ci_config = config.carbon_values_config
+        default_ci = ci_config.default_carbon_intensity
         for provider_config in config.provider_configs.values():
             regions = provider_config.get_regions()
             if regions and zone in regions:

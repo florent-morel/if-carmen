@@ -273,7 +273,7 @@ class ArgosService:
                     carbon_intensity=carbon_intensity,
                     pue=self.provider_config.get_pue()
                     if self.provider_config
-                    else config.defaults.pue,
+                    else config.carbon_values_config.default_pue,
                     time_points=desired_timestamps,
                 ),
             )

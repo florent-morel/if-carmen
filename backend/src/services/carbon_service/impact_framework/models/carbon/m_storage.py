@@ -52,7 +52,7 @@ class MStorage(ModelUtilities):
 
     def __init__(self, provider_config: AbstractProviderConfig | None = None):
         # provider_config kept for API compatibility; embodied coefficients come
-        # from carbon_values.yaml via config.carbon_intensity_config.
+        # from carbon_values.yaml via config.carbon_values_config.
         self.provider_config = provider_config
         config = {
             IF_INPUT_INPUT_PARAMETERS: [
@@ -72,13 +72,13 @@ class MStorage(ModelUtilities):
     def fill_inputs(self, storage_resource: StorageResource, time_index: int):
         """
         Fills the storage embodied inputs based on storage type.
-        Coefficients are read from carbon_values.yaml (config.carbon_intensity_config).
+        Coefficients are read from carbon_values.yaml (config.carbon_values_config).
         """
         from backend.src.core.yaml_config_loader import config as app_config
 
         embodied_dict = (
-            app_config.carbon_intensity_config.get_storage_embodied()
-            if app_config.carbon_intensity_config
+            app_config.carbon_values_config.get_storage_embodied()
+            if app_config.carbon_values_config
             else None
         ) or {}
         storage_type = storage_resource.storage_type.lower()
