@@ -12,6 +12,7 @@ class ErrorCategory(str, Enum):
     High level error categories
     """
 
+    UNKNOWN = "unknown"
     CONFIGURATION = "configuration"
     DATA_FETCH = "data fetch"
     IMPACT_FRAMEWORK = "impact framework"
@@ -151,6 +152,11 @@ class ErrorTemplate:
 
 
 ERRORS: dict[str, ErrorTemplate] = {
+    # Unknown error
+    ErrorCode.UNKNOWN_ERROR: ErrorTemplate(
+        category=ErrorCategory.UNKNOWN,
+        user_message="Unknown error raised",
+    ),
     # Configuration errors
     ErrorCode.CONFIG_MISSING_PARAMETERS: ErrorTemplate(
         category=ErrorCategory.CONFIGURATION,
