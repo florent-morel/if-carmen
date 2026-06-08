@@ -7,21 +7,19 @@ from collections import Counter
 from unittest.mock import MagicMock
 
 from backend.src.common.constants import (
-    SOURCE_RESOURCE_ID,
-    SOURCE_REGION,
-    SOURCE_PROVIDER,
     SOURCE_AVG_CPU_PERCENTAGE,
-    SOURCE_TIME,
-    SOURCE_DISK_SIZE_GB,
-    SOURCE_METER_CATEGORY,
     SOURCE_COST,
-    SOURCE_PRODUCT_NAME,
-    SOURCE_METER_NAME,
-    SOURCE_QUANTITY,
-    SOURCE_UNIT_OF_MEASURE,
-    SOURCE_DATE,
-    SOURCE_RESOURCE_GROUP,
-    SOURCE_SUBSCRIPTION_ID,
+    SOURCE_DISK_SIZE_GB,
+    SOURCE_NAME,
+    SOURCE_NB_VCPUS,
+    SOURCE_PROVIDER,
+    SOURCE_REGION,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_TYPE,
+    SOURCE_RESOURCE_TYPE_COMPUTE,
+    SOURCE_RESOURCE_TYPE_SERVICE,
+    SOURCE_SIZE,
+    SOURCE_TIME,
 )
 from backend.src.daemon.readers.reader_compute import Reader_Compute
 
@@ -31,41 +29,25 @@ logger = logging.getLogger(__name__)
 
 # Minimal CSV header matching all fields consumed by Reader_Compute
 _HEADERS = ",".join([
-    SOURCE_DATE,
     SOURCE_TIME,
     SOURCE_RESOURCE_ID,
     SOURCE_AVG_CPU_PERCENTAGE,
     SOURCE_REGION,
-    "Subscription",
-    SOURCE_SUBSCRIPTION_ID,
-    SOURCE_RESOURCE_GROUP,
-    "Name",
-    "Size",
-    "Service",
-    "Instance",
-    "Component",
-    "Environment",
-    "Partition",
+    SOURCE_NAME,
+    SOURCE_SIZE,
+    SOURCE_RESOURCE_TYPE_SERVICE,
     SOURCE_PROVIDER,
     SOURCE_DISK_SIZE_GB,
-    "NbVCpus",
+    SOURCE_NB_VCPUS,
     SOURCE_COST,
-    SOURCE_METER_CATEGORY,
-    SOURCE_METER_NAME,
-    SOURCE_PRODUCT_NAME,
-    SOURCE_QUANTITY,
-    SOURCE_UNIT_OF_MEASURE,
-    "BillingPeriodStartDate",
-    "BillingPeriodEndDate",
-    "ConsumedService",
+    SOURCE_RESOURCE_TYPE,
 ])
 
 def _make_row(resource_id: str, provider: str = "azure", region: str = "eastus") -> str:
     return (
-        f"05/01/2024,2024-05-01T00:00:00Z,{resource_id},20,{region},"
-        f"sub-test,sub-id,rg-test,vm-name,Standard_A1_v2,compute,inst,comp,test,part,"
-        f"{provider},128,2,100.0,Compute,Standard VM,Virtual Machine,1,1/Hour,"
-        f"05/01/2024,05/31/2024,compute"
+        f"2024-05-01T00:00:00Z,{resource_id},20,{region},"
+        f"vm-name,Standard_A1_v2,compute,{provider},128,2,100.0,"
+        f"{SOURCE_RESOURCE_TYPE_COMPUTE}"
     )
 
 
