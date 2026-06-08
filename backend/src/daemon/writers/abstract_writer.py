@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any, Iterable
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import KnownException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import Resource
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
@@ -51,20 +51,20 @@ class AbstractWriter(ABC):
         Args:
             resource: the resource to fill the columns.
         """
-        # Add information to fill common columns
         row = {
             # Common columns
             ReportConfig.COMMON_DATE: self.date,
-            ReportConfig.COMMON_RESOURCE_TYPE: resource.resource_type,
+            ReportConfig.COMMON_RESOURCE_TYPE: resource.resource_type.value,
             ReportConfig.COMMON_ID: resource.id,
             ReportConfig.COMMON_NAME: resource.name,
             ReportConfig.COMMON_PROVIDER: resource.provider,
             ReportConfig.COMMON_REGION: resource.region,
-            ReportConfig.COMMON_SUBSCRIPTION: resource.subscription,
+            # ReportConfig.COMMON_SUBSCRIPTION: resource.subscription,
             ReportConfig.COMMON_ENERGY: resource.total_energy_consumed,
             ReportConfig.COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
             ReportConfig.COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
             ReportConfig.COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
             ReportConfig.COMMON_CARBON_INTENSITY: resource.carbon_intensity,
+            ReportConfig.COMMON_COST: resource.cost,
         }
         return row

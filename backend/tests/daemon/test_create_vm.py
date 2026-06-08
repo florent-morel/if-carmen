@@ -1,5 +1,5 @@
 """
-Unit tests for daemon_helpers functions related to VM creation and vCPU count resolution:
+Unit tests for virtual_machine_helpers functions related to VM creation and vCPU count resolution:
   - parse_vcpu_count_from_azure_vm_size (name-parsing heuristic, Azure only)
   - _parse_vcpu_count_from_row  (accessed via create_vm)
   - create_vm                  (vcpu_count field populated)
@@ -8,7 +8,7 @@ Unit tests for daemon_helpers functions related to VM creation and vCPU count re
 import unittest
 from unittest.mock import patch, MagicMock
 
-from backend.src.daemon.readers.helpers.daemon_helpers import (
+from backend.src.daemon.readers.helpers.virtual_machine_helpers import (
     parse_vcpu_count_from_azure_vm_size,
     create_vm,
 )
@@ -62,7 +62,7 @@ _MINIMAL_ROW = {
     "Instance": "",
     "Environment": "prd",
     "Partition": "",
-    "BillingCost": "10.5",
+    "Cost": "10.5",
 }
 
 
@@ -75,8 +75,8 @@ class TestCreateVmVcpuCount(unittest.TestCase):
             row["NbVCpus"] = nb_vcpus_value
         return row
 
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.PaasCiMapper")
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.config")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
     def test_vcpu_count_populated_from_billing_column(self, mock_config, mock_mapper):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
         mock_mapper.calculate_ci.return_value = 200.0
@@ -86,8 +86,8 @@ class TestCreateVmVcpuCount(unittest.TestCase):
 
         self.assertEqual(vm.vcpu_count, 4)
 
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.PaasCiMapper")
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.config")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
     def test_vcpu_count_is_none_when_column_absent(self, mock_config, mock_mapper):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
         mock_mapper.calculate_ci.return_value = 200.0
@@ -97,8 +97,8 @@ class TestCreateVmVcpuCount(unittest.TestCase):
 
         self.assertIsNone(vm.vcpu_count)
 
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.PaasCiMapper")
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.config")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
     def test_vcpu_count_is_none_for_dash_value(self, mock_config, mock_mapper):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
         mock_mapper.calculate_ci.return_value = 200.0
@@ -108,8 +108,8 @@ class TestCreateVmVcpuCount(unittest.TestCase):
 
         self.assertIsNone(vm.vcpu_count)
 
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.PaasCiMapper")
-    @patch("backend.src.daemon.readers.helpers.daemon_helpers.config")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
     def test_vcpu_count_handles_float_string(self, mock_config, mock_mapper):
         """CSV may store integers as floats e.g. '4.0'; int(float('4.0')) == 4."""
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)

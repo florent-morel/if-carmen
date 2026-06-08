@@ -24,6 +24,7 @@ def sample_vms():
     return [
         VirtualMachine(
             id="0",
+            provider="azure",
             time_points=["2021-01-01T00:00:00Z"],
             cpu_util=[0.3],
             vm_size="Standard_A1_v2",

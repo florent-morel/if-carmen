@@ -3,35 +3,28 @@ Storage module for reading and processing compute resource data.
 """
 
 import csv
-import os
 import logging
-from datetime import datetime, timedelta
 
-from pydantic import ValidationError
+
+from backend.src.common.carmen_exception import CarmenException
+from backend.src.common.constants import (
+    SOURCE_RESOURCE_TYPE_COMPUTE,
+    SOURCE_RESOURCE_TYPE,
+    SOURCE_PROVIDER,
+    SOURCE_REGION,
+    SOURCE_RESOURCE_TYPE_STORAGE,
+)
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import KnownException
-
 from backend.src.daemon.readers.abstract_reader import AbstractReader
+from backend.src.utils.helpers import (
+    process_custom_columns,
+)
+
 from backend.src.daemon.readers.helpers.misc_services_helpers import (
     create_misc_services_resource,
 )
-from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
-from backend.src.core.yaml_config_loader import DaemonConfig
-from backend.src.utils.helpers import str_to_float
-from backend.src.utils.paas_ci_mapper import PaasCiMapper
-from backend.src.schemas.storage_resource import StorageResource
-from backend.src.common.constants import (
-    CSV_PATH,
-    CSV_FILE_TEST,
-    CSV_FILE_ENCODING,
-    SOURCE_REGION,
-    SOURCE_PROVIDER,
-    SOURCE_BILLING_COST,
-    SOURCE_COMPUTE,
-    SOURCE_STORAGE,
-    SOURCE_CONSUMED_SERVICE,
-)
+from backend.src.schemas.resource import Resource
 
 logger = logging.getLogger(__name__)
 
@@ -47,10 +40,6 @@ class Reader_Misc_Services(AbstractReader):
     atomic services.
     Hence a Misc Services implementation.
     """
-
-    def __init__(self, config: DaemonConfig):
-        self.config: DaemonConfig = config
-        self.input_file = os.getenv(CSV_PATH, CSV_FILE_TEST)
 
     def read(self, csv_data) -> list[Resource]:
         """
@@ -84,12 +73,12 @@ class Reader_Misc_Services(AbstractReader):
 
         Returns:
             list[MiscServicesResource]: Processed misc services resource list
-            float: Total compute cost
-            float: Total storage cost
         """
         rows = csv_data.splitlines()
+        logger.info(f"Processing {len(rows) - 1} rows for misc services "
+                    "resources.")
         if len(rows) <= 1:
-            raise KnownException(
+            raise CarmenException(
                 ErrorCode.CSV_FILE_NOT_FOUND, "Misc Services CSV data is empty"
             )
 
@@ -98,17 +87,42 @@ class Reader_Misc_Services(AbstractReader):
         logger.info("Processing Misc services CSV...")
         misc_services_resources: list[MiscServicesResource] = []
         logger.debug(f"csv_data: {csv_data}")
+
+        total_rows = 0
+        compute_rows = 0
+        storage_rows = 0
+        skipped_rows = 0
+        misc_services_rows = 0
+
         for row in csv_reader:
+            total_rows += 1
             logger.debug(f"row: {row}")
             self.process_unknown_regions(row[SOURCE_REGION])
             self.process_unknown_providers(row[SOURCE_PROVIDER])
 
-            consumed_service = row.get(SOURCE_CONSUMED_SERVICE, "").lower()
-            if consumed_service not in (SOURCE_COMPUTE, SOURCE_STORAGE):
-                misc_services_resource = create_misc_services_resource(row)
-                if not misc_services_resource or misc_services_resource.id == "":
-                    continue
-                misc_services_resources.append(misc_services_resource)
+            consumed_service = row.get(SOURCE_RESOURCE_TYPE, "").lower()
+            if consumed_service == SOURCE_RESOURCE_TYPE_COMPUTE.lower():
+                compute_rows += 1
+                continue
+            if consumed_service == SOURCE_RESOURCE_TYPE_STORAGE.lower():
+                storage_rows += 1
+                continue
+            misc_services_resource = create_misc_services_resource(row)
+            if not misc_services_resource or misc_services_resource.id == "":
+                skipped_rows += 1
+                continue
+            misc_services_resources.append(misc_services_resource)
+            misc_services_rows += 1
+            # End of row process, fetch custom columns
+            process_custom_columns(misc_services_resource, row,
+                                        MiscServicesResource.mandatory_columns())
+
+        self.dict_log_info["total_rows"] = total_rows
+        self.dict_log_info["compute_rows"] = compute_rows
+        self.dict_log_info["storage_rows"] = storage_rows
+        self.dict_log_info["skipped_rows"] = skipped_rows
+        self.dict_log_info["misc_services_rows"] = misc_services_rows
+
         logger.info("Misc services CSV processed")
         return misc_services_resources
 
@@ -120,6 +134,13 @@ class Reader_Misc_Services(AbstractReader):
             "Processing completed found %d misc services resources",
             len(self.list_resources_to_process),
         )
+
+        logger.debug("Misc services processing summary:")
+        logger.debug("  Total rows: %s", self.dict_log_info.get("total_rows", 0))
+        logger.debug("  Compute rows (excluded): %s", self.dict_log_info.get("compute_rows", 0))
+        logger.debug("  Storage rows (excluded): %s", self.dict_log_info.get("storage_rows", 0))
+        logger.debug("  Skipped rows (no id): %s", self.dict_log_info.get("skipped_rows", 0))
+        logger.debug("  Misc services rows: %s", self.dict_log_info.get("misc_services_rows", 0))
 
         self.log_unknown_info()
 

@@ -4,6 +4,7 @@ It provides functionality to compute carbon and energy metrics at infrastructure
 """
 
 import concurrent
+import logging
 from abc import ABC
 from itertools import groupby
 from typing import List, Tuple
@@ -33,6 +34,7 @@ from backend.src.services.carbon_service.impact_framework.service.if_service imp
     IFService,
 )
 
+logger = logging.getLogger(__name__)
 
 class IFVMService(IFService, ABC):
     """
@@ -60,6 +62,7 @@ class IFVMService(IFService, ABC):
             return vm.provider if isinstance(vm.provider, str) else ""
 
         sorted_vms = sorted(vms, key=_provider_key)
+        logger.debug(f"sorted_vms: {sorted_vms}")
         all_chunks: list[list[VirtualMachine]] = []
         for _, group in groupby(sorted_vms, key=_provider_key):
             group_list = list(group)

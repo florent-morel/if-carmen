@@ -26,7 +26,7 @@ from backend.src.utils.helpers import (
 )
 from backend.src.schemas.pod import Pod
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import DataFetchError
+from backend.src.common.carmen_exception import DataFetchError
 from backend.src.crud.prometheus_query_builder import PromQBuilder
 from backend.src.core.yaml_config_loader import config
 from backend.src.core.settings import settings

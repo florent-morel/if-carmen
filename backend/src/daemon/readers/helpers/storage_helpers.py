@@ -10,11 +10,15 @@ import re
 from datetime import datetime
 
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.utils.helpers import str_to_float, get_row_data
+from backend.src.utils.helpers import(
+    str_to_float,
+    get_row_data,
+    process_custom_columns,
+)
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.common.constants import (
+    DAILY_SECONDS,
     CSV_PATH,
-    CSV_FILE_TEST,
     CSV_FILE_ENCODING,
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
@@ -22,7 +26,7 @@ from backend.src.common.constants import (
     SOURCE_SUBSCRIPTION_ID,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
-    SOURCE_BILLING_COST,
+    SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_METER_NAME,
     SOURCE_QUANTITY,
@@ -30,6 +34,8 @@ from backend.src.common.constants import (
     SOURCE_DATE,
     DATE_FORMAT,
     UNKNOWN,
+    FORMAT_STORAGE_ONE_GIB_PER_HOUR,
+    FORMAT_STORAGE_ONE_PER_MONTH,
 )
 
 logger = logging.getLogger(__name__)
@@ -108,7 +114,7 @@ def get_storage_type(row: dict) -> str:
         return "HDD"
 
     logger.warning("Unknown disk type for %s", product_name)
-    return "Unknown"
+    return UNKNOWN
 
 
 def create_storage_resource(
@@ -145,12 +151,12 @@ def create_storage_resource(
         replication_type=replication_type,
         size_gb=size_gb,
         region=region,
-        subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
-        resource_group=row.get(SOURCE_RESOURCE_GROUP, UNKNOWN),
+        # subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
+        # resource_group=row.get(SOURCE_RESOURCE_GROUP, UNKNOWN),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         time_points=[],
         duration_seconds=duration_seconds,
-        billing_cost=get_row_data(row[SOURCE_BILLING_COST]),
+        cost=get_row_data(row[SOURCE_COST]),
     )
 
 
@@ -221,33 +227,30 @@ def calculate_storage_size(
     unit_of_measure = row.get(SOURCE_UNIT_OF_MEASURE, "")
     quantity = str_to_float(row.get(SOURCE_QUANTITY, "0"))
     product_name = row.get(SOURCE_PRODUCT_NAME, "")
+    logger.info(f"hello")
 
-    # TODO: Review code and magic numbers
-    if unit_of_measure == "1 GiB/Hour":
+    # TODO: V1 Review code and magic numbers.
+    # This implementation is heuristic-based and relies on specific naming conventions and assumptions about the billing data.
+    # It is good for prototyping, but should not exist in the V1 of Carmen. Instead, the billing data should be normalized and enriched with explicit columns for size, duration.
+    # Since this method is computing storage sizes and durations, these should instead be moved to mandatory inputs in the input CSV.
+    # Task 1: add to input CSV spec: StorageSizeGB, StorageDurationHours. Update the documentation and the ingestion layer (readers/helpers).
+    # Task 2: remove provider-specific ingestion layer using provider-specific logic (e.g. for Azure, the existing disk SKU mapping logic to populate StorageSizeGB, BillingPeriodStartDate and BillingPeriodEndDate...).
+    
+    if unit_of_measure == FORMAT_STORAGE_ONE_GIB_PER_HOUR:
         # Premium SSD v2 / dynamic disks — GiB → GB conversion
+        logger.info(f"aa hello {quantity} ")
+        # TODO: V1 c'est dégueulasse. Ça dégage. À ajouter dans la spec d'input.
         size_gb = (quantity / 24) * 1.07374182
-        return size_gb, 86400
+        return size_gb, DAILY_SECONDS
 
-    if unit_of_measure == "1/Month":
+    if unit_of_measure == FORMAT_STORAGE_ONE_PER_MONTH:
         # Classic disks with SKU (P10, P20, S4, …)
+        logger.info(f" nnnhello")
         sku_size = extract_size_from_product_name(product_name, disk_sku_mapping)
         if sku_size > 0:
-            duration_seconds = int(round(billing_period_days * quantity * 86400))
+            duration_seconds = int(round(billing_period_days * quantity * DAILY_SECONDS))
             return sku_size, duration_seconds
         logger.warning("No SKU size found for 1/Month: %s", product_name)
-        return 0.0, 0
-
-    if unit_of_measure in (
-        "1 GB/Month",
-        "1",
-        "1/Hour",
-        "100",
-        "10K",
-        "10K/Month",
-        "1 GB",
-        "1M",
-    ):
-        return 0.0, 0  # snapshots, perf options, ops, network transfers — excluded
 
     logger.warning("Unknown UnitOfMeasure: %s, %s", unit_of_measure, product_name)
     return 0.0, 0
@@ -274,12 +277,12 @@ def _process_storage_row(
     """
     if disk_sku_mapping is None:
         disk_sku_mapping = {}
-
     size_gb, duration_seconds = calculate_storage_size(
         row, billing_period_days, disk_sku_mapping
     )
 
     if size_gb <= 0 or duration_seconds <= 0:
+        logger.info(f"Size <= 0 or duration <= 0, returning false.")
         return False
 
     storage_id = row.get(SOURCE_RESOURCE_ID, "")
@@ -290,6 +293,7 @@ def _process_storage_row(
     storage_type = get_storage_type(row)
     replication_type = get_replication_type(row)
 
+    # TODO: Magic number
     if size_gb > 32767:
         logger.warning("Unusually large disk: %sGB for %s", size_gb, storage_id)
 
@@ -304,5 +308,9 @@ def _process_storage_row(
     region = row.get(SOURCE_REGION, UNKNOWN)
     if not region or region == UNKNOWN:
         logger.warning("Missing region for %s", storage_id)
+
+    # End of row process, fetch custom columns
+    process_custom_columns(storage_dict[storage_id], row,
+                           StorageResource.mandatory_columns())
 
     return True

@@ -9,6 +9,8 @@ computed by the functions in the module computation_helpers.py
 import sys
 import os
 import csv
+import logging
+
 from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
 import pytest
@@ -16,6 +18,7 @@ import unittest
 from backend.tests.daemon import mock_data
 from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
 from backend.src.daemon.processors.processor_compute import Processor_Compute
+from backend.src.common.errors import ErrorCode
 
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import ResourceType
@@ -37,6 +40,8 @@ from backend.src.daemon.carbon_daemon_orchestrator import (
     CarbonDaemonOrchestrator,
 )
 
+logger = logging.getLogger(__name__)
+
 # TODO: put in configuration
 PUE_AZURE = 1.185
 
@@ -47,6 +52,8 @@ project_root = os.path.abspath(
 sys.path.insert(0, project_root)
 
 # TODO: put in configuration
+# Set up input directory for tests
+TEST_INPUT_DIR = os.path.abspath("etc/sample_data/test_data")
 # Set up report directory for tests
 TEST_REPORT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "report"))
 os.makedirs(TEST_REPORT_DIR, exist_ok=True)
@@ -212,6 +219,8 @@ def mock_daemon_config() -> MagicMock:
     """
     config = MagicMock()
     config.source = MagicMock()
+    config.source.input_path = TEST_INPUT_DIR
+    logger.debug(f"output_path: {TEST_REPORT_DIR}")
     config.output.output_path = TEST_REPORT_DIR
     return config
 
@@ -227,8 +236,16 @@ def test_carbon_daemon_with_sample_data(
     Validates real carbon calculations using the Impact Framework.
     """
     # Get sample VM data from test files
+    # Fields:
+    # Date,Time,Id,AverageCpuPercentage,MinimumCpuPercentage,MaximumCpuPercentage
+    # AverageAvailableMemoryGB,MinimumAvailableMemoryGB,MaximumAvailableMemoryGB
+    # Region,Subscription,ResourceGroup,Name,Size,Family,NbVCpus,MemoryGB
+    # DiskSizeGb,Priority,Zone,AvailabilitySet,ProximityPlacementGroup
+    # VirtualMachineScaleSet,ProvisioningState,DisplayStatus,Service,Instance
+    # Component,Environment,Partition,Provider,Tags
+
     sample_vms = mock_data.read_sample_vm_data(
-        {"ppt": ["usage_2025-06-01_00.csv"] * 24}, ""
+        {"ppt": ["usage_2025-06-01_00.csv"] * 24}, "", mock_daemon_config
     )
 
     with (
@@ -263,10 +280,14 @@ def test_carbon_daemon_with_sample_data(
             mock_daemon_config,
             list_resource_processors=[Processor_Compute(mock_daemon_config)],
         )
+        # TODO: Test will fail as support for multiple data source files not implemented
         result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True
-        assert result.list_processed_resources == sample_vms
+
+        resource_result = result.dict_resource_result[ResourceType.VIRTUAL_MACHINE]
+        assert resource_result
+        assert resource_result.list_processed_resources == sample_vms
 
         assert len(captured_vms) == len(sample_vms)
 
@@ -360,8 +381,8 @@ def test_daemon_computation_integration(
 
         mock_writer_factory.create_writer.side_effect = capture_vms
 
-        daemon = CarbonDaemon(mock_daemon_config)
-        result = daemon.run()
+        daemon = CarbonDaemonOrchestrator(mock_daemon_config)
+        result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True
         assert result.vm_count == 1

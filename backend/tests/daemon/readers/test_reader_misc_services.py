@@ -11,16 +11,11 @@ from collections import Counter
 from unittest.mock import patch
 
 from backend.src.common.constants import (
-    CSV_PATH,
-    CSV_FILE_TEST,
-    CSV_FILE_ENCODING,
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
     SOURCE_PROVIDER,
-    SOURCE_BILLING_COST,
-    SOURCE_COMPUTE,
-    SOURCE_STORAGE,
-    SOURCE_CONSUMED_SERVICE,
+    SOURCE_COST,
+    SOURCE_RESOURCE_TYPE,
 )
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.resource import ResourceType
@@ -45,7 +40,7 @@ class TestReaderMiscServices(unittest.TestCase):
         Test successful Misc Services Reader execution.
         """
         mock_csv_data = (
-            f"{SOURCE_RESOURCE_ID},{SOURCE_CONSUMED_SERVICE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_BILLING_COST}\n"
+            f"{SOURCE_RESOURCE_ID},{SOURCE_RESOURCE_TYPE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_COST}\n"
             "misc_service1,Compute,provider_abc,centralus,100.0\n"
             "misc_service2,Compute,provider_abc,centralus,75.0\n"
             "misc_service3,Storage,provider_abc,centralus,50.0\n"
@@ -68,18 +63,50 @@ class TestReaderMiscServices(unittest.TestCase):
         logger.debug(f"Inside test reader Misc Services: {self}")
         list_processed_resources = reader_misc_services.read(mock_csv_data)
 
-        self.assertEqual(len(list_processed_resources), 6)
+        # Compute and Storage rows are excluded by the reader filter.
+        # Only "network" and "keyvault" rows produce valid misc service resources.
+        # The empty row is skipped (no id).
+        self.assertEqual(len(list_processed_resources), 2)
 
         resultMiscServicesResource = list_processed_resources[0]
 
         # Ensure input data is not altered.
         # TODO: check what needs to be validated in output of Misc Services Reader
         self.assertEqual(resultMiscServicesResource.resource_type, ResourceType.MISC_SERVICES)
-        self.assertEqual(resultMiscServicesResource.id, "misc_service1")
-        self.assertEqual(resultMiscServicesResource.misc_services_cost, 100.0)
+        self.assertEqual(resultMiscServicesResource.id, "misc_service5")  # first non-compute/storage row
+        self.assertEqual(resultMiscServicesResource.cost, 80.0)
         self.assertEqual(resultMiscServicesResource.provider, "provider_abc")
         self.assertEqual(resultMiscServicesResource.region, "centralus")
 
         # TODO: these should be UT
         # self.assertEqual(total_compute_cost, 175.0)
         # self.assertEqual(total_storage_cost, 110.0)
+
+    def test_reader_misc_services_dict_log_info(self):
+        """
+        Verify dict_log_info counters after processing a CSV with
+        compute/storage exclusions and a skipped (empty-id) row.
+        """
+        mock_csv_data = (
+            f"{SOURCE_RESOURCE_ID},{SOURCE_RESOURCE_TYPE},{SOURCE_PROVIDER},{SOURCE_REGION},{SOURCE_COST}\n"
+            "misc_service1,Compute,provider_abc,centralus,100.0\n"   # excluded: compute
+            "misc_service2,Compute,provider_abc,centralus,75.0\n"    # excluded: compute
+            "misc_service3,Storage,provider_abc,centralus,50.0\n"    # excluded: storage
+            "misc_service4,Storage,provider_abc,centralus,60.0\n"    # excluded: storage
+            "misc_service5,network,provider_abc,centralus,80.0\n"    # valid misc
+            ",,,,\n"                                                  # skipped: empty id
+            "misc_service6,keyvault,provider_abc,centralus,90.0\n"  # valid misc
+        )
+
+        reader = Reader_Misc_Services(self.mock_config)
+        reader.known_regions = ["centralus"]
+        reader.unknown_regions = Counter()
+        reader.unknown_providers = Counter()
+
+        reader.read(mock_csv_data)
+
+        self.assertEqual(reader.dict_log_info["total_rows"], 7)
+        self.assertEqual(reader.dict_log_info["compute_rows"], 2)
+        self.assertEqual(reader.dict_log_info["storage_rows"], 2)
+        self.assertEqual(reader.dict_log_info["skipped_rows"], 1)
+        self.assertEqual(reader.dict_log_info["misc_services_rows"], 2)

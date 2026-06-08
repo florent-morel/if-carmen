@@ -56,8 +56,8 @@ class AbstractProcessor(ABC):
             writer_factory: Factory for creating writer instances (optional)
         """
         self.config = config
-        self.list_resources_to_process: list[Resource] | None = None
-        self.resource_type_result: ResourceTypeResult | None = None
+        self.list_resources_to_process: list[Resource] | None = []
+        self.resource_type_result: ResourceTypeResult | None = {}
 
     def read(self, csv_data: str) -> list[Resource]:
         """
@@ -66,7 +66,8 @@ class AbstractProcessor(ABC):
         Returns:
         """
         logger.debug(f"Inside AbstractProcessor reader: {self.reader}")
-        self.list_resources_to_process = self.reader.read(csv_data)
+        self.list_resources_to_process.extend(self.reader.read(csv_data))
+        return self.list_resources_to_process
 
     def run(self) -> ResourceTypeResult:
         """
@@ -77,7 +78,7 @@ class AbstractProcessor(ABC):
         """
         self.resource_type_result = None
         if self.list_resources_to_process and len(self.list_resources_to_process) > 0:
-            logger.info("list_resources_to_process: %s", self.list_resources_to_process)
+            logger.info("list_resources_to_process: %d", len(self.list_resources_to_process))
             self.resource_type_result = self.runner.run(self.list_resources_to_process)
         else:
             logger.error("No resource to process for this runner.")

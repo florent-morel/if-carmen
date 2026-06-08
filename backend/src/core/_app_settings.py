@@ -17,7 +17,7 @@ from pydantic_settings import BaseSettings
 from pydantic import field_validator
 from backend.src.common.enums import LogLevel
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import ConfigValidationError
+from backend.src.common.carmen_exception import ConfigValidationError
 from backend.src.utils.helpers import read_file
 
 logger = logging.getLogger(__name__)
@@ -92,6 +92,7 @@ class ReportConfig:
     COMMON_EMBODIED_CARBON = "EmbodiedCarbonGramsCO2eq"
     COMMON_TOTAL_CARBON = "TotalCarbonGramsCO2eq"
     COMMON_CARBON_INTENSITY = "CarbonIntensity"
+    COMMON_COST = "Cost"
 
     # VM columns
     COMPUTE_VM_SIZE = "VMSize"
@@ -106,8 +107,7 @@ class ReportConfig:
     STORAGE_REPLICATION_TYPE = "ReplicationType"
     STORAGE_SIZE_GB = "SizeGB"
 
-    # Misc services columns
-    MISC_SERVICES_COST = "ServicesCost"
+    # No Misc services columns
 
     # Flat ordered fieldname list used to initialise csv.DictWriter.
     REPORT_HEADERS: list[str] = [
@@ -124,6 +124,7 @@ class ReportConfig:
         "EmbodiedCarbonGramsCO2eq",
         "TotalCarbonGramsCO2eq",
         "CarbonIntensity",
+        "Cost",
         # VM columns
         "VMSize",
         "Service",
@@ -135,8 +136,7 @@ class ReportConfig:
         "StorageType",
         "ReplicationType",
         "SizeGB",
-        # Misc services columns
-        "ServicesCost",
+        # No Misc services columns
     ]
 
     MISC_SERVICES_REPORT_HEADERS: list[list[str]] = [
@@ -148,10 +148,10 @@ class ReportConfig:
             "Region",
             "Subscription",
             "CarbonIntensity",
-            "ServicesCost",
             "EnergyKWH",
             "OperationalCarbonGramsCO2eq",
             "EmbodiedCarbonGramsCO2eq",
+            "Cost",
         ]
     ]
 
@@ -166,6 +166,7 @@ class Settings(BaseSettings):
     UVICORN: UvicornConfig
     TEST_ENV: bool = os.getenv("TEST_ENV", "False").lower() in ("true", "1", "t")
     LOG_LEVEL: LogLevel = LogLevel.INFO
+
     IF_CLOUD_METADATA_FILEPATH: str = (
         "https://raw.githubusercontent.com/Green-Software-Foundation/if-data/main/cloud"
         "-metdata-azure-instances.csv"
@@ -182,6 +183,10 @@ class Settings(BaseSettings):
         "etc/config/modelling_constants/carbon_values.yaml",
     )
     CARMEN_INPUT_FOLDER_PATH: str = os.getenv("CARMEN_INPUT_FOLDER_PATH", "etc/input")
+
+    CARMEN_TEST_CONFIG_FILEPATH: str = os.getenv(
+        "CARMEN_TEST_CONFIG_FILEPATH", "etc/sample_data/config-test.yaml"
+    )
 
 
 def configure_logger(validated_settings: Settings) -> None:

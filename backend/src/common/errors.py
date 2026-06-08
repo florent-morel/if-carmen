@@ -53,6 +53,7 @@ class ErrorCode(str, Enum):
     CONFIG_INVALID_JSON = "1005"
     CONFIG_INVALID_VALUE = "1006"
     CONFIG_VALIDATION_FAILED = "1007"
+    CONFIG_NO_PROCESSOR = "1008"
 
     # Authentication errors (2xxx)
     AUTH_TOKEN_EXPIRED = "2001"
@@ -155,7 +156,7 @@ ERRORS: dict[str, ErrorTemplate] = {
     # Unknown error
     ErrorCode.UNKNOWN_ERROR: ErrorTemplate(
         category=ErrorCategory.UNKNOWN,
-        user_message="Unknown error raised",
+        user_message="unknown error raised",
     ),
     # Configuration errors
     ErrorCode.CONFIG_MISSING_PARAMETERS: ErrorTemplate(
@@ -185,6 +186,10 @@ ERRORS: dict[str, ErrorTemplate] = {
     ErrorCode.CONFIG_VALIDATION_FAILED: ErrorTemplate(
         category=ErrorCategory.CONFIGURATION,
         user_message="configuration validation failed",
+    ),
+    ErrorCode.CONFIG_NO_PROCESSOR: ErrorTemplate(
+        category=ErrorCategory.CONFIGURATION,
+        user_message="No processor found for Carmen Daemon execution.",
     ),
     # Authentication errors
     ErrorCode.AUTH_TOKEN_EXPIRED: ErrorTemplate(

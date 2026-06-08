@@ -2,19 +2,25 @@
 Helper functions for misc_services model
 """
 
-import csv
 import logging
 from datetime import datetime, timedelta
 
-from backend.src.common.known_exception import KnownException
-from backend.src.core.settings import ReportConfig
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
-
-from backend.src.common.errors import ErrorCode
+from backend.src.common.constants import (
+    SOURCE_PROVIDER,
+    SOURCE_RESOURCE_ID,
+    SOURCE_SUBSCRIPTION_ID,
+    SOURCE_REGION,
+    SOURCE_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_DATE,
+    DATE_FORMAT,
+    UNKNOWN,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,54 +52,27 @@ def get_carbon_and_energy_values(
     return storage_total_carbon, storage_total_energy, vm_total_carbon, vm_total_energy
 
 
-def create_misc_services_report(
-    misc_services_resources: list[MiscServicesResource], date: str, out_file: str
-):
-    """
-    Creates a misc_services report for the given misc services resource list.
-    """
-    logger.info("Creating misc_services model report...")
-    with open(out_file, mode="w", newline="", encoding="utf-8") as report:
-        writer = csv.writer(report)
-        writer.writerows(ReportConfig.MISC_SERVICES_REPORT_HEADERS)
-        for misc_services_resource in misc_services_resources:
-            row = [
-                date,
-                misc_services_resource.id,
-                misc_services_resource.resource_type,
-                misc_services_resource.region,
-                misc_services_resource.subscription,
-                misc_services_resource.carbon_intensity,
-                misc_services_resource.misc_services_cost,
-                misc_services_resource.total_energy_consumed,
-                misc_services_resource.total_carbon_operational,
-                misc_services_resource.total_carbon_embodied,
-            ]
-            writer.writerow(row)
-    logger.info("misc_services model report saved to: %s", out_file)
-
-
 def create_misc_services_resource(row):
     """
     Creates a misc_services resource from the given row
     """
     logger.debug(f"Inside create misc_services_resource row: {row}")
-    region = row.get("Region", "unknown")
-    logger.debug(f"region: {region}")
-    id = row.get("ResourceId")
+    region = row.get(SOURCE_REGION, UNKNOWN)
+    logger.debug(f"{SOURCE_REGION}: {region}")
+    id = row.get(SOURCE_RESOURCE_ID)
     misc_services_resource = None
     if id:
         misc_services_resource = MiscServicesResource(
-            name=row.get("ProductName", ""),
+            name=row.get(SOURCE_PRODUCT_NAME, ""),
             id=id,
-            provider=row.get("Provider", ""),
+            provider=row.get(SOURCE_PROVIDER, ""),
             region=region,
-            subscription=row.get("SubscriptionId", "unknown"),
+            subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
             carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
-            misc_services_cost=str_to_float(row.get("BillingCost", "0")),
+            cost=str_to_float(row.get(SOURCE_COST, "0")),
         )
         timestamp = row.get(
-            "Date", (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+            SOURCE_DATE, (datetime.now() - timedelta(days=2)).strftime(DATE_FORMAT)
         )
         misc_services_resource.time_points = [timestamp]
     return misc_services_resource

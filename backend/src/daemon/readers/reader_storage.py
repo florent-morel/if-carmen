@@ -3,33 +3,31 @@ Storage module for reading and processing compute resource data.
 """
 
 import csv
-import os
 import logging
 
 from pydantic import ValidationError
 from datetime import datetime
-from backend.src.utils.helpers import str_to_float
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
-from backend.src.schemas.resource import Resource
-from backend.src.core.yaml_config_loader import DaemonConfig, config
+from backend.src.schemas.resource import Resource, ResourceType
+from backend.src.daemon.readers.helpers.storage_helpers import _process_storage_row
+from backend.src.core.yaml_config_loader import config
 from backend.src.daemon.readers.helpers.storage_helpers import (
     date_delta,
     create_storage_resource,
     get_storage_type,
     get_replication_type,
     calculate_storage_size,
-    _process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.common.constants import (
-    CSV_PATH,
-    CSV_FILE_TEST,
-    CSV_FILE_ENCODING,
     SOURCE_RESOURCE_ID,
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
+    SOURCE_DATE,
+    DATE_FORMAT,
+    UNKNOWN,
 )
 
 logger = logging.getLogger(__name__)
@@ -39,11 +37,6 @@ class Reader_Storage(AbstractReader):
     """
     Class for reading storage input data.
     """
-
-    def __init__(self, config: DaemonConfig):
-        self.config: DaemonConfig = config
-
-        self.dict_log_info: dict[str, str] | None = None
 
     def read(self, csv_data) -> list[Resource]:
         """
@@ -89,7 +82,7 @@ class Reader_Storage(AbstractReader):
         Returns:
             bool: True if valid storage was processed, False otherwise
         """
-        logger.info(f"row: {row}")
+        logger.info(f"Processing row: {row}")
         provider = row.get(SOURCE_PROVIDER, "")
         provider_config = config.provider_configs.get(provider or "")
         disk_sku_mapping = (
@@ -115,6 +108,7 @@ class Reader_Storage(AbstractReader):
             bool: True if data was found and processed, False otherwise
         """
         rows = csv_data.splitlines()
+        logger.info(f"Processing {len(rows) - 1} rows for storage resources.")
         if len(rows) <= 1:
             return False
 
@@ -131,6 +125,8 @@ class Reader_Storage(AbstractReader):
         period_days = date_delta(csv_data)
 
         logger.info("Processing CSV...")
+        logger.info(f"List of mandatory columns for resource type "
+                    f"{ResourceType.STORAGE}: {StorageResource.mandatory_columns()}")
         logger.info(f"csv_data: {csv_data}")
 
         for row in csv_reader:

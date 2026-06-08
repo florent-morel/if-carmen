@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from backend.src.common.constants import (
     CARMEN_LOGO,
 )
-from backend.src.common.known_exception import KnownException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.registrar import register_models
 from backend.src.core.yaml_config_loader import DaemonConfig, config
 from backend.src.daemon.carbon_daemon_result import (
@@ -24,6 +24,16 @@ class AbstractRunner(ABC):
     """
     Main abstract class to provide the methods for the implementation of the call to the Impact Framework.
     """
+
+    @abstractmethod
+    def should_run(self, list_resources_to_process: list[Resource]) -> bool:
+        """
+        Check if the runner has the right context to process.
+
+        Returns:
+            True if runner should run, false otherwise.
+        """
+        pass
 
     @abstractmethod
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
@@ -80,7 +90,7 @@ class AbstractRunner(ABC):
             total_carbon_embodied=0,
             total_carbon_emitted=0,
             execution_time=execution_time,
-            total_billing_cost=0,
+            total_cost=0,
         )
 
         for resource_result in list_processed_resources:
@@ -100,8 +110,8 @@ class AbstractRunner(ABC):
             # If this resource is indeed emitting CO2
             # then consider it for the computation of misc_services impact
             if resource_result.total_carbon_emitted > 0:
-                resource_type_result.total_billing_cost += (
-                    resource_result.billing_cost
+                resource_type_result.total_cost += (
+                    resource_result.cost
                 )
 
         return resource_type_result

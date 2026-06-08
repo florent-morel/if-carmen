@@ -26,7 +26,7 @@ def mock_misc_services_resource():
         region="eastus",
         subscription="sub1",
         carbon_intensity=100.0,
-        misc_services_cost=50.0,
+        cost=50.0,
     )
 
 
@@ -88,7 +88,7 @@ def test_get_resource_inputs(
             "storage-embodied": misc_services_resource.storage_embodied,
             "compute-cost": misc_services_resource.compute_cost,
             "storage-cost": misc_services_resource.storage_cost,
-            "misc-services-cost": misc_services_resource.misc_services_cost,
+            "cost": misc_services_resource.cost,
             "carbon-intensity": misc_services_resource.carbon_intensity,
             "timestamp": misc_services_resource.time_points[time_index],
         }
@@ -112,7 +112,7 @@ def test_get_resource_inputs(
             "compute-cost": 30.0,
             "compute-embodied": 10.0,
             "compute-energy": 50.0,
-            "misc-services-cost": 50.0,
+            "cost": 50.0,
             "storage-cost": 40.0,
             "storage-embodied": 20.0,
             "storage-energy": 60.0,

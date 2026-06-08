@@ -9,6 +9,7 @@ from backend.src.daemon.processors.abstract_processor import (
 from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.daemon.readers.reader_compute import Reader_Compute
 from backend.src.daemon.runners.runner_compute import Runner_Compute
+from backend.src.daemon.writers.writer_compute import Writer_Compute
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
@@ -32,8 +33,7 @@ class Processor_Compute(AbstractProcessor):
 
         self._reader = Reader_Compute(config)
         self._runner = Runner_Compute()
-        # TODO: Implement writers
-        # self._writer: AbstractWriter
+        self._writer = Writer_Compute(config, self.date, self.writer_csv_dict_writer, self.resource_result)
 
     @property
     def resource_type(self) -> ResourceType:
@@ -49,5 +49,4 @@ class Processor_Compute(AbstractProcessor):
 
     @property
     def writer(self) -> AbstractWriter:
-        # TODO: Implement writer
-        return None
+        return self._writer

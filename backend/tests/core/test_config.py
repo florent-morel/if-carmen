@@ -5,9 +5,9 @@ Module containing unit tests for the settings configuration of the Carbon Engine
 import logging
 from unittest.mock import MagicMock, patch
 import pytest
-from backend.src.core.settings import configure_logger, get_settings, Settings
+from backend.src.core._app_settings import configure_logger, get_settings, Settings
 from backend.src.common.enums import LogLevel
-from backend.src.common.known_exception import ConfigValidationError
+from backend.src.common.carmen_exception import ConfigValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +31,9 @@ def clear_settings_cache() -> None:
     get_settings.cache_clear()
 
 
-@patch("backend.src.core.settings.read_file")
-@patch("backend.src.core.settings.Settings.model_validate")
-@patch("backend.src.core.settings.configure_logger")
+@patch("backend.src.core._app_settings.read_file")
+@patch("backend.src.core._app_settings.Settings.model_validate")
+@patch("backend.src.core._app_settings.configure_logger")
 def test_get_settings_success(
     mock_configure_logger: MagicMock,
     mock_model_validate: MagicMock,
@@ -64,9 +64,9 @@ def test_get_settings_success(
     assert settings == validated_settings
 
 
-@patch("backend.src.core.settings.read_file")
-@patch("backend.src.core.settings.Settings.model_validate")
-@patch("backend.src.core.settings.configure_logger")
+@patch("backend.src.core._app_settings.read_file")
+@patch("backend.src.core._app_settings.Settings.model_validate")
+@patch("backend.src.core._app_settings.configure_logger")
 def test_get_settings_error(
     mock_configure_logger: MagicMock,
     mock_model_validate: MagicMock,
@@ -75,7 +75,7 @@ def test_get_settings_error(
     """
     Unit test for get_settings when a validation error occurs.
 
-    Verifies that a KnownException is raised if Settings.model_validate fails.
+    Verifies that a CarmenException is raised if Settings.model_validate fails.
     """
     mock_json_data = {
         "INVALID": {

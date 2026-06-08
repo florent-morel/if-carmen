@@ -2,6 +2,10 @@
 
 ## Code implem
 
+### Logs
+
+[] Need a full review of logs (logger.info etc).
+
 ### Config
 
 V1: Configure and propagate output/generated folders for IF files, CSV reports...

@@ -15,11 +15,12 @@ from datetime import datetime, timedelta
 import yaml
 from fastapi import Request
 from jinja2 import Template
+from backend.src.schemas.resource import Resource
 import httpx
 from backend.src.common.constants import RATE_TO_DURATION
 from backend.src.common.enums import SamplingRate
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import (
+from backend.src.common.carmen_exception import (
     DataFetchError,
     QueryParameterError,
     ValidationError,
@@ -336,3 +337,14 @@ def get_row_data(row_data: str) -> str:
     Helper function to get row data, returns empty string if the data is missing or represented as '-'.
     """
     return row_data if row_data != "-" and row_data else ""
+
+
+def process_custom_columns(resource: Resource, row: dict, list_ignore_column: list[str]) -> None:
+    """
+    Process custom columns from input file.
+    """
+    logger.info(f"Processing custom columns for resource.id: {resource.id}")
+    for column_name, column_value in row.items():
+        if column_name and column_name not in list_ignore_column:
+            logger.debug(f"Storing custom column --{column_name}-- with value --{column_value}--")
+            resource.dict_custom_columns[column_name] = column_value

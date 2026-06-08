@@ -9,10 +9,11 @@ from backend.src.core.yaml_config_loader import DaemonConfig
 
 from backend.src.daemon.readers.reader_misc_services import Reader_Misc_Services
 from backend.src.daemon.runners.runner_misc_services import Runner_Misc_Services
-from backend.src.schemas.resource import ResourceType
+from backend.src.daemon.writers.writer_misc_services import Writer_Misc_Services
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
+from backend.src.schemas.resource import ResourceType
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class Processor_Misc_Services(AbstractProcessor):
 
         self._reader = Reader_Misc_Services(config)
         self._runner = Runner_Misc_Services()
-        # TODO: Implement writers
+        self._writer = Writer_Misc_Services(config, self.date, self.writer_csv_dict_writer, self.resource_result)
         # self._writer: AbstractWriter
 
     @property
@@ -49,5 +50,4 @@ class Processor_Misc_Services(AbstractProcessor):
 
     @property
     def writer(self) -> AbstractWriter:
-        # TODO: Implement writer
-        return None
+        return self._writer

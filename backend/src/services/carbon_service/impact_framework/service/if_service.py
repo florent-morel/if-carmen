@@ -12,8 +12,9 @@ from collections import defaultdict
 import yaml
 from jinja2 import exceptions
 from backend.src.common.constants import IF_FILES_DIR
-from backend.src.common.known_exception import KnownException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.common.errors import ErrorCode
+from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.pod import Pod
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.compute_resource import ComputeResource
@@ -62,7 +63,7 @@ class IFService(ABC, CarbonService):
     to compute carbon and energy metrics for given resources.
     """
 
-    # TODO: Should be in conf
+    # TODO: Should be in config.yaml
     INFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_input")
     logger.info(f"IF_FILES_DIR: {IF_FILES_DIR}")
     OUTFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_output")
@@ -77,6 +78,9 @@ class IFService(ABC, CarbonService):
         )  # named as data even though it reads the pipeline.yml, since it will be filled with input.yaml data for IF
         self.data["aggregation_type"] = aggregation_type
         self.data["duration"] = duration
+        self.data["device_emissions_embodied"] = (
+            config.carbon_intensity_config.default_device_emissions_embodied
+        )
 
     def write_if_input(self, data, file_id: int):
         """
@@ -137,7 +141,7 @@ class IFService(ABC, CarbonService):
             file_id (int, optional): An identifier for the input/output files. Defaults to 0.
         """
         logger.info(
-            "Generating Impact Framework input file %d for %d resources...",
+            "Generating Impact Framework input file id %d for %d resources...",
             file_id,
             len(resources),
         )
@@ -184,6 +188,7 @@ class IFService(ABC, CarbonService):
         for model, cls in model_classes.items():
             if model in data["hardware_models"]:
                 data["hardware_models"][model] = cls().__dict__
+        logger.debug(f"data: {data}")
         return data
 
     @staticmethod
@@ -203,11 +208,12 @@ class IFService(ABC, CarbonService):
         common_models = [TeadsCurve, SciO, SciEPue]
         if models:
             common_models.extend(models)
+            logger.debug(f"common_models: {common_models}")
         for time_index in range(len(resource.time_points)):
             combined_inputs = {
                 key: value
                 for model in common_models
-                for key, value in model.fill_inputs(resource, time_index).items()
+            for key, value in model.fill_inputs(resource, time_index).items()
             }
             resource_inputs.append(combined_inputs)
         return resource_inputs
@@ -221,7 +227,9 @@ class IFService(ABC, CarbonService):
             compute_resources[compute_resource.id] = self.get_resource_inputs(
                 compute_resource
             )
-        data["resources"] = compute_resources
+        resources_str = "resources"
+        data[resources_str] = compute_resources
+        logger.info(f"data[resources] = {data[resources_str]}")
 
     def fill_parser_data(self, data, resources: list[Resource]):
         """
@@ -281,7 +289,7 @@ class IFService(ABC, CarbonService):
                 f"IF has failed to calculate the carbon impact for file ID {file_id}."
             )
             logger.error(err_text)
-            raise KnownException(ErrorCode.IF_EXECUTION_FAILED, details=err_text)
+            raise CarmenException(ErrorCode.IF_EXECUTION_FAILED, details=err_text)
         if_output = if_output["tree"]["children"]
         if emission_breakdown_at_pod_level:
             output = IFService.aggregate_pod_level(resources, if_output)

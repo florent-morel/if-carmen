@@ -12,8 +12,8 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from backend.src.common.known_exception import (
-    KnownException,
+from backend.src.common.carmen_exception import (
+    CarmenException,
 )
 from backend.src.common.errors import ErrorCode, ErrorCategory
 
@@ -130,11 +130,11 @@ def create_error_response(
     return response
 
 
-async def known_exception_handler(
-    request: Request, exc: KnownException
+async def carmen_exception_handler(
+    request: Request, exc: CarmenException
 ) -> JSONResponse:
     """
-    Handle KnownException and its subclasses.
+    Handle CarmenException and its subclasses.
 
     Args:
         request: The incoming request.
@@ -303,7 +303,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         app: The FastAPI application instance.
     """
     # Register custom exception handlers
-    app.add_exception_handler(KnownException, known_exception_handler)
+    app.add_exception_handler(CarmenException, carmen_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(HTTPException, http_exception_handler)
     app.add_exception_handler(Exception, generic_exception_handler)

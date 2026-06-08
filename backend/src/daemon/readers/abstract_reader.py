@@ -26,6 +26,7 @@ class AbstractReader(ABC):
             self.input_path,
         )
         self.list_resources_to_process: list[Resource] | None = None
+        self.dict_log_info: dict[str, int | float] = {}
         self.known_regions: set[str] = {
             region
             for pc in config.provider_configs.values()
@@ -72,6 +73,7 @@ class AbstractReader(ABC):
         If region coming from csv input file, store it to log it afterwards.
         """
         if region_csv not in self.known_regions:
+            logger.info(f"Region __{region_csv}__ is not in the known_regions list, adding it to unknown_regions.")
             self.unknown_regions[region_csv] += 1
 
     def process_unknown_providers(self, provider_csv):
@@ -79,6 +81,7 @@ class AbstractReader(ABC):
         If provider coming from csv input file, store it to log it afterwards.
         """
         if provider_csv not in config.provider_configs:
+            logger.info(f"Provider __{provider_csv}__ is not in the provider_configs list, adding it to unknown_providers.")
             self.unknown_providers[provider_csv] += 1
 
     def log_unknown_info(self) -> None:

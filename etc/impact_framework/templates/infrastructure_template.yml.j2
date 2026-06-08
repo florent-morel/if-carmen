@@ -2,6 +2,7 @@ name: {{ name }}
 aggregation:
   metrics:
     - energy
+    - carbon
     - carbon-operational
     - carbon-embodied
     - cpu/power
@@ -59,7 +60,7 @@ initialize:
 tree:
   defaults: # These are the default fallback values
     memory/utilization: 100 # we assume memory utilization is always at 100%
-    device/emissions-embodied: 1999999 # Average default value of a virtual machine. Data to be refined and updated depending on your inventory.
+    device/emissions-embodied: {{ device_emissions_embodied }} # Fleet-average TE (mgCO2e). Configurable via carbon_values.yaml (default_device_emissions_embodied).
     device/expected-lifespan: 126230400 # 60 * 60 * 24 * 365.25 * 4, roughly 4 years
     storage/embodied-coefficient: 90 # in gCO2e/GB
     duration: {{ duration }}

@@ -37,8 +37,8 @@ class Resource(ABC, BaseModel):
     carbon_intensity: float = 0.0
     pue: float = 1.0
     region: str | None = None
-    subscription: Optional[str] = None
-    billing_cost: float = 0.0
+    # subscription: Optional[str] = None
+    cost: float = 0.0
 
     # List for each time point
     energy_consumed: list[float] = Field(default_factory=list)
@@ -54,3 +54,6 @@ class Resource(ABC, BaseModel):
     total_carbon_operational: float = 0.0
     total_carbon_embodied: float = 0.0
     total_carbon_emitted: float = 0.0
+
+    # Dynamic columns dictionary
+    dict_custom_columns: dict[str, str] = {}

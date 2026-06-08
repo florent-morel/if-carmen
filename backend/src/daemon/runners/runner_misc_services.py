@@ -15,7 +15,7 @@ from backend.src.common.constants import (
     DAILY_SECONDS,
     HOURLY_INTERVAL_SECONDS,
 )
-from backend.src.common.known_exception import KnownException
+from backend.src.common.carmen_exception import CarmenException, DataFetchError
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
@@ -35,6 +35,18 @@ class Runner_Misc_Services(AbstractRunner):
     Implementation of the Runner for the Storage Resource Type.
     """
 
+    def should_run(self, list_resources_to_process: list[Resource]) -> bool:
+
+        should_run = True
+        if not list_resources_to_process:
+            should_run = False
+            raise DataFetchError(
+                ErrorCode.DATA_FETCH_NO_RESULTS,
+                details="No Misc services resource found in data source",
+            )
+
+        return should_run
+
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for the Storage Resource Type.
@@ -44,36 +56,38 @@ class Runner_Misc_Services(AbstractRunner):
         """
 
         start_time = time.time()
+        resource_type_result = None
 
         try:
             logger.info("Starting Misc services runner execution.")
 
-            processed_resources = self.process_carbon_calculations(
-                list_resources_to_process
-            )
+            if self.should_run(list_resources_to_process):
+                processed_resources = self.process_carbon_calculations(
+                    list_resources_to_process
+                )
 
-            logger.info("Processed resources: %s", processed_resources)
-            execution_time = time.time() - start_time
+                logger.info("Processed resources: %s", processed_resources)
+                execution_time = time.time() - start_time
 
-            resourceDaemonResult = self.create_resource_type_result(
-                True,
-                execution_time,
-                ResourceType.MISC_SERVICES,
-                processed_resources,
-                [],
-            )
+                resource_type_result = self.create_resource_type_result(
+                    True,
+                    execution_time,
+                    ResourceType.MISC_SERVICES,
+                    processed_resources,
+                    [],
+                )
 
-            logger.info(
-                "Misc services processing: %d misc services resources processed, "
-                "%.2f kWh total energy, %.0f gCO2 total emissions",
-                len(resourceDaemonResult.list_processed_resources),
-                resourceDaemonResult.total_energy_consumed,
-                resourceDaemonResult.total_carbon_emitted,
-            )
+                logger.info(
+                    "Misc services processing: %d misc services resources processed, "
+                    "%.2f kWh total energy, %.0f gCO2 total emissions",
+                    len(resource_type_result.list_processed_resources),
+                    resource_type_result.total_energy_consumed,
+                    resource_type_result.total_carbon_emitted,
+                )
 
-            return resourceDaemonResult
+            return resource_type_result
 
-        except KnownException as e:
+        except CarmenException as e:
             execution_time = time.time() - start_time
             error_msg = f"known error during daemon execution: {e.formatted_string}"
             logger.error(error_msg)
@@ -81,7 +95,7 @@ class Runner_Misc_Services(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.MISC_SERVICES,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )
@@ -94,7 +108,7 @@ class Runner_Misc_Services(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.MISC_SERVICES,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )

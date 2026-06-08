@@ -10,6 +10,29 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 
+from backend.src.common.constants import (
+    IF_INPUT_INPUT_PARAMETERS,
+    IF_INPUT_OUTPUT_PARAMETERS,
+    IF_INPUT_COMPUTE_ENERGY,
+    IF_INPUT_COMPUTE_EMBODIED,
+    IF_INPUT_COMPUTE_COST,
+    IF_INPUT_STORAGE_ENERGY,
+    IF_INPUT_STORAGE_EMBODIED,
+    IF_INPUT_STORAGE_COST,
+    IF_INPUT_COST,
+    IF_INPUT_MISC_SERVICES_ENERGY,
+    IF_INPUT_MISC_SERVICES_ENERGY_TXT,
+    IF_INPUT_MISC_SERVICES_OPERATIONAL,
+    IF_INPUT_MISC_SERVICES_EMBODIED,
+    IF_INPUT_CARBON_INTENSITY,
+    IF_INPUT_SUM,
+    IF_INPUT_ENERGY_KWH,
+    IF_INPUT_CARBON_GCO2,
+    IF_INPUT_MISC_SERVICES_CAPEX,
+    IF_INPUT_MISC_SERVICES_OPEX,
+    IF_INPUT_TIMESTAMP,
+)
+
 
 class MiscServicesModel(ModelUtilities):
     """
@@ -18,43 +41,43 @@ class MiscServicesModel(ModelUtilities):
 
     def __init__(self):
         config = {
-            "input-parameters": [
-                "compute-energy",
-                "storage-energy",
-                "compute-embodied",
-                "storage-embodied",
-                "compute-cost",
-                "storage-cost",
-                "misc-services-cost",
-                "carbon-intensity",
+            IF_INPUT_INPUT_PARAMETERS: [
+                IF_INPUT_COMPUTE_ENERGY,
+                IF_INPUT_STORAGE_ENERGY,
+                IF_INPUT_COMPUTE_EMBODIED,
+                IF_INPUT_STORAGE_EMBODIED,
+                IF_INPUT_COMPUTE_COST,
+                IF_INPUT_STORAGE_COST,
+                IF_INPUT_COST,
+                IF_INPUT_CARBON_INTENSITY,
             ],
-            "output-parameters": [
-                "misc-services-energy",
-                "misc-services-operational",
-                "misc-services-embodied",
+            IF_INPUT_OUTPUT_PARAMETERS: [
+                IF_INPUT_MISC_SERVICES_ENERGY,
+                IF_INPUT_MISC_SERVICES_OPERATIONAL,
+                IF_INPUT_MISC_SERVICES_EMBODIED,
             ],
         }
         output_metadata = [
             Metadata(
-                "misc-services-energy",
-                "kWh",
-                "Total energy consumed for the services",
-                "sum",
-                "sum",
+                IF_INPUT_MISC_SERVICES_ENERGY,
+                IF_INPUT_ENERGY_KWH,
+                IF_INPUT_MISC_SERVICES_ENERGY_TXT,
+                IF_INPUT_SUM,
+                IF_INPUT_SUM,
             ),
             Metadata(
-                "misc-services-operational",
-                "gCO2e",
-                "Services opex emissions",
-                "sum",
-                "sum",
+                IF_INPUT_MISC_SERVICES_OPERATIONAL,
+                IF_INPUT_CARBON_GCO2,
+                IF_INPUT_MISC_SERVICES_OPEX,
+                IF_INPUT_SUM,
+                IF_INPUT_SUM,
             ),
             Metadata(
-                "misc-services-embodied",
-                "gCO2e",
-                "Services capex emissions",
-                "sum",
-                "sum",
+                IF_INPUT_MISC_SERVICES_EMBODIED,
+                IF_INPUT_CARBON_GCO2,
+                IF_INPUT_MISC_SERVICES_CAPEX,
+                IF_INPUT_SUM,
+                IF_INPUT_SUM,
             ),
         ]
         # TODO: path parameter below will be changed later
@@ -69,13 +92,13 @@ class MiscServicesModel(ModelUtilities):
         Fills the time point specific input values.
         """
         return {
-            "compute-energy": misc_services_resource.compute_energy,
-            "storage-energy": misc_services_resource.storage_energy,
-            "compute-embodied": misc_services_resource.compute_embodied,
-            "storage-embodied": misc_services_resource.storage_embodied,
-            "compute-cost": misc_services_resource.compute_cost,
-            "storage-cost": misc_services_resource.storage_cost,
-            "misc-services-cost": misc_services_resource.misc_services_cost,
-            "carbon-intensity": misc_services_resource.carbon_intensity,
-            "timestamp": misc_services_resource.time_points[time_index],
+            IF_INPUT_COMPUTE_ENERGY: misc_services_resource.compute_energy,
+            IF_INPUT_STORAGE_ENERGY: misc_services_resource.storage_energy,
+            IF_INPUT_COMPUTE_EMBODIED: misc_services_resource.compute_embodied,
+            IF_INPUT_STORAGE_EMBODIED: misc_services_resource.storage_embodied,
+            IF_INPUT_COMPUTE_COST: misc_services_resource.compute_cost,
+            IF_INPUT_STORAGE_COST: misc_services_resource.storage_cost,
+            IF_INPUT_COST: misc_services_resource.cost,
+            IF_INPUT_CARBON_INTENSITY: misc_services_resource.carbon_intensity,
+            IF_INPUT_TIMESTAMP: misc_services_resource.time_points[time_index],
         }

@@ -11,6 +11,8 @@ from unittest.mock import MagicMock
 from unittest.mock import patch, AsyncMock
 from backend.src.daemon.carbon_daemon_orchestrator import CarbonDaemonOrchestrator
 from backend.src.daemon.processors.processor_storage import Processor_Storage
+from backend.src.common.carmen_exception import CarmenException, DataFetchError
+from backend.src.common.errors import ERRORS, ErrorCode
 
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
@@ -71,6 +73,9 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_config = MagicMock()
+        self.mock_config.source = MagicMock()
+        self.mock_config.source.input_path = "etc/sample_data/test_data"
+        logger.info(f"input_path: {self.mock_config.source.input_path}")
 
     @patch("backend.src.utils.ioc_util.resolve")
     # @patch("backend.src.daemon.carbon_daemon.register_models")
@@ -109,8 +114,8 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         logger.info(f"Mock processor: {mock_processor}")
         logger.info(f"Mock config: {self.mock_config}")
-        logger.warning(f"config input path: {config.carmen_daemon.input_path}")
-        logger.warning(f"config output path: {config.carmen_daemon.output_path}")
+        logger.info(f"config input path: {config.carmen_daemon.input_path}")
+        logger.info(f"config output path: {config.carmen_daemon.output_path}")
 
         self.mock_config.output.output_path = config.carmen_daemon.output_path
 
@@ -180,15 +185,16 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
     #     @patch("backend.src.daemon.carbon_daemon.register_models")
 
+    @patch("backend.src.daemon.readers.reader_storage.Reader_Storage.read")
     @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator.write_report")
     @patch("backend.src.utils.ioc_util.resolve")
     # def test_daemon_run_reader_exception(self, mock_register_models):
-    def test_daemon_reader_storage_exception(self, mock_ioc_util_resolve, mock_write_report):
+    def test_daemon_reader_storage_exception(self, mock_reader, mock_write_report, mock_ioc_util_resolve):
         """
         Test daemon execution when reader raises an exception.
         """
         mock_reader = MagicMock()
-        mock_reader.read.side_effect = Exception("Reader failed")
+        mock_reader.read.side_effect = CarmenException(ErrorCode.UNKNOWN_ERROR, "Reader failed")
 
         mock_ioc_util_resolve.return_value = IFStorageService(DAILY_SECONDS)
 
@@ -197,7 +203,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.STORAGE
-        mock_processor.read.side_effect = Exception("Reader failed")
+        mock_processor.read.side_effect = CarmenException(ErrorCode.UNKNOWN_ERROR, "Reader failed")
         mock_processor.run.return_value = None
 
         logger.info(f"Mock processor: {mock_processor}")
@@ -215,12 +221,14 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         # self.assertIsInstance(resultStorage, ResourceTypeResult)
         self.assertFalse(carbonDaemonResult.success)
         self.assertIsNotNone(carbonDaemonResult.list_exceptions)
+        logger.info(f"list_exceptions: {carbonDaemonResult.list_exceptions}")
+
         for exception in carbonDaemonResult.list_exceptions:
-            logger.info(f"exception {Exception.__str__(exception)}")
+            logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
             self.assertIn(
-                "Unexpected error during daemon execution", exception.args[1]
+                "Unexpected error reading file", exception.details
             )
-            self.assertIn("Reader failed", exception.args[1])
+            self.assertIn("Reader failed", exception.details)
 
 
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
@@ -259,7 +267,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 #
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
 #     @patch("backend.src.daemon.carbon_daemon.ioc_util.resolve")
-#     def test_daemon_run_known_exception(
+#     def test_daemon_run_carmen_exception(
 #         self, mock_ioc_util_resolve, mock_register_models
 #     ):
 #         """

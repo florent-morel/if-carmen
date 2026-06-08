@@ -6,32 +6,61 @@ from datetime import datetime
 import os
 import csv
 import re
+import logging
 
+from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.utils.helpers import str_to_float
-from backend.src.daemon.readers.helpers.daemon_helpers import get_row_data
+from backend.src.daemon.readers.helpers.virtual_machine_helpers import get_row_data
+from backend.src.common.constants import (
+    SOURCE_PROVIDER,
+    SOURCE_NAME,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_TYPE_SERVICE,
+    SOURCE_INSTANCE,
+    SOURCE_ENVIRONMENT,
+    SOURCE_PARTITION,
+    SOURCE_COMPONENT,
+    SOURCE_SUBSCRIPTION,
+    SOURCE_REGION,
+    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_METER_CATEGORY,
+    SOURCE_COST,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_METER_NAME,
+    SOURCE_QUANTITY,
+    SOURCE_UNIT_OF_MEASURE,
+    SOURCE_DATE,
+    SOURCE_TIME,
+    SOURCE_SIZE,
+    SOURCE_NB_VCPUS,
+    DATE_FORMAT,
+    SOURCE_DISK_SIZE_GB,
+    UNKNOWN,
+)
 
 # Fallback values used when building mock VMs that have no real provider/region data.
 _DEFAULT_CARBON_INTENSITY = 281  # gCO2/kWh
 _DEFAULT_PUE = 1.5
 
+logger = logging.getLogger(__name__)
 
-def read_sample_vm_data(file_dict, _destination_folder):
+def read_sample_vm_data(file_dict, _destination_folder, config: DaemonConfig):
     """
     Reads VM data from multiple hourly sample CSV files and merges all hourly entries for each VM into a single object.
     TODO: Maybe this is out of Carmen scope...
     """
     vms_dict = {}
     for group, files in file_dict.items():
-        print(f"Reading file group '{group}'...")
+        logger.info(f"Reading file group '{group}'...")
         for file_name in files:
-            _process_vm_file(file_name, vms_dict)
+            _process_vm_file(file_name, vms_dict, config)
     return list(vms_dict.values())
 
 
-def _process_vm_file(file_name, vms_dict):
+def _process_vm_file(file_name, vms_dict, config: DaemonConfig):
     """
     Processes a file by extracting the hour from the file name, determining the sample file path,
     and reading and processing the CSV file if it exists.
@@ -42,15 +71,15 @@ def _process_vm_file(file_name, vms_dict):
         None
     """
     hour = _extract_hour_from_file_name(file_name)
-    sample_file = _get_vm_sample_file_path(hour)
-    print(f"Attempting to read file: {file_name} -> {sample_file}")
+    sample_file = _get_vm_sample_file_path(hour, config)
+    logger.info(f"Attempting to read file: {file_name} -> {sample_file}")
     if os.path.exists(sample_file):
         _read_and_process_vm_csv(sample_file, vms_dict)
     else:
-        print(f"Sample file not found: {sample_file}")
+        logger.info(f"Sample file not found: {sample_file}")
 
 
-def _get_vm_sample_file_path(hour):
+def _get_vm_sample_file_path(hour, config: DaemonConfig):
     """
     Returns the path to the sample file for the given hour.
     Args:
@@ -59,7 +88,7 @@ def _get_vm_sample_file_path(hour):
         str: The path to the sample file.
     """
     return os.path.join(
-        os.path.dirname(__file__), "test_data", f"vm_usage_hour_{hour}.csv"
+        os.path.dirname(config.source.input_path), "test_data", f"vm_usage_hour_{hour}.csv"
     )
 
 
@@ -119,17 +148,12 @@ def _process_vm_row(row, vms_dict):
 def _create_virtual_machine(row):
     """Constructs a VirtualMachine from a single CSV row using default fallback values for carbon intensity and PUE."""
     return VirtualMachine(
-        id=row["Id"],
-        region=row["Region"],
-        vm_size=row["Size"],
-        service=get_row_data(row["Service"]),
-        component=get_row_data(row["Component"]),
-        subscription=get_row_data(row["Subscription"]),
-        name=get_row_data(row["Name"]),
-        instance=get_row_data(row["Instance"]),
-        environment=get_row_data(row["Environment"]),
-        partition=get_row_data(row["Partition"]),
-        provider=get_row_data(row["Provider"]),
+        id=row[SOURCE_RESOURCE_ID],
+        region=row[SOURCE_REGION],
+        vm_size=row[SOURCE_SIZE],
+        subscription=get_row_data(row[SOURCE_SUBSCRIPTION]),
+        name=get_row_data(row[SOURCE_NAME]),
+        provider=get_row_data(row[SOURCE_PROVIDER]),
         storage_size=[],
         pue=_DEFAULT_PUE,
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
@@ -151,6 +175,7 @@ def _extract_hour_from_file_name(file_name):
 # Storage
 # ---------------------------------------------------------------------------
 
+csv_test_csv_path = "etc/sample_data/test_data/storage_test.csv"
 
 def read_sample_storage_data(file_dict, _destination_folder):
     """
@@ -280,8 +305,8 @@ def _process_misc_services_row(row, misc_dict):
         misc_dict[resource_id] = _create_misc_services_resource(row)
     else:
         # Accumulate cost across multiple billing rows for the same resource
-        misc_dict[resource_id].misc_services_cost += str_to_float(
-            row.get("BillingCost", "0")
+        misc_dict[resource_id].cost += str_to_float(
+            row.get("Cost", "0")
         )
 
 
@@ -289,7 +314,7 @@ def _create_misc_services_resource(row):
     """
     Creates a MiscServicesResource from a billing CSV row (misc_services-model format).
     Columns: ResourceId, ProductName, ResourceLocation, SubscriptionId,
-             Date, BillingCost, ...
+             Date, Cost, ...
     """
     return MiscServicesResource(
         id=row.get("ResourceId", ""),
@@ -298,5 +323,5 @@ def _create_misc_services_resource(row):
         region=row.get("ResourceLocation", ""),
         subscription=row.get("SubscriptionId", ""),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
-        misc_services_cost=str_to_float(row.get("BillingCost", "0")),
+        cost=str_to_float(row.get("Cost", "0")),
     )

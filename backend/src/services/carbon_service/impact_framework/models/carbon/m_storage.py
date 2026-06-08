@@ -14,6 +14,34 @@ from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )
 
+from backend.src.common.constants import (
+    IF_INPUT_INPUT_PARAMETERS,
+    IF_INPUT_OUTPUT_PARAMETER,
+    IF_INPUT_CARBON_EMBODIED,
+    IF_INPUT_COMPUTE_ENERGY,
+    IF_INPUT_COMPUTE_EMBODIED,
+    IF_INPUT_COMPUTE_COST,
+    IF_INPUT_STORAGE_ENERGY,
+    IF_INPUT_STORAGE_EMBODIED,
+    IF_INPUT_STORAGE_COST,
+    IF_INPUT_COST,
+    IF_INPUT_MISC_SERVICES_ENERGY,
+    IF_INPUT_MISC_SERVICES_ENERGY_TXT,
+    IF_INPUT_MISC_SERVICES_OPERATIONAL,
+    IF_INPUT_MISC_SERVICES_EMBODIED,
+    IF_INPUT_CARBON_INTENSITY,
+    IF_INPUT_SUM,
+    IF_INPUT_ENERGY_KWH,
+    IF_INPUT_CARBON_GCO2,
+    IF_INPUT_MISC_SERVICES_CAPEX,
+    IF_INPUT_MISC_SERVICES_OPEX,
+    IF_INPUT_TIMESTAMP,
+    IF_INPUT_STORAGE_SLASH_REQUESTED,
+    IF_INPUT_STORAGE_SLASH_EMBODIED,
+    IF_INPUT_DURATION_SLASH_SECONDS,
+    EXPECTED_LIFESPAN,
+    IF_INPUT_STORAGE_EMBODIED_TXT,
+)
 
 class MStorage(ModelUtilities):
     """
@@ -27,16 +55,16 @@ class MStorage(ModelUtilities):
         # from carbon_values.yaml via config.carbon_intensity_config.
         self.provider_config = provider_config
         config = {
-            "input-parameters": [
-                "storage/requested",
-                "storage/embodied-coefficient",
-                "duration/seconds",
+            IF_INPUT_INPUT_PARAMETERS: [
+                IF_INPUT_STORAGE_SLASH_REQUESTED,
+                IF_INPUT_STORAGE_SLASH_EMBODIED,
+                IF_INPUT_DURATION_SLASH_SECONDS,
             ],  # in GB
-            "output-parameter": " = 'carbon-embodied' / 126230400",  # in gCO2e
+            IF_INPUT_OUTPUT_PARAMETER: f" = '{IF_INPUT_CARBON_EMBODIED}' / {EXPECTED_LIFESPAN}",  # in gCO2e
         }
         output_metadata = [
             Metadata(
-                "carbon-embodied", "gCO2e", "Storage embodied emissions", "sum", "sum"
+                IF_INPUT_CARBON_EMBODIED, IF_INPUT_CARBON_GCO2, IF_INPUT_STORAGE_EMBODIED_TXT, IF_INPUT_SUM, IF_INPUT_SUM
             )
         ]
         super().__init__("builtin", "Multiply", config, output_metadata)
@@ -64,4 +92,4 @@ class MStorage(ModelUtilities):
                 "'storage_embodied'."
             )
 
-        return {"storage/embodied-coefficient": embodied_coefficient}
+        return {IF_INPUT_STORAGE_SLASH_EMBODIED: embodied_coefficient}

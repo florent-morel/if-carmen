@@ -13,7 +13,7 @@ from typing import Any
 import httpx
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import (
+from backend.src.common.carmen_exception import (
     ThanosError,
     TokenError,
 )

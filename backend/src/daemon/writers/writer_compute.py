@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Writer_Compute(AbstractWriter):
     def write_content(self, resources: list[VirtualMachine]):
         logger.info(
-            "Starting write_content for resource %s.", ResourceType.VIRTUAL_MACHINE
+            "Starting write_content for resource %s.", ResourceType.VIRTUAL_MACHINE 
         )
 
         for resource in resources:
@@ -20,11 +20,13 @@ class Writer_Compute(AbstractWriter):
 
             # VM specific columns
             row[ReportConfig.COMPUTE_VM_SIZE] = resource.vm_size
-            row[ReportConfig.COMPUTE_SERVICE] = resource.service
-            row[ReportConfig.COMPUTE_INSTANCE] = resource.instance
-            row[ReportConfig.COMPUTE_ENVIRONMENT] = resource.environment
-            row[ReportConfig.COMPUTE_PARTITION] = resource.partition
-            row[ReportConfig.COMPUTE_COMPONENT] = resource.component
+            # row[ReportConfig.COMPUTE_SERVICE] = resource.service
+            # row[ReportConfig.COMPUTE_INSTANCE] = resource.instance
+            # row[ReportConfig.COMPUTE_ENVIRONMENT] = resource.environment
+            # row[ReportConfig.COMPUTE_PARTITION] = resource.partition
+            # row[ReportConfig.COMPUTE_COMPONENT] = resource.component
+
+            self.writer.writerow(row)
 
         logger.info(
             " Rows built for %d resources",

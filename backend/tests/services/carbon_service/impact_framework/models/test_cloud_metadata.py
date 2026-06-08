@@ -7,7 +7,7 @@ Unit tests for CloudMetadata methods related to vCPU count resolution:
 import pytest
 
 from backend.src.common.errors import ErrorCode
-from backend.src.common.known_exception import KnownException
+from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )
@@ -71,9 +71,9 @@ class TestResolveVcpuCount:
         assert result == 32
 
     def test_fallback_path_c_raises_for_unresolvable_vm(self):
-        """Path C: both billing column and name parsing fail → KnownException."""
+        """Path C: both billing column and name parsing fail → CarmenException."""
         vm = self._make_vm("Unknown_Type", vcpu_count=None)
 
-        with pytest.raises(KnownException) as exc_info:
+        with pytest.raises(CarmenException) as exc_info:
             CloudMetadata._resolve_vcpu_count(vm, self.CPU_MAX)
         assert exc_info.value.error_code == ErrorCode.UNKNOWN_VM_INSTANCE_TYPE

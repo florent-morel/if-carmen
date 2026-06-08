@@ -31,6 +31,14 @@ carbon_intensity_by_location:
   India:
     carbon_intensity: 708
 
+
+# Default total embodied emissions (TE) for a virtual machine, in milligrams of CO2e (mgCO2e).
+# This represents an average TE across a representative server fleet and is used as a fallback
+# when no per-instance TE data is available from the hardware inventory.
+# Configurable: adjust to match the average hardware profile of your own fleet.
+# TODO: Retrieve per-instance TE from a per-provider instance database (e.g., *_instances.csv).
+default_device_emissions_embodied: 1999999  # mgCO2e – fleet average default
+
 # in gCO2e/GB from https://hotcarbon.org/assets/2022/pdf/hotcarbon22-tannu.pdf
 storage_embodied:
   ssd: 160

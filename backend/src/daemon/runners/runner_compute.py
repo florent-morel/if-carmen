@@ -6,7 +6,7 @@ import time
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
 )
-from backend.src.common.known_exception import KnownException, DataFetchError
+from backend.src.common.carmen_exception import CarmenException, DataFetchError
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
 from backend.src.schemas.resource import Resource, ResourceType
@@ -24,6 +24,18 @@ class Runner_Compute(AbstractRunner):
     Implementation of the Runner for the Virtual Machine Type.
     """
 
+    def should_run(self, list_resources_to_process: list[Resource]) -> bool:
+
+        should_run = True
+        if not list_resources_to_process:
+            should_run = False
+            raise DataFetchError(
+                ErrorCode.DATA_FETCH_NO_RESULTS,
+                details="No virtual machines found in data source",
+            )
+
+        return should_run
+
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
         Run the Impact Framework and build result for Virtual Machines Resource Type.
@@ -32,43 +44,40 @@ class Runner_Compute(AbstractRunner):
             ResourceTypeResult containing execution results
         """
         start_time = time.time()
+        resource_type_result = None
 
         try:
             logger.info("Starting Virtual Machine runner execution")
 
-            if not list_resources_to_process:
-                raise DataFetchError(
-                    ErrorCode.DATA_FETCH_NO_RESULTS,
-                    details="No virtual machines found in data source",
+            if self.should_run(list_resources_to_process):
+
+                processed_resources = self.process_carbon_calculations(
+                    list_resources_to_process
                 )
 
-            processed_resources = self.process_carbon_calculations(
-                list_resources_to_process
-            )
+                execution_time = time.time() - start_time
 
-            execution_time = time.time() - start_time
+                resource_type_result = self.create_resource_type_result(
+                    True,
+                    execution_time,
+                    ResourceType.VIRTUAL_MACHINE,
+                    processed_resources,
+                    [],
+                )
 
-            resource_type_result = self.create_resource_type_result(
-                True,
-                execution_time,
-                ResourceType.VIRTUAL_MACHINE,
-                processed_resources,
-                [],
-            )
-
-            logger.info(
-                "Runner: Compute modelling completed successfully. "
-                "Processed %d Virtual Machines in %.2f seconds. "
-                "Total energy consumed: %.2f, Total carbon emitted: %.2f",
-                len(resource_type_result.list_processed_resources),
-                execution_time,
-                resource_type_result.total_energy_consumed,
-                resource_type_result.total_carbon_emitted,
-            )
+                logger.info(
+                    "Runner: Compute modelling completed successfully. "
+                    "Processed %d Virtual Machines in %.2f seconds. "
+                    "Total energy consumed: %.2f, Total carbon emitted: %.2f",
+                    len(resource_type_result.list_processed_resources),
+                    execution_time,
+                    resource_type_result.total_energy_consumed,
+                    resource_type_result.total_carbon_emitted,
+                )
 
             return resource_type_result
 
-        except KnownException as e:
+        except CarmenException as e:
             execution_time = time.time() - start_time
             error_msg = (
                 f"Runner: Compute known error during execution: {e.formatted_string}"
@@ -78,7 +87,7 @@ class Runner_Compute(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.VIRTUAL_MACHINE,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )
@@ -91,7 +100,7 @@ class Runner_Compute(AbstractRunner):
             return ResourceTypeResult(
                 success=False,
                 resource_type=ResourceType.VIRTUAL_MACHINE,
-                list_exceptions=[KnownException(ErrorCode.UNKNOWN_ERROR), error_msg],
+                list_exceptions=[CarmenException(ErrorCode.UNKNOWN_ERROR), error_msg],
                 execution_time=execution_time,
                 error_message=error_msg,
             )

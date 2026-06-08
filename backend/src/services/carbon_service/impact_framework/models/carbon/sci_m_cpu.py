@@ -7,6 +7,11 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 
+from backend.src.common.constants import (
+    IF_INPUT_RESOURCES_RESERVED,
+    IF_INPUT_RESOURCES_TOTAL,
+)
+
 
 class SciMcpu(ModelUtilities):
     """
@@ -21,7 +26,8 @@ class SciMcpu(ModelUtilities):
         """
         Fills the sci-m-cpu input val. from the pod, returns an empty dict if there is no values
         """
+        #TODO: Magic number: 66? To be moved to carbon_values.yaml
         return {
-            "resources-reserved": pod.requested_cpu[time_index],
-            "resources-total": 66,
+            IF_INPUT_RESOURCES_RESERVED: pod.requested_cpu[time_index],
+            IF_INPUT_RESOURCES_TOTAL: 66,
         }
