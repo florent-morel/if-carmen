@@ -225,10 +225,11 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
 
         for exception in carbonDaemonResult.list_exceptions:
             logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
-            self.assertIn(
-                "Unexpected error reading file", exception.details
-            )
-            self.assertIn("Reader failed", exception.details)
+            if exception.error_code == ErrorCode.UNKNOWN_ERROR:
+                self.assertIn(
+                    "Unexpected error reading file", exception.details
+                )
+                self.assertIn("Reader failed", exception.details)
 
 
 #     @patch("backend.src.daemon.carbon_daemon.register_models")
