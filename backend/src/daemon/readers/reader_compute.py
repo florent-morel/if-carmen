@@ -58,7 +58,7 @@ class Reader_Compute(AbstractReader):
             return self.list_resources_to_process
 
         except Exception as e:
-            logger.error("failed to read files from local filesystem %s", str(e))
+            logger.error("Failed to read files from local filesystem %s", str(e))
             raise
 
     def process_csv_data(
