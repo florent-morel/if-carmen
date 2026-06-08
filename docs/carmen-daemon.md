@@ -98,6 +98,8 @@ Not implemented yet.
 
 The daemon expects to read a group of csv files containing resource usage data. Below is a description for each column expected in the CSV input.
 
+For storage rows, input data must include `StorageSizeGB` and `StorageDurationSeconds`, populated upstream before ingestion. These fields provide the storage capacity and the usage duration represented by the row.
+
 ### Input file structure (=columns)
 
 TODO: review this.
@@ -118,7 +120,18 @@ TODO: review this.
 | Partition | Logical partition, tenant, or organizational division | customer-a, team-finance, partition-1 |
 | AverageCpuPercentage | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | DiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
+| StorageSizeGB | Required for storage rows. Normalized storage capacity in gigabytes. | 512 |
+| StorageDurationSeconds | Required for storage rows. Total storage lifetime represented by the row, in seconds. | 2678400 |
 | ReplicationType | Storage replication type | GRS, LRS |
+
+### Storage-specific ingestion contract
+
+Storage input files must include the following columns for every row where `MeterCategory` is `Storage`:
+
+- `StorageSizeGB`
+- `StorageDurationSeconds`
+
+These values are part of the source contract. If they are missing, empty, non-numeric, zero, or negative, Carmen skips the row.
 
 
 ### Technical required data

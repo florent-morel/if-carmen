@@ -6,28 +6,16 @@ import csv
 import logging
 
 from pydantic import ValidationError
-from datetime import datetime
 
 from backend.src.daemon.readers.abstract_reader import AbstractReader
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.daemon.readers.helpers.storage_helpers import _process_storage_row
-from backend.src.core.yaml_config_loader import config
-from backend.src.daemon.readers.helpers.storage_helpers import (
-    date_delta,
-    create_storage_resource,
-    get_storage_type,
-    get_replication_type,
-    calculate_storage_size,
-)
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_METER_CATEGORY,
-    SOURCE_DATE,
-    DATE_FORMAT,
-    UNKNOWN,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,34 +52,6 @@ class Reader_Storage(AbstractReader):
             logger.error("failed to read files from local filesystem %s", str(e))
             raise
 
-    def process_storage_row(
-        self,
-        row: dict,
-        billing_period_days: int,
-        storage_dict: dict[str, StorageResource],
-    ) -> bool:
-        """
-        Process a single CSV row and add storage resource.
-        Returns True if a valid storage resource was processed.
-
-        Args:
-            row: CSV row data
-            billing_period_days: Billing period in days
-            storage_dict: Dictionary to store storage resources
-
-        Returns:
-            bool: True if valid storage was processed, False otherwise
-        """
-        logger.info(f"Processing row: {row}")
-        provider = row.get(SOURCE_PROVIDER, "")
-        provider_config = config.provider_configs.get(provider or "")
-        disk_sku_mapping = (
-            provider_config.get_disk_sku_size_mapping() if provider_config else None
-        ) or {}
-        return _process_storage_row(
-            row, billing_period_days, storage_dict, disk_sku_mapping
-        )
-
     def process_csv_data(
         self,
         csv_data: str,
@@ -122,8 +82,6 @@ class Reader_Storage(AbstractReader):
         disk_rows = 0
         excluded_rows = 0
 
-        period_days = date_delta(csv_data)
-
         logger.info("Processing CSV...")
         logger.info(f"List of mandatory columns for resource type "
                     f"{ResourceType.STORAGE}: {StorageResource.mandatory_columns()}")
@@ -145,7 +103,8 @@ class Reader_Storage(AbstractReader):
 
             # Process storage row using helper
             try:
-                if self.process_storage_row(row, period_days, storage_dict):
+                logger.info(f"Processing row: {row}")
+                if _process_storage_row(row, storage_dict):
                     disk_rows += 1
                     data_found = True
                 else:
@@ -164,7 +123,6 @@ class Reader_Storage(AbstractReader):
         self.dict_log_info["not_storage_rows"] = not_storage_rows
         self.dict_log_info["excluded_rows"] = excluded_rows
         self.dict_log_info["disk_rows"] = disk_rows
-        self.dict_log_info["period_days"] = period_days
 
         logger.info("Storage CSV processed")
 
@@ -189,8 +147,6 @@ class Reader_Storage(AbstractReader):
                      "excluded_rows"])
         logger.debug("  Disk rows (processed): %s", self.dict_log_info[
                      "disk_rows"])
-        logger.debug("  Billing period days: %s", self.dict_log_info[
-                     "period_days"])
 
         self.log_unknown_info()
 

@@ -17,10 +17,10 @@ from backend.src.common.constants import (
     SOURCE_METER_CATEGORY,
     SOURCE_DATE,
     SOURCE_PROVIDER,
-    SOURCE_UNIT_OF_MEASURE,
-    SOURCE_QUANTITY,
     SOURCE_PRODUCT_NAME,
     SOURCE_COST,
+    SOURCE_STORAGE_SIZE_GB,
+    SOURCE_STORAGE_DURATION_SECONDS,
 )
 
 
@@ -52,10 +52,10 @@ class StorageResource(Resource):
             SOURCE_METER_CATEGORY,
             SOURCE_PROVIDER,
             SOURCE_DATE,
-            SOURCE_UNIT_OF_MEASURE,
-            SOURCE_QUANTITY,
             SOURCE_PRODUCT_NAME,
             SOURCE_COST,
+            SOURCE_STORAGE_SIZE_GB,
+            SOURCE_STORAGE_DURATION_SECONDS,
 
         ]
         return list_mandatory_columns

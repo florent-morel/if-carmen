@@ -59,6 +59,8 @@ SOURCE_TIME = "Time"
 # TODO: Rename as it is disk size
 SOURCE_QUANTITY = "Quantity"
 SOURCE_UNIT_OF_MEASURE = "UnitOfMeasure"
+SOURCE_STORAGE_SIZE_GB = "StorageSizeGB"
+SOURCE_STORAGE_DURATION_SECONDS = "StorageDurationSeconds"
 SOURCE_AVG_CPU_PERCENTAGE = "AverageCpuPercentage"
 SOURCE_DISK_SIZE_GB = "DiskSizeGb"
 SOURCE_NB_VCPUS = "NbVCpus"
@@ -73,6 +75,7 @@ EXECUTION_DATE: str = "EXECUTION_DATE"
 DATE_FORMAT: str = "%Y-%m-%d"
 FORMAT_STORAGE_ONE_GIB_PER_HOUR: str = "1 GiB/Hour"
 FORMAT_STORAGE_ONE_PER_MONTH: str = "1/Month"
+MAX_STORAGE_SIZE_GB_WARNING_THRESHOLD: int = 32767
 
 # TODO: add VM, storage and services chunk size as configurable settings
 

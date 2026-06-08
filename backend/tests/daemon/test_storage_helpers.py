@@ -1,49 +1,59 @@
 # pylint: disable=redefined-outer-name
 """
-Unit tests for storage helpers functions.
+Unit tests for storage helper functions.
 """
-import unittest
+
 import logging
+import unittest
 from unittest.mock import MagicMock, patch
 
+from backend.src.common.constants import (
+    SOURCE_COST,
+    SOURCE_METER_NAME,
+    SOURCE_PRODUCT_NAME,
+    SOURCE_PROVIDER,
+    SOURCE_REGION,
+    SOURCE_RESOURCE_ID,
+    SOURCE_STORAGE_DURATION_SECONDS,
+    SOURCE_STORAGE_SIZE_GB,
+)
 from backend.src.daemon.readers.helpers.storage_helpers import (
-    calculate_storage_size,
-    date_delta,
+    _process_storage_row,
     create_storage_resource,
-    extract_size_from_product_name,
     get_replication_type,
     get_storage_type,
-    _process_storage_row,
 )
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.common.constants import (
-    SOURCE_RESOURCE_ID,
-)
 
 
 logger = logging.getLogger(__name__)
+
+
 class TestStorageHelpers(unittest.TestCase):
-    """
-    Unit tests for storage helper functions.
-    """
+    """Unit tests for storage helper functions."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.sample_ssd_row = {
-            "ProductName": "Premium SSD Managed Disks",
-            "MeterName": "P10 Disks",
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_RESOURCE_ID: "test_line_123",
-            "Region": "francecentral",
-            "SubscriptionId": "test-subscription-id",
-            "ResourceGroup": "test-rg",
-            "Cost": "0.0",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "128",
+            SOURCE_STORAGE_DURATION_SECONDS: "86400",
         }
 
         self.sample_hdd_row = {
-            "ProductName": "Standard HDD Managed Disks",
-            "MeterName": "S30 Disks",
+            SOURCE_PRODUCT_NAME: "Standard HDD Managed Disks",
+            SOURCE_METER_NAME: "S30 Disks",
             SOURCE_RESOURCE_ID: "test_line_456",
-            "Region": "germanywestcentral",
+            SOURCE_REGION: "germanywestcentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "64",
+            SOURCE_STORAGE_DURATION_SECONDS: "172800",
         }
 
     def test_get_storage_type_premium_ssd(self):
@@ -58,7 +68,7 @@ class TestStorageHelpers(unittest.TestCase):
 
     def test_get_storage_type_unknown(self):
         """Test storage type detection for unknown type."""
-        row = {"ProductName": "Unknown Storage Type"}
+        row = {SOURCE_PRODUCT_NAME: "Unknown Storage Type"}
         with self.assertLogs(level="WARNING") as log:
             storage_type = get_storage_type(row)
         self.assertEqual(storage_type, "Unknown")
@@ -66,70 +76,130 @@ class TestStorageHelpers(unittest.TestCase):
 
     def test_get_replication_type_lrs(self):
         """Test replication type detection for LRS."""
-        row = {"ProductName": "Premium SSD - LRS", "MeterName": "P10 LRS"}
+        row = {SOURCE_PRODUCT_NAME: "Premium SSD - LRS", SOURCE_METER_NAME: "P10 LRS"}
         replication_type = get_replication_type(row)
         self.assertEqual(replication_type, "LRS")
 
     def test_get_replication_type_grs(self):
         """Test replication type detection for GRS."""
-        row = {"ProductName": "Storage - GRS", "MeterName": "Hot GRS Data"}
+        row = {SOURCE_PRODUCT_NAME: "Storage - GRS", SOURCE_METER_NAME: "Hot GRS Data"}
         replication_type = get_replication_type(row)
         self.assertEqual(replication_type, "GRS")
 
     def test_get_replication_type_default_lrs(self):
         """Test replication type defaults to LRS for unknown types."""
-        row = {"ProductName": "Unknown Storage", "MeterName": "Unknown"}
+        row = {SOURCE_PRODUCT_NAME: "Unknown Storage", SOURCE_METER_NAME: "Unknown"}
         replication_type = get_replication_type(row)
         self.assertEqual(replication_type, "LRS")
 
-    def test_calculate_storage_size_gib_hour(self):
-        """Test storage size calculation for GiB/Hour unit."""
+    def test_process_storage_row_parses_normalized_inputs(self):
+        """Test storage row processing from explicit normalized columns."""
         row = {
-            "UnitOfMeasure": "1 GiB/Hour",
-            "Quantity": "240.0",  # 10 GiB for 24 hours
-            "ProductName": "Premium SSD v2",
+            SOURCE_RESOURCE_ID: "disk-normalized",
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_METER_NAME: "P10 Disks",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "128.5",
+            SOURCE_STORAGE_DURATION_SECONDS: "5400",
         }
-        size_gb, duration_seconds = calculate_storage_size(row, 30, {})
-        expected_size = (240.0 / 24) * 1.07374182  # GiB to GB conversion
-        self.assertEqual(size_gb, expected_size)
-        self.assertEqual(duration_seconds, 86400)  # 24 hours
+        storage_dict = {}
 
-    def test_calculate_storage_size_month_with_sku(self):
-        """Test storage size calculation for 1/Month unit with SKU."""
+        result = _process_storage_row(row, storage_dict)
+
+        self.assertTrue(result)
+        self.assertEqual(storage_dict["disk-normalized"].size_gb, 128.5)
+        self.assertEqual(storage_dict["disk-normalized"].duration_seconds, 5400)
+
+    def test_process_storage_row_missing_size(self):
+        """Missing StorageSizeGB should reject the row."""
         row = {
-            "UnitOfMeasure": "1/Month",
-            "Quantity": "2.0",
-            "ProductName": "Premium SSD Managed Disks - P10 LRS",
+            SOURCE_RESOURCE_ID: "disk-missing-size",
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_METER_NAME: "P10 Disks",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_DURATION_SECONDS: "86400",
         }
-        size_gb, duration_seconds = calculate_storage_size(row, 30, {"P10": 128})
-        self.assertEqual(size_gb, 128.0)
-        self.assertEqual(duration_seconds, 30 * 2 * 86400)  # 30 days * 2 disks * 24h
+        storage_dict = {}
 
-    def test_calculate_storage_size_unknown_unit(self):
-        """Test storage size calculation for unknown unit."""
+        with self.assertLogs(level="ERROR") as log:
+            result = _process_storage_row(row, storage_dict)
+
+        self.assertFalse(result)
+        self.assertEqual(storage_dict, {})
+        self.assertIn(SOURCE_STORAGE_SIZE_GB, log.output[0])
+
+    def test_process_storage_row_invalid_number(self):
+        """Non-numeric normalized inputs should reject the row."""
         row = {
-            "UnitOfMeasure": "Unknown Unit",
-            "Quantity": "1.0",
-            "ProductName": "Unknown Product",
+            SOURCE_RESOURCE_ID: "disk-invalid-values",
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_METER_NAME: "P10 Disks",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "large",
+            SOURCE_STORAGE_DURATION_SECONDS: "5400s",
         }
+        storage_dict = {}
 
-        with self.assertLogs(level="WARNING") as log:
-            size_gb, duration_seconds = calculate_storage_size(row, 30, {})
+        with self.assertLogs(level="ERROR") as log:
+            result = _process_storage_row(row, storage_dict)
 
-        self.assertEqual(size_gb, 0.0)
-        self.assertEqual(duration_seconds, 0)
-        self.assertIn("Unknown UnitOfMeasure", log.output[0])
+        self.assertFalse(result)
+        self.assertEqual(storage_dict, {})
+        self.assertIn("Invalid normalized storage inputs", log.output[0])
 
-    def test_calculate_storage_size_snapshots_excluded(self):
-        """Test that snapshots (1 GB/Month) are excluded."""
+    def test_process_storage_row_fractional_seconds(self):
+        """Fractional StorageDurationSeconds should reject the row."""
         row = {
-            "UnitOfMeasure": "1 GB/Month",
-            "Quantity": "100.0",
-            "ProductName": "Blob Storage Snapshots",
+            SOURCE_RESOURCE_ID: "disk-fractional-seconds",
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_METER_NAME: "P10 Disks",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "128",
+            SOURCE_STORAGE_DURATION_SECONDS: "5400.5",
         }
-        size_gb, duration_seconds = calculate_storage_size(row, 30, {})
-        self.assertEqual(size_gb, 0.0)
-        self.assertEqual(duration_seconds, 0)
+        storage_dict = {}
+
+        with self.assertLogs(level="ERROR") as log:
+            result = _process_storage_row(row, storage_dict)
+
+        self.assertFalse(result)
+        self.assertEqual(storage_dict, {})
+        self.assertIn(SOURCE_STORAGE_DURATION_SECONDS, log.output[0])
+
+    def test_process_storage_row_non_positive_values(self):
+        """Zero or negative normalized inputs should reject the row."""
+        test_cases = [
+            ({SOURCE_STORAGE_SIZE_GB: "0", SOURCE_STORAGE_DURATION_SECONDS: "86400"}, SOURCE_STORAGE_SIZE_GB),
+            ({SOURCE_STORAGE_SIZE_GB: "128", SOURCE_STORAGE_DURATION_SECONDS: "-1"}, SOURCE_STORAGE_DURATION_SECONDS),
+        ]
+
+        for row_values, expected_field in test_cases:
+            with self.subTest(expected_field=expected_field):
+                row = {
+                    SOURCE_RESOURCE_ID: "disk-invalid",
+                    SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+                    SOURCE_METER_NAME: "P10 Disks",
+                    SOURCE_REGION: "francecentral",
+                    SOURCE_PROVIDER: "azure",
+                    SOURCE_COST: "0.0",
+                    **row_values,
+                }
+                storage_dict = {}
+
+                with self.assertLogs(level="ERROR") as log:
+                    result = _process_storage_row(row, storage_dict)
+
+                self.assertFalse(result)
+                self.assertEqual(storage_dict, {})
+                self.assertIn(expected_field, log.output[0])
 
     @patch(
         "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
@@ -148,99 +218,48 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertEqual(storage_resource.size_gb, 128.0)
         self.assertEqual(storage_resource.carbon_intensity, 250.0)
 
-
-    def test_extract_size_from_sku_comprehensive_azure(self):
-        """
-        Test SKU extraction for all Azure disk types.
-        Protects against incorrect billing when new SKUs are added.
-        """
-        azure_sku_mapping = {
-            "P4": 32,
-            "P10": 128,
-            "P15": 256,
-            "P20": 512,
-            "P80": 32767,
-            "E10": 128,
-            "E20": 512,
-            "S4": 32,
-            "S20": 512,
-            "S80": 32767,
-        }
-        # Test all major SKU series
-        test_cases = [
-            # Premium SSD (P series)
-            ("Premium SSD Managed Disks - P4 LRS - EU West", 32.0),
-            ("Premium SSD Managed Disks - P15 LRS", 256.0),
-            ("Premium SSD Managed Disks - P80 LRS", 32767.0),
-            # Standard SSD (E series)
-            ("Standard SSD Managed Disks - E10 LRS", 128.0),
-            ("Standard SSD Managed Disks - E20 LRS", 512.0),
-            # Standard HDD (S series)
-            ("Standard HDD Managed Disks - S4 LRS", 32.0),
-            ("Standard HDD Managed Disks - S20 LRS", 512.0),
-            ("Standard HDD Managed Disks - S80 LRS", 32767.0),
-            # Edge cases
-            ("Some Random Product Name", 0.0),  # No SKU
-            ("Premium SSD - P999 LRS", 0.0),  # Unknown SKU
-            ("Multiple P10 and P20 in name", 128.0),  # Should pick first match
-        ]
-
-        for product_name, expected_size in test_cases:
-            with self.subTest(product_name=product_name):
-                result = extract_size_from_product_name(product_name, azure_sku_mapping)
-                self.assertEqual(
-                    result,
-                    expected_size,
-                    f"Failed for {product_name}: expected {expected_size}, got {result}",
-                )
-
     def test_storage_data_validation_edge_cases(self):
         """
         Test validation of edge case storage data.
         Protects against crashes and incorrect calculations from bad data.
         """
-        # Test negative sizes
         row_negative = {
-            "UnitOfMeasure": "1 GiB/Hour",
-            "Quantity": "-1.0",  # Negative quantity
-            "ProductName": "Premium SSD v2 Managed Disks",
+            **self.sample_ssd_row,
             SOURCE_RESOURCE_ID: "test_negative",
+            SOURCE_STORAGE_SIZE_GB: "-1.0",
         }
         storage_dict = {}
-        # TODO: Implement this in reader instead?
-        result = None # process_storage_row(row_negative, 30, storage_dict)
-        self.assertFalse(result)  # Should reject negative sizes
 
-        # Test extremely large sizes
+        result = _process_storage_row(row_negative, storage_dict)
+        self.assertFalse(result)
+
         row_huge = {
-            "UnitOfMeasure": "1 GiB/Hour",
-            "Quantity": "999999.0",  # Unrealistic quantity
-            "ProductName": "Premium SSD v2 Managed Disks",
-            "Cost": "100.0",
+            **self.sample_ssd_row,
             SOURCE_RESOURCE_ID: "test_huge",
+            SOURCE_STORAGE_SIZE_GB: "999999.0",
+            SOURCE_STORAGE_DURATION_SECONDS: "86400",
+            SOURCE_COST: "100.0",
         }
         storage_dict = {}
+
         with self.assertLogs(level="WARNING") as log:
-        # TODO: Implement this in reader instead?
-            result = _process_storage_row(row_huge, 30, storage_dict)
-            # Should log warning for unusually large disk
-            self.assertTrue(
-                any("Unusually large disk" in output for output in log.output)
-            )
+            result = _process_storage_row(row_huge, storage_dict)
+
+        self.assertTrue(result)
+        self.assertTrue(any("Unusually large disk" in output for output in log.output))
 
     def test_carbon_intensity_region_mapping(self):
         """
         CRITICAL: Test region to carbon intensity mapping.
         Protects against incorrect carbon calculations for different Azure regions.
         """
-        # Test known regions with expected carbon intensities
         test_regions = [
-            ("francecentral", 44),  # France - low carbon
-            ("germanywestcentral", 344),  # Germany - medium carbon
-            ("westeurope", 253),  # Netherlands - medium carbon
-            ("northeurope", 280),  # Ireland - medium carbon
-            ("eastus", 384),  # Virginia - high carbon
-            ("southeastasia", 499),  # Singapore - high carbon
+            ("francecentral", 44),
+            ("germanywestcentral", 344),
+            ("westeurope", 253),
+            ("northeurope", 280),
+            ("eastus", 384),
+            ("southeastasia", 499),
         ]
 
         for region, expected_ci in test_regions:
@@ -252,10 +271,9 @@ class TestStorageHelpers(unittest.TestCase):
 
                     storage = create_storage_resource(
                         {
-                            "Region": region,
+                            SOURCE_REGION: region,
                             SOURCE_RESOURCE_ID: "test",
-                            "ResourceGroup": "test",
-                            "Cost": "0.0",
+                            SOURCE_COST: "0.0",
                         },
                         "test_id",
                         100.0,
@@ -264,25 +282,19 @@ class TestStorageHelpers(unittest.TestCase):
                         86400,
                     )
 
-                    self.assertEqual(
-                        storage.carbon_intensity,
-                        expected_ci,
-                        f"Carbon intensity mismatch for {region}",
-                    )
+                    self.assertEqual(storage.carbon_intensity, expected_ci)
                     self.assertEqual(storage.region, region)
 
-        # Test unknown region handling
         with patch(
             "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
         ) as mock_ci:
-            mock_ci.return_value = 281  # Default carbon intensity
+            mock_ci.return_value = 281
 
             storage = create_storage_resource(
                 {
-                    "Region": "unknown_region",
+                    SOURCE_REGION: "unknown_region",
                     SOURCE_RESOURCE_ID: "test",
-                    "ResourceGroup": "test",
-                    "Cost": "0.0",
+                    SOURCE_COST: "0.0",
                 },
                 "test_id",
                 100.0,
@@ -291,105 +303,24 @@ class TestStorageHelpers(unittest.TestCase):
                 86400,
             )
 
-            self.assertEqual(storage.carbon_intensity, 281)  # Should use default
-
-    def test_date_delta_success(self):
-        """Test billing period calculation - normal case"""
-        csv_data = """BillingPeriodStartDate,BillingPeriodEndDate,ProductName
-3/1/2025,3/31/2025,Premium SSD
-3/1/2025,3/31/2025,Standard HDD"""
-
-        result = date_delta(csv_data)
-        self.assertEqual(result, 31)  # March = 31 days
-
-    def test_date_delta_fallback(self):
-        """Test fallback to 30 days when CSV is invalid"""
-        csv_data = "invalid,csv,data"
-
-        with self.assertLogs(level="ERROR") as log:
-            result = date_delta(csv_data)
-
-        self.assertEqual(result, 30)
-        self.assertIn("CSV error", log.output[0])
+            self.assertEqual(storage.carbon_intensity, 281)
 
 
-class TestReaderStoragePerRowProvider(unittest.TestCase):
-    """
-    Tests that Reader_Storage.process_storage_row looks up disk_sku_mapping
-    using the provider from each row, not a single instance-level provider_config.
-    """
+class TestProcessStorageRow(unittest.TestCase):
+    """Tests for _process_storage_row using the normalized storage contract."""
 
     def setUp(self):
-        """Set up test fixtures."""
-        self.sample_ssd_row = {
-            "ProductName": "Premium SSD Managed Disks",
-            "MeterName": "P10 Disks",
+        self.sample_row = {
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_RESOURCE_ID: "test_line_123",
-            "Region": "francecentral",
-            "SubscriptionId": "test-subscription-id",
-            "ResourceGroup": "test-rg",
-            "Cost": "0.0",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "128",
+            SOURCE_STORAGE_DURATION_SECONDS: "86400",
         }
 
-        self.sample_hdd_row = {
-            "ProductName": "Standard HDD Managed Disks",
-            "MeterName": "S30 Disks",
-            SOURCE_RESOURCE_ID: "test_line_456",
-            "Region": "germanywestcentral",
-        }
-
-    def _make_reader(self):
-        from backend.src.daemon.readers.reader_storage import Reader_Storage
-        from backend.src.core.yaml_config_loader import DaemonConfig
-        daemon_cfg = MagicMock(spec=DaemonConfig)
-        reader = Reader_Storage.__new__(Reader_Storage)
-        reader.config = daemon_cfg
-        return reader
-
-    @patch("backend.src.daemon.readers.reader_storage.config")
-    @patch("backend.src.daemon.readers.reader_storage._process_storage_row")
-    def test_row_with_known_provider_uses_its_sku_mapping(self, mock_free_fn, mock_config):
-        """When row['Provider'] matches a loaded provider config, that config's SKU mapping is used."""
-        mock_provider_config = MagicMock()
-        mock_provider_config.get_disk_sku_size_mapping.return_value = {"P10": 128}
-        mock_config.provider_configs = {"azure": mock_provider_config}
-        mock_free_fn.return_value = True
-
-        reader = self._make_reader()
-        row = {"Provider": "azure", "ProductName": "Premium SSD - P10", SOURCE_RESOURCE_ID: "1"}
-        result = reader.process_storage_row(row, 30, {})
-
-        mock_free_fn.assert_called_once_with(row, 30, {}, {"P10": 128})
-        assert result is True
-
-    @patch("backend.src.daemon.readers.reader_storage.config")
-    @patch("backend.src.daemon.readers.reader_storage._process_storage_row")
-    def test_row_with_unknown_provider_uses_empty_mapping(self, mock_free_fn, mock_config):
-        """When row['Provider'] is not in provider_configs, an empty SKU mapping is used."""
-        mock_config.provider_configs = {}
-        mock_free_fn.return_value = False
-
-        reader = self._make_reader()
-        row = {"Provider": "onprem", "ProductName": "Some Disk", SOURCE_RESOURCE_ID: "2"}
-        result = reader.process_storage_row(row, 30, {})
-
-        mock_free_fn.assert_called_once_with(row, 30, {}, {})
-        assert result is False
-
-    @patch("backend.src.daemon.readers.reader_storage.config")
-    @patch("backend.src.daemon.readers.reader_storage._process_storage_row")
-    def test_row_with_missing_provider_column_uses_empty_mapping(self, mock_free_fn, mock_config):
-        """When 'Provider' key is absent from the row, falls back to empty mapping."""
-        mock_config.provider_configs = {"azure": MagicMock()}
-        mock_free_fn.return_value = False
-
-        reader = self._make_reader()
-        row = {"ProductName": "Some Disk", SOURCE_RESOURCE_ID: "3"}  # no Provider key
-        reader.process_storage_row(row, 30, {})
-
-        mock_free_fn.assert_called_once_with(row, 30, {}, {})
-
-    @patch("backend.src.daemon.readers.helpers.storage_helpers.calculate_storage_size")
     @patch("backend.src.daemon.readers.helpers.storage_helpers.get_storage_type")
     @patch("backend.src.daemon.readers.helpers.storage_helpers.get_replication_type")
     @patch("backend.src.daemon.readers.helpers.storage_helpers.create_storage_resource")
@@ -398,48 +329,51 @@ class TestReaderStoragePerRowProvider(unittest.TestCase):
         mock_create_storage,
         mock_get_replication,
         mock_get_storage_type,
-        mock_calculate_size,
     ):
         """Test successful processing of a storage row."""
-        mock_calculate_size.return_value = (128.0, 86400)
-        logger.info(f"mock_calculate_size: {mock_calculate_size}")
         mock_get_storage_type.return_value = "SSD"
         mock_get_replication.return_value = "LRS"
-        mock_storage_resource = MagicMock(spec=StorageResource)
+        mock_storage_resource = MagicMock()
+        mock_storage_resource.id = self.sample_row[SOURCE_RESOURCE_ID]
         mock_storage_resource.dict_custom_columns = {}
         mock_storage_resource.time_points = []
         mock_create_storage.return_value = mock_storage_resource
 
         storage_dict = {}
-        result = _process_storage_row(self.sample_ssd_row, 30, storage_dict)
+        result = _process_storage_row(self.sample_row, storage_dict)
 
         self.assertTrue(result)
-        self.assertIn("test_line_123", storage_dict)
+        self.assertIn(self.sample_row[SOURCE_RESOURCE_ID], storage_dict)
+        mock_create_storage.assert_called_once_with(
+            self.sample_row,
+            self.sample_row[SOURCE_RESOURCE_ID],
+            128.0,
+            "SSD",
+            "LRS",
+            86400,
+        )
 
-    @patch("backend.src.daemon.readers.helpers.storage_helpers.calculate_storage_size")
-    def test_process_storage_row_zero_size(self, mock_calculate_size):
+    def test_process_storage_row_zero_size(self):
         """Test processing of storage row with zero size."""
-        mock_calculate_size.return_value = (0.0, 86400)
+        row = {**self.sample_row, SOURCE_STORAGE_SIZE_GB: "0"}
 
         storage_dict = {}
-        result = _process_storage_row(self.sample_ssd_row, 30, storage_dict)
+        result = _process_storage_row(row, storage_dict)
 
         self.assertFalse(result)
         self.assertEqual(len(storage_dict), 0)
 
-    @patch("backend.src.daemon.readers.helpers.storage_helpers.calculate_storage_size")
-    def test_process_storage_row_without_resource_id(self, mock_calculate_size):
+    def test_process_storage_row_without_resource_id(self):
         """Test processing of storage row without resource id."""
-        mock_calculate_size.return_value = (128.0, 86400)
-
-        row_without_resource_id = self.sample_ssd_row.copy()
+        row_without_resource_id = self.sample_row.copy()
         del row_without_resource_id[SOURCE_RESOURCE_ID]
 
         storage_dict = {}
-        result = _process_storage_row(row_without_resource_id, 30, storage_dict)
+        result = _process_storage_row(row_without_resource_id, storage_dict)
 
         self.assertFalse(result)
         self.assertEqual(len(storage_dict), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
