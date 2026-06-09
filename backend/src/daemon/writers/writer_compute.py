@@ -26,9 +26,9 @@ class Writer_Compute(AbstractWriter):
             # row[ReportConfig.COMPUTE_PARTITION] = resource.partition
             # row[ReportConfig.COMPUTE_COMPONENT] = resource.component
 
-            self.writer.writerow(row)
+            self.csv_dict_writer.writerow(row)
 
-            self.writer.writerow(row)
+            self.csv_dict_writer.writerow(row)
 
         logger.info(
             " Rows built for %d resources",

@@ -22,9 +22,9 @@ class Writer_Misc_Services(AbstractWriter):
 
             # No Misc services specific columns
 
-            self.writer.writerow(row)
+            self.csv_dict_writer.writerow(row)
 
-            self.writer.writerow(row)
+            self.csv_dict_writer.writerow(row)
 
         logger.info(
             " Rows built for %d resources",

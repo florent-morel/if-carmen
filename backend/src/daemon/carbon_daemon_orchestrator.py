@@ -586,15 +586,13 @@ class CarbonDaemonOrchestrator:
                 if self.list_resource_processors:
                     for abstract_processor in self.list_resource_processors:
                         logger.info(
-                            f"Writing results by {abstract_processor.writer}"
+                            # f"Writing results by {abstract_processor.writer(dict_writer)}"
                             f" writer for {abstract_processor.resource_type.value}"
                             f" resource type."
                         )
 
                         # Call the AbstractWriter write method
-                        abstract_processor.write(
-                            self.carbon_daemon_result.dict_resource_result[
-                                abstract_processor.resource_type])
+                        abstract_processor.write(dict_writer)
 
                 # # iterate on writers
                 # for (

@@ -26,10 +26,10 @@ class AbstractWriter(ABC):
         self.resource_result: ResourceTypeResult = resource_result
         self.date: str = date
         self.config: DaemonConfig = config
-        self.writer: csv.DictWriter = writer
+        self.csv_dict_writer: csv.DictWriter = writer
 
     def initialize_headers(self):
-        self.writer.writeheader()
+        self.csv_dict_writer.writeheader()
 
     @staticmethod
     def get_report_headers() -> list[str]:

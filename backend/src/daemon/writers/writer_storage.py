@@ -24,7 +24,7 @@ class Writer_Storage(AbstractWriter):
             row[ReportConfig.STORAGE_REPLICATION_TYPE] = resource.replication_type
             row[ReportConfig.STORAGE_SIZE_GB] = resource.size_gb
 
-            self.writer.writerow(row)
+            self.csv_dict_writer.writerow(row)
 
         logger.info(
             " Rows built for %d resources",

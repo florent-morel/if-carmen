@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import csv
 
 from backend.src.daemon.processors.abstract_processor import (
     AbstractProcessor,
@@ -40,7 +41,7 @@ class Processor_Misc_Services(AbstractProcessor):
         return self._runner
 
     @property
-    def writer(self) -> AbstractWriter:
+    def writer(self, dict_writer: csv.DictWriter) -> AbstractWriter:
         if not self._writer:
             self._writer = Writer_Misc_Services(self.config, self.date, self.writer_csv_dict_writer, self.resource_result)
         return self._writer

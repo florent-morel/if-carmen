@@ -58,7 +58,7 @@ class AbstractProcessor(ABC):
 
     @property
     @abstractmethod
-    def writer(self) -> AbstractWriter:
+    def writer(self, dict_writer: csv.DictWriter) -> AbstractWriter:
         pass
 
     def __init__(self, config: DaemonConfig, date: str):
@@ -100,8 +100,8 @@ class AbstractProcessor(ABC):
 
     def write(self, dict_writer: csv.DictWriter):
         """
-        Call the associated Writer to read data source.
+        Call the associated Writer to write results to output.
 
         Returns:
         """
-        self.writer.write_content(self.resource_type_result.list_processed_resources)
+        self.writer().write_content(self.resource_type_result.list_processed_resources)
