@@ -60,7 +60,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         Test successful Orchestrator execution with mocked reader, writer, and carbon service.
         """
         # Mock carbon service to return a successful result
-        mock_ioc_util_resolve.return_value = IFVMService(SAMPLING_RATE_IN_SECONDS)
+        mock_ioc_util_resolve.return_value = IFVMService(
+            SAMPLING_RATE_IN_SECONDS)
 
         # Execute runner on sample VMs
         runner_compute = Runner_Compute()
@@ -73,7 +74,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor.run.return_value = resource_type_result
 
         # Orchestrate the daemon with the mocked processor
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        orchestrator = CarbonDaemonOrchestrator(
+            self.mock_config, [mock_processor])
         result = orchestrator.orchestrate_carbon_daemon()
 
         # Validate the results
@@ -93,7 +95,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         # TODO: There are 26 files in test folder, check with single file to
         # uncomment this
         # mock_processor.read.assert_called_once()
-        mock_ioc_util_resolve.assert_called_once_with(CarbonService, "IFVm", 3600)
+        mock_ioc_util_resolve.assert_called_once_with(
+            CarbonService, "IFVm", 3600)
 
     @patch("backend.src.daemon.carbon_daemon_orchestrator.register_models")
     def test_orchestrator_no_vms_found(self, _mock_register_models):
@@ -110,7 +113,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor.runner = runner_compute
         # mock_processor.run = runner_compute.run([])
 
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        orchestrator = CarbonDaemonOrchestrator(
+            self.mock_config, [mock_processor])
         result = orchestrator.orchestrate_carbon_daemon()
 
         # read() was called; run() was never reached because the orchestrator short-circuits
@@ -124,8 +128,10 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {result.list_exceptions}")
 
         for exception in result.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {exception.details}")
-            self.assertEqual(exception.error_code, ErrorCode.DATA_FETCH_NO_RESULTS)
+            logger.info(f"Exception: {exception.error_code}, \n details: {
+                        exception.details}")
+            self.assertEqual(exception.error_code,
+                             ErrorCode.DATA_FETCH_NO_RESULTS)
             self.assertIn(
                 message, exception.details
             )
@@ -139,9 +145,11 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
         mock_processor = MagicMock()
         mock_processor.resource_type = ResourceType.VIRTUAL_MACHINE
-        mock_processor.read.side_effect = CarmenException(ErrorCode.UNKNOWN_ERROR, details="Test Reader failed")
+        mock_processor.read.side_effect = CarmenException(
+            ErrorCode.UNKNOWN_ERROR, details="Test Reader failed")
 
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        orchestrator = CarbonDaemonOrchestrator(
+            self.mock_config, [mock_processor])
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
@@ -150,7 +158,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {carbonDaemonResult.list_exceptions}")
 
         for exception in carbonDaemonResult.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
+            logger.info(f"Exception: {exception.error_code}, \n details: {
+                        exception.formatted_string}")
             if exception.error_code == ErrorCode.UNKNOWN_ERROR:
                 self.assertIn(
                     "Unexpected error reading file", exception.details
@@ -164,11 +173,13 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         Test daemon execution when carbon service raises an exception.
         """
         runner_error_msg = "Mock run side_effect"
-        orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {runner_error_msg}"
+        orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {
+            runner_error_msg}"
         orchestrator_error_msg_2 = "Unexpected error during daemon execution"
 
         mock_carbon_service = MagicMock()
-        mock_carbon_service.run_engine.side_effect = Exception("Carbon service failed")
+        mock_carbon_service.run_engine.side_effect = Exception(
+            "Carbon service failed")
 
         mock_ioc_util_resolve.return_value = mock_carbon_service
 
@@ -177,14 +188,15 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor.read.return_value = self.sample_vms.copy()
         mock_processor.run.side_effect = Exception(runner_error_msg)
 
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        orchestrator = CarbonDaemonOrchestrator(
+            self.mock_config, [mock_processor])
         mock_write_report.return_value = None
 
         # Call Main orchestrator process
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
-        print(carbonDaemonResult.list_exceptions)
+        logger.info(carbonDaemonResult.list_exceptions)
         self.assertFalse(carbonDaemonResult.success)
         self.assertIn(
             orchestrator_error_msg_1, carbonDaemonResult.list_exceptions[0].args[1]
@@ -200,7 +212,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         Test daemon execution when carbon service raises an exception.
         """
         runner_error_msg = "Mock run side_effect"
-        orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {runner_error_msg}"
+        orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {
+            runner_error_msg}"
         orchestrator_error_msg_2 = "Unexpected error during daemon execution"
 
         mock_carbon_service = MagicMock()
@@ -213,13 +226,14 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         mock_processor.read.return_value = self.sample_vms.copy()
         mock_processor.run.side_effect = Exception(runner_error_msg)
 
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        orchestrator = CarbonDaemonOrchestrator(
+            self.mock_config, [mock_processor])
         mock_write_report.return_value = None
         # Call Main orchestrator process
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
-        print(carbonDaemonResult.list_exceptions)
+        logger.info(carbonDaemonResult.list_exceptions)
         self.assertFalse(carbonDaemonResult.success)
         self.assertIn(
             orchestrator_error_msg_1, carbonDaemonResult.list_exceptions[0].args[1]
@@ -227,8 +241,10 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertIn(
             orchestrator_error_msg_2, carbonDaemonResult.list_exceptions[1].args[1]
         )
-        print(carbonDaemonResult.get_resource_type_list_exception(ResourceType.VIRTUAL_MACHINE))
-        self.assertIn(runner_error_msg, carbonDaemonResult.get_resource_type_list_exception(ResourceType.VIRTUAL_MACHINE)[0].args[1])
+        logger.info(carbonDaemonResult.get_resource_type_list_exception(
+            ResourceType.VIRTUAL_MACHINE))
+        self.assertIn(runner_error_msg, carbonDaemonResult.get_resource_type_list_exception(
+            ResourceType.VIRTUAL_MACHINE)[0].args[1])
 
     @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_run_carmen_exception(self, mock_ioc_util_resolve):
@@ -247,7 +263,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
         logger.info(f"Mock processor: {mock_processor}")
 
-        orchestrator = CarbonDaemonOrchestrator(self.mock_config, [mock_processor])
+        orchestrator = CarbonDaemonOrchestrator(
+            self.mock_config, [mock_processor])
 
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
@@ -257,7 +274,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {carbonDaemonResult.list_exceptions}")
 
         for exception in carbonDaemonResult.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {exception.details}")
+            logger.info(f"Exception: {exception.error_code}, \n details: {
+                        exception.details}")
             if exception.error_code == ErrorCode.UNKNOWN_ERROR:
                 self.assertIn(
                     error_details, exception.details
@@ -274,8 +292,10 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {result.list_exceptions}")
 
         for exception in result.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {exception.formatted_string}")
-            self.assertEqual(exception.error_code, ErrorCode.CONFIG_NO_PROCESSOR)
+            logger.info(f"Exception: {exception.error_code}, \n details: {
+                        exception.formatted_string}")
+            self.assertEqual(exception.error_code,
+                             ErrorCode.CONFIG_NO_PROCESSOR)
             self.assertIn(
                 error_details, exception.details
             )

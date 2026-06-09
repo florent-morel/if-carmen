@@ -23,31 +23,24 @@ class Processor_Misc_Services(AbstractProcessor):
     Carbon Daemon processor implementation dedicated to Misc Services.
     """
 
-    def __init__(self, config: DaemonConfig):
-        """
-        Initialize processor dedicated to Misc Services.
-
-        Args:
-        """
-        super().__init__(config)
-
-        self._reader = Reader_Misc_Services(config)
-        self._runner = Runner_Misc_Services()
-        self._writer = Writer_Misc_Services(config, self.date, self.writer_csv_dict_writer, self.resource_result)
-        # self._writer: AbstractWriter
-
     @property
     def resource_type(self) -> ResourceType:
         return ResourceType.MISC_SERVICES
 
     @property
     def reader(self) -> AbstractReader:
+        if not self._reader:
+            self._reader = Reader_Misc_Services(self.config)
         return self._reader
 
     @property
     def runner(self) -> AbstractRunner:
+        if not self._runner:
+            self._runner = Runner_Misc_Services()
         return self._runner
 
     @property
     def writer(self) -> AbstractWriter:
+        if not self._writer:
+            self._writer = Writer_Misc_Services(self.config, self.date, self.writer_csv_dict_writer, self.resource_result)
         return self._writer

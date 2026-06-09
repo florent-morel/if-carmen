@@ -57,7 +57,8 @@ sys.path.insert(0, project_root)
 # Set up input directory for tests
 TEST_INPUT_DIR = os.path.abspath("etc/sample_data/test_data")
 # Set up report directory for tests
-TEST_REPORT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "report"))
+TEST_REPORT_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "report"))
 os.makedirs(TEST_REPORT_DIR, exist_ok=True)
 
 # TODO: put in configuration
@@ -77,7 +78,7 @@ def setup_report_dir():
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
             except OSError as ex:
-                print(f"Error deleting file {file_path}: {ex}")
+                logger.info(f"Error deleting file {file_path}: {ex}")
 
 
 def read_co2_report(report_file: str) -> dict[str, dict[str, float | str]]:
@@ -165,7 +166,8 @@ def compute_expected_storage_metrics(
     energy_kwh = compute_storage_energy_helper(
         size_gb, storage_type, replication_type, duration_seconds
     )
-    operational_gco2 = compute_storage_operational_helper(energy_kwh, carbon_intensity)
+    operational_gco2 = compute_storage_operational_helper(
+        energy_kwh, carbon_intensity)
     embodied_gco2 = compute_storage_embodied_helper(
         size_gb, storage_type, replication_type, duration_seconds
     )
@@ -280,11 +282,12 @@ def test_carbon_daemon_with_sample_data(
 
         execution_date = get_execution_date()
 
-        processor_compute = (Processor_Compute)AbstractProcessor(mock_daemon_config, execution_date)
+        processor_compute = Processor_Compute(
+            mock_daemon_config, execution_date)
 
         daemon = CarbonDaemonOrchestrator(
             mock_daemon_config,
-            list_resource_processors=[],
+            list_resource_processors=[processor_compute],
         )
         # TODO: Test will fail as support for multiple data source files not implemented
         result = daemon.orchestrate_carbon_daemon()
@@ -328,7 +331,8 @@ def test_carbon_daemon_with_sample_data(
             assert calculated_total > 0, "Calculated total carbon should be positive"
 
             assert (
-                abs(first_vm.total_energy_consumed - expected_energy) / expected_energy
+                abs(first_vm.total_energy_consumed -
+                    expected_energy) / expected_energy
                 < 0.5
             ), f"Energy {first_vm.total_energy_consumed} vs expected {expected_energy} differs too much"
 
@@ -445,7 +449,8 @@ class TestMainFunction(unittest.TestCase):
         )
         mock_daemon_instance.orchestrate_carbon_daemon.assert_called_once()
 
-        self.assertIn("Daemon execution completed successfully", log.output[-1])
+        self.assertIn("Daemon execution completed successfully",
+                      log.output[-1])
 
     @patch("backend.src.daemon.carbon_daemon_orchestrator.config")
     @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator")
@@ -488,4 +493,5 @@ class TestMainFunction(unittest.TestCase):
 
         self.assertEqual(context.exception.code, 1)
 
-        self.assertIn("Critical error in Daemon main: Critical error", log.output[-1])
+        self.assertIn(
+            "Critical error in Daemon main: Critical error", log.output[-1])

@@ -47,6 +47,7 @@ _DEFAULT_PUE = 1.5
 
 logger = logging.getLogger(__name__)
 
+
 def read_sample_vm_data(file_dict, _destination_folder, config: DaemonConfig):
     """
     Reads VM data from multiple hourly sample CSV files and merges all hourly entries for each VM into a single object.
@@ -88,7 +89,8 @@ def _get_vm_sample_file_path(hour, config: DaemonConfig):
         str: The path to the sample file.
     """
     return os.path.join(
-        os.path.dirname(config.source.input_path), "test_data", f"vm_usage_hour_{hour}.csv"
+        os.path.dirname(config.source.input_path), "test_data", f"vm_usage_hour_{
+            hour}.csv"
     )
 
 
@@ -109,7 +111,7 @@ def _read_and_process_vm_csv(sample_file, vms_dict):
             rows_found = True
             _process_vm_row(row, vms_dict)
         if not rows_found:
-            print(f"Resource is empty! Skipped file: {sample_file}")
+            logger.info(f"Resource is empty! Skipped file: {sample_file}")
 
 
 def _process_vm_row(row, vms_dict):
@@ -177,6 +179,7 @@ def _extract_hour_from_file_name(file_name):
 
 csv_test_csv_path = "etc/sample_data/test_data/storage_test.csv"
 
+
 def read_sample_storage_data(file_dict, _destination_folder):
     """
     Reads storage data from CSV files and returns a list of StorageResource objects.
@@ -184,7 +187,7 @@ def read_sample_storage_data(file_dict, _destination_folder):
     """
     storage_dict = {}
     for group, files in file_dict.items():
-        print(f"Reading storage file group '{group}'...")
+        logger.info(f"Reading storage file group '{group}'...")
         for file_name in files:
             _process_storage_file(file_name, storage_dict)
     return list(storage_dict.values())
@@ -192,12 +195,13 @@ def read_sample_storage_data(file_dict, _destination_folder):
 
 def _process_storage_file(file_name, storage_dict):
     """Resolves the sample file path for a storage file name and delegates to the CSV reader."""
-    sample_file = os.path.join(os.path.dirname(__file__), "test_data", file_name)
-    print(f"Attempting to read storage file: {sample_file}")
+    sample_file = os.path.join(os.path.dirname(
+        __file__), "test_data", file_name)
+    logger.info(f"Attempting to read storage file: {sample_file}")
     if os.path.exists(sample_file):
         _read_and_process_storage_csv(sample_file, storage_dict)
     else:
-        print(f"Storage sample file not found: {sample_file}")
+        logger.info(f"Storage sample file not found: {sample_file}")
 
 
 def _read_and_process_storage_csv(sample_file, storage_dict):
@@ -209,7 +213,7 @@ def _read_and_process_storage_csv(sample_file, storage_dict):
             rows_found = True
             _process_storage_row(row, storage_dict)
         if not rows_found:
-            print(f"Storage file is empty! Skipped: {sample_file}")
+            logger.info(f"Storage file is empty! Skipped: {sample_file}")
 
 
 def _process_storage_row(row, storage_dict):
@@ -270,7 +274,7 @@ def read_sample_misc_services_data(file_dict, _destination_folder):
     """
     misc_dict = {}
     for group, files in file_dict.items():
-        print(f"Reading misc_services file group '{group}'...")
+        logger.info(f"Reading misc_services file group '{group}'...")
         for file_name in files:
             _process_misc_services_file(file_name, misc_dict)
     return list(misc_dict.values())
@@ -278,12 +282,13 @@ def read_sample_misc_services_data(file_dict, _destination_folder):
 
 def _process_misc_services_file(file_name, misc_dict):
     """Resolves the sample file path for a misc_services file name and delegates to the CSV reader."""
-    sample_file = os.path.join(os.path.dirname(__file__), "test_data", file_name)
-    print(f"Attempting to read misc_services file: {sample_file}")
+    sample_file = os.path.join(os.path.dirname(
+        __file__), "test_data", file_name)
+    logger.info(f"Attempting to read misc_services file: {sample_file}")
     if os.path.exists(sample_file):
         _read_and_process_misc_services_csv(sample_file, misc_dict)
     else:
-        print(f"misc_services sample file not found: {sample_file}")
+        logger.info(f"misc_services sample file not found: {sample_file}")
 
 
 def _read_and_process_misc_services_csv(sample_file, misc_dict):
@@ -295,7 +300,7 @@ def _read_and_process_misc_services_csv(sample_file, misc_dict):
             rows_found = True
             _process_misc_services_row(row, misc_dict)
         if not rows_found:
-            print(f"misc_services file is empty! Skipped: {sample_file}")
+            logger.info(f"misc_services file is empty! Skipped: {sample_file}")
 
 
 def _process_misc_services_row(row, misc_dict):

@@ -28,6 +28,19 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractProcessor(ABC):
+    """
+    Abstract Carbon Daemon processor: handles the different classes to properly
+    run impact computation.
+    The process includes:
+    - A Reader to read input data from source.
+    - A Runner, to call the Impact Framework.
+    - A Writer, to write output results.
+    """
+
+    _reader: AbstractReader = None
+    _runner: AbstractRunner = None
+    _writer: AbstractWriter = None
+
     @property
     @abstractmethod
     def resource_type(self) -> ResourceType:
