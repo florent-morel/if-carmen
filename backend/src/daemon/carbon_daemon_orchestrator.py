@@ -200,6 +200,8 @@ class CarbonDaemonOrchestrator:
                 register_models()
 
                 self.date: str = get_execution_date()
+                for processor in list_resource_processors:
+                    processor.execution_date = self.date
                 self.list_input_file = []
                 logger.debug(f"input_path: {self.config.source.input_path}")
                 input_path = self.config.source.input_path

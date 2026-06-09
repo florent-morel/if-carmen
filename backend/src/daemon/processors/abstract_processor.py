@@ -28,19 +28,6 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractProcessor(ABC):
-    """
-    Abstract Carbon Daemon processor: handles the different classes to properly
-    run impact computation.
-    The process includes:
-    - A Reader to read input data from source.
-    - A Runner, to call the Impact Framework.
-    - A Writer, to write output results.
-    """
-
-    _reader: AbstractReader = None
-    _runner: AbstractRunner = None
-    _writer: AbstractWriter = None
-
     @property
     @abstractmethod
     def resource_type(self) -> ResourceType:
@@ -56,28 +43,35 @@ class AbstractProcessor(ABC):
     def runner(self) -> AbstractRunner:
         pass
 
-    @property
     @abstractmethod
     def writer(self, dict_writer: csv.DictWriter) -> AbstractWriter:
         pass
 
-    def __init__(self, config: DaemonConfig, date: str):
+    def __init__(self, config: DaemonConfig, execution_date: str = ""):
         """
         Initialize the abstract carbon daemon processor.
 
         Args:
-            daemon_config: Configuration for daemon operations
+            config: Configuration for daemon operations
+            execution_date: Execution date for the processor (optional)
         """
         self.config = config
-        self.date: str = date
-        self.list_resources_to_process: list[Resource] | None = []
-        self.resource_type_result: ResourceTypeResult | None = {}
+        self.execution_date: str = execution_date
+        self.list_resources_to_process: list[Resource] = []
+        self.resource_type_result: ResourceTypeResult | None = None
+        self._reader: AbstractReader | None = None
+        self._runner: AbstractRunner | None = None
+        self._writer: AbstractWriter | None = None
 
     def read(self, csv_data: str) -> list[Resource]:
         """
         Call the associated Reader to read data source.
 
+        Args:
+            csv_data: CSV data to be read
+
         Returns:
+            List of resources read from the CSV data
         """
         logger.debug(f"Inside AbstractProcessor reader: {self.reader}")
         self.list_resources_to_process.extend(self.reader.read(csv_data))
@@ -98,10 +92,16 @@ class AbstractProcessor(ABC):
             logger.error("No resource to process for this runner.")
         return self.resource_type_result
 
-    def write(self, dict_writer: csv.DictWriter):
+    def write(self, dict_writer: csv.DictWriter) -> None:
         """
         Call the associated Writer to write results to output.
 
-        Returns:
+        Args:
+            dict_writer: CSV DictWriter to write the output
         """
-        self.writer().write_content(self.resource_type_result.list_processed_resources)
+        if not self.resource_type_result:
+            logger.warning("No resource result to write for %s", self.resource_type)
+            return
+        self.writer(dict_writer).write_content(
+            self.resource_type_result.list_processed_resources
+        )

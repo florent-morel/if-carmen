@@ -39,8 +39,12 @@ class Processor_Compute(AbstractProcessor):
             self._runner = Runner_Compute()
         return self._runner
 
-    @property
     def writer(self, dict_writer: csv.DictWriter) -> AbstractWriter:
         if not self._writer:
-            self._writer = Writer_Compute(self.config, self.date, None, self.resource_type_result)
+            self._writer = Writer_Compute(
+                self.config,
+                self.execution_date,
+                dict_writer,
+                self.resource_type_result,
+            )
         return self._writer

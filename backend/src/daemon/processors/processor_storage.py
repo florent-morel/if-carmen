@@ -39,8 +39,12 @@ class Processor_Storage(AbstractProcessor):
             self._runner = Runner_Storage()
         return self._runner
 
-    @property
     def writer(self, dict_writer: csv.DictWriter) -> AbstractWriter:
         if not self._writer:
-            self._writer = Writer_Storage(self.config, self.date, self.writer_csv_dict_writer, self.resource_result)
+            self._writer = Writer_Storage(
+                self.config,
+                self.execution_date,
+                dict_writer,
+                self.resource_type_result,
+            )
         return self._writer
