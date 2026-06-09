@@ -12,6 +12,7 @@ processing it through the carbon engine, and generating emission reports.
 from __future__ import annotations
 
 import logging
+import csv
 from abc import ABC, abstractmethod
 
 from backend.src.daemon.carbon_daemon_result import (
@@ -47,15 +48,15 @@ class AbstractProcessor(ABC):
     def writer(self) -> AbstractWriter:
         pass
 
-    def __init__(self, config: DaemonConfig):
+    def __init__(self, config: DaemonConfig, date: str):
         """
         Initialize the abstract carbon daemon processor.
 
         Args:
             daemon_config: Configuration for daemon operations
-            writer_factory: Factory for creating writer instances (optional)
         """
         self.config = config
+        self.date: str = date
         self.list_resources_to_process: list[Resource] | None = []
         self.resource_type_result: ResourceTypeResult | None = {}
 
@@ -83,3 +84,11 @@ class AbstractProcessor(ABC):
         else:
             logger.error("No resource to process for this runner.")
         return self.resource_type_result
+
+    def write(self, dict_writer: csv.DictWriter):
+        """
+        Call the associated Writer to read data source.
+
+        Returns:
+        """
+        self.writer.write_content(self.resource_type_result.list_processed_resources)

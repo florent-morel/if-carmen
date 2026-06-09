@@ -18,12 +18,9 @@ from os import listdir
 from os.path import isfile, join
 
 import csv
-from datetime import datetime, timedelta
 
 from backend.src.common.constants import (
     CARMEN_LOGO,
-    DATE_FORMAT,
-    EXECUTION_DATE,
 )
 from backend.src.common.carmen_exception import CarmenException, DataFetchError
 from backend.src.common.errors import ErrorCode
@@ -36,6 +33,8 @@ from backend.src.daemon.carbon_daemon_result import (
     CarbonDaemonResult,
     ResourceTypeResult,
 )
+
+from backend.src.utils.helpers import get_execution_date
 
 from backend.src.schemas.resource import ResourceType
 from backend.src.daemon.processors.abstract_processor import (
@@ -200,7 +199,7 @@ class CarbonDaemonOrchestrator:
 
                 register_models()
 
-                self.date: str = self.get_execution_date()
+                self.date: str = get_execution_date()
                 self.list_input_file = []
                 logger.debug(f"input_path: {self.config.source.input_path}")
                 input_path = self.config.source.input_path
@@ -583,25 +582,39 @@ class CarbonDaemonOrchestrator:
                 dict_writer = csv.DictWriter(report_csv_file, fieldnames=fieldnames)
                 dict_writer.writeheader()
 
-                # iterate on writers
-                for (
-                    resource_type_result
-                ) in self.carbon_daemon_result.dict_resource_result.values():
-                    # Instantiate writer dedicated to ResourceType
-                    if resource_type_result.resource_type == ResourceType.STORAGE:
-                        writer = Writer_Storage(self.config, self.date, dict_writer, resource_type_result)
-                        writer.write_content(resource_type_result.list_processed_resources)
-                    elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
-                        writer = Writer_Compute(self.config, self.date, dict_writer, resource_type_result)
-                        writer.write_content(resource_type_result.list_processed_resources)
-                    elif resource_type_result.resource_type == ResourceType.MISC_SERVICES:
-                        writer = Writer_Misc_Services(self.config, self.date, dict_writer, resource_type_result)
-                        writer.write_content(resource_type_result.list_processed_resources)
-                    else:
-                        logger.warning(
-                            "No writer implemented for resource type %s. Skipping writing results for this resource type.",
-                            resource_type_result.resource_type.value,
+                # Iterate on each Resource Carbon Daemon Processor
+                if self.list_resource_processors:
+                    for abstract_processor in self.list_resource_processors:
+                        logger.info(
+                            f"Writing results by {abstract_processor.writer}"
+                            f" writer for {abstract_processor.resource_type.value}"
+                            f" resource type."
                         )
+
+                        # Call the AbstractWriter write method
+                        abstract_processor.write(
+                            self.carbon_daemon_result.dict_resource_result[
+                                abstract_processor.resource_type])
+
+                # # iterate on writers
+                # for (
+                #     resource_type_result
+                # ) in self.carbon_daemon_result.dict_resource_result.values():
+                #     # Instantiate writer dedicated to ResourceType
+                #     if resource_type_result.resource_type == ResourceType.STORAGE:
+                #         writer = Writer_Storage(self.config, self.date, dict_writer, resource_type_result)
+                #         writer.write_content(resource_type_result.list_processed_resources)
+                #     elif resource_type_result.resource_type == ResourceType.VIRTUAL_MACHINE:
+                #         writer = Writer_Compute(self.config, self.date, dict_writer, resource_type_result)
+                #         writer.write_content(resource_type_result.list_processed_resources)
+                #     elif resource_type_result.resource_type == ResourceType.MISC_SERVICES:
+                #         writer = Writer_Misc_Services(self.config, self.date, dict_writer, resource_type_result)
+                #         writer.write_content(resource_type_result.list_processed_resources)
+                #     else:
+                #         logger.warning(
+                #             "No writer implemented for resource type %s. Skipping writing results for this resource type.",
+                #             resource_type_result.resource_type.value,
+                #         )
 
         else:
             logger.info(
@@ -616,28 +629,6 @@ class CarbonDaemonOrchestrator:
 
         logger.info("CSV report created in %.2f seconds", elapsed_time)
         logger.info("Report saved to: %s", self.output_file)
-
-    def get_execution_date(self):
-        execution_date_str = os.getenv(EXECUTION_DATE)
-        if not execution_date_str:
-            execution_date_str = (datetime.now() - timedelta(days=2)).strftime(
-                DATE_FORMAT
-            )
-        try:
-            execution_date = datetime.strptime(execution_date_str, DATE_FORMAT)
-        except ValueError as err:
-            logger.error(
-                "Invalid date format for EXECUTION_DATE: '%s'", execution_date_str
-            )
-            raise CarmenException(
-                ErrorCode.VALIDATION_INVALID_DATE_FORMAT,
-                details="Failed to parse execution date",
-            ) from err
-        logger.info(
-            "Carbon daemon starting execution for date: %s",
-            execution_date.strftime(DATE_FORMAT),
-        )
-        return execution_date_str
 
 
 def main() -> None:

@@ -36,13 +36,13 @@ class CarbonDaemonResult:
         storage_cost: float = 0.0,
     ):
         self.success: bool = success
-        self.dict_resource_result: dict = dict_resource_result
+        self.dict_resource_result: dict[ResourceType, ResourceTypeResult] = dict_resource_result
         self.total_energy_consumed: float = total_energy_consumed
         self.total_carbon_operational: float = total_carbon_operational
         self.total_carbon_embodied: float = total_carbon_embodied
         self.total_carbon_emitted: float = total_carbon_emitted
         self.execution_time: float = execution_time
-        self.list_exceptions: list = list_exceptions
+        self.list_exceptions: list[CarmenException] = list_exceptions
 
     def get_resource_type_list_exception(self, resource_type: ResourceType) -> dict[ResourceType, list[CarmenException]] | None:
         """

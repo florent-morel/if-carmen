@@ -17,8 +17,10 @@ import pytest
 import unittest
 from backend.tests.daemon import mock_data
 from backend.src.daemon.carbon_daemon_orchestrator import main as CarbonDaemon
+from backend.src.daemon.processors.abstract_processor import AbstractProcessor
 from backend.src.daemon.processors.processor_compute import Processor_Compute
 from backend.src.common.errors import ErrorCode
+from backend.src.utils.helpers import get_execution_date
 
 # from backend.src.core.yaml_config_loader import DaemonConfig
 from backend.src.schemas.resource import ResourceType
@@ -276,9 +278,13 @@ def test_carbon_daemon_with_sample_data(
 
         mock_writer_abstract.create_writer.side_effect = capture_vms
 
+        execution_date = get_execution_date()
+
+        processor_compute = (Processor_Compute)AbstractProcessor(mock_daemon_config, execution_date)
+
         daemon = CarbonDaemonOrchestrator(
             mock_daemon_config,
-            list_resource_processors=[Processor_Compute(mock_daemon_config)],
+            list_resource_processors=[],
         )
         # TODO: Test will fail as support for multiple data source files not implemented
         result = daemon.orchestrate_carbon_daemon()

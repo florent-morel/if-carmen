@@ -9,6 +9,8 @@ import subprocess
 import logging
 import json
 import re
+import os
+
 from typing import Any
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
@@ -17,10 +19,15 @@ from fastapi import Request
 from jinja2 import Template
 from backend.src.schemas.resource import Resource
 import httpx
-from backend.src.common.constants import RATE_TO_DURATION
+from backend.src.common.constants import (
+    DATE_FORMAT,
+    EXECUTION_DATE,
+    RATE_TO_DURATION,
+)
 from backend.src.common.enums import SamplingRate
 from backend.src.common.errors import ErrorCode
 from backend.src.common.carmen_exception import (
+    CarmenException,
     DataFetchError,
     QueryParameterError,
     ValidationError,
@@ -348,3 +355,26 @@ def process_custom_columns(resource: Resource, row: dict, list_ignore_column: li
         if column_name and column_name not in list_ignore_column:
             logger.debug(f"Storing custom column --{column_name}-- with value --{column_value}--")
             resource.dict_custom_columns[column_name] = column_value
+
+
+def get_execution_date():
+    execution_date_str = os.getenv(EXECUTION_DATE)
+    if not execution_date_str:
+        execution_date_str = (datetime.now() - timedelta(days=2)).strftime(
+            DATE_FORMAT
+        )
+    try:
+        execution_date = datetime.strptime(execution_date_str, DATE_FORMAT)
+    except ValueError as err:
+        logger.error(
+            "Invalid date format for EXECUTION_DATE: '%s'", execution_date_str
+        )
+        raise CarmenException(
+            ErrorCode.VALIDATION_INVALID_DATE_FORMAT,
+            details="Failed to parse execution date",
+        ) from err
+    logger.info(
+        "Carbon daemon starting execution for date: %s",
+        execution_date.strftime(DATE_FORMAT),
+    )
+    return execution_date_str

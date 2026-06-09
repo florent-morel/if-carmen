@@ -24,7 +24,7 @@ class AbstractWriter(ABC):
         resource_result: ResourceTypeResult,
     ):
         self.resource_result: ResourceTypeResult = resource_result
-        self.date: str = date,
+        self.date: str = date
         self.config: DaemonConfig = config
         self.writer: csv.DictWriter = writer
 
