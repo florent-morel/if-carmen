@@ -2,6 +2,8 @@
 Storage Services Power Consumption model made with IF builtins based on disk type (SSD/HDD)
 """
 
+from asyncio.log import logger
+
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.impact_framework.models.metadata import (
     Metadata,
@@ -70,14 +72,15 @@ class PStorage(ModelUtilities):
                 " 'storage_electricity_ratios' in carbon_values.yaml."
             )
 
-        replication_factors = (
-            (self.provider_config.get_storage_replication_factors() or {})
-            if self.provider_config
-            else {}
-        )
-        replication_factor = replication_factors.get(
-            storage_resource.replication_type.lower(), 1
-        )
+        if self.provider_config:
+            replication_factors = (self.provider_config.get_storage_replication_factors())
+            replication_factor = replication_factors.get(storage_resource.replication_type.lower())
+        else:
+            logger.warning(
+                "Storage resource %s has no replication type; assuming replication factor of 1.",
+                storage_resource.id,
+            )
+            replication_factor = 1
 
         effective_size = storage_resource.size_gb * replication_factor
 
