@@ -274,6 +274,7 @@ class CarbonDaemonOrchestrator:
                         file_resources: list[Resource] = []
 
                         for abstract_processor in self.list_resource_processors:
+                            logger.info(f"abstract_processor: {abstract_processor}")
                             logger.info(
                                 f"Data source reading by {abstract_processor.reader}"
                                 f" reader for {abstract_processor.resource_type.value}"
@@ -281,6 +282,8 @@ class CarbonDaemonOrchestrator:
                             )
                             file_resources.extend(abstract_processor.read(
                                 csv_data))
+
+                            logger.info(f"file_resources: {file_resources}")
 
                         file_read_time = time.time() - start_time
                         if file_resources:

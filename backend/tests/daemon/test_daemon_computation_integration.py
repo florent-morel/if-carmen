@@ -343,12 +343,15 @@ def test_daemon_computation_integration(
     setup_report_dir: None,
     vm1: dict[str, str | float | int],
     mock_daemon_config: MagicMock,
+    caplog,
 ):
     """
     Integration test that uses real carbon calculations with mocked I/O.
     This test validates that the carbon computation pipeline works correctly with actual IF calculations.
     """
     mock_config.carmen_daemon = mock_daemon_config
+
+    caplog.set_level(logging.INFO)
 
     from backend.src.utils.paas_ci_mapper import PaasCiMapper
 
@@ -367,22 +370,24 @@ def test_daemon_computation_integration(
 
     with (
         patch(
-            "backend.src.daemon.carbon_daemon_orchestrator.DefaultReaderFactory", create=True
-        ) as mock_reader_factory_class,
+            "backend.src.daemon.readers.reader_compute", create=True
+        ) as mock_reader_compute,
         patch(
             "backend.src.daemon.carbon_daemon_orchestrator.DefaultWriterFactory", create=True
         ) as mock_writer_factory_class,
+        patch(
+            "backend.src.daemon.processors.processor_compute", create=True
+        ) as processor_compute,
     ):
-        mock_reader_factory = MagicMock()
-        mock_reader_factory_class.return_value = mock_reader_factory
-        mock_reader = MagicMock()
+        logger.info(f"mock_reader_compute: {mock_reader_compute}")
+        mock_reader = mock_reader_compute
         mock_reader.read.return_value = [test_vm]
-        mock_reader_factory.create_reader.return_value = mock_reader
 
         mock_writer_factory = MagicMock()
         mock_writer_factory_class.return_value = mock_writer_factory
         mock_writer = MagicMock()
 
+        logger.info(f"mock_reader: {mock_reader}")
         captured_vms = []
 
         def capture_vms(config: MagicMock, vms: list[VirtualMachine]) -> MagicMock:
@@ -391,11 +396,23 @@ def test_daemon_computation_integration(
 
         mock_writer_factory.create_writer.side_effect = capture_vms
 
-        daemon = CarbonDaemonOrchestrator(mock_daemon_config)
+        execution_date = get_execution_date()
+
+        # processor_compute = Processor_Compute(
+            # mock_daemon_config, execution_date)
+        processor_compute.reader.return_value = mock_reader
+        logger.info(f"processor_compute: {processor_compute}")
+        logger.info(f"processor_compute.reader: {processor_compute.reader}")
+        logger.info(f"processor_compute.reader.return_value: {processor_compute.reader.return_value}")
+
+        daemon = CarbonDaemonOrchestrator(
+            mock_daemon_config,
+            list_resource_processors=[processor_compute],
+        )
         result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True
-        assert result.vm_count == 1
+        assert len(result.dict_resource_result[ResourceType.VIRTUAL_MACHINE].list_processed_resources) == 1
 
         assert len(captured_vms) == 1
         processed_vm = captured_vms[0]
