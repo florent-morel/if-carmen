@@ -21,7 +21,6 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
-    SOURCE_METER_NAME,
     SOURCE_STORAGE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
     SOURCE_DATE,
@@ -94,7 +93,6 @@ def create_storage_resource(
         replication_type=replication_type,
         size_gb=size_gb,
         region=region,
-        # resource_group=row.get(SOURCE_RESOURCE_GROUP, UNKNOWN),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         time_points=[],
         duration_seconds=duration_seconds,
@@ -105,26 +103,24 @@ def create_storage_resource(
 # TODO: ca dégage vers la config des providers
 def get_replication_type(row: dict) -> str:
     """
-    Extracts replication type from ProductName or MeterName.
+    Extracts replication type from ProductName.
 
     Returns:
         str: Replication type (LRS/GRS/ZRS/RA_GRS/etc.)
     """
     product_name = row.get(SOURCE_PRODUCT_NAME, "").upper()
-    meter_name = row.get(SOURCE_METER_NAME, "").upper()
-    text = f"{product_name} {meter_name}"
 
-    if "RA-GZRS" in text or "RAGZRS" in text:
+    if "RA-GZRS" in product_name or "RAGZRS" in product_name:
         return "RA_GZRS"
-    if "GZRS" in text:
+    if "GZRS" in product_name:
         return "GZRS"
-    if "RA-GRS" in text or "RAGRS" in text:
+    if "RA-GRS" in product_name or "RAGRS" in product_name:
         return "RA_GRS"
-    if "GRS" in text:
+    if "GRS" in product_name:
         return "GRS"
-    if "ZRS" in text:
+    if "ZRS" in product_name:
         return "ZRS"
-    if "LRS" in text:
+    if "LRS" in product_name:
         return "LRS"
     return "LRS"  # default
 

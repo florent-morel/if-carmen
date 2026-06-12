@@ -216,23 +216,21 @@ def _process_storage_row(row, storage_dict):
 def _create_storage_resource(row):
     """
     Creates a StorageResource from a billing CSV row (storage_test.csv format).
-    Columns: UnitOfMeasure, Quantity, ProductName, ResourceId, Date,
-             ResourceLocation, MeterName, SubscriptionId, ResourceGroup, ...
+    Columns: TODO
     """
-    meter_name = row.get("MeterName", "")
     product_name = row.get("ProductName", "")
 
     # Derive storage_type from meter/product name
-    if "Premium SSD" in product_name or "Premium LRS" in meter_name:
+    if "Premium SSD" in product_name or "Premium LRS" in product_name:
         storage_type = "Premium_SSD"
-    elif "Ultra" in product_name or "Ultra" in meter_name:
+    elif "Ultra" in product_name:
         storage_type = "Ultra_Disk"
     else:
         storage_type = "Standard_HDD"
 
     # Derive replication type from meter name (LRS, GRS, ZRS, GZRS)
     for rep in ("GZRS", "ZRS", "GRS", "LRS"):
-        if rep in meter_name or rep in product_name:
+        if rep in product_name:
             replication_type = rep
             break
     else:
@@ -243,7 +241,6 @@ def _create_storage_resource(row):
         name=row.get("ProductName", ""),
         provider=row.get("Provider", ""),
         region=row.get("ResourceLocation", ""),
-        resource_group=row.get("ResourceGroup", ""),
         storage_type=storage_type,
         replication_type=replication_type,
         size_gb=str_to_float(row.get("Quantity", "0")),

@@ -9,7 +9,6 @@ from unittest.mock import MagicMock, patch
 
 from backend.src.common.constants import (
     SOURCE_COST,
-    SOURCE_METER_NAME,
     SOURCE_PRODUCT_NAME,
     SOURCE_PROVIDER,
     SOURCE_REGION,
@@ -36,7 +35,6 @@ class TestStorageHelpers(unittest.TestCase):
         """Set up test fixtures."""
         self.sample_ssd_row = {
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
-            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_RESOURCE_ID: "test_line_123",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
@@ -47,7 +45,6 @@ class TestStorageHelpers(unittest.TestCase):
 
         self.sample_hdd_row = {
             SOURCE_PRODUCT_NAME: "Standard HDD Managed Disks",
-            SOURCE_METER_NAME: "S30 Disks",
             SOURCE_RESOURCE_ID: "test_line_456",
             SOURCE_REGION: "germanywestcentral",
             SOURCE_PROVIDER: "azure",
@@ -76,19 +73,19 @@ class TestStorageHelpers(unittest.TestCase):
 
     def test_get_replication_type_lrs(self):
         """Test replication type detection for LRS."""
-        row = {SOURCE_PRODUCT_NAME: "Premium SSD - LRS", SOURCE_METER_NAME: "P10 LRS"}
+        row = {SOURCE_PRODUCT_NAME: "Premium SSD - LRS"}
         replication_type = get_replication_type(row)
         self.assertEqual(replication_type, "LRS")
 
     def test_get_replication_type_grs(self):
         """Test replication type detection for GRS."""
-        row = {SOURCE_PRODUCT_NAME: "Storage - GRS", SOURCE_METER_NAME: "Hot GRS Data"}
+        row = {SOURCE_PRODUCT_NAME: "Storage - GRS"}
         replication_type = get_replication_type(row)
         self.assertEqual(replication_type, "GRS")
 
     def test_get_replication_type_default_lrs(self):
         """Test replication type defaults to LRS for unknown types."""
-        row = {SOURCE_PRODUCT_NAME: "Unknown Storage", SOURCE_METER_NAME: "Unknown"}
+        row = {SOURCE_PRODUCT_NAME: "Unknown Storage"}
         replication_type = get_replication_type(row)
         self.assertEqual(replication_type, "LRS")
 
@@ -97,7 +94,6 @@ class TestStorageHelpers(unittest.TestCase):
         row = {
             SOURCE_RESOURCE_ID: "disk-normalized",
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
-            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
@@ -117,7 +113,6 @@ class TestStorageHelpers(unittest.TestCase):
         row = {
             SOURCE_RESOURCE_ID: "disk-missing-size",
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
-            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
@@ -137,7 +132,6 @@ class TestStorageHelpers(unittest.TestCase):
         row = {
             SOURCE_RESOURCE_ID: "disk-invalid-values",
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
-            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
@@ -158,7 +152,6 @@ class TestStorageHelpers(unittest.TestCase):
         row = {
             SOURCE_RESOURCE_ID: "disk-fractional-seconds",
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
-            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
@@ -186,7 +179,6 @@ class TestStorageHelpers(unittest.TestCase):
                 row = {
                     SOURCE_RESOURCE_ID: "disk-invalid",
                     SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
-                    SOURCE_METER_NAME: "P10 Disks",
                     SOURCE_REGION: "francecentral",
                     SOURCE_PROVIDER: "azure",
                     SOURCE_COST: "0.0",
@@ -312,7 +304,6 @@ class TestProcessStorageRow(unittest.TestCase):
     def setUp(self):
         self.sample_row = {
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
-            SOURCE_METER_NAME: "P10 Disks",
             SOURCE_RESOURCE_ID: "test_line_123",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",

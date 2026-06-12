@@ -240,13 +240,6 @@ def test_carbon_daemon_with_sample_data(
     Validates real carbon calculations using the Impact Framework.
     """
     # Get sample VM data from test files
-    # Fields:
-    # Date,Time,Id,AverageCpuPercentage,MinimumCpuPercentage,MaximumCpuPercentage
-    # AverageAvailableMemoryGB,MinimumAvailableMemoryGB,MaximumAvailableMemoryGB
-    # Region,Subscription,ResourceGroup,Name,Size,Family,NbVCpus,MemoryGB
-    # DiskSizeGb,Priority,Zone,AvailabilitySet,ProximityPlacementGroup
-    # VirtualMachineScaleSet,ProvisioningState,DisplayStatus,Service,Instance
-    # Component,Environment,Partition,Provider,Tags
 
     sample_vms = mock_data.read_sample_vm_data(
         {"ppt": ["usage_2025-06-01_00.csv"] * 24}, "", mock_daemon_config

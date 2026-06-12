@@ -35,7 +35,6 @@ CSV_FILE_ENCODING: str = "utf-8"
 
 
 SOURCE_RESOURCE_ID = "ResourceId"
-SOURCE_RESOURCE_GROUP = "ResourceGroup"
 SOURCE_PROVIDER = "Provider"
 SOURCE_REGION = "Region"
 SOURCE_NAME = "Name"
@@ -46,7 +45,6 @@ SOURCE_RESOURCE_TYPE_COMPUTE = "Compute"
 SOURCE_RESOURCE_TYPE_STORAGE = "Storage"
 SOURCE_RESOURCE_TYPE_SERVICE = "Service"
 SOURCE_PRODUCT_NAME = "ProductName"
-SOURCE_METER_NAME = "MeterName"
 SOURCE_DATE = "Date"
 SOURCE_TIME = "Time"
 # TODO: Rename as it is disk size

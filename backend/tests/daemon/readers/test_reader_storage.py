@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 
 from backend.src.common.constants import (
     SOURCE_COST,
-    SOURCE_METER_NAME,
     SOURCE_PRODUCT_NAME,
     SOURCE_PROVIDER,
     SOURCE_REGION,
@@ -29,7 +28,6 @@ _HEADERS = ",".join(
         SOURCE_RESOURCE_TYPE,
         SOURCE_COST,
         SOURCE_PRODUCT_NAME,
-        SOURCE_METER_NAME,
         SOURCE_STORAGE_SIZE_GB,
         SOURCE_STORAGE_DURATION_SECONDS,
     ]
@@ -41,7 +39,6 @@ def _make_row(
     resource_type: str,
     cost: str,
     product_name: str,
-    meter_name: str,
     storage_size_gb: str,
     storage_duration_seconds: str,
     provider: str = "azure",
@@ -49,7 +46,7 @@ def _make_row(
 ) -> str:
     return (
         f"{resource_id},{provider},{region},{resource_type},{cost},"
-        f"{product_name},{meter_name},{storage_size_gb},{storage_duration_seconds}"
+        f"{product_name},{storage_size_gb},{storage_duration_seconds}"
     )
 
 
@@ -83,9 +80,9 @@ class TestReaderStorage(unittest.TestCase):
         mock_csv_data = "\n".join(
             [
                 _HEADERS,
-                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE, "100.0", "Premium SSD P4 LRS", "P4", "32", "86400"),
-                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE, "50.0", "Standard HDD S4 LRS", "S4", "64", "172800"),
-                _make_row("vm-1", "Compute", "80.0", "VM", "VM", "", ""),
+                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE, "100.0", "Premium SSD P4 LRS", "32", "86400"),
+                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE, "50.0", "Standard HDD S4 LRS", "64", "172800"),
+                _make_row("vm-1", "Compute", "80.0", "VM", "", ""),
             ]
         )
 
@@ -114,11 +111,11 @@ class TestReaderStorage(unittest.TestCase):
         mock_csv_data = "\n".join(
             [
                 _HEADERS,
-                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE, "100.0", "Premium SSD P4 LRS", "P4", "32", "86400"),
-                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE, "50.0", "Standard HDD S4 LRS", "S4", "64", "172800"),
-                _make_row("disk-invalid", SOURCE_RESOURCE_TYPE_STORAGE, "10.0", "Snapshot", "Snapshot", "64", ""),
-                _make_row("vm-1", "Compute", "80.0", "VM", "VM", "", ""),
-                _make_row("net-1", "Network", "20.0", "Network", "Bandwidth", "", ""),
+                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE, "100.0", "Premium SSD P4 LRS", "32", "86400"),
+                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE, "50.0", "Standard HDD S4 LRS", "64", "172800"),
+                _make_row("disk-invalid", SOURCE_RESOURCE_TYPE_STORAGE, "10.0", "Snapshot", "64", ""),
+                _make_row("vm-1", "Compute", "80.0", "VM", "", ""),
+                _make_row("net-1", "Network", "20.0", "Network", "", ""),
             ]
         )
 
