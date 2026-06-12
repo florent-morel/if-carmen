@@ -359,6 +359,7 @@ def test_daemon_computation_integration(
         id="test-vm-1",
         name=str(vm1["name"]),
         region="eastus",
+        provider="azure",
         vm_size="Standard_D4s_v3",
         cpu_util=[float(vm1["average_cpu_util"])] * 24,  # 24 hours of data
         storage_size=[float(vm1["storage_size"])] * 24,
@@ -368,73 +369,55 @@ def test_daemon_computation_integration(
         carbon_intensity=PaasCiMapper.calculate_ci("eastus"),
     )
 
-    with (
-        patch(
-            "backend.src.daemon.readers.reader_compute", create=True
-        ) as mock_reader_compute,
-        patch(
-            "backend.src.daemon.carbon_daemon_orchestrator.DefaultWriterFactory", create=True
-        ) as mock_writer_factory_class,
-        patch(
-            "backend.src.daemon.processors.processor_compute", create=True
-        ) as processor_compute,
+    execution_date = get_execution_date()
+
+    # Real processor so the IF computation pipeline runs.
+    processor_compute = Processor_Compute(mock_daemon_config, execution_date)
+
+    # Inject a mock reader that returns test_vm regardless of csv_data content.
+    mock_reader = MagicMock()
+    mock_reader.read.return_value = [test_vm]
+    processor_compute._reader = mock_reader
+
+    # Patch load_input_files so the orchestrator sees exactly one input slot
+    # without depending on files present on disk.
+    with patch.object(
+        CarbonDaemonOrchestrator,
+        "load_input_files",
+        return_value=["dummy_nonexistent_file.csv"],
     ):
-        logger.info(f"mock_reader_compute: {mock_reader_compute}")
-        mock_reader = mock_reader_compute
-        mock_reader.read.return_value = [test_vm]
-
-        mock_writer_factory = MagicMock()
-        mock_writer_factory_class.return_value = mock_writer_factory
-        mock_writer = MagicMock()
-
-        logger.info(f"mock_reader: {mock_reader}")
-        captured_vms = []
-
-        def capture_vms(config: MagicMock, vms: list[VirtualMachine]) -> MagicMock:
-            captured_vms.extend(vms)
-            return mock_writer
-
-        mock_writer_factory.create_writer.side_effect = capture_vms
-
-        execution_date = get_execution_date()
-
-        # processor_compute = Processor_Compute(
-            # mock_daemon_config, execution_date)
-        processor_compute.reader.return_value = mock_reader
-        logger.info(f"processor_compute: {processor_compute}")
-        logger.info(f"processor_compute.reader: {processor_compute.reader}")
-        logger.info(f"processor_compute.reader.return_value: {processor_compute.reader.return_value}")
-
         daemon = CarbonDaemonOrchestrator(
             mock_daemon_config,
             list_resource_processors=[processor_compute],
         )
         result = daemon.orchestrate_carbon_daemon()
 
-        assert result.success is True
-        assert len(result.dict_resource_result[ResourceType.VIRTUAL_MACHINE].list_processed_resources) == 1
+    assert result.success is True
+    assert ResourceType.VIRTUAL_MACHINE in result.dict_resource_result
 
-        assert len(captured_vms) == 1
-        processed_vm = captured_vms[0]
+    resource_result = result.dict_resource_result[ResourceType.VIRTUAL_MACHINE]
+    assert len(resource_result.list_processed_resources) == 1
 
-        assert processed_vm.total_energy_consumed > 0
-        assert processed_vm.total_carbon_operational > 0
-        assert processed_vm.total_carbon_embodied > 0
+    processed_vm = resource_result.list_processed_resources[0]
 
-        calculated_total = (
-            processed_vm.total_carbon_operational + processed_vm.total_carbon_embodied
-        )
-        assert calculated_total > 0, "Calculated total carbon should be positive"
+    assert processed_vm.total_energy_consumed > 0
+    assert processed_vm.total_carbon_operational > 0
+    assert processed_vm.total_carbon_embodied > 0
 
-        assert (
-            0.1 < processed_vm.total_energy_consumed < 100.0
-        ), f"Energy {processed_vm.total_energy_consumed} outside expected range"
-        assert (
-            10.0 < processed_vm.total_carbon_operational < 10000.0
-        ), f"Operational carbon {processed_vm.total_carbon_operational} outside expected range"
-        assert (
-            1.0 < processed_vm.total_carbon_embodied < 5000.0
-        ), f"Embodied carbon {processed_vm.total_carbon_embodied} outside expected range"
+    calculated_total = (
+        processed_vm.total_carbon_operational + processed_vm.total_carbon_embodied
+    )
+    assert calculated_total > 0, "Calculated total carbon should be positive"
+
+    assert (
+        0.1 < processed_vm.total_energy_consumed < 100.0
+    ), f"Energy {processed_vm.total_energy_consumed} outside expected range"
+    assert (
+        10.0 < processed_vm.total_carbon_operational < 10000.0
+    ), f"Operational carbon {processed_vm.total_carbon_operational} outside expected range"
+    assert (
+        1.0 < processed_vm.total_carbon_embodied < 5000.0
+    ), f"Embodied carbon {processed_vm.total_carbon_embodied} outside expected range"
 
 
 class TestMainFunction(unittest.TestCase):
