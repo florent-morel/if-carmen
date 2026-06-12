@@ -1,4 +1,4 @@
-Id,Size,Region,Service,Component,Subscription,Name,Instance,Environment,Partition,Provider,AverageCpuPercentage,Time,DiskSizeGb
+Id,Size,Region,Service,Component,Subscription,Name,Instance,Environment,Partition,Provider,AverageVmCpuUtilPercent,Time,VmDiskSizeGb
 /subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,ecommerce-platform,web-frontend,sub-prod-001,web-vm-01,instance-01,production,web-tier,azure,45.2,2024-01-01 00:00:00,128
 /subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,ecommerce-platform,web-frontend,sub-prod-001,web-vm-01,instance-01,production,web-tier,azure,47.8,2024-01-01 01:00:00,128
 /subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,ecommerce-platform,web-frontend,sub-prod-001,web-vm-01,instance-01,production,web-tier,azure,52.3,2024-01-01 02:00:00,128

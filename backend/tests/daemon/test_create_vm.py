@@ -54,7 +54,7 @@ class TestParseVcpuCountFromVmSize(unittest.TestCase):
 _MINIMAL_ROW = {
     "Region": "eastus",
     "Provider": "azure",
-    "Size": "Standard_D4as_v5",
+    "VmSize": "Standard_D4as_v5",
     "Service": "compute",
     "Component": "",
     "Subscription": "sub-1",
@@ -67,12 +67,12 @@ _MINIMAL_ROW = {
 
 
 class TestCreateVmVcpuCount(unittest.TestCase):
-    """Tests that create_vm correctly populates vcpu_count from the NbVCpus column."""
+    """Tests that create_vm correctly populates vcpu_count from the VmNbCpus column."""
 
     def _make_row(self, nb_vcpus_value):
         row = dict(_MINIMAL_ROW)
         if nb_vcpus_value is not None:
-            row["NbVCpus"] = nb_vcpus_value
+            row["VmNbCpus"] = nb_vcpus_value
         return row
 
     @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
@@ -92,7 +92,7 @@ class TestCreateVmVcpuCount(unittest.TestCase):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
         mock_mapper.calculate_ci.return_value = 200.0
 
-        row = self._make_row(None)  # NbVCpus column missing entirely
+        row = self._make_row(None)  # VmNbCpus column missing entirely
         vm = create_vm(row, "vm-id-2")
 
         self.assertIsNone(vm.vcpu_count)

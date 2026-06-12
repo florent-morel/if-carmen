@@ -22,8 +22,8 @@ unavailable.  Because TDP is exclusively sourced from the CSV, a CSV hit
 already provides everything needed — billing vCPU count is redundant in that
 case.  When the CSV lookup misses, the chain is:
 
-       a. Billing NbVCpus (``vm.vcpu_count``, populated by ``create_vm`` from
-          the billing export's NbVCpus column). 
+       a. Billing VmNbCpus (``vm.vcpu_count``, populated by ``create_vm`` from
+          the billing export's VmNbCpus column). 
           VM value reported by the cloud provider.
 
        b. Name-parsing heuristic : try to extract the digit from the instance type
@@ -136,7 +136,7 @@ class CloudMetadata:
         cpu/thermal-design-power = cpu-tdp × (vcpus-utilized / vcpus-available)
 
     For VM types not present in the instances CSV the fallback chain is applied
-    (billing NbVCpus → name parsing → CarmenException).
+    (billing VmNbCpus → name parsing → CarmenException).
     """
 
     @staticmethod
@@ -187,7 +187,7 @@ class CloudMetadata:
     def _resolve_vcpu_count(vm: VirtualMachine, cpu_max: float) -> int:
         """
         Fallback chain for VMs whose instance type is absent from the CSV:
-          1. Billing NbVCpus column (``vm.vcpu_count``, set by ``create_vm``)
+          1. Billing VmNbCpus column (``vm.vcpu_count``, set by ``create_vm``)
           2. Azure name-parsing heuristic (e.g. ``Standard_D32as_v5`` → 32),
              only attempted when ``vm.provider == "azure"``
           3. Raise CarmenException

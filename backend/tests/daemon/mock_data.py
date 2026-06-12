@@ -20,15 +20,15 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE_SERVICE,
     SOURCE_REGION,
-    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_DATE,
     SOURCE_TIME,
-    SOURCE_SIZE,
-    SOURCE_NB_VCPUS,
+    SOURCE_VM_SIZE,
+    SOURCE_VM_NB_VCPUS,
     DATE_FORMAT,
-    SOURCE_DISK_SIZE_GB,
+    SOURCE_VM_DISK_SIZE_GB,
     UNKNOWN,
 )
 
@@ -109,7 +109,7 @@ def _process_vm_row(row, vms_dict):
     """
     Processes a single row of CSV data and updates the virtual machines dictionary.
     Args:
-        row (dict): A dictionary representing a row of CSV data with keys such as "Id", "AverageCpuPercentage",
+        row (dict): A dictionary representing a row of CSV data with keys such as "Id", "AverageVmCpuUtilPercent",
         and "Time".
         vms_dict (dict): A dictionary where the keys are VM IDs and the values are VirtualMachine objects.
     Returns:
@@ -117,14 +117,14 @@ def _process_vm_row(row, vms_dict):
     """
     vm_id = row.get("Id", "")
     avg_cpu = (
-        str_to_float(row["AverageCpuPercentage"]) / 100
-        if row["AverageCpuPercentage"]
+        str_to_float(row["AverageVmCpuUtilPercent"]) / 100
+        if row["AverageVmCpuUtilPercent"]
         else 0
     )
     time_point = (
         row["Time"] if "Time" in row and row["Time"] else datetime.now().isoformat()
     )
-    storage = str_to_float(row["DiskSizeGb"])
+    storage = str_to_float(row["VmDiskSizeGb"])
 
     if vm_id in vms_dict:
         vms_dict[vm_id].cpu_util.append(avg_cpu)
@@ -143,7 +143,7 @@ def _create_virtual_machine(row):
     return VirtualMachine(
         id=row[SOURCE_RESOURCE_ID],
         region=row[SOURCE_REGION],
-        vm_size=row[SOURCE_SIZE],
+        vm_size=row[SOURCE_VM_SIZE],
         name=get_row_data(row[SOURCE_NAME]),
         provider=get_row_data(row[SOURCE_PROVIDER]),
         storage_size=[],

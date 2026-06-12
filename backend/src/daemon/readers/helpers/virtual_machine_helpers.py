@@ -14,8 +14,8 @@ from backend.src.common.constants import (
     SOURCE_NAME,
     SOURCE_REGION,
     SOURCE_COST,
-    SOURCE_SIZE,
-    SOURCE_NB_VCPUS,
+    SOURCE_VM_SIZE,
+    SOURCE_VM_NB_VCPUS,
 )
 
 
@@ -47,8 +47,8 @@ def parse_vcpu_count_from_azure_vm_size(vm_size: str) -> int | None:
 
 
 def _parse_vcpu_count_from_row(row: dict[str, str]) -> int | None:
-    """Parse NbVCpus from a billing CSV row; returns None if absent or non-numeric."""
-    raw = get_row_data(row.get(SOURCE_NB_VCPUS, ""))
+    """Parse VmNbCpus from a billing CSV row; returns None if absent or non-numeric."""
+    raw = get_row_data(row.get(SOURCE_VM_NB_VCPUS, ""))
     if not raw:
         return None
     try:
@@ -67,7 +67,7 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
     return VirtualMachine(
         id=vm_id,
         region=region,
-        vm_size=get_row_data(row[SOURCE_SIZE]),
+        vm_size=get_row_data(row[SOURCE_VM_SIZE]),
         name=get_row_data(row[SOURCE_NAME]),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,

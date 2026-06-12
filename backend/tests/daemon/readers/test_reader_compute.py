@@ -7,18 +7,18 @@ from collections import Counter
 from unittest.mock import MagicMock
 
 from backend.src.common.constants import (
-    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_COST,
-    SOURCE_DISK_SIZE_GB,
+    SOURCE_VM_DISK_SIZE_GB,
     SOURCE_NAME,
-    SOURCE_NB_VCPUS,
+    SOURCE_VM_NB_VCPUS,
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE,
     SOURCE_RESOURCE_TYPE_COMPUTE,
     SOURCE_RESOURCE_TYPE_SERVICE,
-    SOURCE_SIZE,
+    SOURCE_VM_SIZE,
     SOURCE_TIME,
 )
 from backend.src.daemon.readers.reader_compute import Reader_Compute
@@ -31,14 +31,14 @@ logger = logging.getLogger(__name__)
 _HEADERS = ",".join([
     SOURCE_TIME,
     SOURCE_RESOURCE_ID,
-    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_REGION,
     SOURCE_NAME,
-    SOURCE_SIZE,
+    SOURCE_VM_SIZE,
     SOURCE_RESOURCE_TYPE_SERVICE,
     SOURCE_PROVIDER,
-    SOURCE_DISK_SIZE_GB,
-    SOURCE_NB_VCPUS,
+    SOURCE_VM_DISK_SIZE_GB,
+    SOURCE_VM_NB_VCPUS,
     SOURCE_COST,
     SOURCE_RESOURCE_TYPE,
 ])

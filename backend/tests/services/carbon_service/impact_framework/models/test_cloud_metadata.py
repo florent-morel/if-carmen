@@ -59,7 +59,7 @@ class TestResolveVcpuCount:
         )
 
     def test_fallback_path_a_uses_billing_vcpu_count(self):
-        """Path A: vcpu_count already set from billing NbVCpus column."""
+        """Path A: vcpu_count already set from billing VmNbCpus column."""
         vm = self._make_vm("Standard_Unknown_v99", vcpu_count=16)
         result = CloudMetadata._resolve_vcpu_count(vm, self.CPU_MAX)
         assert result == 16

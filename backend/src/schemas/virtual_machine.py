@@ -12,9 +12,9 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_TYPE,
     SOURCE_REGION,
     SOURCE_PROVIDER,
-    SOURCE_AVG_CPU_PERCENTAGE,
+    SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_TIME,
-    SOURCE_DISK_SIZE_GB,
+    SOURCE_VM_DISK_SIZE_GB,
     SOURCE_COST,
 )
 
@@ -31,7 +31,7 @@ class VirtualMachine(ComputeResource):
     # service: str | None = None
     # component: str | None = None
     resource_type: ResourceType = ResourceType.VIRTUAL_MACHINE
-    vcpu_count: int | None = None  # from NbVCpus billing column; used as TDP fallback for unknown types
+    vcpu_count: int | None = None  # from VmNbCpus billing column; used as TDP fallback for unknown types
     storage_size: list[float] = Field(default_factory=list)  # in GB
 
     @staticmethod
@@ -41,9 +41,9 @@ class VirtualMachine(ComputeResource):
             SOURCE_RESOURCE_TYPE,
             SOURCE_PROVIDER,
             SOURCE_REGION,
-            SOURCE_AVG_CPU_PERCENTAGE,
+            SOURCE_VM_AVG_CPU_UTIL_PERCENT,
             SOURCE_TIME,
-            SOURCE_DISK_SIZE_GB,
+            SOURCE_VM_DISK_SIZE_GB,
             SOURCE_COST,
         ]
         return list_mandatory_columns
