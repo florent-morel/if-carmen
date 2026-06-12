@@ -46,7 +46,7 @@ def read_sample_vm_data(file_dict, _destination_folder, config: DaemonConfig):
     """
     vms_dict = {}
     for group, files in file_dict.items():
-        logger.info(f"Reading file group '{group}'...")
+        logger.debug(f"Reading file group '{group}'...")
         for file_name in files:
             _process_vm_file(file_name, vms_dict, config)
     return list(vms_dict.values())
@@ -64,11 +64,11 @@ def _process_vm_file(file_name, vms_dict, config: DaemonConfig):
     """
     hour = _extract_hour_from_file_name(file_name)
     sample_file = _get_vm_sample_file_path(hour, config)
-    logger.info(f"Attempting to read file: {file_name} -> {sample_file}")
+    logger.debug(f"Attempting to read file: {file_name} -> {sample_file}")
     if os.path.exists(sample_file):
         _read_and_process_vm_csv(sample_file, vms_dict)
     else:
-        logger.info(f"Sample file not found: {sample_file}")
+        logger.debug(f"Sample file not found: {sample_file}")
 
 
 def _get_vm_sample_file_path(hour, config: DaemonConfig):
@@ -102,7 +102,7 @@ def _read_and_process_vm_csv(sample_file, vms_dict):
             rows_found = True
             _process_vm_row(row, vms_dict)
         if not rows_found:
-            logger.info(f"Resource is empty! Skipped file: {sample_file}")
+            logger.debug(f"Resource is empty! Skipped file: {sample_file}")
 
 
 def _process_vm_row(row, vms_dict):
