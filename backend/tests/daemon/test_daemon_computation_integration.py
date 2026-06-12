@@ -284,18 +284,21 @@ def test_carbon_daemon_with_sample_data(
 
         processor_compute = Processor_Compute(
             mock_daemon_config, execution_date)
+        processor_compute._reader = mock_reader
 
         daemon = CarbonDaemonOrchestrator(
             mock_daemon_config,
             list_resource_processors=[processor_compute],
         )
-        # TODO: Test will fail as support for multiple data source files not implemented
+
         result = daemon.orchestrate_carbon_daemon()
 
         assert result.success is True
 
         resource_result = result.dict_resource_result[ResourceType.VIRTUAL_MACHINE]
         assert resource_result
+        logger.info(f"resource_result.list_processed_resources: {len(resource_result.list_processed_resources)}")
+        logger.info(f"sample_vms: {sample_vms}")
         assert resource_result.list_processed_resources == sample_vms
 
         assert len(captured_vms) == len(sample_vms)
