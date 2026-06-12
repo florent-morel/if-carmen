@@ -94,7 +94,6 @@ def create_storage_resource(
         replication_type=replication_type,
         size_gb=size_gb,
         region=region,
-        # subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
         # resource_group=row.get(SOURCE_RESOURCE_GROUP, UNKNOWN),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         time_points=[],

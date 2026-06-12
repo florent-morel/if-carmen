@@ -1,16 +1,11 @@
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.common.constants import (
-    DAILY_SECONDS,
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
-    SOURCE_METER_CATEGORY,
     SOURCE_DATE,
     SOURCE_PROVIDER,
-    SOURCE_UNIT_OF_MEASURE,
-    SOURCE_QUANTITY,
     SOURCE_PRODUCT_NAME,
     SOURCE_RESOURCE_TYPE,
-    SOURCE_SUBSCRIPTION_ID,
     SOURCE_COST,
 )
 
@@ -42,7 +37,6 @@ class MiscServicesResource(Resource):
             SOURCE_RESOURCE_TYPE,
             SOURCE_DATE,
             SOURCE_PRODUCT_NAME,
-            SOURCE_SUBSCRIPTION_ID,
             SOURCE_COST,
         ]
         return list_mandatory_columns

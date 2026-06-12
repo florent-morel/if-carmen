@@ -91,9 +91,9 @@ class Reader_Compute(AbstractReader):
         for row in csv_reader:
             logger.debug(f"row: {row}")
             total_rows += 1
-            consumed_service = row.get(SOURCE_RESOURCE_TYPE, "")
-            if not consumed_service or consumed_service.lower() != SOURCE_RESOURCE_TYPE_COMPUTE.lower():
-                logger.info(f"Resource __{consumed_service}__ is not of type {SOURCE_RESOURCE_TYPE_COMPUTE}, skipping it.")
+            resource_type = row.get(SOURCE_RESOURCE_TYPE, "")
+            if not resource_type or resource_type.lower() != SOURCE_RESOURCE_TYPE_COMPUTE.lower():
+                logger.info(f"Resource __{resource_type}__ is not of type {SOURCE_RESOURCE_TYPE_COMPUTE}, skipping it.")
                 skipped_rows += 1
                 continue
             vm_id = row[SOURCE_RESOURCE_ID]

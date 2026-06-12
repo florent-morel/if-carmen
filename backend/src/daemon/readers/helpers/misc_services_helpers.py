@@ -13,7 +13,6 @@ from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
-    SOURCE_SUBSCRIPTION_ID,
     SOURCE_REGION,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
@@ -67,7 +66,6 @@ def create_misc_services_resource(row):
             id=id,
             provider=row.get(SOURCE_PROVIDER, ""),
             region=region,
-            subscription=row.get(SOURCE_SUBSCRIPTION_ID, UNKNOWN),
             carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
             cost=str_to_float(row.get(SOURCE_COST, "0")),
         )

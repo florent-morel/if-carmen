@@ -15,33 +15,6 @@ from etc.sample_data.test_data.test_data import (
     sample_storage_resources,
 )
 from backend.src.schemas.resource import ResourceType
-from backend.src.common.constants import (
-    SOURCE_PROVIDER,
-    SOURCE_NAME,
-    SOURCE_INSTANCE,
-    SOURCE_ENVIRONMENT,
-    SOURCE_PARTITION,
-    SOURCE_COMPONENT,
-    SOURCE_RESOURCE_ID,
-    SOURCE_RESOURCE_GROUP,
-    SOURCE_SUBSCRIPTION_ID,
-    SOURCE_SUBSCRIPTION,
-    SOURCE_REGION,
-    SOURCE_AVG_CPU_PERCENTAGE,
-    SOURCE_METER_CATEGORY,
-    SOURCE_COST,
-    SOURCE_PRODUCT_NAME,
-    SOURCE_METER_NAME,
-    SOURCE_QUANTITY,
-    SOURCE_UNIT_OF_MEASURE,
-    SOURCE_DATE,
-    SOURCE_TIME,
-    SOURCE_SIZE,
-    SOURCE_NB_VCPUS,
-    DATE_FORMAT,
-    SOURCE_DISK_SIZE_GB,
-    UNKNOWN,
-)
 
 logger = logging.getLogger(__name__)
 

@@ -24,7 +24,6 @@ def mock_misc_services_resource():
         id="misc_service1",
         name="Test Misc Services Resource",
         region="eastus",
-        subscription="sub1",
         carbon_intensity=100.0,
         cost=50.0,
     )

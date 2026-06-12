@@ -15,7 +15,8 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_PROVIDER,
     SOURCE_REGION,
-    SOURCE_METER_CATEGORY,
+    SOURCE_RESOURCE_TYPE,
+    SOURCE_RESOURCE_TYPE_STORAGE,
 )
 
 logger = logging.getLogger(__name__)
@@ -93,9 +94,8 @@ class Reader_Storage(AbstractReader):
             self.process_unknown_regions(row[SOURCE_REGION])
             self.process_unknown_providers(row[SOURCE_PROVIDER])
 
-            # Filter for MeterCategory = "Storage"
-            meter_category = row.get(SOURCE_METER_CATEGORY, "").lower()
-            if "storage" not in meter_category:
+            resource_type = row.get(SOURCE_RESOURCE_TYPE, "").lower()
+            if resource_type != SOURCE_RESOURCE_TYPE_STORAGE.lower():
                 not_storage_rows += 1
                 continue
 
@@ -133,7 +133,7 @@ class Reader_Storage(AbstractReader):
         """
         Log the results of the processing operation.
         """
-        logger.info("Processing completed found %d compute resources",
+        logger.info("Processing completed found %d storage resources",
                     len(self.list_resources_to_process))
 
         # Summary logging

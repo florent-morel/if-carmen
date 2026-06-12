@@ -100,11 +100,11 @@ class Reader_Misc_Services(AbstractReader):
             self.process_unknown_regions(row[SOURCE_REGION])
             self.process_unknown_providers(row[SOURCE_PROVIDER])
 
-            consumed_service = row.get(SOURCE_RESOURCE_TYPE, "").lower()
-            if consumed_service == SOURCE_RESOURCE_TYPE_COMPUTE.lower():
+            resource_type = row.get(SOURCE_RESOURCE_TYPE, "").lower()
+            if resource_type == SOURCE_RESOURCE_TYPE_COMPUTE.lower():
                 compute_rows += 1
                 continue
-            if consumed_service == SOURCE_RESOURCE_TYPE_STORAGE.lower():
+            if resource_type == SOURCE_RESOURCE_TYPE_STORAGE.lower():
                 storage_rows += 1
                 continue
             misc_services_resource = create_misc_services_resource(row)
