@@ -116,11 +116,6 @@ class ReportConfig:
 
     # VM columns
     COMPUTE_VM_SIZE = "VMSize"
-    COMPUTE_SERVICE = "Service"
-    COMPUTE_INSTANCE = "Instance"
-    COMPUTE_ENVIRONMENT = "Environment"
-    COMPUTE_PARTITION = "Partition"
-    COMPUTE_COMPONENT = "Component"
 
     # Storage columns
     STORAGE_TYPE = "StorageType"
@@ -147,34 +142,12 @@ class ReportConfig:
         "Cost",
         # VM columns
         "VMSize",
-        "Service",
-        "Instance",
-        "Environment",
-        "Partition",
-        "Component",
         # Storage columns
         "StorageType",
         "ReplicationType",
         "SizeGB",
         # No Misc services columns
     ]
-
-    MISC_SERVICES_REPORT_HEADERS: list[list[str]] = [
-        [
-            "Date",
-            "Id",
-            "Name",
-            "Provider",
-            "Region",
-            "Subscription",
-            "CarbonIntensity",
-            "EnergyKWH",
-            "OperationalCarbonGramsCO2eq",
-            "EmbodiedCarbonGramsCO2eq",
-            "Cost",
-        ]
-    ]
-
 
 class Settings(BaseSettings):
     """

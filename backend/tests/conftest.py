@@ -17,7 +17,6 @@ config_path = project_root / "etc/sample_data/config-test.yaml"
 os.environ["CARMEN_CONFIG_FILEPATH"] = str(config_path)
 
 config_input_path = project_root / "etc/sample_data/test_data/input"
-os.environ["CARMEN_INPUT_FOLDER_PATH"] = str(config_input_path)
 
 
 def pytest_configure():

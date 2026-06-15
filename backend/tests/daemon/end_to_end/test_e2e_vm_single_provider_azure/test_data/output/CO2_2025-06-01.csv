@@ -1,2 +1,2 @@
-Date,ResourceType,Id,Name,Provider,Region,Subscription,EnergyKWH,OperationalCarbonGramsCO2eq,EmbodiedCarbonGramsCO2eq,TotalCarbonGramsCO2eq,CarbonIntensity,Cost,VMSize,Service,Instance,Environment,Partition,Component,StorageType,ReplicationType,SizeGB
-2025-06-01,VirtualMachine,/subscriptions/sub-test/providers/Microsoft.Compute/virtualMachines/vm-01,vm-01,azure,eastus,,0.0031,1.1775,1.4254,2.603,384.0,100.0,Standard_A1_v2,,,,,,,,
+Date,ResourceType,Id,Name,Provider,Region,Subscription,EnergyKWH,OperationalCarbonGramsCO2eq,EmbodiedCarbonGramsCO2eq,TotalCarbonGramsCO2eq,CarbonIntensity,Cost,VMSize,StorageType,ReplicationType,SizeGB
+2025-06-01,VirtualMachine,/subscriptions/sub-test/providers/Microsoft.Compute/virtualMachines/vm-01,vm-01,azure,eastus,,0.0031,1.1775,1.4254,2.603,384.0,100.0,Standard_A1_v2,,,
