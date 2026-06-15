@@ -491,3 +491,13 @@ class TestMainFunction(unittest.TestCase):
 
         self.assertIn(
             "Critical error in Daemon main: Critical error", log.output[-1])
+
+    @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator")
+    @patch("backend.src.daemon.carbon_daemon_orchestrator._print_cli_help")
+    @patch("backend.src.daemon.carbon_daemon_orchestrator.sys.argv", ["prog", "--help"])
+    def test_main_help_flag(self, mock_print_help, mock_carbon_daemon_class):
+        """Test main function help flag exits before daemon initialization."""
+        CarbonDaemon()
+
+        mock_print_help.assert_called_once()
+        mock_carbon_daemon_class.assert_not_called()

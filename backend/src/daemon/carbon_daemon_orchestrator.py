@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import time
 import os
+import sys
 from os import listdir
 from os.path import isfile, join
 
@@ -55,6 +56,36 @@ from backend.src.common.constants import (
 
 
 logger = logging.getLogger(__name__)
+
+
+def _print_cli_help() -> None:
+    """Print Carbon Daemon CLI usage and supported options."""
+    help_message = """Usage: python -m backend.src.daemon.carbon_daemon_orchestrator [options]
+
+Options:
+  -h, --help, -help
+      Show this help message and exit.
+
+  --carmen-config-filepath PATH
+      Path to main daemon config YAML.
+      Env fallback: CARMEN_CONFIG_FILEPATH
+      Default: etc/config/config.yaml
+
+  --carmen-provider-config-filepath PATH
+      Path to provider config directory.
+      Env fallback: CARMEN_PROVIDER_CONFIG_FILEPATH
+      Default: etc/config/modelling_constants/cloud_providers
+
+  --carmen-carbon-values-filepath PATH
+      Path to carbon values YAML.
+      Env fallback: CARMEN_CARBON_VALUES_FILEPATH
+      Default: etc/config/modelling_constants/carbon_values.yaml
+
+Examples:
+  python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath etc/config/config.yaml
+  python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-provider-config-filepath etc/config/modelling_constants/cloud_providers --carmen-carbon-values-filepath etc/config/modelling_constants/carbon_values.yaml
+"""
+    print(help_message)
 
 
 class OrchestratorContext:
@@ -673,6 +704,10 @@ def main() -> None:
     Exits with appropriate code based on execution result.
     """
     try:
+        if any(arg in {"-h", "--help", "-help"} for arg in sys.argv[1:]):
+            _print_cli_help()
+            return
+
         logger.info(CARMEN_LOGO)
         list_resource_processors = config.carmen_daemon.orchestrator.list_processors
         daemon = CarbonDaemonOrchestrator(
