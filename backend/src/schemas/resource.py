@@ -37,7 +37,6 @@ class Resource(ABC, BaseModel):
     carbon_intensity: float = 0.0
     pue: float = 1.0
     region: str | None = None
-    # subscription: Optional[str] = None
     cost: float = 0.0
 
     # List for each time point

@@ -62,7 +62,6 @@ class TestMiscServicesHelpers(unittest.TestCase):
             "ResourceId": "misc_service1",
             "ProductName": "misc_service_name",
             "Region": "eastus",
-            "SubscriptionId": "sub1",
             "Cost": "120.0",
             "Date": "2025-11-01",
         }

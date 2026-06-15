@@ -57,7 +57,6 @@ _MINIMAL_ROW = {
     "VmSize": "Standard_D4as_v5",
     "Service": "compute",
     "Component": "",
-    "Subscription": "sub-1",
     "Name": "vm-1",
     "Instance": "",
     "Environment": "prd",

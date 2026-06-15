@@ -106,7 +106,6 @@ class ReportConfig:
     COMMON_NAME = "Name"
     COMMON_PROVIDER = "Provider"
     COMMON_REGION = "Region"
-    COMMON_SUBSCRIPTION = "Subscription"
     COMMON_ENERGY = "EnergyKWH"
     COMMON_OPERATIONAL_CARBON = "OperationalCarbonGramsCO2eq"
     COMMON_EMBODIED_CARBON = "EmbodiedCarbonGramsCO2eq"
@@ -133,7 +132,6 @@ class ReportConfig:
         "Name",
         "Provider",
         "Region",
-        "Subscription",
         "EnergyKWH",
         "OperationalCarbonGramsCO2eq",
         "EmbodiedCarbonGramsCO2eq",

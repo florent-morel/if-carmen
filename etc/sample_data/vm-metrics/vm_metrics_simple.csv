@@ -1,7 +1,7 @@
-Id,Size,Region,Service,Component,Subscription,Name,Instance,Environment,Partition,Provider,AverageVmCpuUtilPercent,Time,VmDiskSizeGb
-vm-001,Standard_D2s_v3,eastus,web-app,frontend,-,web-server-01,-,production,-,azure,42.5,2024-01-15 10:00:00,128
-vm-001,Standard_D2s_v3,eastus,web-app,frontend,-,web-server-01,-,production,-,azure,45.8,2024-01-15 11:00:00,128
-vm-001,Standard_D2s_v3,eastus,web-app,frontend,-,web-server-01,-,production,-,azure,48.2,2024-01-15 12:00:00,128
-vm-002,Standard_B2ms,westeurope,api,backend,-,api-server-01,-,staging,-,azure,28.3,2024-01-15 10:00:00,64
-vm-002,Standard_B2ms,westeurope,api,backend,-,api-server-01,-,staging,-,azure,31.7,2024-01-15 11:00:00,64
-vm-002,Standard_B2ms,westeurope,api,backend,-,api-server-01,-,staging,-,azure,29.5,2024-01-15 12:00:00,64
+Id,Size,Region,Name,Provider,AverageVmCpuUtilPercent,Time,VmDiskSizeGb
+vm-001,Standard_D2s_v3,eastus,web-server-01,azure,42.5,2024-01-15 10:00:00,128
+vm-001,Standard_D2s_v3,eastus,web-server-01,azure,45.8,2024-01-15 11:00:00,128
+vm-001,Standard_D2s_v3,eastus,web-server-01,azure,48.2,2024-01-15 12:00:00,128
+vm-002,Standard_B2ms,westeurope,api-server-01,azure,28.3,2024-01-15 10:00:00,64
+vm-002,Standard_B2ms,westeurope,api-server-01,azure,31.7,2024-01-15 11:00:00,64
+vm-002,Standard_B2ms,westeurope,api-server-01,azure,29.5,2024-01-15 12:00:00,64

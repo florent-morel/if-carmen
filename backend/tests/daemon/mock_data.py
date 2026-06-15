@@ -304,7 +304,7 @@ def _process_misc_services_row(row, misc_dict):
 def _create_misc_services_resource(row):
     """
     Creates a MiscServicesResource from a billing CSV row (misc_services-model format).
-    Columns: ResourceId, ProductName, ResourceLocation, SubscriptionId,
+    Columns: ResourceId, ProductName, ResourceLocation,
              Date, Cost, ...
     """
     return MiscServicesResource(

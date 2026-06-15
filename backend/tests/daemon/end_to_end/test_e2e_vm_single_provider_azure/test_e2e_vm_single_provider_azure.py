@@ -9,15 +9,15 @@ def test_e2e_vm_single_provider_azure_new():
     import subprocess
     import sys
 
-    test_root = Path(__file__).parent / "test_data"
-    output_dir = test_root / "output"
+    test_data_folder = Path(__file__).parent / "test_data"
+    output_dir = test_data_folder / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Ensure deterministic assertion by removing previous report artifacts.
     for old_report in output_dir.glob("CO2_*.csv"):
         old_report.unlink()
 
-    main_config_path = test_root / "config" / "config.yaml"
+    main_config_path = test_data_folder / "config" / "config.yaml"
 
     project_root = Path(__file__).resolve().parents[5]
     command = [
@@ -27,9 +27,9 @@ def test_e2e_vm_single_provider_azure_new():
         "--carmen-config-filepath",
         str(main_config_path),
         "--carmen-provider-config-filepath",
-        str(test_root / "config" / "modelling_constants" / "cloud_providers"),
+        str(test_data_folder / "config" / "modelling_constants" / "cloud_providers"),
         "--carmen-carbon-values-filepath",
-        str(test_root / "config" / "modelling_constants" / "carbon_values.yaml"),
+        str(test_data_folder / "config" / "modelling_constants" / "carbon_values.yaml"),
     ]
     daemon = subprocess.run(
         command,
