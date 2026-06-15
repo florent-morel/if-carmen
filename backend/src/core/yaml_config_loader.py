@@ -327,7 +327,7 @@ def load_carbon_values_config() -> CarbonValuesConfig:
     Raises:
         ConfigFileError: If the configuration file is not found or invalid.
     """
-    path = Path(settings.CARMEN_CARBON_INTENSITY_FILEPATH)
+    path = Path(settings.CARMEN_CARBON_VALUES_FILEPATH)
     raw = load_yaml(path)
     return CarbonValuesConfig.model_validate(raw)
 

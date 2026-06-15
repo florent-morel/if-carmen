@@ -4,7 +4,6 @@ This module handles the registration of FastAPI application, routers, and carbon
 
 from fastapi import FastAPI
 from backend.src.core.settings import settings
-from backend.src.api.api import api_router
 from backend.src.common.exception_handler import register_exception_handlers
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.services.carbon_service.impact_framework.service.if_app_service import (
@@ -50,6 +49,8 @@ def register_router(app: FastAPI):
     Args:
         app (FastAPI): The FastAPI application to register the router with.
     """
+    from backend.src.api.api import api_router
+
     app.include_router(api_router)
 
 

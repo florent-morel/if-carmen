@@ -43,11 +43,10 @@ from backend.src.daemon.processors.abstract_processor import (
 from backend.src.daemon.processors.processor_misc_services import (
     Processor_Misc_Services,
 )
+from backend.src.daemon.processors.processor_compute import Processor_Compute
+from backend.src.daemon.processors.processor_storage import Processor_Storage
 
 from backend.src.daemon.writers.abstract_writer import AbstractWriter
-from backend.src.daemon.writers.writer_storage import Writer_Storage
-from backend.src.daemon.writers.writer_compute import Writer_Compute
-from backend.src.daemon.writers.writer_misc_services import Writer_Misc_Services
 
 from backend.src.common.constants import (
     CSV_PATH,
@@ -80,7 +79,7 @@ class CarbonDaemonOrchestrator:
     def __init__(
         self,
         daemon_config: DaemonConfig,
-        list_resource_processors: list[AbstractProcessor] | None = None,
+        list_resource_processors: list[str | AbstractProcessor] | None = None,
     ):
         """
         Initialize the carbon daemon.
@@ -94,14 +93,46 @@ class CarbonDaemonOrchestrator:
         # TODO: we should go for a collection ensuring unicity
         self.list_resource_processors: list[
             AbstractProcessor
-        ] = list_resource_processors
+        ] = self._resolve_resource_processors(list_resource_processors)
 
         self.carbon_daemon_result: CarbonDaemonResult = self.create_carbon_daemon_result(
             success=True,
             execution_time=0,
         )
 
-        self.pre_process(list_resource_processors)
+        self.pre_process(self.list_resource_processors)
+
+    def _resolve_resource_processors(
+        self,
+        list_resource_processors: list[str | AbstractProcessor] | None,
+    ) -> list[AbstractProcessor]:
+        """Resolve configured processor names into processor objects."""
+        if not list_resource_processors:
+            return []
+
+        processor_factory: dict[str, type[AbstractProcessor]] = {
+            "Processor_Compute": Processor_Compute,
+            "Processor_Storage": Processor_Storage,
+            "Processor_Misc_Services": Processor_Misc_Services,
+        }
+
+        resolved_processors: list[AbstractProcessor] = []
+        for processor in list_resource_processors:
+            if isinstance(processor, str):
+                processor_cls = processor_factory.get(processor)
+                if processor_cls is None:
+                    raise CarmenException(
+                        ErrorCode.CONFIG_INVALID_VALUE,
+                        f"Unsupported processor configured: {processor}",
+                    )
+                resolved_processors.append(processor_cls(self.config))
+                continue
+
+            # Backward-compatible path for tests and callers that inject
+            # mocked/custom processor objects directly.
+            resolved_processors.append(processor)
+
+        return resolved_processors
 
     def orchestrate_carbon_daemon(self):
         """
@@ -645,7 +676,8 @@ def main() -> None:
         logger.info(CARMEN_LOGO)
         list_resource_processors = config.carmen_daemon.orchestrator.list_processors
         daemon = CarbonDaemonOrchestrator(
-            daemon_config=config, list_resource_processors=list_resource_processors
+            daemon_config=config.carmen_daemon,
+            list_resource_processors=list_resource_processors,
         )
 
         result = daemon.orchestrate_carbon_daemon()

@@ -5,7 +5,12 @@ Module containing unit tests for the settings configuration of the Carbon Engine
 import logging
 from unittest.mock import MagicMock, patch
 import pytest
-from backend.src.core._app_settings import configure_logger, get_settings, Settings
+from backend.src.core._app_settings import (
+    Settings,
+    configure_logger,
+    get_settings,
+    _get_env_or_cli,
+)
 from backend.src.common.enums import LogLevel
 from backend.src.common.carmen_exception import ConfigValidationError
 
@@ -93,3 +98,29 @@ def test_get_settings_error(
     mock_read_file.assert_called_once()  # type: ignore[misc]
     mock_model_validate.assert_called_once_with(mock_json_data)  # type: ignore[misc]
     mock_configure_logger.assert_not_called()  # type: ignore[misc]
+
+
+def test_get_env_or_cli_prefers_cli_value() -> None:
+    with patch("backend.src.core._app_settings.sys.argv", [
+        "prog",
+        "--carmen-config-filepath",
+        "/tmp/cli-config.yaml",
+    ]), patch("backend.src.core._app_settings.os.getenv", return_value="/tmp/env-config.yaml"):
+        value = _get_env_or_cli(
+            "CARMEN_CONFIG_FILEPATH",
+            "etc/config/config.yaml",
+            "--carmen-config-filepath",
+        )
+        assert value == "/tmp/cli-config.yaml"
+
+
+def test_get_env_or_cli_falls_back_to_env() -> None:
+    with patch("backend.src.core._app_settings.sys.argv", ["prog"]), patch(
+        "backend.src.core._app_settings.os.getenv", return_value="/tmp/env-config.yaml"
+    ):
+        value = _get_env_or_cli(
+            "CARMEN_CONFIG_FILEPATH",
+            "etc/config/config.yaml",
+            "--carmen-config-filepath",
+        )
+        assert value == "/tmp/env-config.yaml"

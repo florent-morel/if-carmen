@@ -440,7 +440,7 @@ class TestMainFunction(unittest.TestCase):
             CarbonDaemon()
 
         mock_carbon_daemon_class.assert_called_once_with(
-            daemon_config=mock_config,
+            daemon_config=mock_config.carmen_daemon,
             list_resource_processors=mock_config.carmen_daemon.orchestrator.list_processors,
         )
         mock_daemon_instance.orchestrate_carbon_daemon.assert_called_once()
@@ -460,7 +460,7 @@ class TestMainFunction(unittest.TestCase):
         mock_daemon_instance = MagicMock()
         mock_result = MagicMock()
         mock_result.success = False
-        mock_result.error_message = "Test failure"
+        mock_result.list_exceptions = "Test failure"
         mock_daemon_instance.orchestrate_carbon_daemon.return_value = mock_result
         mock_carbon_daemon_class.return_value = mock_daemon_instance
 

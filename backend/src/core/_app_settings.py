@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 import os
 import os.path
+import sys
 from functools import lru_cache
 from pathlib import Path
 from datetime import datetime
@@ -14,13 +15,32 @@ from typing import Any
 import colorlog
 import urllib3
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from backend.src.common.enums import LogLevel
 from backend.src.common.errors import ErrorCode
 from backend.src.common.carmen_exception import ConfigValidationError
 from backend.src.utils.helpers import read_file
 
 logger = logging.getLogger(__name__)
+
+
+def _get_cli_arg_value(flag_name: str) -> str | None:
+    """Return CLI value for a ``--flag value`` or ``--flag=value`` argument."""
+    prefix = f"{flag_name}="
+    for index, arg in enumerate(sys.argv):
+        if arg == flag_name and index + 1 < len(sys.argv):
+            return sys.argv[index + 1]
+        if arg.startswith(prefix):
+            return arg.split("=", 1)[1]
+    return None
+
+
+def _get_env_or_cli(env_var_name: str, default: str, cli_flag_name: str) -> str:
+    """Resolve configuration from CLI first, then environment, then default."""
+    cli_value = _get_cli_arg_value(cli_flag_name)
+    if cli_value:
+        return cli_value
+    return os.getenv(env_var_name, default)
 
 
 class FastAPIConfig(BaseSettings):
@@ -171,23 +191,27 @@ class Settings(BaseSettings):
         "https://raw.githubusercontent.com/Green-Software-Foundation/if-data/main/cloud"
         "-metdata-azure-instances.csv"
     )
-    CARMEN_MAIN_CONFIG_FILEPATH: str = os.getenv(
-        "CARMEN_CONFIG_FILEPATH", "etc/config/config.yaml"
+    CARMEN_MAIN_CONFIG_FILEPATH: str = Field(
+        default_factory=lambda: _get_env_or_cli(
+            "CARMEN_CONFIG_FILEPATH",
+            "etc/config/config.yaml",
+            "--carmen-config-filepath",
+        )
     )
-    CARMEN_PROVIDER_CONFIG_FILEPATH: str = os.getenv(
-        "CARMEN_PROVIDER_CONFIG_FILEPATH",
-        "etc/config/modelling_constants/cloud_providers",
+    CARMEN_PROVIDER_CONFIG_FILEPATH: str = Field(
+        default_factory=lambda: _get_env_or_cli(
+            "CARMEN_PROVIDER_CONFIG_FILEPATH",
+            "etc/config/modelling_constants/cloud_providers",
+            "--carmen-provider-config-filepath",
+        )
     )
-    CARMEN_CARBON_INTENSITY_FILEPATH: str = os.getenv(
-        "CARMEN_CARBON_INTENSITY_FILEPATH",
-        "etc/config/modelling_constants/carbon_values.yaml",
+    CARMEN_CARBON_VALUES_FILEPATH: str = Field(
+        default_factory=lambda: _get_env_or_cli(
+            "CARMEN_CARBON_VALUES_FILEPATH",
+            "etc/config/modelling_constants/carbon_values.yaml",
+            "--carmen-carbon-values-filepath",
+        )
     )
-    CARMEN_INPUT_FOLDER_PATH: str = os.getenv("CARMEN_INPUT_FOLDER_PATH", "etc/input")
-
-    CARMEN_TEST_CONFIG_FILEPATH: str = os.getenv(
-        "CARMEN_TEST_CONFIG_FILEPATH", "etc/sample_data/config-test.yaml"
-    )
-
 
 def configure_logger(validated_settings: Settings) -> None:
     """
