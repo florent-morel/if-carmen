@@ -4,7 +4,7 @@ import pytest
 
 from backend.src.schemas.resource import ResourceType
 
-def test_e2e_vm_single_provider_azure_new():
+def test_e2e_vm_single_provider_azure():
     import csv
     import subprocess
     import sys
@@ -56,7 +56,6 @@ def test_e2e_vm_single_provider_azure_new():
     assert row["Provider"] == "azure"
     assert row["Region"] == "eastus"
 
-    # Keep expected values aligned with the pre-existing single-VM e2e scenario.
     assert float(row["EnergyKWH"]) == pytest.approx(0.0031, rel=1e-3)
     assert float(row["OperationalCarbonGramsCO2eq"]) == pytest.approx(1.1775, rel=1e-3)
     assert float(row["EmbodiedCarbonGramsCO2eq"]) == pytest.approx(1.4254, rel=1e-3)
