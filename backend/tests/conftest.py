@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 os.environ["TEST_ENV"] = "True"
-os.environ["EXECUTION_DATE"] = "2025-06-01"
+#os.environ["EXECUTION_DATE"] = "2025-06-01"
 
 current_file = Path(__file__)
 project_root = (

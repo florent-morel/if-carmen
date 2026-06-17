@@ -73,6 +73,7 @@ class Runner_Storage(AbstractRunner):
                     "Storage processing: %d storage resources processed, "
                     "%.2f kWh total energy, %.0f gCO2 total emissions",
                     len(resource_type_result.list_processed_resources),
+                    execution_time,
                     resource_type_result.total_energy_consumed,
                     resource_type_result.total_carbon_emitted,
                 )

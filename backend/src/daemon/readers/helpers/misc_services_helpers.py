@@ -70,7 +70,7 @@ def create_misc_services_resource(row):
             cost=str_to_float(row.get(SOURCE_COST, "0")),
         )
         timestamp = row.get(
-            SOURCE_DATE, (datetime.now() - timedelta(days=2)).strftime(DATE_FORMAT)
+            SOURCE_DATE, datetime.now().strftime(DATE_FORMAT)
         )
         misc_services_resource.time_points = [timestamp]
     return misc_services_resource

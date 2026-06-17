@@ -30,10 +30,11 @@ class Resource(ABC, BaseModel):
     """
 
     resource_type: ResourceType = None
-    provider: str | None = None
+    timestamp: str = None
 
     id: str  # Unique identifier for the resource
     name: str | None = None
+    provider: str | None = None
     carbon_intensity: float = 0.0
     pue: float = 1.0
     region: str | None = None

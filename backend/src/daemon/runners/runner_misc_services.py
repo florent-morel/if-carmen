@@ -13,17 +13,16 @@ import time
 
 from backend.src.common.constants import (
     DAILY_SECONDS,
-    HOURLY_INTERVAL_SECONDS,
 )
 from backend.src.common.carmen_exception import CarmenException, DataFetchError
 from backend.src.daemon.runners.abstract_runner import AbstractRunner
+from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
 from backend.src.utils import ioc_util
 from backend.src.common.errors import ErrorCode
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.daemon.carbon_daemon_result import (
-    CarbonDaemonResult,
     ResourceTypeResult,
 )
 
@@ -81,6 +80,7 @@ class Runner_Misc_Services(AbstractRunner):
                     "Misc services processing: %d misc services resources processed, "
                     "%.2f kWh total energy, %.0f gCO2 total emissions",
                     len(resource_type_result.list_processed_resources),
+                    execution_time,
                     resource_type_result.total_energy_consumed,
                     resource_type_result.total_carbon_emitted,
                 )
@@ -149,7 +149,7 @@ class Runner_Misc_Services(AbstractRunner):
             if carbon_service is None:
                 raise RuntimeError("failed to resolve CarbonService from IoC container")
 
-            processed_misc_services: list[Resource] = carbon_service.run_engine(
+            processed_misc_services: list[MiscServicesResource] = carbon_service.run_engine(
                 list_resources_to_process
             )
 

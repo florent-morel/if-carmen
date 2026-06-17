@@ -54,6 +54,5 @@ class StorageResource(Resource):
             SOURCE_COST,
             SOURCE_STORAGE_SIZE_GB,
             SOURCE_STORAGE_DURATION_SECONDS,
-
         ]
         return list_mandatory_columns

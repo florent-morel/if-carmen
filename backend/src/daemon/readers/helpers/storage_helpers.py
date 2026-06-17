@@ -82,25 +82,25 @@ def create_storage_resource(
     Returns:
         StorageResource: Complete storage resource object
     """
-    product_name = row.get(SOURCE_PRODUCT_NAME, "")
     region = row.get(SOURCE_REGION, UNKNOWN)
 
     return StorageResource(
         id=storage_id,
-        name=product_name,
+        name=row.get(SOURCE_PRODUCT_NAME, ""),
         provider=row.get(SOURCE_PROVIDER, ""),
         storage_type=storage_type,
         replication_type=replication_type,
         size_gb=size_gb,
         region=region,
         carbon_intensity=PaasCiMapper.calculate_ci(region),
+        # TODO: study PUE implementation for storage energy computation
         time_points=[],
         duration_seconds=duration_seconds,
         cost=get_row_data(row[SOURCE_COST]),
     )
 
 
-# TODO: ca dégage vers la config des providers
+# TODO: to be moved to providers configs
 def get_replication_type(row: dict) -> str:
     """
     Extracts replication type from ProductName.

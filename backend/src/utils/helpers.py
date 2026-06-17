@@ -360,7 +360,7 @@ def process_custom_columns(resource: Resource, row: dict, list_ignore_column: li
 def get_execution_date():
     execution_date_str = os.getenv(EXECUTION_DATE)
     if not execution_date_str:
-        execution_date_str = (datetime.now() - timedelta(days=2)).strftime(
+        execution_date_str = datetime.now().strftime(
             DATE_FORMAT
         )
     try:
