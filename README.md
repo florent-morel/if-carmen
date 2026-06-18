@@ -103,10 +103,12 @@ We recommend installing Carmen in a virtual environment to keep dependencies iso
 
 **For Linux/macOS/Windows:**
 
+TODO: review this install process
 ```bash
 uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv pip install if-carmen
+uv sync --extra dev
 ```
 
 ### Quick Start
