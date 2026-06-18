@@ -97,6 +97,8 @@ First, install the Impact Framework and related plugins globally using npm:
 npm install -g "@grnsft/if" "@grnsft/if-plugins" "@grnsft/if-unofficial-plugins"
 ```
 
+TODO: How to check Impact Framework is properly installed
+
 #### Step 2: Install Carmen
 
 We recommend installing Carmen in a virtual environment to keep dependencies isolated.
