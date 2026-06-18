@@ -224,6 +224,13 @@ class IFService(ABC, CarbonService):
         """
         compute_resources = defaultdict(dict)
         for compute_resource in resources:
+            if compute_resource.id in compute_resources:
+                logger.error(
+                    "Duplicate resource ID '%s' passed to IF engine — skipping. "
+                    "Each unique resource ID must be merged before processing.",
+                    compute_resource.id,
+                )
+                continue
             compute_resources[compute_resource.id] = self.get_resource_inputs(
                 compute_resource
             )

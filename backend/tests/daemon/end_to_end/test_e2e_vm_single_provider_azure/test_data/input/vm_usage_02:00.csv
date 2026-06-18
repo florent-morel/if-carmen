@@ -1,0 +1,2 @@
+Date,Time,ResourceType,ResourceId,AverageVmCpuUtilPercent,Region,Name,VmSize,VmNbCpus,VmDiskSizeGb,Provider,Cost
+2024-05-08,2024-05-08T02:00:00Z,Compute,/subscriptions/sub-test/providers/Microsoft.Compute/virtualMachines/vm-01,100,eastus,vm-01,Standard_A1_v2,1,128,azure,200

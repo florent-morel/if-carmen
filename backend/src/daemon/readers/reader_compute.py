@@ -34,6 +34,12 @@ class Reader_Compute(AbstractReader):
     Implementation base class for reading virtual machines resource data.
     """
 
+    def __init__(self, daemon_config):
+        super().__init__(daemon_config)
+        # Accumulates VMs across multiple read() calls so the same VM ID
+        # seen in different input files is merged into a single object.
+        self._vm_dict: dict[str, VirtualMachine] = {}
+
     def read(self, csv_data) -> list[VirtualMachine]:
         """
         Read and process VM data from local filesystem files.
@@ -47,11 +53,9 @@ class Reader_Compute(AbstractReader):
         logger.info("Starting to read VM data from local filesystem.")
 
         try:
-            vm_dict: dict[str, VirtualMachine] = {}
+            self.process_csv_data(csv_data, self._vm_dict)
 
-            self.process_csv_data(csv_data, vm_dict)
-
-            self.list_resources_to_process = list(vm_dict.values())
+            self.list_resources_to_process = list(self._vm_dict.values())
 
             self.log_processing_results()
 

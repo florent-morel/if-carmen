@@ -27,6 +27,12 @@ class Reader_Storage(AbstractReader):
     Class for reading storage input data.
     """
 
+    def __init__(self, daemon_config):
+        super().__init__(daemon_config)
+        # Accumulates storage resources across multiple read() calls so the
+        # same resource ID seen in different input files is merged.
+        self._storage_dict: dict[str, StorageResource] = {}
+
     def read(self, csv_data) -> list[Resource]:
         """
         Read and process files to extract storage resource information.
@@ -39,11 +45,9 @@ class Reader_Storage(AbstractReader):
         logger.info("Starting to read storage data from local filesystem")
 
         try:
-            storage_dict: dict[str, StorageResource] = {}
+            self.process_csv_data(csv_data, self._storage_dict)
 
-            self.process_csv_data(csv_data, storage_dict)
-
-            self.list_resources_to_process = list(storage_dict.values())
+            self.list_resources_to_process = list(self._storage_dict.values())
 
             self.log_processing_results()
 
