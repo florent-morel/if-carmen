@@ -45,7 +45,8 @@ def get_storage_type(row: dict) -> str:
     product_name = row.get(SOURCE_PRODUCT_NAME, "").lower()
 
     # Check keywords in ProductName
-    # TODO: this should be in each provider yaml config
+    # TODO: If we want to keep this heuristic, it should at least be in each provider yaml config.
+    # Otherwise, include storage_type in input columns.
     if (
         "ssd" in product_name
         or "ultra disk" in product_name

@@ -75,56 +75,56 @@ def test_e2e_vm_single_provider_azure():
     #    tdp_ratio(100%) = 1.02   (exact control point)
     #
     # 2. cpu/power (kW) = tdp_ratio × vm_tdp / 1000
-    #    T00,T01: 0.4275 × 3.9423 / 1000 = 0.001685 kW
-    #    T02:     1.02   × 3.9423 / 1000 = 0.004021 kW
+    #    T00,T01: 0.4275 × 3.942 / 1000 = 1.685e-3 kW
+    #    T02:     1.020  × 3.942 / 1000 = 4.021e-3 kW
     #
     # 3. cpu/energy (kWh) = cpu/power × 3600 s / 3600 = cpu/power (1-hour window)
-    #    T00,T01: 0.001685 kWh   T02: 0.004021 kWh
+    #    T00,T01: 1.685e-3 kWh   T02: 4.021e-3 kWh
     #
-    # 4. memory/power  = 2.0 GB × 0.000392 kW/GB = 0.000784 kW   (PMem, CCF)
-    #    memory/energy = 0.000784 × 3600/3600     = 0.000784 kWh  (all obs.)
+    # 4. memory/power  = 2.0 GB × 3.920e-4 kW/GB = 7.840e-4 kW   (PMem, CCF)
+    #    memory/energy = 7.840e-4 × 3600/3600         = 7.840e-4 kWh  (all obs.)
     #
-    # 5. storage/power  = 128 GB × 9.25e-7 kW/GB = 1.184e-4 kW   (PVmStorage)
-    #    storage/energy  = 1.184e-4 × 3600/3600   = 1.184e-4 kWh  (all obs.)
+    # 5. storage/power  = 128 GB × 9.250e-7 kW/GB = 1.184e-4 kW   (PVmStorage)
+    #    storage/energy  = 1.184e-4 × 3600/3600    = 1.184e-4 kWh  (all obs.)
     #
     # 6. energy_raw = cpu/energy + memory/energy + storage/energy  (SciE sum)
-    #    T00,T01: 0.001685 + 0.000784 + 0.000118 = 0.002588 kWh
-    #    T02:     0.004021 + 0.000784 + 0.000118 = 0.004924 kWh
+    #    T00,T01: 1.685e-3 + 7.840e-4 + 1.184e-4 = 2.588e-3 kWh
+    #    T02:     4.021e-3 + 7.840e-4 + 1.184e-4 = 4.924e-3 kWh
     #
-    # 7. energy (kWh) = energy_raw × PUE  (SciEPue, azure PUE=1.185)
-    #    T00,T01: 0.002588 × 1.185 = 0.003066 kWh
-    #    T02:     0.004924 × 1.185 = 0.005834 kWh
+    # 7. energy (kWh) = energy_raw × PUE  (SciEPue, azure PUE=1.185e0)
+    #    T00,T01: 2.588e-3 × 1.185 = 3.066e-3 kWh
+    #    T02:     4.924e-3 × 1.185 = 5.834e-3 kWh
     #    ─────────────────────────────────────────
-    #    TOTAL EnergyKWH = 0.003066 + 0.003066 + 0.005834 = 0.012 kWh
+    #    TOTAL EnergyKWH = 3.066e-3 + 3.066e-3 + 5.834e-3 = 1.200e-2 kWh
     #
     # ── Operational carbon (SciO) ────────────────────────────────────────────
     #
     #    carbon-operational = energy × carbon_intensity
     #    carbon_intensity(eastus) = 384 gCO2/kWh  (United_States, carbon_values.yaml)
-    #    T00,T01: 0.003066 × 384 = 1.1775 gCO2e
-    #    T02:     0.005834 × 384 = 2.2404 gCO2e
+    #    T00,T01: 3.066e-3 × 384 = 1.178 gCO2e
+    #    T02:     5.834e-3 × 384 = 2.240 gCO2e
     #    ─────────────────────────────────────────
-    #    TOTAL OperationalCarbonGramsCO2eq = 1.1775 + 1.1775 + 2.2404 = 4.5955 gCO2e
+    #    TOTAL OperationalCarbonGramsCO2eq = 1.178 + 1.178 + 2.240 = 4.596 gCO2e
     #
     # ── Embodied carbon (SciM pipeline) ─────────────────────────────────────
     #
     #    CPU embodied (sci-m-cpu / @grnsft/if-plugins SciM):
     #      = device_embodied × (duration / expected_lifespan) × (vcpus_allocated / vcpus_total)
-    #      = 1999999 × (3600 / 126230400) × (1 / 52) = 1.0969 gCO2e per obs.
+    #      = 1999999 × (3600 / 126230400) × (1 / 52) = 1.097 gCO2e per obs.
     #      (device/emissions-embodied=1999999 treated as gCO2e by the SciM plugin,
     #       device/expected-lifespan=126230400 s = 4 years)
     #
     #    Storage embodied (m-vm-storage):
     #      = storage/requested × storage/embodied-coefficient × duration / expected_lifespan
-    #      = 128 × 90 × 3600 / 126230400 = 0.3285 gCO2e per obs.
+    #      = 128 × 90 × 3600 / 126230400 = 3.285e-1 gCO2e per obs.
     #      (storage/embodied-coefficient=90 gCO2e/GB, unknown/default)
     #
-    #    Total per obs.: 1.0969 + 0.3285 = 1.4254 gCO2e  (same for all 3, embodied is time-independent)
+    #    Total per obs.: 1.097 + 3.285e-1 = 1.425 gCO2e  (same for all 3, embodied is time-independent)
     #    ─────────────────────────────────────────
-    #    TOTAL EmbodiedCarbonGramsCO2eq = 3 × 1.4254 = 4.2763 gCO2e
+    #    TOTAL EmbodiedCarbonGramsCO2eq = 3 × 1.425 = 4.276 gCO2e
     #
     # ── Total carbon ─────────────────────────────────────────────────────────
-    #    TOTAL TotalCarbonGramsCO2eq = 4.5955 + 4.2763 = 8.8718 gCO2e
+    #    TOTAL TotalCarbonGramsCO2eq = 4.596 + 4.276 = 8.872 gCO2e
     # ─────────────────────────────────────────────────────────────────────────
 
     assert float(row["EnergyKWH"]) == pytest.approx(0.012, rel=1e-3)
