@@ -128,8 +128,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {result.list_exceptions}")
 
         for exception in result.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {
-                        exception.details}")
+            logger.info(f"Exception: {exception.error_code}, \n details:"
+                f" {exception.details}")
             self.assertEqual(exception.error_code,
                              ErrorCode.DATA_FETCH_NO_RESULTS)
             self.assertIn(
@@ -158,8 +158,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {carbonDaemonResult.list_exceptions}")
 
         for exception in carbonDaemonResult.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {
-                        exception.formatted_string}")
+            logger.info(f"Exception: {exception.error_code}, \n details:"
+                f" {exception.formatted_string}")
             if exception.error_code == ErrorCode.UNKNOWN_ERROR:
                 self.assertIn(
                     "Unexpected error reading file", exception.details
@@ -173,8 +173,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         Test daemon execution when carbon service raises an exception.
         """
         runner_error_msg = "Mock run side_effect"
-        orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {
-            runner_error_msg}"
+        orchestrator_error_msg_1 = "Failed to run engine for the given processors:"
+        f" {runner_error_msg}"
         orchestrator_error_msg_2 = "Unexpected error during daemon execution"
 
         mock_carbon_service = MagicMock()
@@ -212,8 +212,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         Test daemon execution when carbon service raises an exception.
         """
         runner_error_msg = "Mock run side_effect"
-        orchestrator_error_msg_1 = f"Failed to run engine for the given processors: {
-            runner_error_msg}"
+        orchestrator_error_msg_1 = "Failed to run engine for the given processors:"
+        f" {runner_error_msg}"
         orchestrator_error_msg_2 = "Unexpected error during daemon execution"
 
         mock_carbon_service = MagicMock()
@@ -274,8 +274,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {carbonDaemonResult.list_exceptions}")
 
         for exception in carbonDaemonResult.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {
-                        exception.details}")
+            logger.info(f"Exception: {exception.error_code}, \n details:"
+                f" {exception.details}")
             if exception.error_code == ErrorCode.UNKNOWN_ERROR:
                 self.assertIn(
                     error_details, exception.details
@@ -292,8 +292,8 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         logger.info(f"list_exceptions: {result.list_exceptions}")
 
         for exception in result.list_exceptions:
-            logger.info(f"Exception: {exception.error_code}, \n details: {
-                        exception.formatted_string}")
+            logger.info(f"Exception: {exception.error_code}, \n details:"
+                f" {exception.formatted_string}")
             self.assertEqual(exception.error_code,
                              ErrorCode.CONFIG_NO_PROCESSOR)
             self.assertIn(

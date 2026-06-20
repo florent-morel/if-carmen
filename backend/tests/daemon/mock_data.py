@@ -80,8 +80,8 @@ def _get_vm_sample_file_path(hour, config: DaemonConfig):
         str: The path to the sample file.
     """
     return os.path.join(
-        os.path.dirname(config.source.input_path), "test_data", f"vm_usage_hour_{
-            hour}.csv"
+        os.path.dirname(config.source.input_path), "test_data", f"vm_usage_hour_"
+    f" { hour}.csv"
     )
 
 
