@@ -97,6 +97,12 @@ First, install the Impact Framework and related plugins globally using npm:
 npm install -g "@grnsft/if" "@grnsft/if-plugins" "@grnsft/if-unofficial-plugins"
 ```
 
+In case the Impact Framework is not properly install, running the following command might solve the issue.
+
+```bash
+npm install
+```
+
 TODO: How to check Impact Framework is properly installed
 
 #### Step 2: Install Carmen
