@@ -24,6 +24,7 @@ from backend.src.common.constants import (
     SOURCE_STORAGE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
     SOURCE_DATE,
+    DAILY_SECONDS,
     DATE_FORMAT,
     UNKNOWN,
 )
@@ -154,8 +155,8 @@ def _process_storage_row(
         return False
 
     if duration_seconds_raw in (None, ""):
-        logger.error("Missing %s for %s", SOURCE_STORAGE_DURATION_SECONDS, storage_id)
-        return False
+        logger.info("Missing %s for %s, using default value %s", SOURCE_STORAGE_DURATION_SECONDS, storage_id, DAILY_SECONDS)
+        duration_seconds_raw = DAILY_SECONDS
 
     try:
         size_gb = str_to_float(size_gb_raw)

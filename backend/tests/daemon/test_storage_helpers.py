@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from backend.src.common.constants import (
+    DAILY_SECONDS,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
     SOURCE_PROVIDER,
@@ -192,6 +193,60 @@ class TestStorageHelpers(unittest.TestCase):
                 self.assertFalse(result)
                 self.assertEqual(storage_dict, {})
                 self.assertIn(expected_field, log.output[0])
+
+    def test_process_storage_row_missing_duration_uses_default(self):
+        """Missing StorageDurationSeconds should fallback to DAILY_SECONDS."""
+        row = {
+            SOURCE_RESOURCE_ID: "disk-missing-duration",
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "128",
+            SOURCE_STORAGE_DURATION_SECONDS: "",
+        }
+        storage_dict = {}
+
+        with self.assertLogs(level="INFO") as log:
+            result = _process_storage_row(row, storage_dict)
+
+        self.assertTrue(result)
+        self.assertIn("disk-missing-duration", storage_dict)
+        self.assertEqual(storage_dict["disk-missing-duration"].duration_seconds, DAILY_SECONDS)
+        self.assertTrue(
+            any(
+                "using default value" in output
+                and SOURCE_STORAGE_DURATION_SECONDS in output
+                for output in log.output
+            )
+        )
+
+    def test_process_storage_row_none_duration_uses_default(self):
+        """None StorageDurationSeconds should fallback to DAILY_SECONDS."""
+        row = {
+            SOURCE_RESOURCE_ID: "disk-none-duration",
+            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_REGION: "francecentral",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_COST: "0.0",
+            SOURCE_STORAGE_SIZE_GB: "128",
+            SOURCE_STORAGE_DURATION_SECONDS: None,
+        }
+        storage_dict = {}
+
+        with self.assertLogs(level="INFO") as log:
+            result = _process_storage_row(row, storage_dict)
+
+        self.assertTrue(result)
+        self.assertIn("disk-none-duration", storage_dict)
+        self.assertEqual(storage_dict["disk-none-duration"].duration_seconds, DAILY_SECONDS)
+        self.assertTrue(
+            any(
+                "using default value" in output
+                and SOURCE_STORAGE_DURATION_SECONDS in output
+                for output in log.output
+            )
+        )
 
     @patch(
         "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
