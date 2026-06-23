@@ -1,0 +1,12 @@
+regions:
+  westeurope: Netherlands
+
+storage_replication_factors:
+  lrs: 3
+  zrs: 3
+  grs: 6
+  ra_grs: 6
+  gzrs: 6
+  ra_gzrs: 6
+
+pue: 1.185

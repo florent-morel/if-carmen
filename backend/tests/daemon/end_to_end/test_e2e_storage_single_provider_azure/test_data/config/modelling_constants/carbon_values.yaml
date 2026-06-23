@@ -1,0 +1,18 @@
+default_carbon_intensity: 281
+default_pue: 1.5
+
+carbon_intensity_by_location:
+  Netherlands:
+    carbon_intensity: 253
+
+default_device_emissions_embodied: 1999999
+
+storage_embodied:
+  ssd: 160
+  hdd: 20
+  unknown: 90
+
+storage_electricity_ratios:
+  ssd: 0.0000012
+  hdd: 0.00000065
+  unknown: 0.000000925
