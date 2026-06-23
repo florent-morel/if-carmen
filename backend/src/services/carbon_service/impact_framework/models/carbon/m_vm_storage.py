@@ -22,7 +22,7 @@ class MVmStorage(ModelUtilities):
             "input-parameters": [
                 "storage/requested",
                 "storage/embodied-coefficient",
-                "duration",
+                "duration/seconds",
             ],  # in GB
             "output-parameter": " = 'storage-embodied' / 126230400",  # in gCO2e
         }

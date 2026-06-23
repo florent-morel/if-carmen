@@ -4,7 +4,7 @@ import logging
 import time
 
 from backend.src.common.constants import (
-    HOURLY_INTERVAL_SECONDS,
+    DAILY_SECONDS,
 )
 from backend.src.common.carmen_exception import CarmenException, DataFetchError
 from backend.src.daemon.carbon_daemon_result import ResourceTypeResult
@@ -137,7 +137,7 @@ class Runner_Compute(AbstractRunner):
             # => design decision needed on how to handle
             # env variable? input file parameter?
             carbon_service = ioc_util.resolve(
-                CarbonService, "IFVm", HOURLY_INTERVAL_SECONDS
+                CarbonService, "IFVm", DAILY_SECONDS
             )
 
             if carbon_service is None:

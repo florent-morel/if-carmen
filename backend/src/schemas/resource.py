@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from abc import ABC
 from enum import Enum
-from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Any
+from pydantic import BaseModel, Field, field_validator
 
 
 class ResourceType(Enum):
@@ -48,6 +48,7 @@ class Resource(ABC, BaseModel):
     time_points: list = Field(
         default_factory=list
     )  # time for VM, timestamp for Pod/App
+    duration_seconds: list[int] = Field(default_factory=list)
 
     # Total for all time points
     total_energy_consumed: float = 0.0
@@ -57,3 +58,25 @@ class Resource(ABC, BaseModel):
 
     # Dynamic columns dictionary
     dict_custom_columns: dict[str, str] = {}
+
+    @field_validator("duration_seconds", mode="before")
+    @classmethod
+    def normalize_duration_seconds(cls, value: Any) -> list[int]:
+        """Allow scalar duration input while storing a normalized list[int]."""
+        if value is None or value == "":
+            return []
+
+        if isinstance(value, (list, tuple)):
+            try:
+                return [int(v) for v in value]
+            except (TypeError, ValueError) as err:
+                raise ValueError(
+                    "duration_seconds must be an integer or list of integers"
+                ) from err
+
+        try:
+            return [int(value)]
+        except (TypeError, ValueError) as err:
+            raise ValueError(
+                "duration_seconds must be an integer or list of integers"
+            ) from err

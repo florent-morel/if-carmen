@@ -5,6 +5,7 @@ It provides functionality to compute carbon and energy metrics for pods using IF
 
 from collections import defaultdict
 from typing import Dict, List, Tuple, Any
+from backend.src.common.constants import DAILY_SECONDS
 from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.schemas.application import Application
 from backend.src.services.carbon_service.impact_framework.models.power.p_cores import (
@@ -64,27 +65,36 @@ class IFAppService(IFService):
         """
         Fills the application dictionary with pod data required for the template
         """
+        fallback_duration = data.get("duration", DAILY_SECONDS)
         resources: Dict[str, Dict[str, Any]] = defaultdict(dict)
         for compute_resource in compute_resources:
             pod_data = {}
             for pod in compute_resource.pods:
-                pod_data[pod.id] = self.get_resource_inputs(pod)
+                pod_data[pod.id] = self.get_resource_inputs(
+                    pod, fallback_duration=fallback_duration
+                )
             resources[compute_resource.id] = pod_data
         data["resources"] = resources
 
     @staticmethod
-    def get_resource_inputs(pod: Pod, models: Tuple[ModelUtilities] = (SciMcpu, PMem)):
+    def get_resource_inputs(
+        pod: Pod,
+        models: Tuple[ModelUtilities] = (SciMcpu, PMem),
+        fallback_duration: int = DAILY_SECONDS,
+    ):
         """
         Generates input data for each time point of a compute unit using the specified models.
 
         Args:
             pod (Pod): The pod to process.
             models (Tuple[ModelUtilities], optional): Additional models to include in the input generation.
+            fallback_duration (int): Duration in seconds to use when a time point has no entry in
+                pod.duration_seconds. Defaults to DAILY_SECONDS.
 
         Returns:
             List[Dict[str, Any]]: A list of dictionaries containing inputs for each time point.
         """
-        return IFService.get_resource_inputs(pod, models)
+        return IFService.get_resource_inputs(pod, models, fallback_duration)
 
     def get_models_info(self, data, provider: str = ""):
         """

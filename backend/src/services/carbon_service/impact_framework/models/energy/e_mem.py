@@ -17,7 +17,7 @@ class EMem(ModelUtilities):
 
     def __init__(self):
         config = {
-            "input-parameters": ["memory/power", "duration"],
+            "input-parameters": ["memory/power", "duration/seconds"],
             "output-parameter": " = 'memory/energy' / 3600",
         }
         output_metadata = [

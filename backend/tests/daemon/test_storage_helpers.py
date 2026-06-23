@@ -14,7 +14,7 @@ from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_RESOURCE_ID,
-    SOURCE_STORAGE_DURATION_SECONDS,
+    SOURCE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
 )
 from backend.src.daemon.readers.helpers.storage_helpers import (
@@ -41,7 +41,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
-            SOURCE_STORAGE_DURATION_SECONDS: "86400",
+            SOURCE_DURATION_SECONDS: "86400",
         }
 
         self.sample_hdd_row = {
@@ -51,7 +51,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "64",
-            SOURCE_STORAGE_DURATION_SECONDS: "172800",
+            SOURCE_DURATION_SECONDS: "172800",
         }
 
     def test_get_storage_type_premium_ssd(self):
@@ -99,7 +99,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128.5",
-            SOURCE_STORAGE_DURATION_SECONDS: "5400",
+            SOURCE_DURATION_SECONDS: "5400",
         }
         storage_dict = {}
 
@@ -107,7 +107,7 @@ class TestStorageHelpers(unittest.TestCase):
 
         self.assertTrue(result)
         self.assertEqual(storage_dict["disk-normalized"].size_gb, 128.5)
-        self.assertEqual(storage_dict["disk-normalized"].duration_seconds, 5400)
+        self.assertEqual(storage_dict["disk-normalized"].duration_seconds, [5400])
 
     def test_process_storage_row_missing_size(self):
         """Missing StorageSizeGB should reject the row."""
@@ -117,7 +117,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
-            SOURCE_STORAGE_DURATION_SECONDS: "86400",
+            SOURCE_DURATION_SECONDS: "86400",
         }
         storage_dict = {}
 
@@ -137,7 +137,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "large",
-            SOURCE_STORAGE_DURATION_SECONDS: "5400s",
+            SOURCE_DURATION_SECONDS: "5400s",
         }
         storage_dict = {}
 
@@ -149,7 +149,7 @@ class TestStorageHelpers(unittest.TestCase):
         self.assertIn("Invalid normalized storage inputs", log.output[0])
 
     def test_process_storage_row_fractional_seconds(self):
-        """Fractional StorageDurationSeconds should reject the row."""
+        """Fractional DurationSeconds should reject the row."""
         row = {
             SOURCE_RESOURCE_ID: "disk-fractional-seconds",
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
@@ -157,7 +157,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
-            SOURCE_STORAGE_DURATION_SECONDS: "5400.5",
+            SOURCE_DURATION_SECONDS: "5400.5",
         }
         storage_dict = {}
 
@@ -166,13 +166,13 @@ class TestStorageHelpers(unittest.TestCase):
 
         self.assertFalse(result)
         self.assertEqual(storage_dict, {})
-        self.assertIn(SOURCE_STORAGE_DURATION_SECONDS, log.output[0])
+        self.assertIn(SOURCE_DURATION_SECONDS, log.output[0])
 
     def test_process_storage_row_non_positive_values(self):
         """Zero or negative normalized inputs should reject the row."""
         test_cases = [
-            ({SOURCE_STORAGE_SIZE_GB: "0", SOURCE_STORAGE_DURATION_SECONDS: "86400"}, SOURCE_STORAGE_SIZE_GB),
-            ({SOURCE_STORAGE_SIZE_GB: "128", SOURCE_STORAGE_DURATION_SECONDS: "-1"}, SOURCE_STORAGE_DURATION_SECONDS),
+            ({SOURCE_STORAGE_SIZE_GB: "0", SOURCE_DURATION_SECONDS: "86400"}, SOURCE_STORAGE_SIZE_GB),
+            ({SOURCE_STORAGE_SIZE_GB: "128", SOURCE_DURATION_SECONDS: "-1"}, SOURCE_DURATION_SECONDS),
         ]
 
         for row_values, expected_field in test_cases:
@@ -195,7 +195,7 @@ class TestStorageHelpers(unittest.TestCase):
                 self.assertIn(expected_field, log.output[0])
 
     def test_process_storage_row_missing_duration_uses_default(self):
-        """Missing StorageDurationSeconds should fallback to DAILY_SECONDS."""
+        """Missing DurationSeconds should fallback to DAILY_SECONDS."""
         row = {
             SOURCE_RESOURCE_ID: "disk-missing-duration",
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
@@ -203,7 +203,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
-            SOURCE_STORAGE_DURATION_SECONDS: "",
+            SOURCE_DURATION_SECONDS: "",
         }
         storage_dict = {}
 
@@ -212,17 +212,17 @@ class TestStorageHelpers(unittest.TestCase):
 
         self.assertTrue(result)
         self.assertIn("disk-missing-duration", storage_dict)
-        self.assertEqual(storage_dict["disk-missing-duration"].duration_seconds, DAILY_SECONDS)
+        self.assertEqual(storage_dict["disk-missing-duration"].duration_seconds, [DAILY_SECONDS])
         self.assertTrue(
             any(
                 "using default value" in output
-                and SOURCE_STORAGE_DURATION_SECONDS in output
+                and SOURCE_DURATION_SECONDS in output
                 for output in log.output
             )
         )
 
     def test_process_storage_row_none_duration_uses_default(self):
-        """None StorageDurationSeconds should fallback to DAILY_SECONDS."""
+        """None DurationSeconds should fallback to DAILY_SECONDS."""
         row = {
             SOURCE_RESOURCE_ID: "disk-none-duration",
             SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
@@ -230,7 +230,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
-            SOURCE_STORAGE_DURATION_SECONDS: None,
+            SOURCE_DURATION_SECONDS: None,
         }
         storage_dict = {}
 
@@ -239,11 +239,11 @@ class TestStorageHelpers(unittest.TestCase):
 
         self.assertTrue(result)
         self.assertIn("disk-none-duration", storage_dict)
-        self.assertEqual(storage_dict["disk-none-duration"].duration_seconds, DAILY_SECONDS)
+        self.assertEqual(storage_dict["disk-none-duration"].duration_seconds, [DAILY_SECONDS])
         self.assertTrue(
             any(
                 "using default value" in output
-                and SOURCE_STORAGE_DURATION_SECONDS in output
+                and SOURCE_DURATION_SECONDS in output
                 for output in log.output
             )
         )
@@ -256,7 +256,7 @@ class TestStorageHelpers(unittest.TestCase):
         mock_ci_calculator.return_value = 250.0
 
         storage_resource = create_storage_resource(
-            self.sample_ssd_row, "test_storage_123", 128.0, "SSD", "LRS", 86400
+            self.sample_ssd_row, "test_storage_123", 128.0, "SSD", "LRS"
         )
 
         self.assertIsInstance(storage_resource, StorageResource)
@@ -284,7 +284,7 @@ class TestStorageHelpers(unittest.TestCase):
             **self.sample_ssd_row,
             SOURCE_RESOURCE_ID: "test_huge",
             SOURCE_STORAGE_SIZE_GB: "999999.0",
-            SOURCE_STORAGE_DURATION_SECONDS: "86400",
+            SOURCE_DURATION_SECONDS: "86400",
             SOURCE_COST: "100.0",
         }
         storage_dict = {}
@@ -326,7 +326,6 @@ class TestStorageHelpers(unittest.TestCase):
                         100.0,
                         "SSD",
                         "LRS",
-                        86400,
                     )
 
                     self.assertEqual(storage.carbon_intensity, expected_ci)
@@ -347,7 +346,6 @@ class TestStorageHelpers(unittest.TestCase):
                 100.0,
                 "SSD",
                 "LRS",
-                86400,
             )
 
             self.assertEqual(storage.carbon_intensity, 281)
@@ -364,7 +362,7 @@ class TestProcessStorageRow(unittest.TestCase):
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
-            SOURCE_STORAGE_DURATION_SECONDS: "86400",
+            SOURCE_DURATION_SECONDS: "86400",
         }
 
     @patch("backend.src.daemon.readers.helpers.storage_helpers.get_storage_type")
@@ -383,6 +381,7 @@ class TestProcessStorageRow(unittest.TestCase):
         mock_storage_resource.id = self.sample_row[SOURCE_RESOURCE_ID]
         mock_storage_resource.dict_custom_columns = {}
         mock_storage_resource.time_points = []
+        mock_storage_resource.duration_seconds = []
         mock_create_storage.return_value = mock_storage_resource
 
         storage_dict = {}
@@ -396,7 +395,6 @@ class TestProcessStorageRow(unittest.TestCase):
             128.0,
             "SSD",
             "LRS",
-            86400,
         )
 
     def test_process_storage_row_zero_size(self):

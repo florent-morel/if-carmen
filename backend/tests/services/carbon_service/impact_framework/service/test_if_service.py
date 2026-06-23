@@ -17,6 +17,7 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
     ModelUtilities,
 )
 from backend.src.common.carmen_exception import CarmenException
+from backend.src.common.constants import DAILY_SECONDS
 
 
 class TestIFService(unittest.TestCase):
@@ -266,7 +267,7 @@ class TestIFService(unittest.TestCase):
         mock_write_if_input.assert_called_once()
         mock_run_command_in_shell.assert_called_once()
         mock_logging.info.assert_any_call(
-            "Generating Impact Framework input file %d for %d resources...", 0, 1
+            "Generating Impact Framework input file id %d for %d resources...", 0, 1
         )
         mock_logging.info.assert_any_call(
             "Impact Framework input %d generated in %d seconds.", 0, 1
@@ -409,6 +410,7 @@ class TestIFService(unittest.TestCase):
         mock_compute_resource.time_points = [0, 1, 2]
         mock_compute_resource.cpu_util = [50, 60, 70]
         mock_compute_resource.carbon_intensity = 10.0
+        mock_compute_resource.duration_seconds = [120, 240, 360]
 
         resource_inputs = IFService.get_resource_inputs(mock_compute_resource)
 
@@ -418,18 +420,24 @@ class TestIFService(unittest.TestCase):
                 "teads_cpu_util": 100,
                 "sci_o_carbon_intensity": "carbon_intensity_0",
                 "sci_e_pue": "pue_0",
+                "duration": 120,
+                "duration/seconds": 120,
             },
             {
                 "timestamp": 1,
                 "teads_cpu_util": 110,
                 "sci_o_carbon_intensity": "carbon_intensity_1",
                 "sci_e_pue": "pue_1",
+                "duration": 240,
+                "duration/seconds": 240,
             },
             {
                 "timestamp": 2,
                 "teads_cpu_util": 120,
                 "sci_o_carbon_intensity": "carbon_intensity_2",
                 "sci_e_pue": "pue_2",
+                "duration": 360,
+                "duration/seconds": 360,
             },
         ]
 
@@ -480,6 +488,7 @@ class TestIFService(unittest.TestCase):
 
         mock_compute_resource = MagicMock(spec=ComputeResource)
         mock_compute_resource.time_points = [0, 1]
+        mock_compute_resource.duration_seconds = [DAILY_SECONDS, DAILY_SECONDS]
 
         resource_inputs = IFService.get_resource_inputs(
             mock_compute_resource, models=(mock_additional_model,)
@@ -491,12 +500,16 @@ class TestIFService(unittest.TestCase):
                 "sci_o_carbon_intensity": "carbon_intensity_0",
                 "additional_model_input": "additional_input_0",
                 "sci_e_pue": "pue_0",
+                "duration": DAILY_SECONDS,
+                "duration/seconds": DAILY_SECONDS,
             },
             {
                 "teads_cpu_util": "cpu_util_1",
                 "sci_o_carbon_intensity": "carbon_intensity_1",
                 "additional_model_input": "additional_input_1",
                 "sci_e_pue": "pue_1",
+                "duration": DAILY_SECONDS,
+                "duration/seconds": DAILY_SECONDS,
             },
         ]
 

@@ -9,6 +9,7 @@ from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
+from backend.src.utils.helpers import parse_duration_seconds
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
@@ -61,6 +62,10 @@ def create_misc_services_resource(row):
     id = row.get(SOURCE_RESOURCE_ID)
     misc_services_resource = None
     if id:
+        duration_seconds = parse_duration_seconds(row, id)
+        if duration_seconds is None:
+            return None
+
         misc_services_resource = MiscServicesResource(
             name=row.get(SOURCE_PRODUCT_NAME, ""),
             id=id,
@@ -68,6 +73,7 @@ def create_misc_services_resource(row):
             region=region,
             carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
             cost=str_to_float(row.get(SOURCE_COST, "0")),
+            duration_seconds=[duration_seconds],
         )
         timestamp = row.get(
             SOURCE_DATE, datetime.now().strftime(DATE_FORMAT)

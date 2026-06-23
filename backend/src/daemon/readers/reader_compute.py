@@ -12,10 +12,12 @@ from backend.src.daemon.readers.helpers.virtual_machine_helpers import create_vm
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import str_to_float
 from backend.src.utils.helpers import (
+    parse_duration_seconds,
     process_custom_columns,
 )
 
 from backend.src.common.constants import (
+    SOURCE_DURATION_SECONDS,
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
@@ -112,10 +114,16 @@ class Reader_Compute(AbstractReader):
                     logger.info(f"Id __{vm_id}__ already found previously, skipping it and logging a duplicate row.")
                     duplicate_rows += 1
 
+                duration_seconds = parse_duration_seconds(row, vm_id)
+                if duration_seconds is None:
+                    excluded_rows += 1
+                    continue
+
                 vm_dict[vm_id].cpu_util.append(
                     str_to_float(row[SOURCE_VM_AVG_CPU_UTIL_PERCENT]) / 100
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
+                vm_dict[vm_id].duration_seconds.append(duration_seconds)
                 vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_VM_DISK_SIZE_GB]))
                 # End of row process, fetch custom columns
                 process_custom_columns(vm_dict[vm_id], row, VirtualMachine.mandatory_columns())

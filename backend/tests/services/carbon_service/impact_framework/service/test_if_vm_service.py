@@ -6,6 +6,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 # from robot.utils.asserts import assert_true
+from backend.src.common.constants import DAILY_SECONDS
 
 from backend.src.services.carbon_service.impact_framework.service.if_vm_service import (
     IFVMService,
@@ -81,7 +82,7 @@ def test_get_resource_inputs(mock_get_resource_inputs, mock_vm_1):
 
     result = service.get_resource_inputs(mock_vm_1, mock_models)
 
-    mock_get_resource_inputs.assert_called_once_with(mock_vm_1, mock_models)
+    mock_get_resource_inputs.assert_called_once_with(mock_vm_1, mock_models, DAILY_SECONDS)
     assert result == ["mock_value"]
 
 

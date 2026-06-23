@@ -96,7 +96,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         # uncomment this
         # mock_processor.read.assert_called_once()
         mock_ioc_util_resolve.assert_called_once_with(
-            CarbonService, "IFVm", 3600)
+            CarbonService, "IFVm", DAILY_SECONDS)
 
     @patch("backend.src.daemon.carbon_daemon_orchestrator.register_models")
     def test_orchestrator_no_vms_found(self, _mock_register_models):

@@ -14,6 +14,7 @@ from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_TIME,
+    SOURCE_DURATION_SECONDS,
     SOURCE_VM_DISK_SIZE_GB,
     # TODO: Add DISK_TYPE (akin to storage_type for storage resources, to be then propagated in computation)
     # At the moment we always fallback on the default values for the VMs' disk.
@@ -40,6 +41,7 @@ class VirtualMachine(ComputeResource):
             SOURCE_REGION,
             SOURCE_VM_AVG_CPU_UTIL_PERCENT,
             SOURCE_TIME,
+            SOURCE_DURATION_SECONDS,
             SOURCE_VM_DISK_SIZE_GB,
             SOURCE_COST,
         ]

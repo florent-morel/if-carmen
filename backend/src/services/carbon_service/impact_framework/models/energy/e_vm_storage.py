@@ -24,7 +24,7 @@ class EVmStorage(ModelUtilities):
 
     def __init__(self):
         config = {
-            "input-parameters": ["storage/power", "duration"],
+            "input-parameters": ["storage/power", "duration/seconds"],
             "output-parameter": " = 'storage/energy' / 3600",
         }
         output_metadata = [

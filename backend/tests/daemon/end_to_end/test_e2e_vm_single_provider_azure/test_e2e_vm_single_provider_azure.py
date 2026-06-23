@@ -66,7 +66,7 @@ def test_e2e_vm_single_provider_azure():
     #   cpu-cores-available=52, cpu-cores-utilized=1, cpu-tdp=205 W, memory=2 GB
     #   vm_tdp = 205 × (1/52) = 3.9423 W   ← TDP scaled to the allocated core share
     #
-    # duration = HOURLY_INTERVAL_SECONDS = 3600 s per observation
+    # duration = DurationSeconds = 3600 s per observation
     #
     # ── Energy per observation (SCI-E pipeline) ──────────────────────────────
     #

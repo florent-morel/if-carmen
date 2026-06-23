@@ -5,6 +5,7 @@ import concurrent
 import logging
 from typing import List
 
+from backend.src.common.constants import DAILY_SECONDS
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.services.carbon_service.impact_framework.models.carbon.misc_services import (
@@ -77,17 +78,13 @@ class IFMiscServicesService(IFService):
     def get_resource_inputs(
         misc_services_resource: MiscServicesResource,
         model: ModelUtilities = MiscServicesModel,
+        fallback_duration: int = DAILY_SECONDS,
     ):
         """
         Get Misc Services model specific inputs
         """
-        resource_inputs = []
-        for time_index in range(len(misc_services_resource.time_points)):
-            combined_inputs = {
-                key: value
-                for key, value in model.fill_inputs(
-                    misc_services_resource, time_index
-                ).items()
-            }
-            resource_inputs.append(combined_inputs)
-        return resource_inputs
+        return IFService._build_resource_inputs(
+            misc_services_resource,
+            [model],
+            fallback_duration,
+        )

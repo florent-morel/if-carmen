@@ -98,7 +98,14 @@ Not implemented yet.
 
 The daemon expects to read a group of csv files containing resource usage data. Below is a description for each column expected in the CSV input.
 
-For storage rows, input data must include `StorageSizeGB`. `StorageDurationSeconds` should be provided by the source and represents the usage duration for the row. If `StorageDurationSeconds` is missing or empty, Carmen applies a default value of `86400` seconds.
+For all resource rows, input data can include `DurationSeconds` to represent the usage duration for that row.
+If `DurationSeconds` is missing or empty, Carmen applies a default value of `86400` seconds.
+
+Internally, Carmen stores per-observation durations as a list (`duration_seconds`) aligned with
+resource `time_points`. For convenience when constructing schema objects in code/tests,
+`duration_seconds` accepts either a single integer (for example `duration_seconds=86400`) or
+an explicit list (for example `duration_seconds=[86400, 3600]`). A scalar value is normalized
+to a one-element list.
 
 ### Input file structure (=columns)
 
@@ -116,7 +123,7 @@ TODO: review this.
 | AverageVmCpuUtilPercent | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | VmDiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
 | StorageSizeGB | Required for storage rows. Normalized storage capacity in gigabytes. | 512 |
-| StorageDurationSeconds | Recommended for storage rows. Total storage lifetime represented by the row, in seconds. If missing or empty, Carmen defaults to 86400. | 2678400 |
+| DurationSeconds | Recommended for all resource rows. Duration represented by the row, in seconds. If missing or empty, Carmen defaults to 86400. | 3600 |
 | ReplicationType | Storage replication type | GRS, LRS |
 
 ### Storage-specific ingestion contract
@@ -124,13 +131,13 @@ TODO: review this.
 Storage input files must include the following columns for every row where `MeterCategory` is `Storage`:
 
 - `StorageSizeGB`
-- `StorageDurationSeconds`
+- `DurationSeconds`
 
 These values are part of the source contract.
 
 - `StorageSizeGB` is required and must be numeric and strictly positive.
-- `StorageDurationSeconds` should be provided by the source. If it is missing or empty, Carmen applies the default duration `86400` seconds (1 day).
-- If `StorageDurationSeconds` is non-numeric, zero, negative, or fractional, Carmen skips the row.
+- `DurationSeconds` should be provided by the source. If it is missing or empty, Carmen applies the default duration `86400` seconds (1 day).
+- If `DurationSeconds` is non-numeric, zero, negative, or fractional, Carmen skips the row.
 
 
 ### Technical required data

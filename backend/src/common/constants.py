@@ -51,7 +51,7 @@ SOURCE_VM_DISK_SIZE_GB = "VmDiskSizeGb"
 SOURCE_VM_NB_VCPUS = "VmNbCpus"
 SOURCE_VM_SIZE = "VmSize"
 SOURCE_STORAGE_SIZE_GB = "StorageSizeGB"
-SOURCE_STORAGE_DURATION_SECONDS = "StorageDurationSeconds"
+SOURCE_DURATION_SECONDS = "DurationSeconds"
 UNKNOWN = "Unknown"
 
 # Computation formats

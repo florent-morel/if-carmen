@@ -6,6 +6,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
+from backend.src.common.constants import DAILY_SECONDS
 from backend.src.services.carbon_service.impact_framework.service.if_misc_services_service import (
     IFMiscServicesService,
 )
@@ -100,6 +101,7 @@ def test_get_resource_inputs(
     mock_misc_services_resource.compute_cost = 30.0
     mock_misc_services_resource.storage_cost = 40.0
     mock_misc_services_resource.time_points = [0]
+    mock_misc_services_resource.duration_seconds = DAILY_SECONDS
 
     resource_inputs = IFMiscServicesService.get_resource_inputs(
         mock_misc_services_resource
@@ -116,6 +118,8 @@ def test_get_resource_inputs(
             "storage-embodied": 20.0,
             "storage-energy": 60.0,
             "timestamp": 0,
+            "duration": DAILY_SECONDS,
+            "duration/seconds": DAILY_SECONDS,
         }
     ]
 

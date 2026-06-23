@@ -10,7 +10,7 @@ from __future__ import annotations
 from pydantic import Field
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.common.constants import (
-    DAILY_SECONDS,
+    SOURCE_DURATION_SECONDS,
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE,
     SOURCE_REGION,
@@ -19,7 +19,6 @@ from backend.src.common.constants import (
     SOURCE_PRODUCT_NAME,
     SOURCE_COST,
     SOURCE_STORAGE_SIZE_GB,
-    SOURCE_STORAGE_DURATION_SECONDS,
 )
 
 
@@ -38,7 +37,6 @@ class StorageResource(Resource):
     total_storage_energy: float = 0.0
     storage_embodied: list[float] = Field(default_factory=list)
     total_storage_embodied: float = 0.0
-    duration_seconds: int = DAILY_SECONDS
     resource_type: ResourceType = ResourceType.STORAGE
 
     @staticmethod
@@ -52,6 +50,6 @@ class StorageResource(Resource):
             SOURCE_PRODUCT_NAME,
             SOURCE_COST,
             SOURCE_STORAGE_SIZE_GB,
-            SOURCE_STORAGE_DURATION_SECONDS,
+            SOURCE_DURATION_SECONDS,
         ]
         return list_mandatory_columns

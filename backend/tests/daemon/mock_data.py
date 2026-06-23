@@ -81,7 +81,7 @@ def _get_vm_sample_file_path(hour, config: DaemonConfig):
     """
     return os.path.join(
         os.path.dirname(config.source.input_path), "test_data", f"vm_usage_hour_"
-    f" { hour}.csv"
+    f"{hour}.csv"
     )
 
 
@@ -154,10 +154,12 @@ def _create_virtual_machine(row):
 
 def _extract_hour_from_file_name(file_name):
     """
-    Extracts the hour from a file name like usage_YYYY-MM-DD_H.csv
-    Example: usage_2024-12-09_0.csv -> hour = 0
+    Extracts the hour from a file name suffix like "..._<H>.csv".
+    Accepts one- or two-digit hours in the 0-23 range.
+    Example: vm_usage_hour_0.csv -> hour = 0
+    Example: vm_usage_hour_13.csv -> hour = 13
     """
-    match = re.search(r"-(\d{2})\.csv", file_name)
+    match = re.search(r"_((?:[01]?\d|2[0-3]))\.csv", file_name)
     if match:
         return int(match.group(1))
     return 0

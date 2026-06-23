@@ -95,7 +95,7 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
                 resource_group=None,
                 carbon_intensity=253.0,
                 time_points=[],
-                duration_seconds=HOURLY_INTERVAL_SECONDS,
+                duration_seconds=[HOURLY_INTERVAL_SECONDS],
             )
         ]
 

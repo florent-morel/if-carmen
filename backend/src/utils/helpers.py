@@ -22,6 +22,8 @@ import httpx
 from backend.src.common.constants import (
     DATE_FORMAT,
     EXECUTION_DATE,
+    DAILY_SECONDS,
+    SOURCE_DURATION_SECONDS,
     RATE_TO_DURATION,
 )
 from backend.src.common.enums import SamplingRate
@@ -344,6 +346,54 @@ def get_row_data(row_data: str) -> str:
     Helper function to get row data, returns empty string if the data is missing or represented as '-'.
     """
     return row_data if row_data != "-" and row_data else ""
+
+
+def get_duration_raw_with_fallback(row: dict, resource_id: str) -> str | int:
+    """
+    Return raw duration value from a CSV row, applying default fallback when missing.
+
+    This helper centralizes the repeated "read DurationSeconds or fallback to
+    DAILY_SECONDS" behavior across resource readers.
+    """
+    duration_raw = row.get(SOURCE_DURATION_SECONDS)
+    if duration_raw in (None, ""):
+        logger.info(
+            "Missing %s for %s, using default value %s",
+            SOURCE_DURATION_SECONDS,
+            resource_id,
+            DAILY_SECONDS,
+        )
+        return DAILY_SECONDS
+    return duration_raw
+
+
+def parse_duration_seconds(row: dict, resource_id: str) -> int | None:
+    """
+    Parse and validate DurationSeconds from a CSV row.
+
+    Returns the normalized integer duration in seconds, or None when invalid.
+    """
+    duration_raw = get_duration_raw_with_fallback(row, resource_id)
+    try:
+        duration_seconds = str_to_float(duration_raw)
+    except ValueError:
+        logger.error(
+            "Invalid %s for %s: %r",
+            SOURCE_DURATION_SECONDS,
+            resource_id,
+            duration_raw,
+        )
+        return None
+
+    if duration_seconds <= 0 or not duration_seconds.is_integer():
+        logger.error(
+            "%s must be a positive integer number of seconds for %s",
+            SOURCE_DURATION_SECONDS,
+            resource_id,
+        )
+        return None
+
+    return int(duration_seconds)
 
 
 def process_custom_columns(resource: Resource, row: dict, list_ignore_column: list[str]) -> None:

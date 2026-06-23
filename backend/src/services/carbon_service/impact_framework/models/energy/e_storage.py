@@ -2,6 +2,8 @@
 Storage Services Energy Consumption model made with IF builtins
 """
 
+from backend.src.common.constants import DAILY_SECONDS
+
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.impact_framework.models.metadata import (
     Metadata,
@@ -41,4 +43,8 @@ class EStorage(ModelUtilities):
         Returns:
             Dict containing duration in seconds for energy calculation
         """
-        return {"duration/seconds": int(storage_resource.duration_seconds)}
+        if time_index < len(storage_resource.duration_seconds):
+            duration_seconds = int(storage_resource.duration_seconds[time_index])
+        else:
+            duration_seconds = DAILY_SECONDS
+        return {"duration/seconds": duration_seconds}

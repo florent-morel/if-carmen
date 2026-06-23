@@ -11,7 +11,7 @@ from abc import ABC
 from collections import defaultdict
 import yaml
 from jinja2 import exceptions
-from backend.src.common.constants import IF_FILES_DIR
+from backend.src.common.constants import DAILY_SECONDS, IF_FILES_DIR
 from backend.src.common.carmen_exception import CarmenException
 from backend.src.common.errors import ErrorCode
 from backend.src.core.yaml_config_loader import config
@@ -192,37 +192,68 @@ class IFService(ABC, CarbonService):
         return data
 
     @staticmethod
-    def get_resource_inputs(resource: Resource, models: tuple[ModelUtilities] = None):
+    def _build_resource_inputs(
+        resource: Resource,
+        model_instances: list[ModelUtilities],
+        fallback_duration: int,
+    ):
+        """
+        Build IF input rows for a resource using the provided model instances.
+        """
+        resource_inputs = []
+        durations = getattr(resource, "duration_seconds", []) or []
+        for time_index in range(len(resource.time_points)):
+            duration_seconds = (
+                int(durations[time_index])
+                if time_index < len(durations)
+                else fallback_duration
+            )
+            combined_inputs = {
+                key: value
+                for model in model_instances
+                for key, value in model.fill_inputs(resource, time_index).items()
+            }
+            combined_inputs["duration"] = duration_seconds
+            combined_inputs["duration/seconds"] = duration_seconds
+            resource_inputs.append(combined_inputs)
+        return resource_inputs
+
+    @staticmethod
+    def get_resource_inputs(
+        resource: Resource,
+        models: tuple[ModelUtilities] = None,
+        fallback_duration: int = DAILY_SECONDS,
+    ):
         """
         Generates input data for each time point of a compute unit using the specified models.
 
         Args:
             resource (Resource): Resource (e.g., VM or pod) to process.
             models (tuple[ModelUtilities], optional): Additional models to include in the input generation.
+            fallback_duration (int): Duration in seconds to use when a time point has no entry in
+                resource.duration_seconds. Defaults to DAILY_SECONDS; callers should pass the
+                service's configured sampling interval instead.
 
         Returns:
             list[dict[str, Any]]: A list of dictionaries containing inputs for each time point.
         """
-        resource_inputs = []
         # common models used by VMs and Pods
         common_models = [TeadsCurve, SciO, SciEPue]
         if models:
             common_models.extend(models)
             logger.debug(f"common_models: {common_models}")
-        for time_index in range(len(resource.time_points)):
-            combined_inputs = {
-                key: value
-                for model in common_models
-            for key, value in model.fill_inputs(resource, time_index).items()
-            }
-            resource_inputs.append(combined_inputs)
-        return resource_inputs
+        return IFService._build_resource_inputs(
+            resource,
+            common_models,
+            fallback_duration,
+        )
 
     def get_resource_data(self, data, resources: list[Resource]):
         """
         Fills the VM dictionary with the data required
         """
         compute_resources = defaultdict(dict)
+        fallback_duration = data.get("duration", DAILY_SECONDS)
         for compute_resource in resources:
             if compute_resource.id in compute_resources:
                 logger.error(
@@ -232,7 +263,7 @@ class IFService(ABC, CarbonService):
                 )
                 continue
             compute_resources[compute_resource.id] = self.get_resource_inputs(
-                compute_resource
+                compute_resource, fallback_duration=fallback_duration
             )
         resources_str = "resources"
         data[resources_str] = compute_resources

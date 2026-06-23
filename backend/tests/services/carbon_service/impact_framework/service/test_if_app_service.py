@@ -4,6 +4,7 @@ Unit tests for the IFAppService class in the carbon service impact framework.
 """
 from unittest.mock import patch, MagicMock, AsyncMock
 import pytest
+from backend.src.common.constants import DAILY_SECONDS
 from backend.src.schemas.application import Application
 from backend.src.schemas.pod import Pod
 from backend.src.services.carbon_service.impact_framework.service.if_app_service import (
@@ -125,6 +126,8 @@ def test_get_resource_data(app_service, mock_application, mock_pod_fixture):
                     "resources-reserved": 0.5,
                     "resources-total": 66,
                     "timestamp": 1,
+                    "duration": DAILY_SECONDS,
+                    "duration/seconds": DAILY_SECONDS,
                 },
                 {
                     "cpu/utilization": 60.0,
@@ -134,6 +137,8 @@ def test_get_resource_data(app_service, mock_application, mock_pod_fixture):
                     "resources-reserved": 0.6,
                     "resources-total": 66,
                     "timestamp": 2,
+                    "duration": DAILY_SECONDS,
+                    "duration/seconds": DAILY_SECONDS,
                 },
                 {
                     "cpu/utilization": 70.0,
@@ -143,6 +148,8 @@ def test_get_resource_data(app_service, mock_application, mock_pod_fixture):
                     "resources-reserved": 0.7,
                     "resources-total": 66,
                     "timestamp": 3,
+                    "duration": DAILY_SECONDS,
+                    "duration/seconds": DAILY_SECONDS,
                 },
             ]
         }
@@ -183,4 +190,4 @@ def test_get_resource_inputs(mock_get_resource_inputs, app_service):
     result = IFAppService.get_resource_inputs(mock_pod, mock_models)
 
     assert result == expected_result
-    mock_get_resource_inputs.assert_called_once_with(mock_pod, mock_models)
+    mock_get_resource_inputs.assert_called_once_with(mock_pod, mock_models, DAILY_SECONDS)

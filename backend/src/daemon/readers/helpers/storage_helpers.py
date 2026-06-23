@@ -11,6 +11,7 @@ from backend.src.schemas.storage_resource import StorageResource
 from backend.src.utils.helpers import(
     str_to_float,
     get_row_data,
+    parse_duration_seconds,
     process_custom_columns,
 )
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
@@ -21,7 +22,7 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
-    SOURCE_STORAGE_DURATION_SECONDS,
+    SOURCE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
     SOURCE_DATE,
     DAILY_SECONDS,
@@ -67,7 +68,6 @@ def create_storage_resource(
     size_gb: float,
     storage_type: str,
     replication_type: str,
-    duration_seconds: int,
 ) -> StorageResource:
     """
     Creates a StorageResource from CSV row data.
@@ -79,8 +79,6 @@ def create_storage_resource(
         size_gb: Calculated storage size
         storage_type: SSD/HDD/Unknown
         replication_type: LRS/GRS/ZRS/etc.
-        duration_seconds: Duration in seconds
-
     Returns:
         StorageResource: Complete storage resource object
     """
@@ -97,7 +95,7 @@ def create_storage_resource(
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         # TODO: study PUE implementation for storage energy computation
         time_points=[],
-        duration_seconds=duration_seconds,
+        duration_seconds=[],
         cost=get_row_data(row[SOURCE_COST]),
     )
 
@@ -148,51 +146,29 @@ def _process_storage_row(
         return False
 
     size_gb_raw = row.get(SOURCE_STORAGE_SIZE_GB)
-    duration_seconds_raw = row.get(SOURCE_STORAGE_DURATION_SECONDS)
-
     if size_gb_raw in (None, ""):
         logger.error("Missing %s for %s", SOURCE_STORAGE_SIZE_GB, storage_id)
         return False
 
-    if duration_seconds_raw in (None, ""):
-        logger.info("Missing %s for %s, using default value %s", SOURCE_STORAGE_DURATION_SECONDS, storage_id, DAILY_SECONDS)
-        duration_seconds_raw = DAILY_SECONDS
-
     try:
         size_gb = str_to_float(size_gb_raw)
-        duration_seconds_value = str_to_float(duration_seconds_raw)
     except ValueError:
         logger.error(
-            "Invalid normalized storage inputs for %s: %s=%r, %s=%r",
+            "Invalid normalized storage inputs for %s: %s=%r",
             storage_id,
             SOURCE_STORAGE_SIZE_GB,
             size_gb_raw,
-            SOURCE_STORAGE_DURATION_SECONDS,
-            duration_seconds_raw,
         )
+        return False
+
+    duration_seconds = parse_duration_seconds(row, storage_id)
+    if duration_seconds is None:
         return False
 
     if size_gb <= 0:
         logger.error("%s must be positive for %s", SOURCE_STORAGE_SIZE_GB, storage_id)
         return False
 
-    if duration_seconds_value <= 0:
-        logger.error(
-            "%s must be positive for %s",
-            SOURCE_STORAGE_DURATION_SECONDS,
-            storage_id,
-        )
-        return False
-
-    if not duration_seconds_value.is_integer():
-        logger.error(
-            "%s must be an integer number of seconds for %s",
-            SOURCE_STORAGE_DURATION_SECONDS,
-            storage_id,
-        )
-        return False
-
-    duration_seconds = int(duration_seconds_value)
     storage_type = get_storage_type(row)
     replication_type = get_replication_type(row)
 
@@ -201,11 +177,12 @@ def _process_storage_row(
 
     if storage_id not in storage_dict:
         storage_dict[storage_id] = create_storage_resource(
-            row, storage_id, size_gb, storage_type, replication_type, duration_seconds
+            row, storage_id, size_gb, storage_type, replication_type
         )
 
     timestamp = row.get(SOURCE_DATE, datetime.now().strftime(DATE_FORMAT))
     storage_dict[storage_id].time_points.append(timestamp)
+    storage_dict[storage_id].duration_seconds.append(duration_seconds)
 
     region = row.get(SOURCE_REGION, UNKNOWN)
     if not region or region == UNKNOWN:

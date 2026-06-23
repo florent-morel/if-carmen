@@ -34,7 +34,7 @@ def base_storage():
         region="francecentral",
         carbon_intensity=44.0,
         time_points=["2021-01-01"],
-        duration_seconds=DAILY_SECONDS,
+        duration_seconds=[DAILY_SECONDS],
         provider="azure",
     )
 
@@ -90,7 +90,7 @@ def test_storage_embodied_computation(base_storage):
         storage.size_gb,
         storage.storage_type,
         storage.replication_type,
-        storage.duration_seconds,
+        storage.duration_seconds[0],
     )
 
     service = IFStorageService(DAILY_SECONDS)

@@ -14,7 +14,7 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE,
     SOURCE_RESOURCE_TYPE_STORAGE,
-    SOURCE_STORAGE_DURATION_SECONDS,
+    SOURCE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
 )
 from backend.src.daemon.readers.reader_storage import Reader_Storage
@@ -29,7 +29,7 @@ _HEADERS = ",".join(
         SOURCE_COST,
         SOURCE_PRODUCT_NAME,
         SOURCE_STORAGE_SIZE_GB,
-        SOURCE_STORAGE_DURATION_SECONDS,
+        SOURCE_DURATION_SECONDS,
     ]
 )
 
@@ -97,12 +97,12 @@ class TestReaderStorage(unittest.TestCase):
         self.assertEqual(first_resource.size_gb, 32.0)
         self.assertEqual(first_resource.storage_type, "SSD")
         self.assertEqual(first_resource.replication_type, "LRS")
-        self.assertEqual(first_resource.duration_seconds, 86400)
+        self.assertEqual(first_resource.duration_seconds, [86400])
 
         self.assertEqual(second_resource.id, "disk-2")
         self.assertEqual(second_resource.size_gb, 64.0)
         self.assertEqual(second_resource.storage_type, "HDD")
-        self.assertEqual(second_resource.duration_seconds, 172800)
+        self.assertEqual(second_resource.duration_seconds, [172800])
 
     def test_reader_storage_dict_log_info(self):
         """Verify dict_log_info counters on a small, controlled CSV."""
@@ -113,7 +113,8 @@ class TestReaderStorage(unittest.TestCase):
                 _HEADERS,
                 _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE, "100.0", "Premium SSD P4 LRS", "32", "86400"),
                 _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE, "50.0", "Standard HDD S4 LRS", "64", "172800"),
-                _make_row("disk-invalid", SOURCE_RESOURCE_TYPE_STORAGE, "10.0", "Snapshot", "64", ""),
+                _make_row("disk-no-duration", SOURCE_RESOURCE_TYPE_STORAGE, "10.0", "Snapshot", "64", ""),
+                _make_row("disk-excluded", SOURCE_RESOURCE_TYPE_STORAGE, "20.0", "Snapshot", "64", "3600s"),
                 _make_row("vm-1", "Compute", "80.0", "VM", "", ""),
                 _make_row("net-1", "Network", "20.0", "Network", "", ""),
             ]
@@ -122,11 +123,11 @@ class TestReaderStorage(unittest.TestCase):
         reader_storage.read(mock_csv_data)
 
         info = reader_storage.dict_log_info
-        self.assertEqual(info["total_rows"], 5)
-        self.assertEqual(info["total_storage_rows"], 3)
+        self.assertEqual(info["total_rows"], 6)
+        self.assertEqual(info["total_storage_rows"], 4)
         self.assertEqual(info["not_storage_rows"], 2)
         self.assertEqual(info["excluded_rows"], 1)
-        self.assertEqual(info["disk_rows"], 2)
+        self.assertEqual(info["disk_rows"], 3)
 
 
 if __name__ == "__main__":

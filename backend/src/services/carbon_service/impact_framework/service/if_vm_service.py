@@ -33,6 +33,7 @@ from backend.src.services.carbon_service.impact_framework.models.power.p_cpu imp
 from backend.src.services.carbon_service.impact_framework.service.if_service import (
     IFService,
 )
+from backend.src.common.constants import DAILY_SECONDS
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +102,6 @@ class IFVMService(IFService, ABC):
         if "sci-m" in data["hardware_models"]:
             data["hardware_models"]["sci-m"] = SciM().__dict__
 
-    # noinspection PyRedundantParentheses
     @staticmethod
     def get_resource_inputs(
         virtual_machine: VirtualMachine,
@@ -109,6 +109,7 @@ class IFVMService(IFService, ABC):
             CloudMetadata,
             PVmStorage,
         ),
+        fallback_duration: int = DAILY_SECONDS,
     ):
         """
         Generate input data for each time point of a VM using the specified models.
@@ -119,4 +120,4 @@ class IFVMService(IFService, ABC):
         ``vcpus-total``, ``vcpus-allocated``, and ``memory/requested`` as plain
         input keys consumed by downstream IF pipeline steps.
         """
-        return IFService.get_resource_inputs(virtual_machine, models)
+        return IFService.get_resource_inputs(virtual_machine, models, fallback_duration)

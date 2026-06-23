@@ -17,7 +17,7 @@ class ECpu(ModelUtilities):
 
     def __init__(self):
         config = {
-            "input-parameters": ["cpu/power", "duration"],
+            "input-parameters": ["cpu/power", "duration/seconds"],
             "output-parameter": " = 'cpu/energy' / 3600",
         }
         output_metadata = [
