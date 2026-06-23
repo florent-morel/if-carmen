@@ -26,12 +26,7 @@ class VirtualMachine(ComputeResource):
     Schema for virtual machine specifics.
     """
 
-    # instance: str | None = None
-    # environment: str | None = None
-    # partition: str | None = None
     vm_size: str | None = None  # cloud/instance-type in IF
-    # service: str | None = None
-    # component: str | None = None
     resource_type: ResourceType = ResourceType.VIRTUAL_MACHINE
     vcpu_count: int | None = None  # from VmNbCpus billing column; used as TDP fallback for unknown types
     storage_size: list[float] = Field(default_factory=list)  # in GB
