@@ -6,18 +6,15 @@ import pytest
 
 from backend.src.schemas.resource import ResourceType
 
-def validate_storage_output(row_by_id, expected_by_id):
+def validate_output(row_by_id, expected_by_id):
     for resource_id, expected in expected_by_id.items():
         row = row_by_id.get(resource_id)
         assert row is not None, f"Missing output row for resource {resource_id}"
 
         # Subtest by resource row: each produced row is validated independently.
-        assert row["ResourceType"] == ResourceType.STORAGE.value, resource_id
-        assert row["Provider"] == "azure", resource_id
-        assert row["Region"] == "westeurope", resource_id
-        assert row["StorageType"] == expected["StorageType"], resource_id
-        assert row["ReplicationType"] == expected["ReplicationType"], resource_id
-        assert float(row["SizeGB"]) == pytest.approx(expected["SizeGB"], rel=1e-6), resource_id
+        assert row["ResourceType"] == expected["ResourceType"], resource_id
+        assert row["Provider"] == expected["Provider"], resource_id
+        assert row["Region"] == expected["Region"], resource_id
 
         assert float(row["EnergyKWH"]) == pytest.approx(expected["EnergyKWH"], rel=1e-3), resource_id
         assert float(row["OperationalCarbonGramsCO2eq"]) == pytest.approx(
@@ -29,6 +26,11 @@ def validate_storage_output(row_by_id, expected_by_id):
         assert float(row["TotalCarbonGramsCO2eq"]) == pytest.approx(
             expected["TotalCarbonGramsCO2eq"], rel=1e-3
         ), resource_id
+        
+        if expected["ResourceType"] == ResourceType.STORAGE.value:
+            assert row["StorageType"] == expected["StorageType"], resource_id
+            assert row["ReplicationType"] == expected["ReplicationType"], resource_id
+            assert float(row["SizeGB"]) == pytest.approx(expected["SizeGB"], rel=1e-6), resource_id
         
 def run_daemon(test_path):
     import csv

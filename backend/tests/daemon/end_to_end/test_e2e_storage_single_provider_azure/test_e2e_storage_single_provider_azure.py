@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pytest
-from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_storage_output
-
+from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
+from backend.src.schemas.resource import ResourceType
 
 def test_e2e_storage_single_provider_azure():
     
@@ -77,6 +77,9 @@ def test_e2e_storage_single_provider_azure():
     expected_by_id = {
         # R1
         "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-lrs": {
+            "ResourceType": ResourceType.STORAGE.value,
+            "Provider": "azure",
+            "Region": "westeurope",
             "StorageType": "SSD",
             "ReplicationType": "LRS",
             "SizeGB": 32.0,
@@ -87,6 +90,9 @@ def test_e2e_storage_single_provider_azure():
         },
         # R2
         "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-grs": {
+            "ResourceType": ResourceType.STORAGE.value,
+            "Provider": "azure",
+            "Region": "westeurope",
             "StorageType": "SSD",
             "ReplicationType": "GRS",
             "SizeGB": 512.0,
@@ -97,6 +103,9 @@ def test_e2e_storage_single_provider_azure():
         },
         # R3
         "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-gzrs": {
+            "ResourceType": ResourceType.STORAGE.value,
+            "Provider": "azure",
+            "Region": "westeurope",
             "StorageType": "Unknown",
             "ReplicationType": "LRS",
             "SizeGB": 128.0,
@@ -107,6 +116,9 @@ def test_e2e_storage_single_provider_azure():
         },
         # R4
         "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-ra_gzrs": {
+            "ResourceType": ResourceType.STORAGE.value,
+            "Provider": "azure",
+            "Region": "westeurope",
             "StorageType": "Unknown",
             "ReplicationType": "LRS",
             "SizeGB": 128.0,
@@ -117,4 +129,4 @@ def test_e2e_storage_single_provider_azure():
         },
     }
     
-    validate_storage_output(row_by_id, expected_by_id)
+    validate_output(row_by_id, expected_by_id)
