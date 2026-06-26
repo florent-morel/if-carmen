@@ -67,13 +67,22 @@ def test_e2e_storage_single_provider_azure():
     #   embodied_gco2e = 3.840e2 * 90 * (86400 / 126230400)
     #                  = 2.365e1
     #   total_gco2e = 2.157 + 23.65 = 25.807
+    #
+    # R5: Same disk as R1 (P4 LRS, 32 GB, 1 month) but in francecentral
+    #   francecentral -> France -> carbon_intensity=44 gCO2e/kWh
+    #   effective_size_gb = 32 * 3 = 96  (same as R1)
+    #   energy_kwh = 96 * 1.200e-6 * 744 = 8.571e-2  (same as R1)
+    #   operational_gco2e = 8.571e-2 * 44 = 3.771
+    #   embodied_gco2e = 96 * 160 * (2.6784e6 / 126230400)
+    #                  = 3.259e2  (same as R1)
+    #   total_gco2e = 3.771 + 325.9138 = 329.685
     # ------------------------------------------------------------------------
     
     output_rows = run_daemon(Path(__file__))
 
     row_by_id = {row["Id"]: row for row in output_rows}
     
-    assert len(output_rows) == 4
+    assert len(output_rows) == 5
     expected_by_id = {
         # R1
         "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-lrs": {
@@ -126,6 +135,19 @@ def test_e2e_storage_single_provider_azure():
             "OperationalCarbonGramsCO2eq": 2.157,
             "EmbodiedCarbonGramsCO2eq": 23.65,
             "TotalCarbonGramsCO2eq": 25.807,
+        },
+        # R5
+        "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-lrs-fr": {
+            "ResourceType": ResourceType.STORAGE.value,
+            "Provider": "azure",
+            "Region": "francecentral",
+            "StorageType": "SSD",
+            "ReplicationType": "LRS",
+            "SizeGB": 32.0,
+            "EnergyKWH": 0.0857,
+            "OperationalCarbonGramsCO2eq": 3.7712,
+            "EmbodiedCarbonGramsCO2eq": 325.9138,
+            "TotalCarbonGramsCO2eq": 329.685,
         },
     }
     

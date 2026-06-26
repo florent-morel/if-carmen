@@ -4,6 +4,8 @@ default_pue: 1.5
 carbon_intensity_by_location:
   Netherlands:
     carbon_intensity: 253
+  France:
+    carbon_intensity: 44
 
 default_device_emissions_embodied: 1999999
 

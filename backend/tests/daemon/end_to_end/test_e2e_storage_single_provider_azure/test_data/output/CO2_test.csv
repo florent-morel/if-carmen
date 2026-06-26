@@ -3,3 +3,4 @@ Date,ResourceType,Id,Name,Provider,Region,EnergyKWH,OperationalCarbonGramsCO2eq,
 2026-06-26,Storage,/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-grs,Premium SSD Managed Disks - S20 GRS Disk - EU West,azure,westeurope,2.7427,693.8984,10429.2402,11123.1387,253.0,100.0,,SSD,GRS,512.0
 2026-06-26,Storage,/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-gzrs,Unknown disk type,azure,westeurope,0.0004,0.0899,0.9856,1.0755,253.0,100.0,,Unknown,LRS,128.0
 2026-06-26,Storage,/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-ra_gzrs,Unknown disk type,azure,westeurope,0.0085,2.1568,23.655,25.8118,253.0,100.0,,Unknown,LRS,128.0
+2026-06-26,Storage,/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-lrs-fr,Premium SSD Managed Disks - P4 LRS Disk - EU West,azure,francecentral,0.0857,3.7712,325.9138,329.6849,44.0,100.0,,SSD,LRS,32.0

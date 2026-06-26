@@ -1,5 +1,6 @@
 regions:
   westeurope: Netherlands
+  francecentral: France
 
 storage_replication_factors:
   lrs: 3
