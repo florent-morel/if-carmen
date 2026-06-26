@@ -6,13 +6,13 @@ import pytest
 
 from backend.src.schemas.resource import ResourceType
 
-str_fields = [
+common_fields_str = [
     "ResourceType",
     "Provider",
     "Region",
 ]
 
-float_fields = [
+common_fields_float = [
     "EnergyKWH",
     "OperationalCarbonGramsCO2eq",
     "EmbodiedCarbonGramsCO2eq",
@@ -39,12 +39,12 @@ def validate_output(row_by_id, expected_result_by_id):
         # This allows for partial validation of the output rows
 
         # Validate string fields
-        for field in str_fields:
+        for field in common_fields_str:
             if field in expected_result:
                 assert actual_result[field] == expected_result[field], f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
 
         # Validate float fields
-        for field in float_fields:
+        for field in common_fields_float:
             if field in expected_result:
                 assert float(actual_result[field]) == pytest.approx(expected_result[field], rel=1e-3), (
                     f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
