@@ -6,46 +6,66 @@ import pytest
 
 from backend.src.schemas.resource import ResourceType
 
-def validate_output(row_by_id, expected_by_id):
-    for resource_id, expected in expected_by_id.items():
-        row = row_by_id.get(resource_id)
-        assert row is not None, f"Missing output row for resource {resource_id}"
+str_fields = [
+    "ResourceType",
+    "Provider",
+    "Region",
+]
 
-        # Subtest by resource row: each produced row is validated independently.
-        assert row["ResourceType"] == expected["ResourceType"], resource_id
-        assert row["Provider"] == expected["Provider"], resource_id
-        assert row["Region"] == expected["Region"], resource_id
+float_fields = [
+    "EnergyKWH",
+    "OperationalCarbonGramsCO2eq",
+    "EmbodiedCarbonGramsCO2eq",
+    "TotalCarbonGramsCO2eq",
+    "CarbonIntensity",
+]
 
-        assert float(row["EnergyKWH"]) == pytest.approx(expected["EnergyKWH"], rel=1e-3), (
-            f"{resource_id}: EnergyKWH actual={row['EnergyKWH']} expected={expected['EnergyKWH']}"
-        )
-        assert float(row["OperationalCarbonGramsCO2eq"]) == pytest.approx(
-            expected["OperationalCarbonGramsCO2eq"], rel=1e-3
-        ), (
-            f"{resource_id}: OperationalCarbonGramsCO2eq actual={row['OperationalCarbonGramsCO2eq']} expected={expected['OperationalCarbonGramsCO2eq']}"
-        )
-        assert float(row["EmbodiedCarbonGramsCO2eq"]) == pytest.approx(
-            expected["EmbodiedCarbonGramsCO2eq"], rel=1e-3
-        ), (
-            f"{resource_id}: EmbodiedCarbonGramsCO2eq actual={row['EmbodiedCarbonGramsCO2eq']} expected={expected['EmbodiedCarbonGramsCO2eq']}"
-        )
-        assert float(row["TotalCarbonGramsCO2eq"]) == pytest.approx(
-            expected["TotalCarbonGramsCO2eq"], rel=1e-3
-        ), (
-            f"{resource_id}: TotalCarbonGramsCO2eq actual={row['TotalCarbonGramsCO2eq']} expected={expected['TotalCarbonGramsCO2eq']}"
-        )
-        assert float(row["CarbonIntensity"]) == pytest.approx(
-            expected["CarbonIntensity"], rel=1e-1
-        ), (
-            f"{resource_id}: CarbonIntensity actual={row['CarbonIntensity']} expected={expected['CarbonIntensity']}"
-        )
+VM_fields = [
+    "VMSize",
+]
 
-        if expected["ResourceType"] == ResourceType.STORAGE.value:
-            assert row["StorageType"] == expected["StorageType"], resource_id
-            assert row["ReplicationType"] == expected["ReplicationType"], resource_id
-            assert float(row["SizeGB"]) == pytest.approx(expected["SizeGB"], rel=1e-6), (
-                f"{resource_id}: SizeGB actual={row['SizeGB']} expected={expected['SizeGB']}"
+storage_fields = [
+    "StorageType",
+    "ReplicationType",
+    "SizeGB",
+]
+
+def validate_output(row_by_id, expected_result_by_id):
+    for resource_id, expected_result in expected_result_by_id.items():
+        actual_result = row_by_id.get(resource_id)
+        assert actual_result is not None, f"Missing output row for resource {resource_id}"
+
+        # Validate fields only if they are present in the expected result
+        # This allows for partial validation of the output rows
+
+        # Validate string fields
+        for field in str_fields:
+            if field in expected_result:
+                assert actual_result[field] == expected_result[field], f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
+
+        # Validate float fields
+        for field in float_fields:
+            if field in expected_result:
+                assert float(actual_result[field]) == pytest.approx(expected_result[field], rel=1e-3), (
+                    f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
             )
+                
+        if expected_result["ResourceType"] == ResourceType.VIRTUAL_MACHINE.value:
+            for field in VM_fields:
+                # By default, VMSize is a string, so we can compare directly
+                if field in expected_result:
+                    assert actual_result[field] == expected_result[field], f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
+
+        if expected_result["ResourceType"] == ResourceType.STORAGE.value:
+            for field in storage_fields:
+                # Float comparison
+                if field == "SizeGB":
+                    assert float(actual_result[field]) == pytest.approx(expected_result[field], rel=1e-6), (
+                        f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
+                    )
+                # String comparison
+                else:
+                    assert actual_result[field] == expected_result[field], f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
 
 def run_daemon(test_path):
     import csv
