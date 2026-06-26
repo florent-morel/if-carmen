@@ -5,7 +5,7 @@ import pytest
 from backend.src.schemas.resource import ResourceType
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 
-def test_e2e_vm_single_provider_azure():
+def test_e2e_misc_services_single_provider_azure():
 
     # ── Carbon/energy computation derivation ─────────────────────────────────
     #
@@ -82,19 +82,20 @@ def test_e2e_vm_single_provider_azure():
 
     row_by_id = {row["Id"]: row for row in output_rows}
 
-    assert len(output_rows) == 1
+    assert len(output_rows) == 3
 
     expected_by_id = {
-        "/subscriptions/sub-test/providers/Microsoft.Compute/virtualMachines/vm-01":
+        "/subscriptions/test-subscription-1/resourceGroups/TEST-RG-NETWORK/providers/Microsoft.Network/azureFirewalls/test-firewall":
             {
-                "ResourceType": ResourceType.VIRTUAL_MACHINE.value,
+                "ResourceType": ResourceType.MISC_SERVICES.value,
                 "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
-                "Region": "eastus",
+                "Region": "westeurope",
                 "EnergyKWH": 0.012,
                 "OperationalCarbonGramsCO2eq": 4.5955,
                 "EmbodiedCarbonGramsCO2eq": 4.2763,
                 "TotalCarbonGramsCO2eq": 8.8718,
+                "CarbonIntensity": 253,
             }
     }
 

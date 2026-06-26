@@ -1,0 +1,4 @@
+Date,ResourceType,Id,Name,Provider,Region,EnergyKWH,OperationalCarbonGramsCO2eq,EmbodiedCarbonGramsCO2eq,TotalCarbonGramsCO2eq,CarbonIntensity,Cost,VMSize,StorageType,ReplicationType,SizeGB
+2026-06-26,MiscServices,/subscriptions/test-subscription-1/resourceGroups/TEST-RG-NETWORK/providers/Microsoft.Network/azureFirewalls/test-firewall,Azure Firewall - Standard - EU West,azure,westeurope,14.1587,3582.1637,3313.75,6895.9137,253.0,120.5,,,,
+2026-06-26,MiscServices,/subscriptions/test-subscription-1/resourceGroups/TEST-RG-NETWORK/providers/Microsoft.Network/ddosProtectionPlans/test-ddos,Azure DDoS Protection - Standard - EU West,azure,westeurope,9.9875,2526.8375,2337.5,4864.3375,253.0,85.0,,,,
+2026-06-26,MiscServices,/subscriptions/test-subscription-2/resourceGroups/TEST-RG-SECURITY/providers/Microsoft.Network/applicationGateways/test-appgw,Azure Application Gateway - Standard V2 - EU North,azure,northeurope,24.7631,6933.675,5795.625,12729.3,280.0,210.75,,,,

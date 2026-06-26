@@ -1,0 +1,29 @@
+---
+carmen_api:
+  thanos_url: "http://localhost:9090"
+  provider: azure
+  authentication: "azure"
+  credentials:
+    client_id: "12345678-1234-1234-1234-123456789012"
+    client_secret: "test-client-secret~dummy-value-for-testing"
+    tenant_id: "12345678-1234-1234-1234-123456789012"
+  scope: "https://graph.microsoft.com/.default"
+  external_labels:
+    cluster: "test-cluster"
+    environment: "test"
+  labels:
+    app_label: "label_app_kubernetes_io/part_of"
+    cluster_label: "stack"
+    pod_label: "pod"
+    namespace_label: "namespace"
+  verify_ssl: false
+
+carmen_daemon:
+  source:
+    input_path: "backend/tests/daemon/end_to_end/test_e2e_misc_services_single_provider_azure/test_data/input"
+  output:
+    output_path: "backend/tests/daemon/end_to_end/test_e2e_misc_services_single_provider_azure/test_data/output"
+    output_file_name: "CO2_test"
+  orchestrator:
+    list_processors:
+      - Processor_Misc_Services
