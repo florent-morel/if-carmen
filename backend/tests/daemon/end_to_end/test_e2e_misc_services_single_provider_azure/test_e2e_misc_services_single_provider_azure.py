@@ -85,7 +85,7 @@ def test_e2e_misc_services_single_provider_azure():
     assert len(output_rows) == 3
 
     expected_by_id = {
-        "/subscriptions/test-subscription-1/resourceGroups/TEST-RG-NETWORK/providers/Microsoft.Network/azureFirewalls/test-firewall":
+        "Test_ID_Misc_Services_01":
             {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "VMSize": "Standard_A1_v2",

@@ -85,7 +85,7 @@ def test_e2e_storage_single_provider_azure():
     assert len(output_rows) == 5
     expected_by_id = {
         # R1
-        "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-lrs": {
+        "Test_ID_Storage_01": {
             "ResourceType": ResourceType.STORAGE.value,
             "Provider": "azure",
             "Region": "westeurope",
@@ -96,9 +96,10 @@ def test_e2e_storage_single_provider_azure():
             "OperationalCarbonGramsCO2eq": 21.6843,
             "EmbodiedCarbonGramsCO2eq": 325.9138,
             "TotalCarbonGramsCO2eq": 347.5981,
+            "CarbonIntensity": 253,
         },
         # R2
-        "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-grs": {
+        "Test_ID_Storage_02": {
             "ResourceType": ResourceType.STORAGE.value,
             "Provider": "azure",
             "Region": "westeurope",
@@ -109,9 +110,10 @@ def test_e2e_storage_single_provider_azure():
             "OperationalCarbonGramsCO2eq": 693.8984,
             "EmbodiedCarbonGramsCO2eq": 10429.2402,
             "TotalCarbonGramsCO2eq": 11123.1387,
+            "CarbonIntensity": 253,
         },
         # R3
-        "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-gzrs": {
+        "Test_ID_Storage_03": {
             "ResourceType": ResourceType.STORAGE.value,
             "Provider": "azure",
             "Region": "westeurope",
@@ -122,9 +124,10 @@ def test_e2e_storage_single_provider_azure():
             "OperationalCarbonGramsCO2eq": 0.0899,
             "EmbodiedCarbonGramsCO2eq": 0.9856,
             "TotalCarbonGramsCO2eq": 1.0755,
+            "CarbonIntensity": 253,
         },
         # R4
-        "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-ra_gzrs": {
+        "Test_ID_Storage_04": {
             "ResourceType": ResourceType.STORAGE.value,
             "Provider": "azure",
             "Region": "westeurope",
@@ -135,9 +138,10 @@ def test_e2e_storage_single_provider_azure():
             "OperationalCarbonGramsCO2eq": 2.157,
             "EmbodiedCarbonGramsCO2eq": 23.65,
             "TotalCarbonGramsCO2eq": 25.807,
+            "CarbonIntensity": 253,
         },
         # R5
-        "/subscriptions/sub-test/providers/Microsoft.Compute/disks/disk-ssd-lrs-fr": {
+        "Test_ID_Storage_05": {
             "ResourceType": ResourceType.STORAGE.value,
             "Provider": "azure",
             "Region": "francecentral",
@@ -148,6 +152,7 @@ def test_e2e_storage_single_provider_azure():
             "OperationalCarbonGramsCO2eq": 3.7712,
             "EmbodiedCarbonGramsCO2eq": 325.9138,
             "TotalCarbonGramsCO2eq": 329.685,
+            "CarbonIntensity": 44,
         },
     }
     

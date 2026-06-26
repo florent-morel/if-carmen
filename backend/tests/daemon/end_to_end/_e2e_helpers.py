@@ -16,24 +16,36 @@ def validate_output(row_by_id, expected_by_id):
         assert row["Provider"] == expected["Provider"], resource_id
         assert row["Region"] == expected["Region"], resource_id
 
-        assert float(row["EnergyKWH"]) == pytest.approx(expected["EnergyKWH"], rel=1e-3), [row["EnergyKWH"], expected["EnergyKWH"]]
+        assert float(row["EnergyKWH"]) == pytest.approx(expected["EnergyKWH"], rel=1e-3), (
+            f"{resource_id}: EnergyKWH actual={row['EnergyKWH']} expected={expected['EnergyKWH']}"
+        )
         assert float(row["OperationalCarbonGramsCO2eq"]) == pytest.approx(
             expected["OperationalCarbonGramsCO2eq"], rel=1e-3
-        ), resource_id
+        ), (
+            f"{resource_id}: OperationalCarbonGramsCO2eq actual={row['OperationalCarbonGramsCO2eq']} expected={expected['OperationalCarbonGramsCO2eq']}"
+        )
         assert float(row["EmbodiedCarbonGramsCO2eq"]) == pytest.approx(
             expected["EmbodiedCarbonGramsCO2eq"], rel=1e-3
-        ), resource_id
+        ), (
+            f"{resource_id}: EmbodiedCarbonGramsCO2eq actual={row['EmbodiedCarbonGramsCO2eq']} expected={expected['EmbodiedCarbonGramsCO2eq']}"
+        )
         assert float(row["TotalCarbonGramsCO2eq"]) == pytest.approx(
             expected["TotalCarbonGramsCO2eq"], rel=1e-3
-        ), resource_id
+        ), (
+            f"{resource_id}: TotalCarbonGramsCO2eq actual={row['TotalCarbonGramsCO2eq']} expected={expected['TotalCarbonGramsCO2eq']}"
+        )
         assert float(row["CarbonIntensity"]) == pytest.approx(
             expected["CarbonIntensity"], rel=1e-1
-        ), resource_id
+        ), (
+            f"{resource_id}: CarbonIntensity actual={row['CarbonIntensity']} expected={expected['CarbonIntensity']}"
+        )
 
         if expected["ResourceType"] == ResourceType.STORAGE.value:
             assert row["StorageType"] == expected["StorageType"], resource_id
             assert row["ReplicationType"] == expected["ReplicationType"], resource_id
-            assert float(row["SizeGB"]) == pytest.approx(expected["SizeGB"], rel=1e-6), resource_id
+            assert float(row["SizeGB"]) == pytest.approx(expected["SizeGB"], rel=1e-6), (
+                f"{resource_id}: SizeGB actual={row['SizeGB']} expected={expected['SizeGB']}"
+            )
 
 def run_daemon(test_path):
     import csv

@@ -85,7 +85,7 @@ def test_e2e_vm_single_provider_azure():
     assert len(output_rows) == 1
 
     expected_by_id = {
-        "/subscriptions/sub-test/providers/Microsoft.Compute/virtualMachines/vm-01":
+        "Test_ID_VM_01":
             {
                 "ResourceType": ResourceType.VIRTUAL_MACHINE.value,
                 "VMSize": "Standard_A1_v2",
@@ -95,6 +95,7 @@ def test_e2e_vm_single_provider_azure():
                 "OperationalCarbonGramsCO2eq": 4.5955,
                 "EmbodiedCarbonGramsCO2eq": 4.2763,
                 "TotalCarbonGramsCO2eq": 8.8718,
+                "CarbonIntensity": 384,
             }
     }
 
