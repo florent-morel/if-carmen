@@ -270,8 +270,13 @@ class CarbonDaemonOrchestrator:
                 self.list_input_file = self.load_input_files(input_path)
 
                 logger.info(f"output_path: {self.config.output.output_path}")
+                if self.config.output.output_file_name:
+                    output_file_name = f"{self.config.output.output_file_name}.csv"
+                else:
+                    # No file name found in config, fallback to CO2_date.csv
+                    output_file_name = f"CO2_{self.date}.csv"
                 self.output_file: str = os.path.join(
-                    str(self.config.output.output_path), f"CO2_{self.date}.csv"
+                    str(self.config.output.output_path), output_file_name
                 )
 
                 logger.info("Carmen Daemon initialized")

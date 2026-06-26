@@ -91,6 +91,7 @@ class SourceConfig(BaseSettings):
 
 class OutputConfig(BaseSettings):
     output_path: str | None = None
+    output_file_name: str | None = None
 
 
 class DaemonConfig(BaseSettings):

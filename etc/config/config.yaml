@@ -23,6 +23,8 @@ carmen_daemon:
     input_path: "/tmp/test-data"
   output:
     output_path: "/tmp/test-output"
+    # If output_file_name not filled fall back to: CO2_{date}.csv
+    output_file_name:
   orchestrator:
     list_processors:
       - Processor_Compute

@@ -23,6 +23,7 @@ carmen_daemon:
     input_path: "backend/tests/daemon/end_to_end/test_e2e_vm_single_provider_azure/test_data/input"
   output:
     output_path: "backend/tests/daemon/end_to_end/test_e2e_vm_single_provider_azure/test_data/output"
+    output_file_name: "CO2_test"
   orchestrator:
     list_processors:
       - Processor_Compute
