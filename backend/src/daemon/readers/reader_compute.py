@@ -109,6 +109,8 @@ class Reader_Compute(AbstractReader):
                 if vm_id not in vm_dict:
                     self.process_unknown_regions(row[SOURCE_REGION])
                     self.process_unknown_providers(row[SOURCE_PROVIDER])
+                    # Create a new VirtualMachine object and add it to the dictionary
+                    # Set values of non-time-series fields
                     new_vm = create_vm(row, vm_id)
                     vm_dict[vm_id] = new_vm
                     new_vm_rows += 1
@@ -121,7 +123,8 @@ class Reader_Compute(AbstractReader):
                 if duration_seconds is None:
                     excluded_rows += 1
                     continue
-
+                
+                # Append list values for time-series fields
                 vm_dict[vm_id].cpu_util.append(
                     str_to_float(row[SOURCE_VM_AVG_CPU_UTIL_PERCENT]) / 100
                 )

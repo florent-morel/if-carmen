@@ -8,7 +8,10 @@ import re
 from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
-from backend.src.utils.helpers import get_row_data
+from backend.src.utils.helpers import (
+    str_to_float,
+    get_row_data,
+)
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_NAME,
@@ -16,6 +19,7 @@ from backend.src.common.constants import (
     SOURCE_COST,
     SOURCE_VM_SIZE,
     SOURCE_VM_NB_VCPUS,
+    UNKNOWN,
 )
 
 
@@ -48,7 +52,7 @@ def parse_vcpu_count_from_azure_vm_size(vm_size: str) -> int | None:
 
 def _parse_vcpu_count_from_row(row: dict[str, str]) -> int | None:
     """Parse VmNbCpus from input CSV row; returns None if absent or non-numeric."""
-    raw = get_row_data(row.get(SOURCE_VM_NB_VCPUS, ""))
+    raw = get_row_data(row, SOURCE_VM_NB_VCPUS, "")
     if not raw:
         return None
     try:
@@ -61,21 +65,21 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
     """
     Creates a new VirtualMachine instance based on the provided row data.
     """
-    region = get_row_data(row[SOURCE_REGION])
-    provider = get_row_data(row[SOURCE_PROVIDER])
+    region = get_row_data(row, SOURCE_REGION, UNKNOWN)
+    provider = get_row_data(row, SOURCE_PROVIDER, UNKNOWN)
     provider_config = config.provider_configs.get(provider)
     return VirtualMachine(
         id=vm_id,
-        region=region,
-        vm_size=get_row_data(row[SOURCE_VM_SIZE]),
-        name=get_row_data(row[SOURCE_RESOURCE_NAME]),
-        carbon_intensity=PaasCiMapper.calculate_ci(region),
+        name=get_row_data(row, SOURCE_RESOURCE_NAME, ""),
         provider=provider,
+        region=region,
+        cost=str_to_float(get_row_data(row, SOURCE_COST, "0.0")),
+        vm_size=get_row_data(row, SOURCE_VM_SIZE, UNKNOWN),
+        vcpu_count=_parse_vcpu_count_from_row(row),
+        carbon_intensity=PaasCiMapper.calculate_ci(region),
         pue=(
             provider_config.get_pue()
             if provider_config
             else config.carbon_values_config.default_pue
         ),
-        cost=get_row_data(row[SOURCE_COST]),
-        vcpu_count=_parse_vcpu_count_from_row(row),
     )

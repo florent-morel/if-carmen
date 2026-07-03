@@ -53,23 +53,19 @@ def create_storage_resource(
     Returns:
         StorageResource: Complete storage resource object
     """
-    region = row.get(SOURCE_REGION, UNKNOWN)
-    storage_type=UNKNOWN
-    logger.info(f"storage_type: {storage_type}")
+    region = get_row_data(row, SOURCE_REGION, fallback_value=UNKNOWN)
 
     return StorageResource(
         id=storage_id,
-        name=row.get(SOURCE_RESOURCE_NAME, ""),
-        provider=row.get(SOURCE_PROVIDER, ""),
-        storage_type=row.get(SOURCE_STORAGE_TYPE, UNKNOWN),
-        replication_type=row.get((SOURCE_STORAGE_REPLICATION_TYPE)),
+        name=get_row_data(row, SOURCE_RESOURCE_NAME, ""),
+        provider=get_row_data(row, SOURCE_PROVIDER, UNKNOWN),
+        storage_type=get_row_data(row, SOURCE_STORAGE_TYPE, UNKNOWN),
+        replication_type=get_row_data(row, SOURCE_STORAGE_REPLICATION_TYPE, UNKNOWN),
         size_gb=size_gb,
         region=region,
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         # TODO: study PUE implementation for storage energy computation
-        time_points=[],
-        duration_seconds=[],
-        cost=get_row_data(row[SOURCE_COST]),
+        cost=str_to_float(get_row_data(row, SOURCE_COST, "0.0")),
     )
 
 

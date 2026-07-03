@@ -342,11 +342,12 @@ def get_timestamps(
     return timestamps
 
 
-def get_row_data(row_data: str) -> str:
+def get_row_data(row: dict, row_column: str, fallback_value : str = "") -> str:
     """
     Helper function to get row data, returns empty string if the data is missing or represented as '-'.
     """
-    return row_data if row_data != "-" and row_data else ""
+    row_data = row.get(row_column)
+    return row_data if row_data != "-" and row_data else fallback_value
 
 
 def get_duration_raw_with_fallback(row: dict, resource_id: str) -> str | int:

@@ -133,8 +133,8 @@ def _create_virtual_machine(row):
         id=row[SOURCE_RESOURCE_ID],
         region=row[SOURCE_REGION],
         vm_size=row[SOURCE_VM_SIZE],
-        name=get_row_data(row[SOURCE_RESOURCE_NAME]),
-        provider=get_row_data(row[SOURCE_PROVIDER]),
+        name=get_row_data(row, SOURCE_RESOURCE_NAME, ""),
+        provider=get_row_data(row, SOURCE_PROVIDER, UNKNOWN),
         storage_size=[],
         pue=_DEFAULT_PUE,
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
@@ -213,10 +213,10 @@ def _create_storage_resource(row):
     return StorageResource(
         id=row.get("ResourceId", ""),
         name=row.get(SOURCE_RESOURCE_NAME, ""),
-        provider=row.get(SOURCE_PROVIDER, ""),
+        provider=row.get(SOURCE_PROVIDER, UNKNOWN),
         region=row.get(SOURCE_REGION, UNKNOWN),
-        storage_type=row.get(SOURCE_STORAGE_TYPE),
-        replication_type=row.get((SOURCE_STORAGE_REPLICATION_TYPE)),
+        storage_type=row.get(SOURCE_STORAGE_TYPE, UNKNOWN),
+        replication_type=row.get(SOURCE_STORAGE_REPLICATION_TYPE, UNKNOWN),
         size_gb=str_to_float(row.get("Quantity", "0")),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
     )
@@ -282,10 +282,10 @@ def _create_misc_services_resource(row):
              SampleTimestamp, Cost, ...
     """
     return MiscServicesResource(
-        id=row.get("ResourceId", ""),
-        name=row.get("ResourceName", ""),
-        provider=row.get("Provider", ""),
-        region=row.get("ResourceLocation", ""),
+        id=get_row_data(row, "ResourceId", ""),
+        name=get_row_data(row, "ResourceName", ""),
+        provider=get_row_data(row, "Provider", UNKNOWN),
+        region=get_row_data(row, "ResourceLocation", UNKNOWN),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
-        cost=str_to_float(row.get("Cost", "0")),
+        cost=str_to_float(get_row_data(row, "Cost", "0")),
     )
