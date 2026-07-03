@@ -101,7 +101,7 @@ def test_get_resource_inputs(
     mock_misc_services_resource.compute_cost = 30.0
     mock_misc_services_resource.storage_cost = 40.0
     mock_misc_services_resource.time_points = [0]
-    mock_misc_services_resource.duration_seconds = DAILY_SECONDS
+    mock_misc_services_resource.duration_seconds = [DAILY_SECONDS]
 
     resource_inputs = IFMiscServicesService.get_resource_inputs(
         mock_misc_services_resource
