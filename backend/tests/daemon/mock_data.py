@@ -23,7 +23,7 @@ from backend.src.common.constants import (
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
-    SOURCE_DATE,
+    SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_TIME,
     SOURCE_VM_SIZE,
     SOURCE_VM_NB_VCPUS,
@@ -67,8 +67,9 @@ def _get_vm_sample_file_path(hour, config: DaemonConfig):
         str: The path to the sample file.
     """
     return os.path.join(
-        os.path.dirname(config.source.input_path), "test_data", f"vm_usage_hour_"
-    f"{hour}.csv"
+        os.path.dirname(
+            config.source.input_path), "test_data", f"vm_usage_hour_"
+        f"{hour}.csv"
     )
 
 
@@ -294,7 +295,7 @@ def _create_misc_services_resource(row):
     """
     Creates a MiscServicesResource from a billing CSV row (misc_services-model format).
     Columns: ResourceId, ProductName, ResourceLocation,
-             Date, Cost, ...
+             SampleTimestamp, Cost, ...
     """
     return MiscServicesResource(
         id=row.get("ResourceId", ""),

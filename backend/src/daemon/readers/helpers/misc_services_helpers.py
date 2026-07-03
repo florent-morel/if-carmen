@@ -17,7 +17,7 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
-    SOURCE_DATE,
+    SOURCE_SAMPLE_TIMESTAMP,
     DATE_FORMAT,
     UNKNOWN,
 )
@@ -76,7 +76,7 @@ def create_misc_services_resource(row):
             duration_seconds=[duration_seconds],
         )
         timestamp = row.get(
-            SOURCE_DATE, datetime.now().strftime(DATE_FORMAT)
+            SOURCE_SAMPLE_TIMESTAMP, datetime.now().strftime(DATE_FORMAT)
         )
         misc_services_resource.time_points = [timestamp]
     return misc_services_resource

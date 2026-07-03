@@ -1,29 +1,29 @@
-Id,Size,Region,Name,Provider,AverageVmCpuUtilPercent,Time,VmDiskSizeGb
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,51.3,2024-02-01 00:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,54.2,2024-02-01 01:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,58.7,2024-02-01 02:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,55.9,2024-02-01 03:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,43.8,2024-02-01 00:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,46.5,2024-02-01 01:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,49.2,2024-02-01 02:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,44.1,2024-02-01 03:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,69.1,2024-02-01 00:00:00,256
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,73.5,2024-02-01 01:00:00,256
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,76.8,2024-02-01 02:00:00,256
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,71.2,2024-02-01 03:00:00,256
-/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,27.8,2024-02-01 00:00:00,64
-/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,29.4,2024-02-01 01:00:00,64
-/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,31.2,2024-02-01 02:00:00,64
-/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,26.5,2024-02-01 03:00:00,64
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,81.7,2024-02-01 00:00:00,512
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,86.3,2024-02-01 01:00:00,512
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,88.9,2024-02-01 02:00:00,512
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,83.4,2024-02-01 03:00:00,512
-/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,19.2,2024-02-01 00:00:00,64
-/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,21.5,2024-02-01 01:00:00,64
-/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,17.8,2024-02-01 02:00:00,64
-/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,20.3,2024-02-01 03:00:00,64
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,34.5,2024-02-01 00:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,37.2,2024-02-01 01:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,39.8,2024-02-01 02:00:00,128
-/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,35.6,2024-02-01 03:00:00,128
+Region,Name,Provider,AverageVmCpuUtilPercent,SampleTimestamp,VmDiskSizeGb
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,51.3,2024-02-01T00:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,54.2,2024-02-01T01:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,58.7,2024-02-01T02:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,Standard_D4s_v3,eastus,web-vm-01,azure,55.9,2024-02-01T03:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,43.8,2024-02-01T00:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,46.5,2024-02-01T01:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,49.2,2024-02-01T02:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,Standard_D4s_v3,westeurope,web-vm-02,azure,44.1,2024-02-01T03:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,69.1,2024-02-01T00:00:00Z,256
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,73.5,2024-02-01T01:00:00Z,256
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,76.8,2024-02-01T02:00:00Z,256
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,Standard_D8s_v3,eastus,api-vm-01,azure,71.2,2024-02-01T03:00:00Z,256
+/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,27.8,2024-02-01T00:00:00Z,64
+/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,29.4,2024-02-01T01:00:00Z,64
+/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,31.2,2024-02-01T02:00:00Z,64
+/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,Standard_B2ms,westeurope,test-vm-01,azure,26.5,2024-02-01T03:00:00Z,64
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,81.7,2024-02-01T00:00:00Z,512
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,86.3,2024-02-01T01:00:00Z,512
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,88.9,2024-02-01T02:00:00Z,512
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,Standard_E16s_v3,northeurope,db-vm-01,azure,83.4,2024-02-01T03:00:00Z,512
+/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,19.2,2024-02-01T00:00:00Z,64
+/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,21.5,2024-02-01T01:00:00Z,64
+/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,17.8,2024-02-01T02:00:00Z,64
+/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,Standard_D2s_v3,eastus2,dev-vm-01,azure,20.3,2024-02-01T03:00:00Z,64
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,34.5,2024-02-01T00:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,37.2,2024-02-01T01:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,39.8,2024-02-01T02:00:00Z,128
+/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,Standard_D4s_v3,uksouth,cache-vm-01,azure,35.6,2024-02-01T03:00:00Z,128

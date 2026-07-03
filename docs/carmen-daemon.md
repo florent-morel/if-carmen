@@ -98,8 +98,8 @@ Not implemented yet.
 
 The daemon expects to read a group of csv files containing resource usage data. Below is a description for each column expected in the CSV input.
 
-For all resource rows, input data can include `DurationSeconds` to represent the usage duration for that row.
-If `DurationSeconds` is missing or empty, Carmen applies a default value of `86400` seconds.
+For all resource rows, input data can include `SampleDurationSeconds` to represent the usage duration for that row.
+If `SampleDurationSeconds` is missing or empty, Carmen applies a default value of `86400` seconds.
 
 Internally, Carmen stores per-observation durations as a list (`duration_seconds`) aligned with
 resource `time_points`. For convenience when constructing schema objects in code/tests,
@@ -123,7 +123,7 @@ TODO: review this.
 | AverageVmCpuUtilPercent | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | VmDiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
 | StorageSizeGB | Required for storage rows. Normalized storage capacity in gigabytes. | 512 |
-| DurationSeconds | Recommended for all resource rows. Duration represented by the row, in seconds. If missing or empty, Carmen defaults to 86400. | 3600 |
+| SampleDurationSeconds | Recommended for all resource rows. Duration represented by the row, in seconds. If missing or empty, Carmen defaults to 86400. | 3600 |
 | ReplicationType | Storage replication type | GRS, LRS |
 
 ### Storage-specific ingestion contract
@@ -131,13 +131,13 @@ TODO: review this.
 Storage input files must include the following columns for every row where `MeterCategory` is `Storage`:
 
 - `StorageSizeGB`
-- `DurationSeconds`
+- `SampleDurationSeconds`
 
 These values are part of the source contract.
 
 - `StorageSizeGB` is required and must be numeric and strictly positive.
-- `DurationSeconds` should be provided by the source. If it is missing or empty, Carmen applies the default duration `86400` seconds (1 day).
-- If `DurationSeconds` is non-numeric, zero, negative, or fractional, Carmen skips the row.
+- `SampleDurationSeconds` should be provided by the source. If it is missing or empty, Carmen applies the default duration `86400` seconds (1 day).
+- If `SampleDurationSeconds` is non-numeric, zero, negative, or fractional, Carmen skips the row.
 
 
 ### Technical required data

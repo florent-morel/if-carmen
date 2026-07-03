@@ -14,7 +14,7 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE,
     SOURCE_RESOURCE_TYPE_STORAGE,
-    SOURCE_DURATION_SECONDS,
+    SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
 )
 from backend.src.daemon.readers.reader_storage import Reader_Storage
@@ -29,7 +29,7 @@ _HEADERS = ",".join(
         SOURCE_COST,
         SOURCE_PRODUCT_NAME,
         SOURCE_STORAGE_SIZE_GB,
-        SOURCE_DURATION_SECONDS,
+        SOURCE_SAMPLE_DURATION_SECONDS,
     ]
 )
 
@@ -80,8 +80,10 @@ class TestReaderStorage(unittest.TestCase):
         mock_csv_data = "\n".join(
             [
                 _HEADERS,
-                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE, "100.0", "Premium SSD P4 LRS", "32", "86400"),
-                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE, "50.0", "Standard HDD S4 LRS", "64", "172800"),
+                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE,
+                          "100.0", "Premium SSD P4 LRS", "32", "86400"),
+                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE,
+                          "50.0", "Standard HDD S4 LRS", "64", "172800"),
                 _make_row("vm-1", "Compute", "80.0", "VM", "", ""),
             ]
         )
@@ -111,10 +113,14 @@ class TestReaderStorage(unittest.TestCase):
         mock_csv_data = "\n".join(
             [
                 _HEADERS,
-                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE, "100.0", "Premium SSD P4 LRS", "32", "86400"),
-                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE, "50.0", "Standard HDD S4 LRS", "64", "172800"),
-                _make_row("disk-no-duration", SOURCE_RESOURCE_TYPE_STORAGE, "10.0", "Snapshot", "64", ""),
-                _make_row("disk-excluded", SOURCE_RESOURCE_TYPE_STORAGE, "20.0", "Snapshot", "64", "3600s"),
+                _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE,
+                          "100.0", "Premium SSD P4 LRS", "32", "86400"),
+                _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE,
+                          "50.0", "Standard HDD S4 LRS", "64", "172800"),
+                _make_row("disk-no-duration", SOURCE_RESOURCE_TYPE_STORAGE,
+                          "10.0", "Snapshot", "64", ""),
+                _make_row("disk-excluded", SOURCE_RESOURCE_TYPE_STORAGE,
+                          "20.0", "Snapshot", "64", "3600s"),
                 _make_row("vm-1", "Compute", "80.0", "VM", "", ""),
                 _make_row("net-1", "Network", "20.0", "Network", "", ""),
             ]

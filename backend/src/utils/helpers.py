@@ -23,7 +23,7 @@ from backend.src.common.constants import (
     DATE_FORMAT,
     EXECUTION_DATE,
     DAILY_SECONDS,
-    SOURCE_DURATION_SECONDS,
+    SOURCE_SAMPLE_DURATION_SECONDS,
     RATE_TO_DURATION,
 )
 from backend.src.common.enums import SamplingRate
@@ -122,7 +122,8 @@ def run_command_and_parse_json(command: list[str]) -> dict[str, Any] | None:
     :return: The parsed JSON output as a dictionary, or None if an error occurs.
     """
     try:
-        result = subprocess.run(command, stdout=subprocess.PIPE, text=True, check=True)
+        result = subprocess.run(
+            command, stdout=subprocess.PIPE, text=True, check=True)
         if result.stdout is None:
             logger.error("Command did not produce any output.")
             return None
@@ -206,7 +207,7 @@ def group_clusters_by_level(
         list: List of sublists where each sublist contains clusters according to grouping_level.
     """
     return [
-        cluster_list[i : i + grouping_level]
+        cluster_list[i: i + grouping_level]
         for i in range(0, len(cluster_list), grouping_level)
     ]
 
@@ -352,14 +353,14 @@ def get_duration_raw_with_fallback(row: dict, resource_id: str) -> str | int:
     """
     Return raw duration value from a CSV row, applying default fallback when missing.
 
-    This helper centralizes the repeated "read DurationSeconds or fallback to
+    This helper centralizes the repeated "read SampleDurationSeconds or fallback to
     DAILY_SECONDS" behavior across resource readers.
     """
-    duration_raw = row.get(SOURCE_DURATION_SECONDS)
+    duration_raw = row.get(SOURCE_SAMPLE_DURATION_SECONDS)
     if duration_raw in (None, ""):
         logger.info(
             "Missing %s for %s, using default value %s",
-            SOURCE_DURATION_SECONDS,
+            SOURCE_SAMPLE_DURATION_SECONDS,
             resource_id,
             DAILY_SECONDS,
         )
@@ -369,7 +370,7 @@ def get_duration_raw_with_fallback(row: dict, resource_id: str) -> str | int:
 
 def parse_duration_seconds(row: dict, resource_id: str) -> int | None:
     """
-    Parse and validate DurationSeconds from a CSV row.
+    Parse and validate SampleDurationSeconds from a CSV row.
 
     Returns the normalized integer duration in seconds, or None when invalid.
     """
@@ -379,7 +380,7 @@ def parse_duration_seconds(row: dict, resource_id: str) -> int | None:
     except ValueError:
         logger.error(
             "Invalid %s for %s: %r",
-            SOURCE_DURATION_SECONDS,
+            SOURCE_SAMPLE_DURATION_SECONDS,
             resource_id,
             duration_raw,
         )
@@ -388,7 +389,7 @@ def parse_duration_seconds(row: dict, resource_id: str) -> int | None:
     if duration_seconds <= 0 or not duration_seconds.is_integer():
         logger.error(
             "%s must be a positive integer number of seconds for %s",
-            SOURCE_DURATION_SECONDS,
+            SOURCE_SAMPLE_DURATION_SECONDS,
             resource_id,
         )
         return None
@@ -403,7 +404,8 @@ def process_custom_columns(resource: Resource, row: dict, list_ignore_column: li
     logger.info(f"Processing custom columns for resource.id: {resource.id}")
     for column_name, column_value in row.items():
         if column_name and column_name not in list_ignore_column:
-            logger.debug(f"Storing custom column --{column_name}-- with value --{column_value}--")
+            logger.debug(
+                f"Storing custom column --{column_name}-- with value --{column_value}--")
             resource.dict_custom_columns[column_name] = column_value
 
 

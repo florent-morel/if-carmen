@@ -1,4 +1,4 @@
-ResourceId,ResourceType,Provider,Region,Date,ProductName,Cost
+ResourceId,ResourceType,Provider,Region,SampleTimestamp,ProductName,Cost
 /subscriptions/test-subscription-1/resourceGroups/TEST-RG-NETWORK/providers/Microsoft.Network/azureFirewalls/test-firewall,network,azure,westeurope,08/05/2024,Azure Firewall - Standard - EU West,120.50
 /subscriptions/test-subscription-1/resourceGroups/TEST-RG-NETWORK/providers/Microsoft.Network/ddosProtectionPlans/test-ddos,network,azure,westeurope,08/05/2024,Azure DDoS Protection - Standard - EU West,85.00
 /subscriptions/test-subscription-2/resourceGroups/TEST-RG-SECURITY/providers/Microsoft.Network/applicationGateways/test-appgw,network,azure,northeurope,08/05/2024,Azure Application Gateway - Standard V2 - EU North,210.75

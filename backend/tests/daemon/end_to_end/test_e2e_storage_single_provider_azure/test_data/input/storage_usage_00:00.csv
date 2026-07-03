@@ -1,6 +1,5 @@
-Date,Time,ResourceType,ResourceId,Region,Name,Provider,Cost,ProductName,StorageSizeGB,DurationSeconds
-2024-05-08,2024-05-08T00:00:00Z,Storage,Test_ID_Storage_01,westeurope,disk-ssd-lrs,azure,100,Premium SSD Managed Disks - P4 LRS Disk - EU West,32,2678400
-2024-05-08,2024-05-08T00:00:00Z,Storage,Test_ID_Storage_02,westeurope,disk-ssd-grs,azure,100,Premium SSD Managed Disks - S20 GRS Disk - EU West,512,2678400
-2024-05-08,2024-05-08T00:00:00Z,Storage,Test_ID_Storage_03,westeurope,disk-ssd-gzrs,azure,100,Unknown disk type,128,3600
-2024-05-08,2024-05-08T00:00:00Z,Storage,Test_ID_Storage_04,westeurope,disk-ssd-ra_gzrs,azure,100,Unknown disk type,128,
-2024-05-08,2024-05-08T00:00:00Z,Storage,Test_ID_Storage_05,francecentral,disk-ssd-lrs-fr,azure,100,Premium SSD Managed Disks - P4 LRS Disk - EU West,32,2678400
+SampleTimestamp,Time,ResourceType,ResourceId,Region,Name,Provider,Cost,ProductName,StorageSizeGBStorage,Test_ID_Storage_01,westeurope,disk-ssd-lrs,azure,100,Premium SSD Managed Disks - P4 LRS Disk - EU West,32,2678400
+2024-05-08T00:00:00Z,Storage,Test_ID_Storage_02,westeurope,disk-ssd-grs,azure,100,Premium SSD Managed Disks - S20 GRS Disk - EU West,512,2678400
+2024-05-08T00:00:00Z,Storage,Test_ID_Storage_03,westeurope,disk-ssd-gzrs,azure,100,Unknown disk type,128,3600
+2024-05-08T00:00:00Z,Storage,Test_ID_Storage_04,westeurope,disk-ssd-ra_gzrs,azure,100,Unknown disk type,128,
+2024-05-08T00:00:00Z,Storage,Test_ID_Storage_05,francecentral,disk-ssd-lrs-fr,azure,100,Premium SSD Managed Disks - P4 LRS Disk - EU West,32,2678400

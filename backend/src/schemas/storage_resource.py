@@ -10,11 +10,11 @@ from __future__ import annotations
 from pydantic import Field
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.common.constants import (
-    SOURCE_DURATION_SECONDS,
+    SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE,
     SOURCE_REGION,
-    SOURCE_DATE,
+    SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_PROVIDER,
     SOURCE_PRODUCT_NAME,
     SOURCE_COST,
@@ -44,12 +44,13 @@ class StorageResource(Resource):
         list_mandatory_columns: list[str] = [
             SOURCE_RESOURCE_ID,
             SOURCE_RESOURCE_TYPE,
-            SOURCE_REGION,
             SOURCE_PROVIDER,
-            SOURCE_DATE,
+            SOURCE_REGION,
+            SOURCE_SAMPLE_TIMESTAMP,
+            SOURCE_SAMPLE_DURATION_SECONDS,
+
             SOURCE_PRODUCT_NAME,
             SOURCE_COST,
             SOURCE_STORAGE_SIZE_GB,
-            SOURCE_DURATION_SECONDS,
         ]
         return list_mandatory_columns

@@ -17,7 +17,7 @@ from backend.src.utils.helpers import (
 )
 
 from backend.src.common.constants import (
-    SOURCE_DURATION_SECONDS,
+    SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
@@ -64,7 +64,8 @@ class Reader_Compute(AbstractReader):
             return self.list_resources_to_process
 
         except Exception as e:
-            logger.error("Failed to read files from local filesystem %s", str(e))
+            logger.error(
+                "Failed to read files from local filesystem %s", str(e))
             raise
 
     def process_csv_data(
@@ -99,7 +100,8 @@ class Reader_Compute(AbstractReader):
             total_rows += 1
             resource_type = row.get(SOURCE_RESOURCE_TYPE, "")
             if not resource_type or resource_type.lower() != SOURCE_RESOURCE_TYPE_COMPUTE.lower():
-                logger.info(f"Resource __{resource_type}__ is not of type {SOURCE_RESOURCE_TYPE_COMPUTE}, skipping it.")
+                logger.info(f"Resource __{resource_type}__ is not of type {
+                            SOURCE_RESOURCE_TYPE_COMPUTE}, skipping it.")
                 skipped_rows += 1
                 continue
             vm_id = row[SOURCE_RESOURCE_ID]
@@ -111,7 +113,8 @@ class Reader_Compute(AbstractReader):
                     vm_dict[vm_id] = new_vm
                     new_vm_rows += 1
                 else:
-                    logger.info(f"Id __{vm_id}__ already found previously, skipping it and logging a duplicate row.")
+                    logger.info(f"Id __{
+                                vm_id}__ already found previously, skipping it and logging a duplicate row.")
                     duplicate_rows += 1
 
                 duration_seconds = parse_duration_seconds(row, vm_id)
@@ -124,9 +127,11 @@ class Reader_Compute(AbstractReader):
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
                 vm_dict[vm_id].duration_seconds.append(duration_seconds)
-                vm_dict[vm_id].storage_size.append(str_to_float(row[SOURCE_VM_DISK_SIZE_GB]))
+                vm_dict[vm_id].storage_size.append(
+                    str_to_float(row[SOURCE_VM_DISK_SIZE_GB]))
                 # End of row process, fetch custom columns
-                process_custom_columns(vm_dict[vm_id], row, VirtualMachine.mandatory_columns())
+                process_custom_columns(
+                    vm_dict[vm_id], row, VirtualMachine.mandatory_columns())
             except ValidationError:
                 logger.exception("Validation error for VM %s", vm_id)
                 excluded_rows += 1
@@ -148,10 +153,14 @@ class Reader_Compute(AbstractReader):
                     len(self.list_resources_to_process))
 
         logger.debug("Compute processing summary:")
-        logger.debug("  Total rows: %s", self.dict_log_info.get("total_rows", 0))
-        logger.debug("  New VM rows: %s", self.dict_log_info.get("new_vm_rows", 0))
-        logger.debug("  Duplicate rows (time-series): %s", self.dict_log_info.get("duplicate_rows", 0))
-        logger.debug("  Excluded rows: %s", self.dict_log_info.get("excluded_rows", 0))
+        logger.debug("  Total rows: %s",
+                     self.dict_log_info.get("total_rows", 0))
+        logger.debug("  New VM rows: %s",
+                     self.dict_log_info.get("new_vm_rows", 0))
+        logger.debug("  Duplicate rows (time-series): %s",
+                     self.dict_log_info.get("duplicate_rows", 0))
+        logger.debug("  Excluded rows: %s",
+                     self.dict_log_info.get("excluded_rows", 0))
 
         self.log_unknown_info()
 

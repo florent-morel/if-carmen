@@ -33,25 +33,27 @@ RATE_TO_DURATION = {
 CSV_PATH: str = "CSV_PATH"
 CSV_FILE_ENCODING: str = "utf-8"
 
-
+# Generic columns common to all resources
 SOURCE_RESOURCE_ID = "ResourceId"
 SOURCE_NAME = "Name"
 SOURCE_PROVIDER = "Provider"
 SOURCE_REGION = "Region"
 SOURCE_COST = "Cost"
-SOURCE_DATE = "Date"
+SOURCE_SAMPLE_TIMESTAMP = "SampleTimestamp"
 SOURCE_TIME = "Time"
 SOURCE_RESOURCE_TYPE = "ResourceType"
 SOURCE_RESOURCE_TYPE_COMPUTE = "Compute"
 SOURCE_RESOURCE_TYPE_STORAGE = "Storage"
 SOURCE_RESOURCE_TYPE_SERVICE = "Service"
 SOURCE_PRODUCT_NAME = "ProductName"
+
+# Resource specific columns
 SOURCE_VM_AVG_CPU_UTIL_PERCENT = "AverageVmCpuUtilPercent"
 SOURCE_VM_DISK_SIZE_GB = "VmDiskSizeGb"
 SOURCE_VM_NB_VCPUS = "VmNbCpus"
 SOURCE_VM_SIZE = "VmSize"
 SOURCE_STORAGE_SIZE_GB = "StorageSizeGB"
-SOURCE_DURATION_SECONDS = "DurationSeconds"
+SOURCE_SAMPLE_DURATION_SECONDS = "SampleDurationSeconds"
 UNKNOWN = "Unknown"
 
 # Computation formats
@@ -81,7 +83,8 @@ IF_FILES_DIR = os.path.join(
 
 PLUGIN_PATH = os.path.join(
     os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))))
     ),
     "misc-services-model-plugin/build",
 )
@@ -93,7 +96,7 @@ MODELS_CPU_CORES_UTILIZED = "cpu-cores-utilized"
 MODELS_CPU_TDP = "cpu-tdp"
 MODELS_MEMORY_AVAIL = "memory-available"
 
-#TODO: To be cleaned up. Do we really need singular and plural versions of these constants?
+# TODO: To be cleaned up. Do we really need singular and plural versions of these constants?
 IF_INPUT_INPUT_PARAMETER = "input-parameter"
 IF_INPUT_INPUT_PARAMETERS = "input-parameters"
 IF_INPUT_OUTPUT_PARAMETER = "output-parameter"

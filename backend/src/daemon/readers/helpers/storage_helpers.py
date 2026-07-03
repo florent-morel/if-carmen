@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 
 from backend.src.schemas.storage_resource import StorageResource
-from backend.src.utils.helpers import(
+from backend.src.utils.helpers import (
     str_to_float,
     get_row_data,
     parse_duration_seconds,
@@ -22,9 +22,9 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_COST,
     SOURCE_PRODUCT_NAME,
-    SOURCE_DURATION_SECONDS,
+    SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
-    SOURCE_DATE,
+    SOURCE_SAMPLE_TIMESTAMP,
     DAILY_SECONDS,
     DATE_FORMAT,
     UNKNOWN,
@@ -142,7 +142,8 @@ def _process_storage_row(
     """
     storage_id = row.get(SOURCE_RESOURCE_ID, "")
     if not storage_id:
-        logger.error("No ResourceID found for %s", row.get(SOURCE_RESOURCE_ID, ""))
+        logger.error("No ResourceID found for %s",
+                     row.get(SOURCE_RESOURCE_ID, ""))
         return False
 
     size_gb_raw = row.get(SOURCE_STORAGE_SIZE_GB)
@@ -166,21 +167,24 @@ def _process_storage_row(
         return False
 
     if size_gb <= 0:
-        logger.error("%s must be positive for %s", SOURCE_STORAGE_SIZE_GB, storage_id)
+        logger.error("%s must be positive for %s",
+                     SOURCE_STORAGE_SIZE_GB, storage_id)
         return False
 
     storage_type = get_storage_type(row)
     replication_type = get_replication_type(row)
 
     if size_gb > MAX_STORAGE_SIZE_GB_WARNING_THRESHOLD:
-        logger.warning("Unusually large disk: %sGB for %s", size_gb, storage_id)
+        logger.warning("Unusually large disk: %sGB for %s",
+                       size_gb, storage_id)
 
     if storage_id not in storage_dict:
         storage_dict[storage_id] = create_storage_resource(
             row, storage_id, size_gb, storage_type, replication_type
         )
 
-    timestamp = row.get(SOURCE_DATE, datetime.now().strftime(DATE_FORMAT))
+    timestamp = row.get(SOURCE_SAMPLE_TIMESTAMP,
+                        datetime.now().strftime(DATE_FORMAT))
     storage_dict[storage_id].time_points.append(timestamp)
     storage_dict[storage_id].duration_seconds.append(duration_seconds)
 

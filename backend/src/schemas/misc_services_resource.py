@@ -1,9 +1,9 @@
 from backend.src.schemas.resource import Resource, ResourceType
 from backend.src.common.constants import (
-    SOURCE_DURATION_SECONDS,
+    SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
-    SOURCE_DATE,
+    SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_PROVIDER,
     SOURCE_PRODUCT_NAME,
     SOURCE_RESOURCE_TYPE,
@@ -36,8 +36,8 @@ class MiscServicesResource(Resource):
             SOURCE_REGION,
             SOURCE_PROVIDER,
             SOURCE_RESOURCE_TYPE,
-            SOURCE_DATE,
-            SOURCE_DURATION_SECONDS,
+            SOURCE_SAMPLE_TIMESTAMP,
+            SOURCE_SAMPLE_DURATION_SECONDS,
             SOURCE_PRODUCT_NAME,
             SOURCE_COST,
         ]

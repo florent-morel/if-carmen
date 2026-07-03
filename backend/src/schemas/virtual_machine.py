@@ -12,9 +12,10 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_TYPE,
     SOURCE_REGION,
     SOURCE_PROVIDER,
+    SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_TIME,
-    SOURCE_DURATION_SECONDS,
+    SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_VM_DISK_SIZE_GB,
     # TODO: Add DISK_TYPE (akin to storage_type for storage resources, to be then propagated in computation)
     # At the moment we always fallback on the default values for the VMs' disk.
@@ -29,7 +30,8 @@ class VirtualMachine(ComputeResource):
 
     vm_size: str | None = None  # cloud/instance-type in IF
     resource_type: ResourceType = ResourceType.VIRTUAL_MACHINE
-    vcpu_count: int | None = None  # from VmNbCpus billing column; used as TDP fallback for unknown types
+    # from VmNbCpus billing column; used as TDP fallback for unknown types
+    vcpu_count: int | None = None
     storage_size: list[float] = Field(default_factory=list)  # in GB
 
     @staticmethod
@@ -39,9 +41,10 @@ class VirtualMachine(ComputeResource):
             SOURCE_RESOURCE_TYPE,
             SOURCE_PROVIDER,
             SOURCE_REGION,
+            SOURCE_SAMPLE_TIMESTAMP,
+            SOURCE_SAMPLE_DURATION_SECONDS,
+
             SOURCE_VM_AVG_CPU_UTIL_PERCENT,
-            SOURCE_TIME,
-            SOURCE_DURATION_SECONDS,
             SOURCE_VM_DISK_SIZE_GB,
             SOURCE_COST,
         ]

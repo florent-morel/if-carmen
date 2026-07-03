@@ -5,6 +5,7 @@ import pytest
 from backend.src.schemas.resource import ResourceType
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 
+
 def test_e2e_vm_single_provider_azure():
 
     # ── Carbon/energy computation derivation ─────────────────────────────────
@@ -17,7 +18,7 @@ def test_e2e_vm_single_provider_azure():
     #   cpu-cores-available=52, cpu-cores-utilized=1, cpu-tdp=205 W, memory=2 GB
     #   vm_tdp = 205 × (1/52) = 3.9423 W   ← TDP scaled to the allocated core share
     #
-    # duration = DurationSeconds = 3600 s per observation
+    # duration = SampleDurationSeconds = 3600 s per observation
     #
     # ── Energy per observation (SCI-E pipeline) ──────────────────────────────
     #
