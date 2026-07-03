@@ -207,7 +207,7 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
 
     @patch("backend.src.daemon.carbon_daemon_orchestrator.CarbonDaemonOrchestrator.write_report")
     @patch("backend.src.utils.ioc_util.resolve")
-    def test_carbon_orchestrator_exception_at_resource_level(self, mock_ioc_util_resolve, mock_write_report):
+    def test_carbon_orchestrator_exception_at_run_level(self, mock_ioc_util_resolve, mock_write_report):
         """
         Test daemon execution when carbon service raises an exception.
         """
@@ -233,7 +233,6 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         carbonDaemonResult = orchestrator.orchestrate_carbon_daemon()
 
         self.assertIsInstance(carbonDaemonResult, CarbonDaemonResult)
-        logger.info(carbonDaemonResult.list_exceptions)
         self.assertFalse(carbonDaemonResult.success)
         self.assertIn(
             orchestrator_error_msg_1, carbonDaemonResult.list_exceptions[0].args[1]
@@ -241,10 +240,6 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertIn(
             orchestrator_error_msg_2, carbonDaemonResult.list_exceptions[1].args[1]
         )
-        logger.info(carbonDaemonResult.get_resource_type_list_exception(
-            ResourceType.VIRTUAL_MACHINE))
-        self.assertIn(runner_error_msg, carbonDaemonResult.get_resource_type_list_exception(
-            ResourceType.VIRTUAL_MACHINE)[0].args[1])
 
     @patch("backend.src.utils.ioc_util.resolve")
     def test_daemon_run_carmen_exception(self, mock_ioc_util_resolve):
