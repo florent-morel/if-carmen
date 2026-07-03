@@ -19,16 +19,16 @@ CSV and returns four values consumed by the IF pipeline:
 
 When the instance type is absent from the CSV, TDP and core counts are
 unavailable.  Because TDP is exclusively sourced from the CSV, a CSV hit
-already provides everything needed — billing vCPU count is redundant in that
+already provides everything needed — input CSV vCPU count is redundant in that
 case.  When the CSV lookup misses, the chain is:
 
-       a. Billing VmNbCpus (``vm.vcpu_count``, populated by ``create_vm`` from
-          the billing export's VmNbCpus column). 
+       a. Input VmNbCpus (``vm.vcpu_count``, populated by ``create_vm`` from
+          the input CSV's VmNbCpus column). 
           VM value reported by the cloud provider.
 
        b. Name-parsing heuristic : try to extract the digit from the instance type
           name (e.g. ``Standard_D32as_v5`` → 32). 
-          Less reliable than billing data: constrained-core variants 
+          Less reliable than input CSV data: constrained-core variants 
           (e.g. ``Standard_E32-8s_v3``) can encode a different number 
           than the actual vCPU count.
 
@@ -136,7 +136,7 @@ class CloudMetadata:
         cpu/thermal-design-power = cpu-tdp × (vcpus-utilized / vcpus-available)
 
     For VM types not present in the instances CSV the fallback chain is applied
-    (billing VmNbCpus → name parsing → CarmenException).
+    (input CSV VmNbCpus → name parsing → CarmenException).
     """
 
     @staticmethod
@@ -187,14 +187,14 @@ class CloudMetadata:
     def _resolve_vcpu_count(vm: VirtualMachine, cpu_max: float) -> int:
         """
         Fallback chain for VMs whose instance type is absent from the CSV:
-          1. Billing VmNbCpus column (``vm.vcpu_count``, set by ``create_vm``)
+          1. Input CSV VmNbCpus column (``vm.vcpu_count``, set by ``create_vm``)
           2. Azure name-parsing heuristic (e.g. ``Standard_D32as_v5`` → 32),
              only attempted when ``vm.provider == "azure"``
           3. Raise CarmenException
         """
         if vm.vcpu_count is not None:
             logger.warning(
-                "VM '%s' (type '%s') not in instances CSV; using billing VCpuCount=%d "
+                "VM '%s' (type '%s') not in instances CSV; using input CSV VCpuCount=%d "
                 "as TDP fallback (%.2f W)",
                 vm.name,
                 vm.vm_size,
@@ -221,7 +221,7 @@ class CloudMetadata:
             ErrorCode.UNKNOWN_VM_INSTANCE_TYPE,
             details=(
                 f"VM '{vm.name}' has instance type '{vm.vm_size}' which is not in the "
-                f"provider instances CSV, has no VCpuCount in the billing data, and could "
+                f"provider instances CSV, has no VCpuCount in the input CSV, and could "
                 f"not be resolved from the instance type name. Cannot compute CPU energy."
             ),
         )

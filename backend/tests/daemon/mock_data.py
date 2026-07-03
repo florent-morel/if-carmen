@@ -205,7 +205,7 @@ def _process_storage_row(row, storage_dict):
 
 def _create_storage_resource(row):
     """
-    Creates a StorageResource from a billing CSV row (storage_test.csv format).
+    Creates a StorageResource from input CSV row (storage_test.csv format).
     Columns: TODO
     """
     product_name = row.get("ProductName", "")
@@ -293,7 +293,7 @@ def _process_misc_services_row(row, misc_dict):
 
 def _create_misc_services_resource(row):
     """
-    Creates a MiscServicesResource from a billing CSV row (misc_services-model format).
+    Creates a MiscServicesResource from input CSV row (misc_services-model format).
     Columns: ResourceId, ProductName, ResourceLocation,
              SampleTimestamp, Cost, ...
     """

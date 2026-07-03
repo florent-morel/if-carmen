@@ -47,7 +47,7 @@ def parse_vcpu_count_from_azure_vm_size(vm_size: str) -> int | None:
 
 
 def _parse_vcpu_count_from_row(row: dict[str, str]) -> int | None:
-    """Parse VmNbCpus from a billing CSV row; returns None if absent or non-numeric."""
+    """Parse VmNbCpus from input CSV row; returns None if absent or non-numeric."""
     raw = get_row_data(row.get(SOURCE_VM_NB_VCPUS, ""))
     if not raw:
         return None

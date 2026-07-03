@@ -76,7 +76,7 @@ class TestCreateVmVcpuCount(unittest.TestCase):
 
     @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
     @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
-    def test_vcpu_count_populated_from_billing_column(self, mock_config, mock_mapper):
+    def test_vcpu_count_populated_from_input_csv_column(self, mock_config, mock_mapper):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
         mock_mapper.calculate_ci.return_value = 200.0
 
