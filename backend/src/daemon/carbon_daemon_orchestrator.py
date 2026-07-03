@@ -431,6 +431,7 @@ class CarbonDaemonOrchestrator:
                         len(all_resources_to_process),
                         read_time,
                     )
+                    logger.info(f"Resources fetched from input: {all_resources_to_process}")
                 else:
                     message = "No resources found."
                     self.update_carbon_daemon_result(

@@ -39,19 +39,6 @@ _DEFAULT_PUE = 1.5
 logger = logging.getLogger(__name__)
 
 
-def read_sample_vm_data(file_dict, _destination_folder, config: DaemonConfig):
-    """
-    Reads VM data from multiple hourly sample CSV files and merges all hourly entries for each VM into a single object.
-    TODO: Maybe this is out of Carmen scope...
-    """
-    vms_dict = {}
-    for group, files in file_dict.items():
-        logger.debug(f"Reading file group '{group}'...")
-        for file_name in files:
-            _process_vm_file(file_name, vms_dict, config)
-    return list(vms_dict.values())
-
-
 def _process_vm_file(file_name, vms_dict, config: DaemonConfig):
     """
     Processes a file by extracting the hour from the file name, determining the sample file path,
