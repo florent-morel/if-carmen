@@ -52,7 +52,7 @@ def test_register_app(mock_register_models, mock_register_router, mock_fastapi):
     mock_register_models.assert_called_once()
 
 
-@patch("backend.src.core.registrar.api_router")
+@patch("backend.src.api.api.api_router")
 def test_register_router(mock_api_router):
     """
     Test registering router with FastAPI application.
