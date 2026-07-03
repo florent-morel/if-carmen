@@ -1,3 +1,3 @@
 Date,Time,ResourceType,ResourceId,AverageVmCpuUtilPercent,Region,Name,VmSize,VmNbCpus,VmDiskSizeGb,Provider,Cost
-2024-12-09,06:10:00,Compute,/subscriptions/92c669c2-8bb7-4c50-94b7-24e2867ca637/resourceGroups/RG-REG-USE-AVD-001/providers/Microsoft.Compute/virtualMachines/USEAVDD409-0,9,eastus,USEAVDD409-0,Standard_D4as_v5,4,128,azure,150
-2024-12-09,06:10:00,Compute,/subscriptions/92c669c2-8bb7-4c50-94b7-24e2867ca637/resourceGroups/RG-REG-USE-AVD-001/providers/Microsoft.Compute/virtualMachines/USEAVDD409-5,,eastus,USEAVDD409-5,Standard_D4as_v5,4,128,azure,100
+2024-12-09,06:10:00,Compute,Test_VM_ID_01,9,eastus,USEAVDD409-0,Standard_D4as_v5,4,128,azure,150
+2024-12-09,06:10:00,Compute,Test_VM_ID_02,,eastus,USEAVDD409-5,Standard_D4as_v5,4,128,azure,100
