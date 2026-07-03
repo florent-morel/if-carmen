@@ -30,6 +30,7 @@ storage_fields = [
     "SizeGB",
 ]
 
+
 def validate_output(row_by_id, expected_result_by_id):
     for resource_id, expected_result in expected_result_by_id.items():
         actual_result = row_by_id.get(resource_id)
@@ -48,8 +49,8 @@ def validate_output(row_by_id, expected_result_by_id):
             if field in expected_result:
                 assert float(actual_result[field]) == pytest.approx(expected_result[field], rel=1e-3), (
                     f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
-            )
-                
+                )
+
         if expected_result["ResourceType"] == ResourceType.VIRTUAL_MACHINE.value:
             for field in VM_fields:
                 # By default, VMSize is a string, so we can compare directly
@@ -66,6 +67,7 @@ def validate_output(row_by_id, expected_result_by_id):
                 # String comparison
                 else:
                     assert actual_result[field] == expected_result[field], f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
+
 
 def run_daemon(test_path):
     import csv
