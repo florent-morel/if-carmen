@@ -10,18 +10,18 @@ from unittest.mock import MagicMock, patch
 from backend.src.common.constants import (
     DAILY_SECONDS,
     SOURCE_COST,
-    SOURCE_PRODUCT_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_RESOURCE_ID,
     SOURCE_SAMPLE_DURATION_SECONDS,
+    SOURCE_STORAGE_TYPE,
+    SOURCE_STORAGE_REPLICATION_TYPE,
     SOURCE_STORAGE_SIZE_GB,
 )
 from backend.src.daemon.readers.helpers.storage_helpers import (
     _process_storage_row,
     create_storage_resource,
-    get_replication_type,
-    get_storage_type,
 )
 from backend.src.schemas.storage_resource import StorageResource
 
@@ -35,71 +35,42 @@ class TestStorageHelpers(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.sample_ssd_row = {
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_RESOURCE_ID: "test_line_123",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
             SOURCE_SAMPLE_DURATION_SECONDS: "86400",
+            SOURCE_STORAGE_TYPE: "SSD",
+            SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
         }
 
+        # TODO: Not used (hence not tested)
         self.sample_hdd_row = {
-            SOURCE_PRODUCT_NAME: "Standard HDD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Standard HDD Managed Disks",
             SOURCE_RESOURCE_ID: "test_line_456",
             SOURCE_REGION: "germanywestcentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "64",
             SOURCE_SAMPLE_DURATION_SECONDS: "172800",
+            SOURCE_STORAGE_TYPE: "HDD",
+            SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
         }
-
-    def test_get_storage_type_premium_ssd(self):
-        """Test storage type detection for Premium SSD."""
-        storage_type = get_storage_type(self.sample_ssd_row)
-        self.assertEqual(storage_type, "SSD")
-
-    def test_get_storage_type_standard_hdd(self):
-        """Test storage type detection for Standard HDD."""
-        storage_type = get_storage_type(self.sample_hdd_row)
-        self.assertEqual(storage_type, "HDD")
-
-    def test_get_storage_type_unknown(self):
-        """Test storage type detection for unknown type."""
-        row = {SOURCE_PRODUCT_NAME: "Unknown Storage Type"}
-        with self.assertLogs(level="WARNING") as log:
-            storage_type = get_storage_type(row)
-        self.assertEqual(storage_type, "Unknown")
-        self.assertIn("Unknown disk type", log.output[0])
-
-    def test_get_replication_type_lrs(self):
-        """Test replication type detection for LRS."""
-        row = {SOURCE_PRODUCT_NAME: "Premium SSD - LRS"}
-        replication_type = get_replication_type(row)
-        self.assertEqual(replication_type, "LRS")
-
-    def test_get_replication_type_grs(self):
-        """Test replication type detection for GRS."""
-        row = {SOURCE_PRODUCT_NAME: "Storage - GRS"}
-        replication_type = get_replication_type(row)
-        self.assertEqual(replication_type, "GRS")
-
-    def test_get_replication_type_default_lrs(self):
-        """Test replication type defaults to LRS for unknown types."""
-        row = {SOURCE_PRODUCT_NAME: "Unknown Storage"}
-        replication_type = get_replication_type(row)
-        self.assertEqual(replication_type, "LRS")
 
     def test_process_storage_row_parses_normalized_inputs(self):
         """Test storage row processing from explicit normalized columns."""
         row = {
             SOURCE_RESOURCE_ID: "disk-normalized",
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128.5",
             SOURCE_SAMPLE_DURATION_SECONDS: "5400",
+            SOURCE_STORAGE_TYPE: "SSD",
+            SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
         }
         storage_dict = {}
 
@@ -114,7 +85,7 @@ class TestStorageHelpers(unittest.TestCase):
         """Missing StorageSizeGB should reject the row."""
         row = {
             SOURCE_RESOURCE_ID: "disk-missing-size",
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
@@ -133,7 +104,7 @@ class TestStorageHelpers(unittest.TestCase):
         """Non-numeric normalized inputs should reject the row."""
         row = {
             SOURCE_RESOURCE_ID: "disk-invalid-values",
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
@@ -153,7 +124,7 @@ class TestStorageHelpers(unittest.TestCase):
         """Fractional SampleDurationSeconds should reject the row."""
         row = {
             SOURCE_RESOURCE_ID: "disk-fractional-seconds",
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
@@ -182,7 +153,7 @@ class TestStorageHelpers(unittest.TestCase):
             with self.subTest(expected_field=expected_field):
                 row = {
                     SOURCE_RESOURCE_ID: "disk-invalid",
-                    SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+                    SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
                     SOURCE_REGION: "francecentral",
                     SOURCE_PROVIDER: "azure",
                     SOURCE_COST: "0.0",
@@ -201,12 +172,14 @@ class TestStorageHelpers(unittest.TestCase):
         """Missing SampleDurationSeconds should fallback to DAILY_SECONDS."""
         row = {
             SOURCE_RESOURCE_ID: "disk-missing-duration",
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
             SOURCE_SAMPLE_DURATION_SECONDS: "",
+            SOURCE_STORAGE_TYPE: "SSD",
+            SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
         }
         storage_dict = {}
 
@@ -229,12 +202,14 @@ class TestStorageHelpers(unittest.TestCase):
         """None SampleDurationSeconds should fallback to DAILY_SECONDS."""
         row = {
             SOURCE_RESOURCE_ID: "disk-none-duration",
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
             SOURCE_SAMPLE_DURATION_SECONDS: None,
+            SOURCE_STORAGE_TYPE: "SSD",
+            SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
         }
         storage_dict = {}
 
@@ -261,7 +236,7 @@ class TestStorageHelpers(unittest.TestCase):
         mock_ci_calculator.return_value = 250.0
 
         storage_resource = create_storage_resource(
-            self.sample_ssd_row, "test_storage_123", 128.0, "SSD", "LRS"
+            self.sample_ssd_row, "test_storage_123", 128.0
         )
 
         self.assertIsInstance(storage_resource, StorageResource)
@@ -327,11 +302,11 @@ class TestStorageHelpers(unittest.TestCase):
                             SOURCE_REGION: region,
                             SOURCE_RESOURCE_ID: "test",
                             SOURCE_COST: "0.0",
+                            SOURCE_STORAGE_TYPE: "SSD",
+                            SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
                         },
                         "test_id",
                         100.0,
-                        "SSD",
-                        "LRS",
                     )
 
                     self.assertEqual(storage.carbon_intensity, expected_ci)
@@ -347,11 +322,11 @@ class TestStorageHelpers(unittest.TestCase):
                     SOURCE_REGION: "unknown_region",
                     SOURCE_RESOURCE_ID: "test",
                     SOURCE_COST: "0.0",
+                    SOURCE_STORAGE_TYPE: "SSD",
+                    SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
                 },
                 "test_id",
                 100.0,
-                "SSD",
-                "LRS",
             )
 
             self.assertEqual(storage.carbon_intensity, 281)
@@ -362,27 +337,23 @@ class TestProcessStorageRow(unittest.TestCase):
 
     def setUp(self):
         self.sample_row = {
-            SOURCE_PRODUCT_NAME: "Premium SSD Managed Disks",
+            SOURCE_RESOURCE_NAME: "Premium SSD Managed Disks",
             SOURCE_RESOURCE_ID: "test_line_123",
             SOURCE_REGION: "francecentral",
             SOURCE_PROVIDER: "azure",
             SOURCE_COST: "0.0",
             SOURCE_STORAGE_SIZE_GB: "128",
             SOURCE_SAMPLE_DURATION_SECONDS: "86400",
+            SOURCE_STORAGE_TYPE: "SSD",
+            SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
         }
 
-    @patch("backend.src.daemon.readers.helpers.storage_helpers.get_storage_type")
-    @patch("backend.src.daemon.readers.helpers.storage_helpers.get_replication_type")
     @patch("backend.src.daemon.readers.helpers.storage_helpers.create_storage_resource")
     def test_process_storage_row_success(
         self,
         mock_create_storage,
-        mock_get_replication,
-        mock_get_storage_type,
     ):
         """Test successful processing of a storage row."""
-        mock_get_storage_type.return_value = "SSD"
-        mock_get_replication.return_value = "LRS"
         mock_storage_resource = MagicMock()
         mock_storage_resource.id = self.sample_row[SOURCE_RESOURCE_ID]
         mock_storage_resource.dict_custom_columns = {}
@@ -399,8 +370,6 @@ class TestProcessStorageRow(unittest.TestCase):
             self.sample_row,
             self.sample_row[SOURCE_RESOURCE_ID],
             128.0,
-            "SSD",
-            "LRS",
         )
 
     def test_process_storage_row_zero_size(self):

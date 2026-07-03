@@ -1,2 +1,2 @@
-SampleTimestamp,Time,ResourceType,ResourceId,AverageVmCpuUtilPercent,Region,Name,VmSize,VmNbCpus,VmDiskSizeGb,SampleDurationSeconds,Provider,Cost
+SampleTimestamp,ResourceType,ResourceId,AverageVmCpuUtilPercent,Region,ResourceName,VmSize,VmNbCpus,VmDiskSizeGb,SampleDurationSeconds,Provider,Cost
 2024-05-08T01:00:00Z,Compute,Test_ID_VM_01,20,eastus,vm-01,Standard_A1_v2,1,128,3600,azure,100

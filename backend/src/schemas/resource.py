@@ -12,6 +12,17 @@ from enum import Enum
 from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
+from backend.src.common.constants import (
+    SOURCE_SAMPLE_DURATION_SECONDS,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_TYPE,
+    SOURCE_REGION,
+    SOURCE_SAMPLE_TIMESTAMP,
+    SOURCE_PROVIDER,
+    SOURCE_RESOURCE_NAME,
+    SOURCE_COST,
+)
+
 
 class ResourceType(Enum):
     """Supported resources types."""
@@ -80,3 +91,17 @@ class Resource(ABC, BaseModel):
             raise ValueError(
                 "duration_seconds must be an integer or list of integers"
             ) from err
+
+    @staticmethod
+    def common_mandatory_columns() -> list[str]:
+        list_mandatory_columns: list[str] = [
+            SOURCE_RESOURCE_ID,
+            SOURCE_RESOURCE_TYPE,
+            SOURCE_RESOURCE_NAME,
+            SOURCE_PROVIDER,
+            SOURCE_REGION,
+            SOURCE_SAMPLE_TIMESTAMP,
+            SOURCE_SAMPLE_DURATION_SECONDS,
+            SOURCE_COST,
+        ]
+        return list_mandatory_columns

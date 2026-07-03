@@ -22,7 +22,7 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
-    SOURCE_TIME,
+    SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_VM_DISK_SIZE_GB,
     SOURCE_RESOURCE_TYPE,
     SOURCE_RESOURCE_TYPE_COMPUTE,
@@ -125,7 +125,7 @@ class Reader_Compute(AbstractReader):
                 vm_dict[vm_id].cpu_util.append(
                     str_to_float(row[SOURCE_VM_AVG_CPU_UTIL_PERCENT]) / 100
                 )
-                vm_dict[vm_id].time_points.append(row[SOURCE_TIME])
+                vm_dict[vm_id].time_points.append(row[SOURCE_SAMPLE_TIMESTAMP])
                 vm_dict[vm_id].duration_seconds.append(duration_seconds)
                 vm_dict[vm_id].storage_size.append(
                     str_to_float(row[SOURCE_VM_DISK_SIZE_GB]))

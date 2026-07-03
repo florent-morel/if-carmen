@@ -4,17 +4,18 @@ import pytest
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 from backend.src.schemas.resource import ResourceType
 
+
 def test_e2e_storage_single_provider_azure():
-    
+
     # -- Storage carbon/energy computation derivation -------------------------
     #
     #   Input data
-    #   R1: ProductName="... P4 LRS Disk ...", StorageSizeGB=32, Duration=2678400 s
-    #   R2: ProductName="... S20 GRS Disk ...", StorageSizeGB=512, Duration=2678400 s
-    #   R3: ProductName="Unknown disk type", StorageSizeGB=128, Duration=3600 s
-    #   R4: ProductName="Unknown disk type", StorageSizeGB=128, Duration not specified
+    #   R1: ResourceName="... P4 LRS Disk ...", StorageSizeGB=32, Duration=2678400 s
+    #   R2: ResourceName="... S20 GRS Disk ...", StorageSizeGB=512, Duration=2678400 s
+    #   R3: ResourceName="Unknown disk type", StorageSizeGB=128, Duration=3600 s
+    #   R4: ResourceName="Unknown disk type", StorageSizeGB=128, Duration not specified
     #
-    #   Note: replication type is inferred from ProductName.
+    #   Note: replication type is inferred from ResourceName.
     #   For "Unknown disk type", no GRS/GZRS/LRS token is present, so replication defaults to LRS.
     #
     # Constants (from test_data modelling constants)
@@ -77,11 +78,11 @@ def test_e2e_storage_single_provider_azure():
     #                  = 3.259e2  (same as R1)
     #   total_gco2e = 3.771 + 325.9138 = 329.685
     # ------------------------------------------------------------------------
-    
+
     output_rows = run_daemon(Path(__file__))
 
     row_by_id = {row["Id"]: row for row in output_rows}
-    
+
     assert len(output_rows) == 5
     expected_by_id = {
         # R1
@@ -155,5 +156,5 @@ def test_e2e_storage_single_provider_azure():
             "CarbonIntensity": 44,
         },
     }
-    
+
     validate_output(row_by_id, expected_by_id)

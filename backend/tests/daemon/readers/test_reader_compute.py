@@ -6,11 +6,13 @@ import unittest
 from collections import Counter
 from unittest.mock import MagicMock
 
+from backend.src.schemas.virtual_machine import VirtualMachine
+
 from backend.src.common.constants import (
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_COST,
     SOURCE_VM_DISK_SIZE_GB,
-    SOURCE_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_VM_NB_VCPUS,
     SOURCE_PROVIDER,
     SOURCE_REGION,
@@ -28,26 +30,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Minimal CSV header matching all fields consumed by Reader_Compute
-_HEADERS = ",".join([
-    SOURCE_TIME,
-    SOURCE_RESOURCE_ID,
-    SOURCE_VM_AVG_CPU_UTIL_PERCENT,
-    SOURCE_REGION,
-    SOURCE_NAME,
-    SOURCE_VM_SIZE,
-    SOURCE_RESOURCE_TYPE_SERVICE,
-    SOURCE_PROVIDER,
-    SOURCE_VM_DISK_SIZE_GB,
-    SOURCE_VM_NB_VCPUS,
-    SOURCE_COST,
-    SOURCE_RESOURCE_TYPE,
-])
+_HEADERS = ",".join(VirtualMachine.mandatory_columns())
 
 def _make_row(resource_id: str, provider: str = "azure", region: str = "eastus") -> str:
     return (
-        f"2024-05-01T00:00:00Z,{resource_id},20,{region},"
-        f"vm-name,Standard_A1_v2,compute,{provider},128,2,100.0,"
-        f"{SOURCE_RESOURCE_TYPE_COMPUTE}"
+        f"{resource_id},{SOURCE_RESOURCE_TYPE_COMPUTE},vm-name,{provider},{region},"
+        f"2024-05-01T00:00:00Z,20,100.0,50,'Standard_A1_v2',128"
     )
 
 

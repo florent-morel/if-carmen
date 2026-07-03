@@ -1,4 +1,4 @@
-ResourceId,ResourceType,Provider,Region,SampleTimestamp,ProductName,StorageSizeGB,StorageSampleDurationSeconds,Cost
+ResourceId,ResourceType,Provider,Region,SampleTimestamp,ResourceName,StorageSizeGB,StorageSampleDurationSeconds,Cost
 /subscriptions/test-subscription-1/resourceGroups/TEST-RG-PREMIUM/providers/Microsoft.Compute/disks/test-premium-ssd-p4-lrs,Storage,azure,australiaeast,08/05/2024,Premium SSD Managed Disks - P4 LRS - EU West,0.001344,86400,100.00
 /subscriptions/test-subscription-2/resourceGroups/TEST-RG-STANDARD/providers/Microsoft.Compute/disks/test-standard-hdd-s20-lrs,Storage,azure,centralus,08/05/2024,Standard HDD Managed Disks - S20 - LRS - Disk - EU North,0.032256,86400,100.00
 /subscriptions/test-subscription-3/resourceGroups/TEST-RG-PREMIUM-V2/providers/Microsoft.Compute/disks/test-premium-ssd-v2-lrs,Storage,azure,eastasia,08/05/2024,Azure Premium SSD v2 - LRS - Provisioned Capacity - EU West,12288,86400,100.00

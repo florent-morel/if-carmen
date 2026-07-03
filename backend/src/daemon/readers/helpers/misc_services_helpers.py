@@ -16,7 +16,7 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
     SOURCE_COST,
-    SOURCE_PRODUCT_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_SAMPLE_TIMESTAMP,
     DATE_FORMAT,
     UNKNOWN,
@@ -67,7 +67,7 @@ def create_misc_services_resource(row):
             return None
 
         misc_services_resource = MiscServicesResource(
-            name=row.get(SOURCE_PRODUCT_NAME, ""),
+            name=row.get(SOURCE_RESOURCE_NAME, ""),
             id=id,
             provider=row.get(SOURCE_PROVIDER, ""),
             region=region,

@@ -16,9 +16,11 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_PROVIDER,
-    SOURCE_PRODUCT_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_COST,
     SOURCE_STORAGE_SIZE_GB,
+    SOURCE_STORAGE_TYPE,
+    SOURCE_STORAGE_REPLICATION_TYPE,
 )
 
 
@@ -41,16 +43,13 @@ class StorageResource(Resource):
 
     @staticmethod
     def mandatory_columns() -> list[str]:
-        list_mandatory_columns: list[str] = [
-            SOURCE_RESOURCE_ID,
-            SOURCE_RESOURCE_TYPE,
-            SOURCE_PROVIDER,
-            SOURCE_REGION,
-            SOURCE_SAMPLE_TIMESTAMP,
-            SOURCE_SAMPLE_DURATION_SECONDS,
+        # Fetch common mandatory columns
+        list_mandatory_columns: list[str] = super(StorageResource, StorageResource).common_mandatory_columns()
 
-            SOURCE_PRODUCT_NAME,
-            SOURCE_COST,
+        # Append specific mandatory columns
+        list_mandatory_columns.extend([
             SOURCE_STORAGE_SIZE_GB,
-        ]
+            SOURCE_STORAGE_TYPE,
+            SOURCE_STORAGE_REPLICATION_TYPE,
+        ])
         return list_mandatory_columns

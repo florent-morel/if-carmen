@@ -11,7 +11,7 @@ from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.utils.helpers import get_row_data
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
-    SOURCE_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_REGION,
     SOURCE_COST,
     SOURCE_VM_SIZE,
@@ -68,7 +68,7 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         id=vm_id,
         region=region,
         vm_size=get_row_data(row[SOURCE_VM_SIZE]),
-        name=get_row_data(row[SOURCE_NAME]),
+        name=get_row_data(row[SOURCE_RESOURCE_NAME]),
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         provider=provider,
         pue=(

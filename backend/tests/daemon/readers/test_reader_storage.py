@@ -6,13 +6,17 @@ import unittest
 from collections import Counter
 from unittest.mock import MagicMock
 
+from backend.src.schemas.storage_resource import StorageResource
+
 from backend.src.common.constants import (
     SOURCE_COST,
-    SOURCE_PRODUCT_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_PROVIDER,
     SOURCE_REGION,
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE,
+    SOURCE_STORAGE_SIZE_GB,
+    SOURCE_STORAGE_TYPE,
     SOURCE_RESOURCE_TYPE_STORAGE,
     SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
@@ -20,18 +24,7 @@ from backend.src.common.constants import (
 from backend.src.daemon.readers.reader_storage import Reader_Storage
 
 
-_HEADERS = ",".join(
-    [
-        SOURCE_RESOURCE_ID,
-        SOURCE_PROVIDER,
-        SOURCE_REGION,
-        SOURCE_RESOURCE_TYPE,
-        SOURCE_COST,
-        SOURCE_PRODUCT_NAME,
-        SOURCE_STORAGE_SIZE_GB,
-        SOURCE_SAMPLE_DURATION_SECONDS,
-    ]
-)
+_HEADERS = ",".join(StorageResource.mandatory_columns())
 
 
 def _make_row(
@@ -41,12 +34,15 @@ def _make_row(
     product_name: str,
     storage_size_gb: str,
     storage_duration_seconds: str,
+    storage_type: str,
+    storage_replication_type: str,
     provider: str = "azure",
     region: str = "centralus",
 ) -> str:
     return (
-        f"{resource_id},{provider},{region},{resource_type},{cost},"
-        f"{product_name},{storage_size_gb},{storage_duration_seconds}"
+        f"{resource_id},{resource_type},{product_name},{provider},"
+        f"{region},'',{storage_duration_seconds},{cost},"
+        f"{storage_size_gb},{storage_type},{storage_replication_type}"
     )
 
 
@@ -81,10 +77,10 @@ class TestReaderStorage(unittest.TestCase):
             [
                 _HEADERS,
                 _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE,
-                          "100.0", "Premium SSD P4 LRS", "32", "86400"),
+                          "100.0", "Premium SSD P4 LRS", "32", "86400", "SSD", "LRS"),
                 _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE,
-                          "50.0", "Standard HDD S4 LRS", "64", "172800"),
-                _make_row("vm-1", "Compute", "80.0", "VM", "", ""),
+                          "50.0", "Standard HDD S4 LRS", "64", "172800", "HDD", "LRS"),
+                _make_row("vm-1", "Compute", "80.0", "VM", "", "", "", ""),
             ]
         )
 
@@ -114,15 +110,16 @@ class TestReaderStorage(unittest.TestCase):
             [
                 _HEADERS,
                 _make_row("disk-1", SOURCE_RESOURCE_TYPE_STORAGE,
-                          "100.0", "Premium SSD P4 LRS", "32", "86400"),
+                          "100.0", "Premium SSD P4 LRS", "32", "86400", "SSD", "LRS"),
                 _make_row("disk-2", SOURCE_RESOURCE_TYPE_STORAGE,
-                          "50.0", "Standard HDD S4 LRS", "64", "172800"),
+                          "50.0", "Standard HDD S4 LRS", "64", "172800", "HDD", "LRS"),
                 _make_row("disk-no-duration", SOURCE_RESOURCE_TYPE_STORAGE,
-                          "10.0", "Snapshot", "64", ""),
+                          "10.0", "Snapshot", "64", "", "SSD", "LRS"),
                 _make_row("disk-excluded", SOURCE_RESOURCE_TYPE_STORAGE,
-                          "20.0", "Snapshot", "64", "3600s"),
-                _make_row("vm-1", "Compute", "80.0", "VM", "", ""),
-                _make_row("net-1", "Network", "20.0", "Network", "", ""),
+                          "20.0", "Snapshot", "64", "3600s", "SSD", "LRS"),
+                _make_row("vm-1", "Compute", "80.0", "VM", "", "", "", ""),
+                _make_row("net-1", "Network", "20.0",
+                          "Network", "", "", "", ""),
             ]
         )
 

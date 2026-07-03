@@ -16,7 +16,19 @@ from etc.sample_data.test_data.test_data import (
 )
 from backend.src.schemas.resource import ResourceType
 
+from backend.src.common.constants import (
+    SOURCE_SAMPLE_DURATION_SECONDS,
+    SOURCE_RESOURCE_ID,
+    SOURCE_RESOURCE_TYPE,
+    SOURCE_REGION,
+    SOURCE_SAMPLE_TIMESTAMP,
+    SOURCE_PROVIDER,
+    SOURCE_RESOURCE_NAME,
+    SOURCE_COST,
+)
+
 logger = logging.getLogger(__name__)
+
 
 class TestMiscServicesHelpers(unittest.TestCase):
     """
@@ -59,22 +71,25 @@ class TestMiscServicesHelpers(unittest.TestCase):
         Test create_misc_services_resource function.
         """
         mock_row = {
-            "ResourceId": "misc_service1",
-            "ProductName": "misc_service_name",
-            "Region": "eastus",
-            "Cost": "120.0",
-            "Date": "2025-11-01",
+            SOURCE_RESOURCE_ID: "misc_service1",
+            SOURCE_RESOURCE_TYPE: "MiscServices",
+            SOURCE_REGION: "eastus",
+            SOURCE_SAMPLE_TIMESTAMP: "2025-11-01T00:00Z",
+            SOURCE_PROVIDER: "azure",
+            SOURCE_RESOURCE_NAME: "misc_service_name",
+            SOURCE_COST: "120.0",
         }
         mock_ci_calculator.return_value = 200.0
 
         misc_services_resource = create_misc_services_resource(mock_row)
 
         self.assertEqual(misc_services_resource.id, "misc_service1")
-        self.assertEqual(misc_services_resource.resource_type, ResourceType.MISC_SERVICES)
+        self.assertEqual(misc_services_resource.resource_type,
+                         ResourceType.MISC_SERVICES)
         self.assertEqual(misc_services_resource.region, "eastus")
         self.assertEqual(misc_services_resource.carbon_intensity, 200.0)
         self.assertEqual(misc_services_resource.cost, 120.0)
-        self.assertEqual(misc_services_resource.time_points[0], "2025-11-01")
+        self.assertEqual(misc_services_resource.time_points[0], "2025-11-01T00:00Z")
 
         # No custom columns as we directly create the resource
         self.assertEqual(len(misc_services_resource.dict_custom_columns), 0)

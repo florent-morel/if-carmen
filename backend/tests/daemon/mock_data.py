@@ -16,17 +16,18 @@ from backend.src.utils.helpers import str_to_float
 from backend.src.daemon.readers.helpers.virtual_machine_helpers import get_row_data
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
-    SOURCE_NAME,
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE_SERVICE,
     SOURCE_REGION,
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_COST,
-    SOURCE_PRODUCT_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_TIME,
     SOURCE_VM_SIZE,
     SOURCE_VM_NB_VCPUS,
+    SOURCE_STORAGE_TYPE,
+    SOURCE_STORAGE_REPLICATION_TYPE,
     DATE_FORMAT,
     SOURCE_VM_DISK_SIZE_GB,
     UNKNOWN,
@@ -132,7 +133,7 @@ def _create_virtual_machine(row):
         id=row[SOURCE_RESOURCE_ID],
         region=row[SOURCE_REGION],
         vm_size=row[SOURCE_VM_SIZE],
-        name=get_row_data(row[SOURCE_NAME]),
+        name=get_row_data(row[SOURCE_RESOURCE_NAME]),
         provider=get_row_data(row[SOURCE_PROVIDER]),
         storage_size=[],
         pue=_DEFAULT_PUE,
@@ -208,31 +209,14 @@ def _create_storage_resource(row):
     Creates a StorageResource from input CSV row (storage_test.csv format).
     Columns: TODO
     """
-    product_name = row.get("ProductName", "")
-
-    # Derive storage_type from meter/product name
-    if "Premium SSD" in product_name or "Premium LRS" in product_name:
-        storage_type = "Premium_SSD"
-    elif "Ultra" in product_name:
-        storage_type = "Ultra_Disk"
-    else:
-        storage_type = "Standard_HDD"
-
-    # Derive replication type from meter name (LRS, GRS, ZRS, GZRS)
-    for rep in ("GZRS", "ZRS", "GRS", "LRS"):
-        if rep in product_name:
-            replication_type = rep
-            break
-    else:
-        replication_type = "LRS"
 
     return StorageResource(
         id=row.get("ResourceId", ""),
-        name=row.get("ProductName", ""),
-        provider=row.get("Provider", ""),
-        region=row.get("ResourceLocation", ""),
-        storage_type=storage_type,
-        replication_type=replication_type,
+        name=row.get(SOURCE_RESOURCE_NAME, ""),
+        provider=row.get(SOURCE_PROVIDER, ""),
+        region=row.get(SOURCE_REGION, UNKNOWN),
+        storage_type=row.get(SOURCE_STORAGE_TYPE),
+        replication_type=row.get((SOURCE_STORAGE_REPLICATION_TYPE)),
         size_gb=str_to_float(row.get("Quantity", "0")),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
     )
@@ -294,12 +278,12 @@ def _process_misc_services_row(row, misc_dict):
 def _create_misc_services_resource(row):
     """
     Creates a MiscServicesResource from input CSV row (misc_services-model format).
-    Columns: ResourceId, ProductName, ResourceLocation,
+    Columns: ResourceId, ResourceName, ResourceLocation,
              SampleTimestamp, Cost, ...
     """
     return MiscServicesResource(
         id=row.get("ResourceId", ""),
-        name=row.get("ProductName", ""),
+        name=row.get("ResourceName", ""),
         provider=row.get("Provider", ""),
         region=row.get("ResourceLocation", ""),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,

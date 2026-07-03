@@ -5,7 +5,7 @@ from backend.src.common.constants import (
     SOURCE_REGION,
     SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_PROVIDER,
-    SOURCE_PRODUCT_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_RESOURCE_TYPE,
     SOURCE_COST,
 )
@@ -31,14 +31,11 @@ class MiscServicesResource(Resource):
 
     @staticmethod
     def mandatory_columns() -> list[str]:
-        list_mandatory_columns: list[str] = [
-            SOURCE_RESOURCE_ID,
-            SOURCE_REGION,
-            SOURCE_PROVIDER,
-            SOURCE_RESOURCE_TYPE,
-            SOURCE_SAMPLE_TIMESTAMP,
-            SOURCE_SAMPLE_DURATION_SECONDS,
-            SOURCE_PRODUCT_NAME,
-            SOURCE_COST,
-        ]
+        # Fetch common mandatory columns
+        list_mandatory_columns: list[str] = super(MiscServicesResource, MiscServicesResource).common_mandatory_columns()
+
+        # Append specific mandatory columns
+        list_mandatory_columns.extend([
+            # No specific column
+        ])
         return list_mandatory_columns

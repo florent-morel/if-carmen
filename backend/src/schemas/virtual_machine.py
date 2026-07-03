@@ -10,12 +10,14 @@ from backend.src.schemas.resource import ResourceType
 from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE,
+    SOURCE_RESOURCE_NAME,
     SOURCE_REGION,
     SOURCE_PROVIDER,
     SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_TIME,
     SOURCE_SAMPLE_DURATION_SECONDS,
+    SOURCE_VM_SIZE,
     SOURCE_VM_DISK_SIZE_GB,
     # TODO: Add DISK_TYPE (akin to storage_type for storage resources, to be then propagated in computation)
     # At the moment we always fallback on the default values for the VMs' disk.
@@ -35,16 +37,13 @@ class VirtualMachine(ComputeResource):
 
     @staticmethod
     def mandatory_columns() -> list[str]:
-        list_mandatory_columns: list[str] = [
-            SOURCE_RESOURCE_ID,
-            SOURCE_RESOURCE_TYPE,
-            SOURCE_PROVIDER,
-            SOURCE_REGION,
-            SOURCE_SAMPLE_TIMESTAMP,
-            SOURCE_SAMPLE_DURATION_SECONDS,
+        # Fetch common mandatory columns
+        list_mandatory_columns: list[str] = super(VirtualMachine, VirtualMachine).common_mandatory_columns()
 
+        # Append specific mandatory columns
+        list_mandatory_columns.extend([
             SOURCE_VM_AVG_CPU_UTIL_PERCENT,
+            SOURCE_VM_SIZE,
             SOURCE_VM_DISK_SIZE_GB,
-            SOURCE_COST,
-        ]
+        ])
         return list_mandatory_columns

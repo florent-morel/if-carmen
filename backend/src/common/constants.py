@@ -35,7 +35,7 @@ CSV_FILE_ENCODING: str = "utf-8"
 
 # Generic columns common to all resources
 SOURCE_RESOURCE_ID = "ResourceId"
-SOURCE_NAME = "Name"
+SOURCE_RESOURCE_NAME = "ResourceName"
 SOURCE_PROVIDER = "Provider"
 SOURCE_REGION = "Region"
 SOURCE_COST = "Cost"
@@ -45,13 +45,15 @@ SOURCE_RESOURCE_TYPE = "ResourceType"
 SOURCE_RESOURCE_TYPE_COMPUTE = "Compute"
 SOURCE_RESOURCE_TYPE_STORAGE = "Storage"
 SOURCE_RESOURCE_TYPE_SERVICE = "Service"
-SOURCE_PRODUCT_NAME = "ProductName"
 
 # Resource specific columns
 SOURCE_VM_AVG_CPU_UTIL_PERCENT = "AverageVmCpuUtilPercent"
 SOURCE_VM_DISK_SIZE_GB = "VmDiskSizeGb"
 SOURCE_VM_NB_VCPUS = "VmNbCpus"
 SOURCE_VM_SIZE = "VmSize"
+
+SOURCE_STORAGE_TYPE = "StorageType"
+SOURCE_STORAGE_REPLICATION_TYPE = "StorageReplicationType"
 SOURCE_STORAGE_SIZE_GB = "StorageSizeGB"
 SOURCE_SAMPLE_DURATION_SECONDS = "SampleDurationSeconds"
 UNKNOWN = "Unknown"

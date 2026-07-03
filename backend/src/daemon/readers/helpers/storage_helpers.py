@@ -21,9 +21,11 @@ from backend.src.common.constants import (
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
     SOURCE_COST,
-    SOURCE_PRODUCT_NAME,
+    SOURCE_RESOURCE_NAME,
     SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_STORAGE_SIZE_GB,
+    SOURCE_STORAGE_TYPE,
+    SOURCE_STORAGE_REPLICATION_TYPE,
     SOURCE_SAMPLE_TIMESTAMP,
     DAILY_SECONDS,
     DATE_FORMAT,
@@ -33,41 +35,10 @@ from backend.src.common.constants import (
 logger = logging.getLogger(__name__)
 
 
-def get_storage_type(row: dict) -> str:
-    """
-    Extracts storage type from ProductName.
-    Uses explicit mapping then fallback on keywords.
-
-    Args:
-        row: CSV row data
-
-    Returns:
-        str: Storage type (SSD/HDD/Unknown)
-    """
-    product_name = row.get(SOURCE_PRODUCT_NAME, "").lower()
-
-    # Check keywords in ProductName
-    # TODO: If we want to keep this heuristic, it should at least be in each provider yaml config.
-    # Otherwise, include storage_type in input columns.
-    if (
-        "ssd" in product_name
-        or "ultra disk" in product_name
-        or "premium page blob" in product_name
-    ):
-        return "SSD"
-    if "hdd" in product_name:
-        return "HDD"
-
-    logger.warning("Unknown disk type for %s", product_name)
-    return UNKNOWN
-
-
 def create_storage_resource(
     row: dict,
     storage_id: str,
     size_gb: float,
-    storage_type: str,
-    replication_type: str,
 ) -> StorageResource:
     """
     Creates a StorageResource from CSV row data.
@@ -83,13 +54,15 @@ def create_storage_resource(
         StorageResource: Complete storage resource object
     """
     region = row.get(SOURCE_REGION, UNKNOWN)
+    storage_type=UNKNOWN
+    logger.info(f"storage_type: {storage_type}")
 
     return StorageResource(
         id=storage_id,
-        name=row.get(SOURCE_PRODUCT_NAME, ""),
+        name=row.get(SOURCE_RESOURCE_NAME, ""),
         provider=row.get(SOURCE_PROVIDER, ""),
-        storage_type=storage_type,
-        replication_type=replication_type,
+        storage_type=row.get(SOURCE_STORAGE_TYPE, UNKNOWN),
+        replication_type=row.get((SOURCE_STORAGE_REPLICATION_TYPE)),
         size_gb=size_gb,
         region=region,
         carbon_intensity=PaasCiMapper.calculate_ci(region),
@@ -98,31 +71,6 @@ def create_storage_resource(
         duration_seconds=[],
         cost=get_row_data(row[SOURCE_COST]),
     )
-
-
-# TODO: to be moved to providers configs
-def get_replication_type(row: dict) -> str:
-    """
-    Extracts replication type from ProductName.
-
-    Returns:
-        str: Replication type (LRS/GRS/ZRS/RA_GRS/etc.)
-    """
-    product_name = row.get(SOURCE_PRODUCT_NAME, "").upper()
-
-    if "RA-GZRS" in product_name or "RAGZRS" in product_name:
-        return "RA_GZRS"
-    if "GZRS" in product_name:
-        return "GZRS"
-    if "RA-GRS" in product_name or "RAGRS" in product_name:
-        return "RA_GRS"
-    if "GRS" in product_name:
-        return "GRS"
-    if "ZRS" in product_name:
-        return "ZRS"
-    if "LRS" in product_name:
-        return "LRS"
-    return "LRS"  # default
 
 
 def _process_storage_row(
@@ -171,17 +119,13 @@ def _process_storage_row(
                      SOURCE_STORAGE_SIZE_GB, storage_id)
         return False
 
-    storage_type = get_storage_type(row)
-    replication_type = get_replication_type(row)
-
     if size_gb > MAX_STORAGE_SIZE_GB_WARNING_THRESHOLD:
         logger.warning("Unusually large disk: %sGB for %s",
                        size_gb, storage_id)
 
     if storage_id not in storage_dict:
         storage_dict[storage_id] = create_storage_resource(
-            row, storage_id, size_gb, storage_type, replication_type
-        )
+            row, storage_id, size_gb)
 
     timestamp = row.get(SOURCE_SAMPLE_TIMESTAMP,
                         datetime.now().strftime(DATE_FORMAT))
