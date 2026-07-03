@@ -42,7 +42,7 @@ class TestGetCpuMax:
 
 
 class TestResolveVcpuCount:
-    """Tests for the three-step fallback chain (billing → name parsing → raise)."""
+    """Tests for the three-step fallback chain (input CSV → name parsing → raise)."""
 
     CPU_MAX = 3.76
 
@@ -58,20 +58,20 @@ class TestResolveVcpuCount:
             storage_size=[],
         )
 
-    def test_fallback_path_a_uses_billing_vcpu_count(self):
-        """Path A: vcpu_count already set from billing VmNbCpus column."""
+    def test_fallback_path_a_uses_input_csv_vcpu_count(self):
+        """Path A: vcpu_count already set from input CSV VmNbCpus column."""
         vm = self._make_vm("Standard_Unknown_v99", vcpu_count=16)
         result = CloudMetadata._resolve_vcpu_count(vm, self.CPU_MAX)
         assert result == 16
 
     def test_fallback_path_b_parses_vcpu_count_from_name(self):
-        """Path B: billing column absent, but name encodes vCPU count."""
+        """Path B: input CSV column absent, but name encodes vCPU count."""
         vm = self._make_vm("Standard_D32as_v5", vcpu_count=None)
         result = CloudMetadata._resolve_vcpu_count(vm, self.CPU_MAX)
         assert result == 32
 
     def test_fallback_path_c_raises_for_unresolvable_vm(self):
-        """Path C: both billing column and name parsing fail → CarmenException."""
+        """Path C: both input CSV column and name parsing fail → CarmenException."""
         vm = self._make_vm("Unknown_Type", vcpu_count=None)
 
         with pytest.raises(CarmenException) as exc_info:

@@ -29,7 +29,7 @@ class VirtualMachine(ComputeResource):
 
     vm_size: str | None = None  # cloud/instance-type in IF
     resource_type: ResourceType = ResourceType.VIRTUAL_MACHINE
-    vcpu_count: int | None = None  # from VmNbCpus billing column; used as TDP fallback for unknown types
+    vcpu_count: int | None = None  # from input CSV VmNbCpus column; used as TDP fallback for unknown types
     storage_size: list[float] = Field(default_factory=list)  # in GB
 
     @staticmethod
