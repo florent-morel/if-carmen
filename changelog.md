@@ -4,7 +4,7 @@
 
 ### Summary
 
-Carmen refined scope  
+Carmen refined scope
 
 This release clarifies Carmen scope which can now be summarized like this:
 - [Carmen](https://greensoftware.foundation/tools/carmen/) is computing CO2 impact of your infrastructure thanks to the [GSF's Impact Framework](https://if.greensoftware.foundation/)
