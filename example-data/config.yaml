@@ -10,9 +10,14 @@ carmen_daemon:
 
   # Output directory for carbon reports
   output_path: "./output"
-  # TODO document properly below
   orchestrator:
     list_processors:
+      # Provide the list of processors used to estimate the impact of given resources.
+      # Refer to documentation [[docs/methodology.md]] for more information on the models used for each resource.
+      # List of supported processors:
+      # - Processor_Compute: to estimate impact of Virtual Machines.
+      # - Processor_Storage: to estimate impact of storage services.
+      # - Processor_Misc_Services: to estimate impact of other services (security, network appliances, etc).
       - Processor_Compute
       - Processor_Storage
       - Processor_Misc_Services
