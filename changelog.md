@@ -56,4 +56,11 @@ On top of Compute (VM...) resources, Carmen now supports:
 
 ### Security
 
+
+
+## Future features - 2026-09-11 14:18:45
+
+
+
+
 Note: changelog file written following [https://common-changelog.org/] guidelines.

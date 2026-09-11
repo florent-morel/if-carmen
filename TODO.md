@@ -1,5 +1,18 @@
 # TODO
 
+
+## 2026-09-11 14:15:08
+
+- [ ] 100% success UT.
+- [ ] E2E UT covering aggregated:
+    - [ ] 3 resources success 
+    - [ ] failures cases.
+- [ ] Review all TODOs.
+- [ ] Review all documentation.
+- [ ] Review changelog.
+- [ ] Build next steps.
+- [ ] Review & centralize vNext in [[changelog.md]].
+
 ## Code implem
 
 ### Logs
