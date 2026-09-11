@@ -83,7 +83,11 @@ def run_daemon(test_path):
 
     main_config_path = test_data_folder / "config" / "config.yaml"
 
-    project_root = test_path.resolve().parents[5]
+    project_root = next(
+        parent
+        for parent in test_path.resolve().parents
+        if (parent / "pyproject.toml").is_file()
+    )
     command = [
         sys.executable,
         "-m",
