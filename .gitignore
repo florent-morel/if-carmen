@@ -14,3 +14,4 @@ uv.lock
 .coverage
 coverage.xml
 htmlcov/
+output_sample/

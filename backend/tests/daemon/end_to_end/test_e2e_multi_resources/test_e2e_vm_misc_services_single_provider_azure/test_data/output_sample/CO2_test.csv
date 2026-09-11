@@ -1,0 +1,5 @@
+Date,ResourceType,Id,Name,Provider,Region,EnergyKWH,OperationalCarbonGramsCO2eq,EmbodiedCarbonGramsCO2eq,TotalCarbonGramsCO2eq,CarbonIntensity,Cost,VMSize,StorageType,ReplicationType,SizeGB
+2026-09-11,VirtualMachine,Test_ID_VM_01,vm-01,azure,eastus,0.012,4.5955,4.2763,8.8718,384.0,100.0,Standard_A1_v2,,,
+2026-09-11,MiscServices,Test_ID_Misc_Services_01,Azure Firewall - Standard - EU West,azure,westeurope,0.6133,155.1763,1961.9897,2117.166,253.0,120.5,,,,
+2026-09-11,MiscServices,Test_ID_Misc_Services_02,Azure DDoS Protection - Standard - EU West,azure,westeurope,0.4326,109.4604,1383.9761,1493.4365,253.0,85.0,,,,
+2026-09-11,MiscServices,Test_ID_Misc_Services_03,Azure Application Gateway - Standard V2 - EU North,azure,northeurope,1.0727,300.3609,3431.4467,3731.8076,280.0,210.75,,,,
