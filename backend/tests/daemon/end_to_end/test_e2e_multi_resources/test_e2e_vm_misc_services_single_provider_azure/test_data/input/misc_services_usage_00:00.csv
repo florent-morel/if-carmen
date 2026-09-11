@@ -1,0 +1,4 @@
+ResourceId,ResourceType,Provider,Region,SampleTimestamp,ResourceName,Cost
+Test_ID_Misc_Services_01,network,azure,westeurope,08/05/2024,Azure Firewall - Standard - EU West,120.50
+Test_ID_Misc_Services_02,network,azure,westeurope,08/05/2024,Azure DDoS Protection - Standard - EU West,85.00
+Test_ID_Misc_Services_03,network,azure,northeurope,08/05/2024,Azure Application Gateway - Standard V2 - EU North,210.75

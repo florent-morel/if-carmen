@@ -6,7 +6,7 @@ from backend.src.schemas.resource import ResourceType
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 
 
-def test_e2e_vm_storage_single_provider_azure():
+def test_e2e_vm_misc_services_single_provider_azure():
 
     # ── Carbon/energy computation derivation ─────────────────────────────────
     #
@@ -83,8 +83,8 @@ def test_e2e_vm_storage_single_provider_azure():
 
     row_by_id = {row["Id"]: row for row in output_rows}
 
-    # 1 VM + 5 Storage resources
-    assert len(output_rows) == 6
+    # 1 VM + 3 Storage resources
+    assert len(output_rows) == 4
 
     expected_by_id = {
         "Test_ID_VM_01":
@@ -99,76 +99,17 @@ def test_e2e_vm_storage_single_provider_azure():
                 "TotalCarbonGramsCO2eq": 8.8718,
                 "CarbonIntensity": 384,
             },
-            # R1
-            "Test_ID_Storage_01": {
-                "ResourceType": ResourceType.STORAGE.value,
+            "Test_ID_Misc_Services_01": {
+                "ResourceType": ResourceType.MISC_SERVICES.value,
+                "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "westeurope",
-                "StorageType": "SSD",
-                "ReplicationType": "LRS",
-                "SizeGB": 32.0,
-                "EnergyKWH": 0.0857,
-                "OperationalCarbonGramsCO2eq": 21.6843,
-                "EmbodiedCarbonGramsCO2eq": 325.9138,
-                "TotalCarbonGramsCO2eq": 347.5981,
+                "EnergyKWH": 14.1587,
+                "OperationalCarbonGramsCO2eq": 3582.1637,
+                "EmbodiedCarbonGramsCO2eq": 3313.75,
+                "TotalCarbonGramsCO2eq": 6895.9137,
                 "CarbonIntensity": 253,
-            },
-            # R2
-            "Test_ID_Storage_02": {
-                "ResourceType": ResourceType.STORAGE.value,
-                "Provider": "azure",
-                "Region": "westeurope",
-                "StorageType": "SSD",
-                "ReplicationType": "GRS",
-                "SizeGB": 512.0,
-                "EnergyKWH": 2.7427,
-                "OperationalCarbonGramsCO2eq": 693.8984,
-                "EmbodiedCarbonGramsCO2eq": 10429.2402,
-                "TotalCarbonGramsCO2eq": 11123.1387,
-                "CarbonIntensity": 253,
-            },
-            # R3
-            "Test_ID_Storage_03": {
-                "ResourceType": ResourceType.STORAGE.value,
-                "Provider": "azure",
-                "Region": "westeurope",
-                "StorageType": "Unknown",
-                "ReplicationType": "LRS",
-                "SizeGB": 128.0,
-                "EnergyKWH": 0.0004,
-                "OperationalCarbonGramsCO2eq": 0.0899,
-                "EmbodiedCarbonGramsCO2eq": 0.9856,
-                "TotalCarbonGramsCO2eq": 1.0755,
-                "CarbonIntensity": 253,
-            },
-            # R4
-            "Test_ID_Storage_04": {
-                "ResourceType": ResourceType.STORAGE.value,
-                "Provider": "azure",
-                "Region": "westeurope",
-                "StorageType": "Unknown",
-                "ReplicationType": "LRS",
-                "SizeGB": 128.0,
-                "EnergyKWH": 0.0085,
-                "OperationalCarbonGramsCO2eq": 2.157,
-                "EmbodiedCarbonGramsCO2eq": 23.65,
-                "TotalCarbonGramsCO2eq": 25.807,
-                "CarbonIntensity": 253,
-            },
-            # R5
-            "Test_ID_Storage_05": {
-                "ResourceType": ResourceType.STORAGE.value,
-                "Provider": "azure",
-                "Region": "francecentral",
-                "StorageType": "SSD",
-                "ReplicationType": "LRS",
-                "SizeGB": 32.0,
-                "EnergyKWH": 0.0857,
-                "OperationalCarbonGramsCO2eq": 3.7712,
-                "EmbodiedCarbonGramsCO2eq": 325.9138,
-                "TotalCarbonGramsCO2eq": 329.685,
-                "CarbonIntensity": 44,
-            },
+            }
     }
 
     validate_output(row_by_id, expected_by_id)
