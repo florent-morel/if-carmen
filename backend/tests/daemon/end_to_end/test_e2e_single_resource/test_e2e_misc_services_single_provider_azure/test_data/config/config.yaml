@@ -20,9 +20,9 @@ carmen_api:
 
 carmen_daemon:
   source:
-    input_path: "backend/tests/daemon/end_to_end/test_e2e_misc_services_single_provider_azure/test_data/input"
+    input_path: "backend/tests/daemon/end_to_end/test_e2e_single_resource/test_e2e_misc_services_single_provider_azure/test_data/input"
   output:
-    output_path: "backend/tests/daemon/end_to_end/test_e2e_misc_services_single_provider_azure/test_data/output"
+    output_path: "backend/tests/daemon/end_to_end/test_e2e_single_resource/test_e2e_misc_services_single_provider_azure/test_data/output"
     output_file_name: "CO2_test"
   orchestrator:
     list_processors:
