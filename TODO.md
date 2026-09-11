@@ -8,41 +8,25 @@
     - [ ] 3 resources success.
     - [ ] failures cases.
 - [ ] Review all TODOs.
+- [ ] Review & remove if possible commented code (or put it in vNext/v1).
 - [ ] Review all documentation.
+- [ ] Documentation: explain sample data in tests folders.
 - [ ] Review changelog.
-- [ ] Build next steps.
 - [ ] Review & centralize vNext in [[changelog.md]].
 - [ ] Fix gitignore of tests output.
+- [ ] Review log level in log files.
+
+- [ ] Build next steps -> Project with GSF.
+
 
 ## Code implem
 
-### Logs
-
-[] Need a full review of logs (logger.info etc).
-
-### Config
-
-V1: Configure and propagate output/generated folders for IF files, CSV reports...
-
-### Orchestrator
-
-V1: Make E2E test with sample data
--- Includes VM, storage, services
-
-### UTs
-
-100% fix
-
 ### Features
 
-V1:
-
-- Validate storage and services computation.
-- Implement default storage & VMs energy & carbon cost ratios. (should be configurable).
-
-Vnext:
+vNext:
 
 - Implement embodied emissions TE retrieved from config file per instance_type
+- Configure and propagate output/generated folders for IF files dir (hardcoded as IF_FILES_DIR in Constants).
 
 ## Documentation
 
@@ -52,6 +36,9 @@ Vnext:
 ### Changelog
 
 ### Review documentation, examples
+
+
+Configuration architecture: 
 
 ``` sh
 if-carmen/
