@@ -5,7 +5,7 @@
 
 - [ ] 100% success UT.
 - [ ] E2E UT covering aggregated:
-    - [ ] 3 resources success 
+    - [ ] 3 resources success.
     - [ ] failures cases.
 - [ ] Review all TODOs.
 - [ ] Review all documentation.

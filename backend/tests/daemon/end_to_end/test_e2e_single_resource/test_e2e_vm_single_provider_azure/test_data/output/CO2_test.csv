@@ -1,2 +1,2 @@
 Date,ResourceType,Id,Name,Provider,Region,EnergyKWH,OperationalCarbonGramsCO2eq,EmbodiedCarbonGramsCO2eq,TotalCarbonGramsCO2eq,CarbonIntensity,Cost,VMSize,StorageType,ReplicationType,SizeGB
-2026-07-03,VirtualMachine,Test_ID_VM_01,vm-01,azure,eastus,0.012,4.5955,4.2763,8.8718,384.0,100.0,Standard_A1_v2,,,
+2026-09-11,VirtualMachine,Test_ID_VM_01,vm-01,azure,eastus,0.012,4.5955,4.2763,8.8718,384.0,100.0,Standard_A1_v2,,,

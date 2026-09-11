@@ -1,6 +1,0 @@
-Date,ResourceType,Id,Name,Provider,Region,EnergyKWH,OperationalCarbonGramsCO2eq,EmbodiedCarbonGramsCO2eq,TotalCarbonGramsCO2eq,CarbonIntensity,Cost,VMSize,StorageType,ReplicationType,SizeGB
-2026-07-03,Storage,Test_ID_Storage_01,Premium SSD Managed Disks - P4 LRS Disk - EU West,azure,westeurope,0.0857,21.6843,325.9138,347.5981,253.0,100.0,,SSD,LRS,32.0
-2026-07-03,Storage,Test_ID_Storage_02,Premium SSD Managed Disks - S20 GRS Disk - EU West,azure,westeurope,2.7427,693.8984,10429.2402,11123.1387,253.0,100.0,,SSD,GRS,512.0
-2026-07-03,Storage,Test_ID_Storage_03,Unknown disk type,azure,westeurope,0.0004,0.0899,0.9856,1.0755,253.0,100.0,,,LRS,128.0
-2026-07-03,Storage,Test_ID_Storage_04,Unknown disk type,azure,westeurope,0.0085,2.1568,23.655,25.8118,253.0,100.0,,,LRS,128.0
-2026-07-03,Storage,Test_ID_Storage_05,Premium SSD Managed Disks - P4 LRS Disk - EU West,azure,francecentral,0.0857,3.7712,325.9138,329.6849,44.0,100.0,,SSD,LRS,32.0
