@@ -488,16 +488,12 @@ class CarbonDaemonOrchestrator:
                         f" resource type."
                     )
 
-                    logger.info(f"Length of list_resources_to_process: {len(abstract_processor.list_resources_to_process)}")
-
                     # Misc Services modelling is executed at the end of the process
                     if abstract_processor.resource_type == ResourceType.MISC_SERVICES:
                         self._hydrate_misc_services_resources(
                             abstract_processor.list_resources_to_process,
                             dict_resource_results,
                         )
-                    logger.info(f"Length of list_resources_to_process: {len(abstract_processor.list_resources_to_process)}")
-
                     resource_type_result = abstract_processor.run()
 
                     # Populate result dictionary with Resource result
