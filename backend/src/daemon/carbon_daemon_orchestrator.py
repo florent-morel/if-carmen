@@ -198,7 +198,7 @@ class CarbonDaemonOrchestrator:
                 logger.info(f"Result: {self.carbon_daemon_result.dict_resource_result}")
             else:
                 error_msg = "Carmen Daemon not excuted, no processor found."
-                logger.warn(error_msg)
+                logger.warning(error_msg)
                 self.update_carbon_daemon_result(
                     success=False,
                     start_time=start_time,
@@ -347,9 +347,10 @@ class CarbonDaemonOrchestrator:
                                 f" reader for {abstract_processor.resource_type.value}"
                                 f" resource type."
                             )
-                            file_resources.extend(abstract_processor.read(
-                                csv_data))
+                            resources_from_reader = abstract_processor.read(
+                                csv_data)
 
+                            file_resources.extend(resources_from_reader)
                             logger.debug(f"file_resources: {file_resources}")
 
                         file_read_time = time.time() - start_time
@@ -365,6 +366,8 @@ class CarbonDaemonOrchestrator:
                                 file_read_time,
                             )
                             all_resources_to_process.append(file_resources)
+                            logger.info(f"all_resources_to_process length: {len(all_resources_to_process)}")
+                            logger.debug(f"all_resources_to_process: {all_resources_to_process}")
                             nb_input_files += 1
                         else:
                             message = "No resources found for "
@@ -485,12 +488,15 @@ class CarbonDaemonOrchestrator:
                         f" resource type."
                     )
 
+                    logger.info(f"Length of list_resources_to_process: {len(abstract_processor.list_resources_to_process)}")
+
                     # Misc Services modelling is executed at the end of the process
                     if abstract_processor.resource_type == ResourceType.MISC_SERVICES:
                         self._hydrate_misc_services_resources(
                             abstract_processor.list_resources_to_process,
                             dict_resource_results,
                         )
+                    logger.info(f"Length of list_resources_to_process: {len(abstract_processor.list_resources_to_process)}")
 
                     resource_type_result = abstract_processor.run()
 

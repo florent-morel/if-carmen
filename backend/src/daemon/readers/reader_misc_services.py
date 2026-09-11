@@ -8,6 +8,7 @@ import logging
 
 from backend.src.common.carmen_exception import CarmenException
 from backend.src.common.constants import (
+    SOURCE_RESOURCE_ID,
     SOURCE_RESOURCE_TYPE_COMPUTE,
     SOURCE_RESOURCE_TYPE,
     SOURCE_PROVIDER,
@@ -41,6 +42,13 @@ class Reader_Misc_Services(AbstractReader):
     Hence a Misc Services implementation.
     """
 
+    def __init__(self, daemon_config):
+        super().__init__(daemon_config)
+        # Accumulates VMs across multiple read() calls so the same VM ID
+        # seen in different input files is merged into a single object.
+        self._misc_services_dict: dict[str, MiscServicesResource] = {}
+
+
     def read(self, csv_data) -> list[Resource]:
         """
         Read and process files to extract misc services resource information.
@@ -52,7 +60,10 @@ class Reader_Misc_Services(AbstractReader):
         logger.info(f"Inside reader misc services: {self}")
         logger.debug(f"csv_data: {csv_data}")
 
-        self.list_resources_to_process = self.process_csv_data(csv_data)
+        self.process_csv_data(csv_data, self._misc_services_dict)
+
+        self.list_resources_to_process = list(self._misc_services_dict.values())
+
         logger.info(
             "Loaded %d misc services resources from input file",
             len(self.list_resources_to_process),
@@ -63,7 +74,8 @@ class Reader_Misc_Services(AbstractReader):
         return self.list_resources_to_process
 
     def process_csv_data(
-        self, csv_data: str
+        self, csv_data: str,
+        misc_services_dict: dict[str, MiscServicesResource],
     ) -> tuple[list[MiscServicesResource], float, float]:
         """
         Process CSV data into a MiscServicesResourcelist.
@@ -111,8 +123,14 @@ class Reader_Misc_Services(AbstractReader):
             if not misc_services_resource or misc_services_resource.id == "":
                 skipped_rows += 1
                 continue
-            misc_services_resources.append(misc_services_resource)
-            misc_services_rows += 1
+            id = row[SOURCE_RESOURCE_ID]
+            if id not in misc_services_dict:
+                logger.info(f"AAAAA Adding id {id} in misc_services_dict.")
+                misc_services_dict[id] = misc_services_resource
+                misc_services_rows += 1
+            else:
+                logger.info(f"Id __{
+                            id}__ already found previously, skipping it and logging a duplicate row.")
             # End of row process, fetch custom columns
             process_custom_columns(misc_services_resource, row,
                                         MiscServicesResource.mandatory_columns())
@@ -145,6 +163,6 @@ class Reader_Misc_Services(AbstractReader):
         self.log_unknown_info()
 
         logger.info(
-            "Local Reader processing finished successfully"
+            "Local Reader processing finished successfully "
             "for resource type misc services."
         )

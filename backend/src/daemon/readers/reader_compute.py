@@ -146,6 +146,8 @@ class Reader_Compute(AbstractReader):
         self.dict_log_info["skipped_rows"] = skipped_rows
         self.dict_log_info["excluded_rows"] = excluded_rows
 
+        logger.info(f"vm_dict: {vm_dict}")
+
         return True
 
     def log_processing_results(self) -> None:
