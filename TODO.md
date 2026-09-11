@@ -12,6 +12,7 @@
 - [ ] Review changelog.
 - [ ] Build next steps.
 - [ ] Review & centralize vNext in [[changelog.md]].
+- [ ] Fix gitignore of tests output.
 
 ## Code implem
 
