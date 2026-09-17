@@ -125,7 +125,6 @@ class Reader_Misc_Services(AbstractReader):
                 continue
             id = row[SOURCE_RESOURCE_ID]
             if id not in misc_services_dict:
-                logger.info(f"AAAAA Adding id {id} in misc_services_dict.")
                 misc_services_dict[id] = misc_services_resource
                 misc_services_rows += 1
             else:

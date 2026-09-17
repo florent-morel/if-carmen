@@ -99,7 +99,7 @@ def test_e2e_vm_misc_services_single_provider_azure():
                 "TotalCarbonGramsCO2eq": 8.8718,
                 "CarbonIntensity": 384,
             },
-            "Test_ID_Misc_Services_01": {
+        "Test_ID_Misc_Services_01": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
@@ -109,6 +109,28 @@ def test_e2e_vm_misc_services_single_provider_azure():
                 "EmbodiedCarbonGramsCO2eq": 3313.75,
                 "TotalCarbonGramsCO2eq": 6895.9137,
                 "CarbonIntensity": 253,
+            },
+        "Test_ID_Misc_Services_02": {
+                "ResourceType": ResourceType.MISC_SERVICES.value,
+                "VMSize": "Standard_A1_v2",
+                "Provider": "azure",
+                "Region": "westeurope",
+                "EnergyKWH": 9.9875,
+                "OperationalCarbonGramsCO2eq": 2526.8375,
+                "EmbodiedCarbonGramsCO2eq": 2337.5,
+                "TotalCarbonGramsCO2eq": 4864.3375,
+                "CarbonIntensity": 253,
+            },
+        "Test_ID_Misc_Services_03": {
+                "ResourceType": ResourceType.MISC_SERVICES.value,
+                "VMSize": "Standard_A1_v2",
+                "Provider": "azure",
+                "Region": "northeurope",
+                "EnergyKWH": 24.7631,
+                "OperationalCarbonGramsCO2eq": 6933.675,
+                "EmbodiedCarbonGramsCO2eq": 5795.625,
+                "TotalCarbonGramsCO2eq": 12729.3,
+                "CarbonIntensity": 280,
             }
     }
 
