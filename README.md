@@ -41,7 +41,7 @@ Our primary goal is to empower engineering teams to understand the carbon footpr
 
 ### Infrastructure Monitoring
 
-The Carmen daemon collects Virtual Machine usage data and processes it through the Impact Framework to generate comprehensive reports on energy consumption and carbon emissions for each VM. Future releases will extend this capability to storage and other cloud services.
+The Carmen daemon orchestrator processes infrastructure usage data through the Impact Framework to generate comprehensive reports on energy consumption and carbon emissions across Virtual Machines, storage, and misc services.
 
 ### Application Monitoring
 
@@ -124,11 +124,11 @@ uv sync --extra dev
 To verify your installation, run the Carmen daemon example:
 
 ```bash
-cd ./examples-data
-carbon-daemon
+cd ./example-data
+uv run python -m backend.src.daemon.carbon_daemon_orchestrator
 ```
 
-The carbon emissions report will be generated and saved in the `examples-data/output/` directory.
+The carbon emissions report will be generated and saved in the `example-data/output/` directory.
 
 ## Documentation
 
