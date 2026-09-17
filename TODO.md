@@ -7,6 +7,7 @@
 - [ ] E2E UT covering aggregated:
     - [ ] 3 resources success.
     - [ ] failures cases.
+- [ ] TODO doc.
 - [ ] Review all TODOs.
 - [ ] Review & remove if possible commented code (or put it in vNext/v1).
 - [ ] Review all documentation.
