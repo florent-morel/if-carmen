@@ -1,0 +1,90 @@
+
+# Carbon intensity per location
+# 2024 Data (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
+# CSP region → location mapping is defined in each provider's YAML config.
+# Add new countries at the end of the file.
+
+# Global fallback values used when provider or region data cannot be resolved.
+default_carbon_intensity: 281  # gCO2/kWh
+default_pue: 1.5  # Power Usage Effectiveness
+
+carbon_intensity_by_location:
+  Australia:
+    carbon_intensity: 552
+  Hong_Kong:
+    carbon_intensity: 560
+  United_States:
+    carbon_intensity: 384
+  France:
+    carbon_intensity: 44
+  Germany:
+    carbon_intensity: 344
+  Ireland:
+    carbon_intensity: 280
+  Singapore:
+    carbon_intensity: 499
+  Sweden:
+    carbon_intensity: 36
+  Dubai:
+    carbon_intensity: 493
+  United_Kingdom:
+    carbon_intensity: 211
+  Netherlands:
+    carbon_intensity: 253
+  India:
+    carbon_intensity: 708
+
+
+# Default total embodied emissions (TE) for a virtual machine, in milligrams of CO2e (mgCO2e).
+# This represents an average TE across a representative server fleet and is used as a fallback
+# when no per-instance TE data is available from the hardware inventory.
+# Configurable: adjust to match the average hardware profile of your own fleet.
+# TODO: Retrieve per-instance TE from a per-provider instance database (e.g., *_instances.csv).
+default_device_emissions_embodied: 1999999  # mgCO2e – fleet average default
+
+# in gCO2e/GB from https://hotcarbon.org/assets/2022/pdf/hotcarbon22-tannu.pdf
+storage_embodied:
+  ssd: 160
+  hdd: 20
+  unknown: 90  # Average
+storage_electricity_ratios: 
+  # in kWh/GBh from https://www.cloudcarbonfootprint.org/docs/methodology/#storage
+  ssd: 0.0000012
+  hdd: 0.00000065
+  unknown: 0.000000925  # Average
+
+# Default ratios used when VM/Storage processors are absent.
+# These data should not be used on standard runs: they are extracted from compute/storage modelling,
+# thus only used when compute or/and storage processors are missing.
+# Only the ratio (energy or embodied) / cost matters, individual values are not significant on their own.
+default_misc_services_constants:
+  compute_cost: 1.0     # $ (ratio denominator)
+
+  # compute_energy
+  # Sources: Boavizta : bottom-up (D4as_v5 + Teads curve at 40% util, PUE 1.15) → 0.105 kWh/$
+  #          AWS public Scope-2 disclosure (2022): 0.113 kWh/$
+  #          Google Cloud (2022): 0.223 kWh/$  
+  # → midpoint ~0.15 kWh/$
+  compute_energy: 0.15  # kWh per $ of compute cost
+
+  # compute_embodied
+  # Source: Boavizta : DEVICE_EMISSIONS=1,672,000 gCO2e, 4-vCPU share of 64-vCPU server,
+  #         4-year lifespan (126,230,400 s), Standard_D4as_v5 at $0.192/hr → 15.5 gCO2e/$
+  compute_embodied: 15.0  # gCO2e per $ of compute cost
+
+
+  storage_cost: 1.0      # $ (ratio denominator)
+
+  # storage_energy
+  # Representative type: Azure Premium SSD P10 (128 GB, LRS×3, PUE 1.15)
+  #   730 hr/month = 365 days/yr × 24 hr/day / 12 months = 8760 / 12
+  #   → 1.2e-6 kWh/(GB·hr) × 128 GB × 3 × 1.15 / (128 GB × $0.154/GB/month / 730 hr/month)
+  #   = 0.020 kWh/$
+  storage_energy: 0.020  # kWh per $ of storage cost
+
+  # storage_embodied
+  # Representative type: Azure Premium SSD P10 (128 GB, LRS×3, 4-year lifespan)
+  #   126,230,400s = 4 yr × 365.25 d/yr × 24 hr/d × 3600 s/hr
+  #   → 160 gCO2e/GB × 128 GB × 3 × (30d × 86400s / 126,230,400s) / (128 GB × $0.154/GB/month)
+  #   = 64 gCO2e/$  → rounded to 65
+  storage_embodied: 65.0  # gCO2e per $ of storage cost
