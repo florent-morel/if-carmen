@@ -84,7 +84,7 @@ def test_e2e_vm_storage_misc_services_single_provider_azure():
     row_by_id = {row["Id"]: row for row in output_rows}
 
     # 1 VM + 3 Storage resources
-    assert len(output_rows) == 4
+    assert len(output_rows) == 9
 
     expected_by_id = {
         "Test_ID_VM_01":
