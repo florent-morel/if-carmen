@@ -8,76 +8,62 @@ from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_ou
 
 def test_e2e_vm_misc_services_single_provider_azure():
 
-    # ── Carbon/energy computation derivation ─────────────────────────────────
+    # ── Miscellaneous services computation derivation ─────────────────────────────────
+    # 
+    # Virtual machine computation is validated in test_e2e_vm_single_provider_azure
+    # Miscellaneous services computation is validated here, based on the Virtual Machines computation result.
     #
-    # Input data  (3 hourly time points for vm-01, all merged into one resource)
-    #   T00: cpu_util=20%, T01: cpu_util=20%, T02: cpu_util=100%
-    #   VmDiskSizeGb=128 GB  (all 3 rows)
+    # Input data
+    #   R1: cost=120.50, region=westeurope
+    #   R2: cost=85.00,  region=westeurope
+    #   R3: cost=210.75, region=northeurope
+    #   VM1: 
+    #       cost=4 (1 + 1 + 2), region=eastus
+    #       EnergyKWH = 1.200e-2 kWh
+    #       EmbodiedCarbonGramsCO2eq = 4.2763 gCO2e
+    #   
     #
-    # Instance hardware  (azure_instances.csv – Standard_A1_v2)
-    #   cpu-cores-available=52, cpu-cores-utilized=1, cpu-tdp=205 W, memory=2 GB
-    #   vm_tdp = 205 × (1/52) = 3.9423 W   ← TDP scaled to the allocated core share
+    # Constants (from test_data modelling constants)
+    #   storage_cost=1.0 $, storage_energy=0.02 kWh
+    #   storage_embodied=65.0 gCO2e
+    #   weights: compute=0.75, storage=0.25
+    #   westeurope -> Netherlands -> carbon_intensity=253 gCO2e/kWh
+    #   northeurope -> Ireland -> carbon_intensity=280 gCO2e/kWh
     #
-    # duration = SampleDurationSeconds = 3600 s per observation
+    # Formula reminders
+    #   energy_ratio_kwh_per_dollar = 0.75 * (compute_energy / compute_cost)
+    #                                  + 0.25 * (storage_energy / storage_cost)
+    #                                = 0.75 * (0.012 / 4.0) + 0.25 * (0.02 / 1.0)
+    #                                = 0.00725 kWh/$
+    #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
+    #                                     + 0.25 * (storage_embodied / storage_cost)
+    #                                   = 0.75 * (4.2763 / 4.0) + 0.25 * (65.0 / 1.0)
+    #                                   = 21.45633 gCO2e/$
+    #   energy_kwh = cost * energy_ratio_kwh_per_dollar
+    #   operational_gco2e = energy_kwh * carbon_intensity
+    #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
+    #   total_gco2e = operational_gco2e + embodied_gco2e
     #
-    # ── Energy per observation (SCI-E pipeline) ──────────────────────────────
+    # R1: Azure Firewall - Standard - EU West
+    #   energy_kwh = 120.50 * 0.00725 = 0.873625
+    #   operational_gco2e = 0.873625 * 253 = 220.830625
+    #   embodied_gco2e = 120.50 * 21.45633 = 2585.064165
+    #   total_gco2e = 220.830625 + 2585.064165 = 2805.89479
     #
-    # 1. TeadsCurve – linear interpolation [0,10,50,100]% → [0.12,0.32,0.75,1.02]
-    #    tdp_ratio(20%)  = 0.32 + (20-10)/(50-10) × (0.75-0.32) = 0.4275
-    #    tdp_ratio(100%) = 1.02   (exact control point)
+    # R2: Azure DDoS Protection - Standard - EU West
+    #   energy_kwh = 85.00 * 0.00725 = 0.61625
+    #   operational_gco2e = 0.61625 * 253 = 155.71125
+    #   embodied_gco2e = 85.00 * 21.45633 = 1823.28805
+    #   total_gco2e = 155.71125 + 1823.28805 = 1978.9993
     #
-    # 2. cpu/power (kW) = tdp_ratio × vm_tdp / 1000
-    #    T00,T01: 0.4275 × 3.942 / 1000 = 1.685e-3 kW
-    #    T02:     1.020  × 3.942 / 1000 = 4.021e-3 kW
-    #
-    # 3. cpu/energy (kWh) = cpu/power × 3600 s / 3600 = cpu/power (1-hour window)
-    #    T00,T01: 1.685e-3 kWh   T02: 4.021e-3 kWh
-    #
-    # 4. memory/power  = 2.0 GB × 3.920e-4 kW/GB = 7.840e-4 kW   (PMem, CCF)
-    #    memory/energy = 7.840e-4 × 3600/3600         = 7.840e-4 kWh  (all obs.)
-    #
-    # 5. storage/power  = 128 GB × 9.250e-7 kW/GB = 1.184e-4 kW   (PVmStorage)
-    #    storage/energy  = 1.184e-4 × 3600/3600    = 1.184e-4 kWh  (all obs.)
-    #
-    # 6. energy_raw = cpu/energy + memory/energy + storage/energy  (SciE sum)
-    #    T00,T01: 1.685e-3 + 7.840e-4 + 1.184e-4 = 2.588e-3 kWh
-    #    T02:     4.021e-3 + 7.840e-4 + 1.184e-4 = 4.924e-3 kWh
-    #
-    # 7. energy (kWh) = energy_raw × PUE  (SciEPue, azure PUE=1.185e0)
-    #    T00,T01: 2.588e-3 × 1.185 = 3.066e-3 kWh
-    #    T02:     4.924e-3 × 1.185 = 5.834e-3 kWh
-    #    ─────────────────────────────────────────
-    #    TOTAL EnergyKWH = 3.066e-3 + 3.066e-3 + 5.834e-3 = 1.200e-2 kWh
-    #
-    # ── Operational carbon (SciO) ────────────────────────────────────────────
-    #
-    #    carbon-operational = energy × carbon_intensity
-    #    carbon_intensity(eastus) = 384 gCO2/kWh  (United_States, carbon_values.yaml)
-    #    T00,T01: 3.066e-3 × 384 = 1.178 gCO2e
-    #    T02:     5.834e-3 × 384 = 2.240 gCO2e
-    #    ─────────────────────────────────────────
-    #    TOTAL OperationalCarbonGramsCO2eq = 1.178 + 1.178 + 2.240 = 4.596 gCO2e
-    #
-    # ── Embodied carbon (SciM pipeline) ─────────────────────────────────────
-    #
-    #    CPU embodied (sci-m-cpu / @grnsft/if-plugins SciM):
-    #      = device_embodied × (duration / expected_lifespan) × (vcpus_allocated / vcpus_total)
-    #      = 1999999 × (3600 / 126230400) × (1 / 52) = 1.097 gCO2e per obs.
-    #      (device/emissions-embodied=1999999 treated as gCO2e by the SciM plugin,
-    #       device/expected-lifespan=126230400 s = 4 years)
-    #
-    #    Storage embodied (m-vm-storage):
-    #      = storage/requested × storage/embodied-coefficient × duration / expected_lifespan
-    #      = 128 × 90 × 3600 / 126230400 = 3.285e-1 gCO2e per obs.
-    #      (storage/embodied-coefficient=90 gCO2e/GB, unknown/default)
-    #
-    #    Total per obs.: 1.097 + 3.285e-1 = 1.425 gCO2e  (same for all 3, embodied is time-independent)
-    #    ─────────────────────────────────────────
-    #    TOTAL EmbodiedCarbonGramsCO2eq = 3 × 1.425 = 4.276 gCO2e
-    #
-    # ── Total carbon ─────────────────────────────────────────────────────────
-    #    TOTAL TotalCarbonGramsCO2eq = 4.596 + 4.276 = 8.872 gCO2e
-    # ─────────────────────────────────────────────────────────────────────────
+    # R3: Azure Application Gateway - Standard V2 - EU North
+    #   energy_kwh = 210.75 * 0.00725 = 1.5279375
+    #   operational_gco2e = 1.5279375 * 280 = 427.2225
+    #   embodied_gco2e = 210.75 * 21.45633 = 4518.9998475
+    #   total_gco2e = 427.2225 + 4518.9998475 = 4946.2223475
+    
+    # Test finds WRONG values since the cost of the VM is 1, instead of 4, in the output CSV => there is a bug in the accumulation of the cost of the resource.
+    # -------------------------------------------------------------------------
 
     output_rows = run_daemon(Path(__file__))
 
