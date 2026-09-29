@@ -21,6 +21,7 @@ from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
     SOURCE_REGION,
+    SOURCE_COST,
     SOURCE_VM_AVG_CPU_UTIL_PERCENT,
     SOURCE_SAMPLE_TIMESTAMP,
     SOURCE_VM_DISK_SIZE_GB,
@@ -125,13 +126,16 @@ class Reader_Compute(AbstractReader):
                     continue
                 
                 # Append list values for time-series fields
+                # TODO: create a DEFAULT_CPU_UTIL constant
                 vm_dict[vm_id].cpu_util.append(
                     str_to_float(row[SOURCE_VM_AVG_CPU_UTIL_PERCENT]) / 100
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_SAMPLE_TIMESTAMP])
+                # TODO: shouldn't storage_size be a constant for the VM ? And thus populated at creation time only.
                 vm_dict[vm_id].duration_seconds.append(duration_seconds)
                 vm_dict[vm_id].storage_size.append(
                     str_to_float(row[SOURCE_VM_DISK_SIZE_GB]))
+                vm_dict[vm_id].cost += str_to_float(row[SOURCE_COST])
                 # End of row process, fetch custom columns
                 process_custom_columns(
                     vm_dict[vm_id], row, VirtualMachine.mandatory_columns())

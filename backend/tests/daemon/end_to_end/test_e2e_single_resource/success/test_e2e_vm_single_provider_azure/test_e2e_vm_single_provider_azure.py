@@ -6,7 +6,7 @@ from backend.src.schemas.resource import ResourceType
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 
 
-def test_e2e_vm_single_provider_azure():
+def test_e2e_vm_single_provider_azure(tmp_path):
 
     # ── Carbon/energy computation derivation ─────────────────────────────────
     #
@@ -79,8 +79,20 @@ def test_e2e_vm_single_provider_azure():
     #    TOTAL TotalCarbonGramsCO2eq = 4.596 + 4.276 = 8.872 gCO2e
     # ─────────────────────────────────────────────────────────────────────────
 
-    output_rows = run_daemon(Path(__file__))
+    run = run_daemon(Path(__file__), tmp_path)
 
+    run.validate_if_inputs(
+        "vm",
+        expected_inputs_by_id={
+            "Test_ID_VM_01": {
+                "vcpus-total": 52.0,
+                "vcpus-allocated": 1.0,
+                "cpu/thermal-design-power": 3.9423,
+            },
+        },
+    )
+
+    output_rows = run.rows
     row_by_id = {row["Id"]: row for row in output_rows}
 
     assert len(output_rows) == 1

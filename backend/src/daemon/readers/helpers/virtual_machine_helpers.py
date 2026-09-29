@@ -73,9 +73,9 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         name=get_row_data(row, SOURCE_RESOURCE_NAME, ""),
         provider=provider,
         region=region,
-        cost=str_to_float(get_row_data(row, SOURCE_COST, "0.0")),
         vm_size=get_row_data(row, SOURCE_VM_SIZE, UNKNOWN),
         vcpu_count=_parse_vcpu_count_from_row(row),
+        # TODO Vnext: carbon_intensity should be a time_series, populated each time a VM datapoint is found 
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         pue=(
             provider_config.get_pue()

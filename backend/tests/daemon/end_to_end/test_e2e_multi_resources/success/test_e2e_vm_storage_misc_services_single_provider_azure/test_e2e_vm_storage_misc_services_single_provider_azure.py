@@ -6,7 +6,7 @@ from backend.src.schemas.resource import ResourceType
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 
 
-def test_e2e_vm_storage_misc_services_single_provider_azure():
+def test_e2e_vm_storage_misc_services_single_provider_azure(tmp_path):
 
     # ── Carbon/energy computation derivation ─────────────────────────────────
     #
@@ -79,8 +79,32 @@ def test_e2e_vm_storage_misc_services_single_provider_azure():
     #    TOTAL TotalCarbonGramsCO2eq = 4.596 + 4.276 = 8.872 gCO2e
     # ─────────────────────────────────────────────────────────────────────────
 
-    output_rows = run_daemon(Path(__file__))
+    run = run_daemon(Path(__file__), tmp_path)
+    run.validate_if_inputs(
+        "vm",
+        expected_inputs_by_id={"Test_ID_VM_01": {"vcpus-total": 52.0}},
+    )
+    run.validate_if_inputs(
+        "storage",
+        expected_inputs_by_id={
+            "Test_ID_Storage_01": {"storage/requested": 96.0},
+            "Test_ID_Storage_02": {"storage/requested": 3072.0},
+            "Test_ID_Storage_03": {"storage/embodied-coefficient": 90.0},
+            "Test_ID_Storage_04": {"duration/seconds": 86400.0},
+            "Test_ID_Storage_05": {"storage/requested": 96.0},
+        },
+    )
+    run.validate_if_inputs(
+        "misc_services",
+        expected_common_inputs={"compute-cost": 400.0, "storage-cost": 500.0},
+        expected_inputs_by_id={
+            "Test_ID_Misc_Services_01": {"cost": 120.5},
+            "Test_ID_Misc_Services_02": {"cost": 85.0},
+            "Test_ID_Misc_Services_03": {"cost": 210.75},
+        },
+    )
 
+    output_rows = run.rows
     row_by_id = {row["Id"]: row for row in output_rows}
 
     # 1 VM + 3 Storage resources

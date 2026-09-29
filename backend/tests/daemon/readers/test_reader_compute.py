@@ -32,10 +32,15 @@ logger = logging.getLogger(__name__)
 # Minimal CSV header matching all fields consumed by Reader_Compute
 _HEADERS = ",".join(VirtualMachine.mandatory_columns())
 
-def _make_row(resource_id: str, provider: str = "azure", region: str = "eastus") -> str:
+def _make_row(
+    resource_id: str,
+    provider: str = "azure",
+    region: str = "eastus",
+    cost: float = 100.0,
+) -> str:
     return (
         f"{resource_id},{SOURCE_RESOURCE_TYPE_COMPUTE},vm-name,{provider},{region},"
-        f"2024-05-01T00:00:00Z,20,100.0,50,'Standard_A1_v2',128"
+        f"2024-05-01T00:00:00Z,20,{cost},50,'Standard_A1_v2',128"
     )
 
 
@@ -77,6 +82,17 @@ class TestReaderComputeDictLogInfo(unittest.TestCase):
         self.assertEqual(self.reader.dict_log_info["duplicate_rows"], 2)
         self.assertEqual(self.reader.dict_log_info["skipped_rows"], 0)
         self.assertEqual(self.reader.dict_log_info["excluded_rows"], 0)
+
+    def test_single_vm_accumulates_cost_across_time_series_rows(self):
+        resources = self.reader.read(
+            self._csv(
+                _make_row("vm-1", cost=1.25),
+                _make_row("vm-1", cost=2.75),
+            )
+        )
+
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].cost, 4.0)
 
     def test_multiple_unique_vms(self):
         """Three distinct VMs — new_vm_rows=3, duplicate_rows=0."""

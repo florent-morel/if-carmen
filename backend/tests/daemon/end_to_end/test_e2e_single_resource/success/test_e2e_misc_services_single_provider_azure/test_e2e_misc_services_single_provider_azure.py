@@ -1,12 +1,10 @@
 from pathlib import Path
 
-import pytest
-
 from backend.src.schemas.resource import ResourceType
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 
 
-def test_e2e_misc_services_single_provider_azure():
+def test_e2e_misc_services_single_provider_azure(tmp_path):
     # -- Misc services carbon/energy computation derivation ------------------
     #
     # No VM or storage processors are configured for this fixture. The misc
@@ -57,7 +55,24 @@ def test_e2e_misc_services_single_provider_azure():
     #   embodied_gco2e = 210.75 * 27.5 = 5795.625
     #   total_gco2e = 6933.675 + 5795.625 = 12729.3
     # -------------------------------------------------------------------------
-    output_rows = run_daemon(Path(__file__))
+    run = run_daemon(Path(__file__), tmp_path)
+    run.validate_if_inputs(
+        "misc_services",
+        expected_common_inputs={
+            "compute-cost": 1.0,
+            "compute-energy": 0.15,
+            "compute-embodied": 15.0,
+            "storage-cost": 1.0,
+            "storage-energy": 0.02,
+            "storage-embodied": 65.0,
+        },
+        expected_inputs_by_id={
+            "Test_ID_Misc_Services_01": {"cost": 120.5},
+            "Test_ID_Misc_Services_02": {"cost": 85.0},
+            "Test_ID_Misc_Services_03": {"cost": 210.75},
+        },
+    )
+    output_rows = run.rows
     row_by_id = {row["Id"]: row for row in output_rows}
 
     assert len(output_rows) == 3

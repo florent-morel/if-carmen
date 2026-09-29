@@ -5,7 +5,7 @@ from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_ou
 from backend.src.schemas.resource import ResourceType
 
 
-def test_e2e_storage_single_provider_azure():
+def test_e2e_storage_single_provider_azure(tmp_path):
 
     # -- Storage carbon/energy computation derivation -------------------------
     #
@@ -79,8 +79,20 @@ def test_e2e_storage_single_provider_azure():
     #   total_gco2e = 3.771 + 325.9138 = 329.685
     # ------------------------------------------------------------------------
 
-    output_rows = run_daemon(Path(__file__))
+    run = run_daemon(Path(__file__), tmp_path)
 
+    run.validate_if_inputs(
+        "storage",
+        expected_inputs_by_id={
+            "Test_ID_Storage_01": {"storage/requested": 96.0, "storage/embodied-coefficient": 160.0},
+            "Test_ID_Storage_02": {"storage/requested": 3072.0},
+            "Test_ID_Storage_03": {"storage/requested": 384.0, "storage/embodied-coefficient": 90.0},
+            "Test_ID_Storage_04": {"duration/seconds": 86400.0},
+            "Test_ID_Storage_05": {"storage/requested": 96.0},
+        },
+    )
+
+    output_rows = run.rows
     row_by_id = {row["Id"]: row for row in output_rows}
 
     assert len(output_rows) == 5

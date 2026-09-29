@@ -7,6 +7,8 @@ import os
 import logging
 import time
 import copy
+from pathlib import Path
+from uuid import uuid4
 from abc import ABC
 from collections import defaultdict
 import yaml
@@ -55,6 +57,7 @@ from backend.src.utils.helpers import read_file
 from backend.src.utils.metrics_mapper import MetricsMapper
 
 logger = logging.getLogger(__name__)
+_RUN_ARTIFACT_DIR = Path(IF_FILES_DIR) / "generated" / uuid4().hex
 
 
 class IFService(ABC, CarbonService):
@@ -72,6 +75,14 @@ class IFService(ABC, CarbonService):
     def __init__(
         self, template_filename, pipeline_filename, aggregation_type, duration
     ):
+        artifact_dir = Path(os.environ.get("CARMEN_IF_ARTIFACT_DIR", _RUN_ARTIFACT_DIR))
+        stage = pipeline_filename.removesuffix("_pipeline.yml")
+        if stage == "infrastructure":
+            stage = "vm"
+        stage_dir = artifact_dir / stage
+        stage_dir.mkdir(parents=True, exist_ok=True)
+        self.INFILE_PATH = str(stage_dir / "if_input")
+        self.OUTFILE_PATH = str(stage_dir / "if_output")
         self.template = read_file(os.path.join(IF_FILES_DIR, "templates", template_filename))
         self.data = read_file(
             os.path.join(IF_FILES_DIR, "templates", pipeline_filename)

@@ -1,12 +1,10 @@
 from pathlib import Path
 
-import pytest
-
 from backend.src.schemas.resource import ResourceType
 from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_output
 
 
-def test_e2e_vm_misc_services_single_provider_azure():
+def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
 
     # ── Miscellaneous services computation derivation ─────────────────────────────────
     # 
@@ -31,46 +29,65 @@ def test_e2e_vm_misc_services_single_provider_azure():
     #   northeurope -> Ireland -> carbon_intensity=280 gCO2e/kWh
     #
     # Formula reminders
+    #   Ratios and intermediate products use full precision; displayed results are rounded to 4 decimals.
     #   energy_ratio_kwh_per_dollar = 0.75 * (compute_energy / compute_cost)
     #                                  + 0.25 * (storage_energy / storage_cost)
     #                                = 0.75 * (0.012 / 4.0) + 0.25 * (0.02 / 1.0)
-    #                                = 0.00725 kWh/$
+    #                                ≈ 0.0073 kWh/$
     #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
     #                                     + 0.25 * (storage_embodied / storage_cost)
     #                                   = 0.75 * (4.2763 / 4.0) + 0.25 * (65.0 / 1.0)
-    #                                   = 21.45633 gCO2e/$
+    #                                   ≈ 17.0518 gCO2e/$
     #   energy_kwh = cost * energy_ratio_kwh_per_dollar
     #   operational_gco2e = energy_kwh * carbon_intensity
     #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
     #   total_gco2e = operational_gco2e + embodied_gco2e
     #
     # R1: Azure Firewall - Standard - EU West
-    #   energy_kwh = 120.50 * 0.00725 = 0.873625
-    #   operational_gco2e = 0.873625 * 253 = 220.830625
-    #   embodied_gco2e = 120.50 * 21.45633 = 2585.064165
-    #   total_gco2e = 220.830625 + 2585.064165 = 2805.89479
+    #   energy_kwh = 120.5 * energy_ratio ≈ 0.8736
+    #   operational_gco2e = energy_kwh * 253.0 ≈ 221.0271
+    #   embodied_gco2e = 120.5 * embodied_ratio ≈ 2054.7427
+    #   total_gco2e = operational_gco2e + embodied_gco2e ≈ 2275.7698
     #
     # R2: Azure DDoS Protection - Standard - EU West
-    #   energy_kwh = 85.00 * 0.00725 = 0.61625
-    #   operational_gco2e = 0.61625 * 253 = 155.71125
-    #   embodied_gco2e = 85.00 * 21.45633 = 1823.28805
-    #   total_gco2e = 155.71125 + 1823.28805 = 1978.9993
+    #   energy_kwh = 85.0 * energy_ratio ≈ 0.6163
+    #   operational_gco2e = energy_kwh * 253.0 ≈ 155.9113
+    #   embodied_gco2e = 85.0 * embodied_ratio ≈ 1449.4035
+    #   total_gco2e = operational_gco2e + embodied_gco2e ≈ 1605.3148
     #
     # R3: Azure Application Gateway - Standard V2 - EU North
-    #   energy_kwh = 210.75 * 0.00725 = 1.5279375
-    #   operational_gco2e = 1.5279375 * 280 = 427.2225
-    #   embodied_gco2e = 210.75 * 21.45633 = 4518.9998475
-    #   total_gco2e = 427.2225 + 4518.9998475 = 4946.2223475
+    #   energy_kwh = 210.75 * energy_ratio ≈ 1.5279
+    #   operational_gco2e = energy_kwh * 280.0 ≈ 427.8225
+    #   embodied_gco2e = 210.75 * embodied_ratio ≈ 3593.6682
+    #   total_gco2e = operational_gco2e + embodied_gco2e ≈ 4021.4907
     
-    # Test finds WRONG values since the cost of the VM is 1, instead of 4, in the output CSV => there is a bug in the accumulation of the cost of the resource.
     # -------------------------------------------------------------------------
 
-    output_rows = run_daemon(Path(__file__))
+    run = run_daemon(Path(__file__), tmp_path)
+    output_rows = run.rows
 
     row_by_id = {row["Id"]: row for row in output_rows}
 
-    # 1 VM + 3 Storage resources
+    # 1 VM + 3 Misc Services resources
     assert len(output_rows) == 4
+    run.validate_if_inputs(
+        stage="vm",
+        expected_inputs_by_id={"Test_ID_VM_01": {"vcpus-total": 52.0, "vcpus-allocated": 1.0}},
+    )
+    run.validate_if_inputs(
+        stage="misc_services",
+        expected_common_inputs={
+            "compute-cost": 4.0,
+            "storage-energy": 0.02,
+            "storage-embodied": 65.0,
+            "storage-cost": 1.0,
+        },
+        expected_inputs_by_id={
+            "Test_ID_Misc_Services_01": {"cost": 120.5},
+            "Test_ID_Misc_Services_02": {"cost": 85.0},
+            "Test_ID_Misc_Services_03": {"cost": 210.75},
+        },
+    )
 
     expected_by_id = {
         "Test_ID_VM_01":
@@ -87,35 +104,32 @@ def test_e2e_vm_misc_services_single_provider_azure():
             },
         "Test_ID_Misc_Services_01": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
-                "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "westeurope",
-                "EnergyKWH": 14.1587,
-                "OperationalCarbonGramsCO2eq": 3582.1637,
-                "EmbodiedCarbonGramsCO2eq": 3313.75,
-                "TotalCarbonGramsCO2eq": 6895.9137,
+                "EnergyKWH": 0.8736,
+                "OperationalCarbonGramsCO2eq": 221.0271,
+                "EmbodiedCarbonGramsCO2eq": 2054.7427,
+                "TotalCarbonGramsCO2eq": 2275.7698,
                 "CarbonIntensity": 253,
             },
         "Test_ID_Misc_Services_02": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
-                "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "westeurope",
-                "EnergyKWH": 9.9875,
-                "OperationalCarbonGramsCO2eq": 2526.8375,
-                "EmbodiedCarbonGramsCO2eq": 2337.5,
-                "TotalCarbonGramsCO2eq": 4864.3375,
+                "EnergyKWH": 0.6163,
+                "OperationalCarbonGramsCO2eq": 155.9113,
+                "EmbodiedCarbonGramsCO2eq": 1449.4035,
+                "TotalCarbonGramsCO2eq": 1605.3148,
                 "CarbonIntensity": 253,
             },
         "Test_ID_Misc_Services_03": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
-                "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "northeurope",
-                "EnergyKWH": 24.7631,
-                "OperationalCarbonGramsCO2eq": 6933.675,
-                "EmbodiedCarbonGramsCO2eq": 5795.625,
-                "TotalCarbonGramsCO2eq": 12729.3,
+                "EnergyKWH": 1.5279,
+                "OperationalCarbonGramsCO2eq": 427.8225,
+                "EmbodiedCarbonGramsCO2eq": 3593.6682,
+                "TotalCarbonGramsCO2eq": 4021.4907,
                 "CarbonIntensity": 280,
             }
     }
