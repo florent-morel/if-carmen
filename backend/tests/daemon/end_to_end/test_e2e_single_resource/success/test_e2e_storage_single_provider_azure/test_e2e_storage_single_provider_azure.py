@@ -14,6 +14,7 @@ def test_e2e_storage_single_provider_azure(tmp_path):
     #   R2: ResourceName="... S20 GRS Disk ...", StorageSizeGB=512, Duration=2678400 s
     #   R3: ResourceName="Unknown disk type", StorageSizeGB=128, Duration=3600 s
     #   R4: ResourceName="Unknown disk type", StorageSizeGB=128, Duration not specified
+    #   R5: ResourceName=Region=francecentral, "... P4 LRS Disk ...", StorageSizeGB=32, Duration=2678400 s
     #
     #   Note: replication type is inferred from ResourceName.
     #   For "Unknown disk type", no GRS/GZRS/LRS token is present, so replication defaults to LRS.

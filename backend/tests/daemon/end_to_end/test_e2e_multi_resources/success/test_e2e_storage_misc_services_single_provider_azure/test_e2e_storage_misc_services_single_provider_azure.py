@@ -8,76 +8,80 @@ from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_ou
 
 def test_e2e_storage_misc_services_single_provider_azure(tmp_path):
 
-    # ── Carbon/energy computation derivation ─────────────────────────────────
+    # ── Miscellaneous services computation derivation ─────────────────────────────────
     #
-    # Input data  (3 hourly time points for vm-01, all merged into one resource)
-    #   T00: cpu_util=20%, T01: cpu_util=20%, T02: cpu_util=100%
-    #   VmDiskSizeGb=128 GB  (all 3 rows)
+    # Storage computation is validated in test_e2e_storage_single_provider_azure
+    # Miscellaneous services computation is validated here, based on the storage computation result.
     #
-    # Instance hardware  (azure_instances.csv – Standard_A1_v2)
-    #   cpu-cores-available=52, cpu-cores-utilized=1, cpu-tdp=205 W, memory=2 GB
-    #   vm_tdp = 205 × (1/52) = 3.9423 W   ← TDP scaled to the allocated core share
+    #   Input data
+    #   R1: ResourceName="... P4 LRS Disk ...", StorageSizeGB=32, Duration=2678400 s
+    #   R2: ResourceName="... S20 GRS Disk ...", StorageSizeGB=512, Duration=2678400 s
+    #   R3: ResourceName="Unknown disk type", StorageSizeGB=128, Duration=3600 s
+    #   R4: ResourceName="Unknown disk type", StorageSizeGB=128, Duration not specified
     #
-    # duration = SampleDurationSeconds = 3600 s per observation
+    #   Note: replication type is inferred from ResourceName.
+    #   For "Unknown disk type", no GRS/GZRS/LRS token is present, so replication defaults to LRS.
     #
-    # ── Energy per observation (SCI-E pipeline) ──────────────────────────────
+    # Constants (from test_data modelling constants)
+    #   region=westeurope -> Netherlands -> carbon_intensity=253 gCO2e/kWh
+    #   storage_electricity_ratio(SSD)=1.200e-6 kWh/(GB*h)
+    #   storage_electricity_ratio(Unknown)=9.250e-7 kWh/(GB*h)
+    #   storage_embodied_coefficient(SSD)=160 gCO2e/GB
+    #   storage_embodied_coefficient(Unknown)=90 gCO2e/GB
+    #   replication factors: LRS=3, GRS=6
+    #   expected_lifespan_seconds=126230400s (4 years)
+    #   duration_hours(R1,R2)=2678400/3600=744 h
+    #   duration_hours(R3,R4)=3600/3600=1 h
     #
-    # 1. TeadsCurve – linear interpolation [0,10,50,100]% → [0.12,0.32,0.75,1.02]
-    #    tdp_ratio(20%)  = 0.32 + (20-10)/(50-10) × (0.75-0.32) = 0.4275
-    #    tdp_ratio(100%) = 1.02   (exact control point)
+    # Formula reminders
+    #   effective_size_gb = storage_size_gb * replication_factor
+    #   energy_kwh = effective_size_gb * storage_electricity_ratio * duration_hours
+    #   operational_gco2e = energy_kwh * carbon_intensity
+    #   embodied_gco2e = effective_size_gb * storage_embodied_coefficient
+    #                    * (duration_seconds / expected_lifespan_seconds)
+    #   total_gco2e = operational_gco2e + embodied_gco2e
     #
-    # 2. cpu/power (kW) = tdp_ratio × vm_tdp / 1000
-    #    T00,T01: 0.4275 × 3.942 / 1000 = 1.685e-3 kW
-    #    T02:     1.020  × 3.942 / 1000 = 4.021e-3 kW
+    # R1: LRS disk (P4) for 1 month
+    #   effective_size_gb = 32 * 3 = 96
+    #   energy_kwh = 96 * 1.200e-6 * 744 = 8.570e-2
+    #   operational_gco2e = 8.570e-2 * 2.530e2 = 2.168e1
+    #   embodied_gco2e = 96 * 160 * (2.6784e6 / 126230400)
+    #                  = 3.259e2
+    #   total_gco2e = 2.168e1 + 3.259e2 = 3.476e2
     #
-    # 3. cpu/energy (kWh) = cpu/power × 3600 s / 3600 = cpu/power (1-hour window)
-    #    T00,T01: 1.685e-3 kWh   T02: 4.021e-3 kWh
+    # R2: GRS disk (S20) for 1 month
+    #   effective_size_gb = 512 * 6 = 3.072e3
+    #   energy_kwh = 3.072e3 * 1.200e-6 * 744 = 2.743e0
+    #   operational_gco2e = 2.743e0 * 2.530e2 = 6.939e2
+    #   embodied_gco2e = 3.072e3 * 160 * (2.6784e6 / 126230400)
+    #                  = 1.043e4
+    #   total_gco2e = 6.939e2 + 1.043e4 = 1.112e4
     #
-    # 4. memory/power  = 2.0 GB × 3.920e-4 kW/GB = 7.840e-4 kW   (PMem, CCF)
-    #    memory/energy = 7.840e-4 × 3600/3600         = 7.840e-4 kWh  (all obs.)
+    # R3: Unknown-type disks (default to LRS) for 1 hour
+    #   effective_size_gb = 128 * 3 = 3.840e2
+    #   energy_kwh = 3.840e2 * 9.250e-7 * 1 = 3.552e-4
+    #   operational_gco2e = 3.552e-4 * 2.530e2 = 8.986e-2
+    #   embodied_gco2e = 3.840e2 * 90 * (3600 / 126230400)
+    #                  = 9.856e-1
+    #   total_gco2e = 8.986e-2 + 9.856e-1 = 1.075
     #
-    # 5. storage/power  = 128 GB × 9.250e-7 kW/GB = 1.184e-4 kW   (PVmStorage)
-    #    storage/energy  = 1.184e-4 × 3600/3600    = 1.184e-4 kWh  (all obs.)
+    # R4: Unknown-type disks (default to LRS) for an unspecified duration (default to 1 day)
+    #   effective_size_gb = 128 * 3 = 3.840e2
+    #   energy_kwh = 3.840e2 * 9.250e-7 * 24 = 8.525e-3
+    #   operational_gco2e = 8.525e-3 * 2.530e2 = 2.157
+    #   embodied_gco2e = 3.840e2 * 90 * (86400 / 126230400)
+    #                  = 2.365e1
+    #   total_gco2e = 2.157 + 23.65 = 25.807
     #
-    # 6. energy_raw = cpu/energy + memory/energy + storage/energy  (SciE sum)
-    #    T00,T01: 1.685e-3 + 7.840e-4 + 1.184e-4 = 2.588e-3 kWh
-    #    T02:     4.021e-3 + 7.840e-4 + 1.184e-4 = 4.924e-3 kWh
-    #
-    # 7. energy (kWh) = energy_raw × PUE  (SciEPue, azure PUE=1.185e0)
-    #    T00,T01: 2.588e-3 × 1.185 = 3.066e-3 kWh
-    #    T02:     4.924e-3 × 1.185 = 5.834e-3 kWh
-    #    ─────────────────────────────────────────
-    #    TOTAL EnergyKWH = 3.066e-3 + 3.066e-3 + 5.834e-3 = 1.200e-2 kWh
-    #
-    # ── Operational carbon (SciO) ────────────────────────────────────────────
-    #
-    #    carbon-operational = energy × carbon_intensity
-    #    carbon_intensity(eastus) = 384 gCO2/kWh  (United_States, carbon_values.yaml)
-    #    T00,T01: 3.066e-3 × 384 = 1.178 gCO2e
-    #    T02:     5.834e-3 × 384 = 2.240 gCO2e
-    #    ─────────────────────────────────────────
-    #    TOTAL OperationalCarbonGramsCO2eq = 1.178 + 1.178 + 2.240 = 4.596 gCO2e
-    #
-    # ── Embodied carbon (SciM pipeline) ─────────────────────────────────────
-    #
-    #    CPU embodied (sci-m-cpu / @grnsft/if-plugins SciM):
-    #      = device_embodied × (duration / expected_lifespan) × (vcpus_allocated / vcpus_total)
-    #      = 1999999 × (3600 / 126230400) × (1 / 52) = 1.097 gCO2e per obs.
-    #      (device/emissions-embodied=1999999 treated as gCO2e by the SciM plugin,
-    #       device/expected-lifespan=126230400 s = 4 years)
-    #
-    #    Storage embodied (m-vm-storage):
-    #      = storage/requested × storage/embodied-coefficient × duration / expected_lifespan
-    #      = 128 × 90 × 3600 / 126230400 = 3.285e-1 gCO2e per obs.
-    #      (storage/embodied-coefficient=90 gCO2e/GB, unknown/default)
-    #
-    #    Total per obs.: 1.097 + 3.285e-1 = 1.425 gCO2e  (same for all 3, embodied is time-independent)
-    #    ─────────────────────────────────────────
-    #    TOTAL EmbodiedCarbonGramsCO2eq = 3 × 1.425 = 4.276 gCO2e
-    #
-    # ── Total carbon ─────────────────────────────────────────────────────────
-    #    TOTAL TotalCarbonGramsCO2eq = 4.596 + 4.276 = 8.872 gCO2e
-    # ─────────────────────────────────────────────────────────────────────────
+    # R5: Same disk as R1 (P4 LRS, 32 GB, 1 month) but in francecentral
+    #   francecentral -> France -> carbon_intensity=44 gCO2e/kWh
+    #   effective_size_gb = 32 * 3 = 96  (same as R1)
+    #   energy_kwh = 96 * 1.200e-6 * 744 = 8.571e-2  (same as R1)
+    #   operational_gco2e = 8.571e-2 * 44 = 3.771
+    #   embodied_gco2e = 96 * 160 * (2.6784e6 / 126230400)
+    #                  = 3.259e2  (same as R1)
+    #   total_gco2e = 3.771 + 325.9138 = 329.685
+    # ------------------------------------------------------------------------
 
     run = run_daemon(Path(__file__), tmp_path)
     run.validate_if_inputs(
@@ -104,7 +108,7 @@ def test_e2e_storage_misc_services_single_provider_azure(tmp_path):
     row_by_id = {row["Id"]: row for row in output_rows}
 
     # 1 VM + 3 Storage resources
-    assert len(output_rows) == 4
+    assert len(output_rows) == 8
 
     expected_by_id = {
         # R1

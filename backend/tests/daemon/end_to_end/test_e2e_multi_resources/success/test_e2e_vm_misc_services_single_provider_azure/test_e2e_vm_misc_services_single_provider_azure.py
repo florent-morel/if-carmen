@@ -7,7 +7,7 @@ from backend.tests.daemon.end_to_end._e2e_helpers import run_daemon, validate_ou
 def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
 
     # ── Miscellaneous services computation derivation ─────────────────────────────────
-    # 
+    #
     # Virtual machine computation is validated in test_e2e_vm_single_provider_azure
     # Miscellaneous services computation is validated here, based on the Virtual Machines computation result.
     #
@@ -15,11 +15,11 @@ def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
     #   R1: cost=120.50, region=westeurope
     #   R2: cost=85.00,  region=westeurope
     #   R3: cost=210.75, region=northeurope
-    #   VM1: 
+    #   VM1:
     #       cost=4 (1 + 1 + 2), region=eastus
     #       EnergyKWH = 1.200e-2 kWh
     #       EmbodiedCarbonGramsCO2eq = 4.2763 gCO2e
-    #   
+    #
     #
     # Constants (from test_data modelling constants)
     #   storage_cost=1.0 $, storage_energy=0.02 kWh
@@ -60,7 +60,7 @@ def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
     #   operational_gco2e = energy_kwh * 280.0 ≈ 427.8225
     #   embodied_gco2e = 210.75 * embodied_ratio ≈ 3593.6682
     #   total_gco2e = operational_gco2e + embodied_gco2e ≈ 4021.4907
-    
+
     # -------------------------------------------------------------------------
 
     run = run_daemon(Path(__file__), tmp_path)
