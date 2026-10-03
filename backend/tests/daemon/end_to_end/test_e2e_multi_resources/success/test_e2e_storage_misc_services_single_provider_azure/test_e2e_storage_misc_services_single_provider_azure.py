@@ -34,12 +34,31 @@ def test_e2e_storage_misc_services_single_provider_azure(tmp_path):
     #   duration_hours(R3,R4)=3600/3600=1 h
     #
     # Formula reminders
-    #   effective_size_gb = storage_size_gb * replication_factor
-    #   energy_kwh = effective_size_gb * storage_electricity_ratio * duration_hours
+    #   Ratios and intermediate products use full precision; displayed results are rounded to 4 decimals.
+    #   energy_ratio_kwh_per_dollar = 0.75 * (compute_energy / compute_cost)
+    #                                  + 0.25 * (storage_energy / storage_cost)
+    #                                = 0.25 * ((0.0857+2.7427+0.0004+0.0085+0.0857) / 500.0)
+    #                                = 0.25 * (2.923 / 500.0)
+    #                                ≈ 0.0015 kWh/$
+    #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
+    #                                     + 0.25 * (storage_embodied / storage_cost)
+    #                                   = 0.25 * ((325.9138+10429.2402+0.9856+23.655+325.9138) / 500.0)
+    #                                   = 0.25 * (11105.7084 / 500.0)
+    #                                   ≈ 5.5529 gCO2e/$
+    #   energy_kwh = cost * energy_ratio_kwh_per_dollar
+    #              = (120.5+85+210.75) * 0.0015
+    #              = 416.25 * 0.0015
+    #              = 0.6244
+    #
     #   operational_gco2e = energy_kwh * carbon_intensity
-    #   embodied_gco2e = effective_size_gb * storage_embodied_coefficient
-    #                    * (duration_seconds / expected_lifespan_seconds)
+    #                     = 0.6244 * 253
+    #                     = 157.9732
+    #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
+    #                  = 416.25 * 5.5529
+    #                  = 2311.3946
     #   total_gco2e = operational_gco2e + embodied_gco2e
+    #               = 157.9732 + 2311.3946
+    #               = 2469.3678
     #
     # R1: LRS disk (P4) for 1 month
     #   effective_size_gb = 32 * 3 = 96
@@ -181,6 +200,19 @@ def test_e2e_storage_misc_services_single_provider_azure(tmp_path):
             "TotalCarbonGramsCO2eq": 329.685,
             "CarbonIntensity": 44,
         },
+        #   energy_kwh = cost * energy_ratio_kwh_per_dollar
+        #              = 120.5 * 0.0015
+        #              = 0.1808
+        #
+        #   operational_gco2e = energy_kwh * carbon_intensity
+        #                     = 0.6244 * 253
+        #                     = 157.9732
+        #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
+        #                  = 416.25 * 5.5529
+        #                  = 2311.3946
+        #   total_gco2e = operational_gco2e + embodied_gco2e
+        #               = 157.9732 + 2311.3946
+        #               = 2469.3678
         "Test_ID_Misc_Services_01": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "VMSize": "Standard_A1_v2",
