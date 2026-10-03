@@ -14,6 +14,7 @@ from backend.src.utils import ioc_util
 from backend.src.utils.helpers import validate_query_parameters
 from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.schemas.compute_resource import ComputeResource
+from backend.src.core.yaml_config_loader import config
 
 router = APIRouter()
 
@@ -91,6 +92,13 @@ async def run_engine_for_selected_hardware(
             detail="CPU load and storage size arrays must have the same length.",
         )
 
+    provider = config.carmen_api.provider if config.carmen_api else None
+    if not provider:
+        raise HTTPException(
+            status_code=400,
+            detail="carmen_api.provider must be configured for hardware calculations.",
+        )
+
     # Compute the sampling rate(step_seconds)
     num_of_data_points = len(cpu_load)
     step_seconds = round(duration / num_of_data_points)
@@ -103,6 +111,7 @@ async def run_engine_for_selected_hardware(
     vms = [
         VirtualMachine(
             id="0",
+            provider=provider,
             vm_size=vm_type,
             cpu_util=cpu_load,
             storage_size=storage_size,

@@ -80,6 +80,7 @@ Make sure you have Helm installed, and that you have access to a Kubernetes clus
 carmen_api:
   # The URL of the querier endpoint where Prometheus queries will be sent.
   thanos_url: http://localhost:9090
+  provider: azure
 
   # The authentication method used to access the Prometheus/Thanos API.
   # Supported values can include: 'azure', 'none'.
