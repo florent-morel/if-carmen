@@ -681,6 +681,9 @@ misc-services runner execution.
 The plugin computes energy and carbon using weighted cost-intensity factors.
 Current weighting is 75% compute and 25% storage:
 
+TODO: need to align our definitions with what we find in the tests (e2e).
+    - We are talking about ratios in the tests, it does not appear here.
+
 ```
 misc-services-energy = cost
                 * (0.75 * (compute_energy / compute_cost)
