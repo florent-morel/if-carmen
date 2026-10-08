@@ -33,15 +33,15 @@ def test_e2e_storage_misc_services_single_provider_azure(tmp_path):
     #   duration_hours(R1,R2)=2678400/3600=744 h
     #   duration_hours(R3,R4)=3600/3600=1 h
     #
-    # Formula reminders
     #   Ratios and intermediate products use full precision; displayed results are rounded to 4 decimals.
+    # Formula reminders
     #   energy_ratio_kwh_per_dollar = 0.75 * (compute_energy / compute_cost)
     #                                  + 0.25 * (storage_energy / storage_cost)
     #                                = 0.75 * (0.15 / 1) -- default value cf (config/modelling_constants/carbon_values.yaml)
     #                                + 0.25 * ((0.0857+2.7427+0.0004+0.0085+0.0857) / 500.0)
     #                                = 0.1125
     #                                + 0.25 * (2.923 / 500.0)
-    #                                = 0.1125 + 0.0015
+    #                                = 0.1125 + 0.001484
     #                                ≈ 0.114 kWh/$
     #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
     #                                     + 0.25 * (storage_embodied / storage_cost)
