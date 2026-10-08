@@ -46,8 +46,7 @@ export const MiscServicesModelPlugin = PluginFactory({
       const carbonIntensity = input['carbon-intensity'];
 
       // Calculate the outputs
-            // TODO: Magic numbers to be put in config
-            // TODO: Add this formula in documentation (and point explicitely to this file/model)
+      // TODO: Magic numbers to be put in config
       const miscServicesEnergyValue = cost * (0.75 * (computeEnergy / computeCost) + 0.25 * (storageEnergy / storageCost));
 
       const miscServicesOperationalValue = miscServicesEnergyValue * carbonIntensity;

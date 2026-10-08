@@ -17,7 +17,14 @@ The infrastructure pipeline is used by both the Carbon Daemon and the Run Hardwa
 
 ### Hardware Metadata Retrieval
 
-The pipeline begins with the cloud-metadata component, which performs a CSV lookup using the cloud instance type as the key (e.g., "t3.medium", "n1-standard-4"). This lookup retrieves hardware specifications including the CPU's thermal design power (TDP) measured in Watts, the number of virtual CPUs allocated to the instance, and the amount of memory requested in gigabytes. 
+Before running the IF pipeline, Carmen looks up `VmSize` in the provider's instance data. This provides the host CPU's thermal design power (TDP), the host's total vCPUs, the vCPUs allocated to the VM, and requested memory. Carmen attributes only the VM's share of the host CPU TDP:
+
+**Equation:**
+~~~
+cpu/thermal-design-power (W) = host_cpu_tdp (W) × (vcpus_allocated / vcpus_total)
+~~~
+
+If the instance is not found, Carmen estimates CPU TDP using the provider's `cpu_max` power per vCPU and the count in `VmNbCpus`. For Azure, it can infer the count from `VmSize` when `VmNbCpus` is absent. Without a provider `cpu_max` or a vCPU count, Carmen cannot calculate the VM's CPU impact.
 
 ### CPU Power and Energy Calculations
 
@@ -613,8 +620,17 @@ Before computation, storage size is adjusted by replication factor:
 effective_storage_gb = size_gb * replication_factor
 ```
 
-- `replication_factor` is read from provider config when available.
-- If provider config is missing or does not define the replication type, fallback is `1`.
+`StorageType` is matched without regard to case. The default coefficients in `carbon_values.yaml` are:
+
+| StorageType | Electricity ratio (kW/GB) | Embodied coefficient (gCO2e/GB) |
+|---|---:|---:|
+| SSD | 0.0000012 | 160 |
+| HDD | 0.00000065 | 20 |
+| Other or missing (`unknown`) | 0.000000925 | 90 |
+
+Provider-specific electricity ratios override the defaults when configured. Embodied coefficients use the global values.
+
+`StorageReplicationType` selects a factor from the provider's `storage_replication_factors`. Azure maps `LRS` and `ZRS` to 3, and `GRS`, `RA_GRS`, `GZRS`, and `RA_GZRS` to 6. Carmen multiplies `StorageSizeGB` by this factor to obtain the effective size used for energy and embodied emissions. When no provider configuration exists, the factor is 1. With a configured provider, an unmapped replication type has no factor-1 fallback and cannot currently be computed reliably.
 
 ### Storage power and energy
 
@@ -660,10 +676,10 @@ The expected-value helper formulas are implemented in:
 ## Services Pipeline
 
 The misc-services pipeline estimates impact for cloud spend that is not directly attributable
-to VM or storage rows. It is wired by [IFMiscServicesService](backend/src/services/carbon_service/impact_framework/service/if_misc_services_service.py)
-using [MiscServicesModel](backend/src/services/carbon_service/impact_framework/models/carbon/misc_services.py),
+to VM or storage rows. It is wired by [IFMiscServicesService](../backend/src/services/carbon_service/impact_framework/service/if_misc_services_service.py)
+using [MiscServicesModel](../backend/src/services/carbon_service/impact_framework/models/carbon/misc_services.py),
 which delegates computation to the plugin implementation in
-[misc-services-model-plugin](misc-services-model-plugin/src/lib/misc-services-model-plugin/index.ts).
+[misc-services-model-plugin](../misc-services-model-plugin/src/lib/misc-services-model-plugin/index.ts).
 
 ### Input dependencies
 
@@ -700,10 +716,10 @@ misc-services-embodied = cost
 ### Validation helper references
 
 The corresponding helper implementations are in:
-- [compute_services_energy_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
-- [compute_services_operational_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
-- [compute_services_embodied_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_services_energy_helper](../backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_services_operational_helper](../backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_services_embodied_helper](../backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
 
 The IF pipeline and template are:
-- [misc_services_pipeline.yml](etc/impact_framework/templates/misc_services_pipeline.yml)
-- [misc_services_template.yml.j2](etc/impact_framework/templates/misc_services_template.yml.j2)
+- [misc_services_pipeline.yml](../etc/impact_framework/templates/misc_services_pipeline.yml)
+- [misc_services_template.yml.j2](../etc/impact_framework/templates/misc_services_template.yml.j2)

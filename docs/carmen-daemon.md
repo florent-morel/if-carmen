@@ -48,19 +48,12 @@ It contains:
 This file is following the same structure as config.yaml.
 It is used for Unit Tests only.
 
-#### ~/etc/config/modelling_constants/carbon-values.yaml
+#### ~/etc/config/modelling_constants/carbon_values.yaml
 
 This file defines several carbon computation related values.
 These are common to all providers.
 
-This file defines the carbon intensity mapping per location.
-A location can be: 
-- A country (e.g. Sweden).
-- A state (e.g. California).
-- A city (e.g. Mumbai).
-- Anything as long as it is provided in the input file dedicated column.
-
-To support a new location in one's computation, a new entry should be added.
+Carmen looks up each CSV `Region` in the `regions` mappings of the loaded provider configurations. The matching entry identifies a location, whose intensity is read from `carbon_intensity_by_location` in `etc/config/modelling_constants/carbon_values.yaml`. For example, `eastus` maps to `United_States`, with an intensity of `384 gCO2e/kWh`. If the region or location is not mapped, Carmen uses `default_carbon_intensity`. To support a new region, configure both its region-to-location mapping and the location's intensity.
 
 It also defines the embodied storage values for the following technologies:
 - HDD.
@@ -76,7 +69,7 @@ This folder stores cloud providers specific configurations.
 This file is dedicated to Microsoft Azure Cloud Service Provider.
 It defines constants related to:
 - Power Usage Effectiveness ratio (PUE).
-- Mapping between Azure defined regions and carbon intensity values defined in carbon-values.yaml.
+- Mapping between Azure defined regions and carbon intensity values defined in carbon_values.yaml.
 - Electricity ratios: energy consumption of different resources.
 
 
@@ -114,12 +107,14 @@ TODO: review this.
 
 | Field | Description | Example |
 |------|-------------|---------|
-| Time | Timestamp when the measurement was recorded, typically in ISO 8601 format | 2024-10-15T14:30:00Z |
-| Name | Human-readable name assigned to the resource | production-web-01 |
-| Id | Unique identifier for the virtual machine resource | vm-a1b2c3d4e5f6 |
-| Size | VM instance size or tier (defines CPU, memory, and performance characteristics) | Standard_D4s_v3 |
-| Region | Geographic location where the resource is deployed | Canada, California, European_Union |
-| Service | Cloud service or product category the VM belongs to | Compute, Azure Virtual Machines, EC2 |
+| SampleTimestamp | Timestamp when the measurement was recorded, typically in ISO 8601 format | 2024-10-15T14:30:00Z |
+| ResourceName | Human-readable name assigned to the resource | production-web-01 |
+| ResourceId | Unique identifier for the resource | vm-a1b2c3d4e5f6 |
+| VmSize | VM instance size used to look up hardware specifications | Standard_D4s_v3 |
+| VmNbCpus | Number of vCPUs allocated to the VM, used to estimate CPU power when instance metadata is unavailable | 4 |
+| Region | Region code used to determine carbon intensity | eastus |
+| Provider | Name of the resource's provider, used to select provider-specific modelling values and instance data when available | azure |
+| ResourceType | Resource category used to select the appropriate processor | Compute, Storage, network |
 | AverageVmCpuUtilPercent | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | VmDiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
 | StorageSizeGB | Required for storage rows. Normalized storage capacity in gigabytes. | 512 |
@@ -128,15 +123,10 @@ TODO: review this.
 
 ### Storage-specific ingestion contract
 
-Storage input files must include the following columns for every row where `MeterCategory` is `Storage`:
-
-- `StorageSizeGB`
-- `SampleDurationSeconds`
-
-These values are part of the source contract.
+For every row where `ResourceType` is `Storage`, the following rules apply:
 
 - `StorageSizeGB` is required and must be numeric and strictly positive.
-- `SampleDurationSeconds` should be provided by the source. If it is missing or empty, Carmen applies the default duration `86400` seconds (1 day).
+- `SampleDurationSeconds` is optional but should be provided by the source. If it is missing or empty, Carmen applies the default duration `86400` seconds (1 day).
 - If `SampleDurationSeconds` is non-numeric, zero, negative, or fractional, Carmen skips the row.
 
 
