@@ -27,6 +27,13 @@ vNext:
 
 - Implement embodied emissions TE retrieved from config file per instance_type
 - Configure and propagate output/generated folders for IF files dir (hardcoded as IF_FILES_DIR in Constants).
+- Resolve carbon intensity using the resource's Provider-specific region mapping, not the first matching region across all providers.
+    Today, the readers record Provider, but call PaasCiMapper.calculate_ci with Region only... The mapper scans every provider’s region map and takes the FIRST match.
+
+    For example, suppose both Azure and AWS configure the same code for a different region: Azure maps it to the Netherlands (253 gCO₂/kWh), while AWS maps it to France (44 gCO₂/kWh). An AWS resource in that region using 10 kWh should produce 440 gCO₂. If Azure’s mapping is encountered first, the current lookup would use 2,530 gCO₂ instead.
+
+    Low risk, but conflict may arise in the future.
+- Fail storage computation explicitly when a configured provider has no mapping for a resource's StorageReplicationType.
 
 ## Documentation
 
