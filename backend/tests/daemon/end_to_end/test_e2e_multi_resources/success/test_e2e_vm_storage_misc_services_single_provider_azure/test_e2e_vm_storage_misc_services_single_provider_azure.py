@@ -85,7 +85,8 @@ def test_e2e_vm_storage_misc_services_single_provider_azure(tmp_path):
     #                                + 0.25 * ((0.0857+2.7427+0.0004+0.0085+0.0857) / 500.0)
     #                                = 0.0000225
     #                                + 0.25 * (2.923 / 500.0)
-    #                                = 0.0000225 + 0.001484
+    #                                = 0.0000225 + 0.0014615
+    #                                = 0.001484
     #                                TODO: result not rounded in this case.
     #                                ≈ 0.0015 kWh/$
     #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
