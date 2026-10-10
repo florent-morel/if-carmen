@@ -40,7 +40,7 @@ def compute_expected_cpu_energy(
     """
     tdp_ratio = compute_tdp_ratio(cpu_util)
     cpu_energy = compute_cpu_energy(tdp, tdp_ratio, SAMPLING_RATE_IN_SECONDS) / 3600
-    return np.round(cpu_energy * requested_cores, 4)
+    return cpu_energy * requested_cores
 
 
 @pytest.fixture

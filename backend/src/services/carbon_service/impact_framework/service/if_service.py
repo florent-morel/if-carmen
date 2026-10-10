@@ -307,14 +307,14 @@ class IFService(ABC, CarbonService):
         # populate aggregated values
         for metric in aggregated_data.keys():
             metrics[metric] = {
-                "aggregated": round(aggregated_data[metric], 4),
+                "aggregated": aggregated_data[metric],
                 "observations": [],
             }
         # populate metric observations
         for timepoint in if_output[compute_resource_id]["outputs"]:
             for metric, metric_data in metrics.items():
                 metric_data["observations"].append(
-                    round(timepoint[metric], 4)
+                    timepoint[metric]
                     if metric not in ["timestamp", "duration"]
                     else None
                 )

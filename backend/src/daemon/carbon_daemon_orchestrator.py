@@ -88,24 +88,6 @@ Examples:
     print(help_message)
 
 
-class OrchestratorContext:
-    """
-    Class to store variables related to this Carmen Daemon run.
-    """
-
-    # Variables set at the end of compute & storage processing.
-    # These will then be used as cost model in the Misc Services process.
-    # TODO Vnext: Should be set in Orchestrator context to be used only once.
-    # compute_energy: float = 0.0
-    # storage_energy: float = 0.0
-    # compute_embodied: float = 0.0
-    # storage_embodied: float = 0.0
-
-    # compute_cost: float = 0.0
-    # storage_cost: float = 0.0
-    # storage_cost: float = 0.0
-
-
 class CarbonDaemonOrchestrator:
     def __init__(
         self,
@@ -531,8 +513,8 @@ class CarbonDaemonOrchestrator:
         dict_resource_results: dict[ResourceType, ResourceTypeResult],
     ) -> None:
         """
-        Populate compute and storage fields on each MiscServicesResource before
-        the misc services runner executes.
+        Populate shared cost ratios on each MiscServicesResource before the
+        misc services runner executes.
 
         Values are taken from the VM and Storage ResourceTypeResults already
         accumulated in ``dict_resource_results`` during the current engine loop.
@@ -543,32 +525,70 @@ class CarbonDaemonOrchestrator:
         storage_dict_result = dict_resource_results.get(ResourceType.STORAGE)
         misc_defaults = config.carbon_values_config.default_misc_services_constants
 
-        for resource in list_resources_to_process:
-            if vm_dict_result:
-                resource.compute_cost = vm_dict_result.total_cost
-                resource.compute_energy = vm_dict_result.total_energy_consumed
-                resource.compute_embodied = vm_dict_result.total_carbon_embodied
-            else:
-                logger.warning(
-                    "No compute results found for Misc Services model. "
-                    "Using default values from carbon_values.yaml."
-                )
-                resource.compute_cost = misc_defaults.compute_cost
-                resource.compute_energy = misc_defaults.compute_energy
-                resource.compute_embodied = misc_defaults.compute_embodied
+        if vm_dict_result:
+            compute_cost = vm_dict_result.total_cost
+            compute_energy = vm_dict_result.total_energy_consumed
+            compute_embodied = vm_dict_result.total_carbon_embodied
+        else:
+            logger.warning(
+                "No compute results found for Misc Services model. "
+                "Using default values from carbon_values.yaml."
+            )
+            compute_cost = misc_defaults.compute_cost
+            compute_energy = misc_defaults.compute_energy
+            compute_embodied = misc_defaults.compute_embodied
 
-            if storage_dict_result:
-                resource.storage_cost = storage_dict_result.total_cost
-                resource.storage_energy = storage_dict_result.total_energy_consumed
-                resource.storage_embodied = storage_dict_result.total_carbon_embodied
-            else:
-                logger.warning(
-                    "No storage results found for Misc Services model. "
-                    "Using default values from carbon_values.yaml."
-                )
-                resource.storage_cost = misc_defaults.storage_cost
-                resource.storage_energy = misc_defaults.storage_energy
-                resource.storage_embodied = misc_defaults.storage_embodied
+        if storage_dict_result:
+            storage_cost = storage_dict_result.total_cost
+            storage_energy = storage_dict_result.total_energy_consumed
+            storage_embodied = storage_dict_result.total_carbon_embodied
+        else:
+            logger.warning(
+                "No storage results found for Misc Services model. "
+                "Using default values from carbon_values.yaml."
+            )
+            storage_cost = misc_defaults.storage_cost
+            storage_energy = misc_defaults.storage_energy
+            storage_embodied = misc_defaults.storage_embodied
+
+        if compute_cost == 0 or storage_cost == 0:
+            raise ValueError(
+                "Misc services ratios require nonzero compute and storage costs "
+                f"(compute_cost={compute_cost}, storage_cost={storage_cost})."
+            )
+
+        # TODO|5 vNext : Set weights used in ratio calculation as configurable input with a default value.
+        # TODO|6 vNext : Move ratio calculation into IF. 
+        # Include the raw compute/storage totals in the manifest and expose intermediate ratios, 
+        # so the manifest explains the impact without Python logs.
+        energy_cost_ratio = (
+            0.75 * compute_energy / compute_cost
+            + 0.25 * storage_energy / storage_cost
+        )
+        embodied_cost_ratio = (
+            0.75 * compute_embodied / compute_cost
+            + 0.25 * storage_embodied / storage_cost
+        )
+        logger.info(
+            "Misc services cost ratios: energy_cost_ratio=%s kWh/currency, "
+            "embodied_cost_ratio=%s gCO2e/currency "
+            "(compute source=%s, energy=%s, embodied=%s, cost=%s; "
+            "storage source=%s, energy=%s, embodied=%s, cost=%s)",
+            energy_cost_ratio,
+            embodied_cost_ratio,
+            "VM results" if vm_dict_result else "config defaults",
+            compute_energy,
+            compute_embodied,
+            compute_cost,
+            "storage results" if storage_dict_result else "config defaults",
+            storage_energy,
+            storage_embodied,
+            storage_cost,
+        )
+
+        for resource in list_resources_to_process:
+            resource.energy_cost_ratio = energy_cost_ratio
+            resource.embodied_cost_ratio = embodied_cost_ratio
 
     def create_carbon_daemon_result(
         self,

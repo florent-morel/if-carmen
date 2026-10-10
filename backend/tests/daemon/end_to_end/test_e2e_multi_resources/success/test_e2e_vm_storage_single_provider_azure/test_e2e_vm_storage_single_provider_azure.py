@@ -79,23 +79,19 @@ def test_e2e_vm_storage_single_provider_azure(tmp_path):
     #    TOTAL TotalCarbonGramsCO2eq = 4.596 + 4.276 = 8.872 gCO2e
     # ─────────────────────────────────────────────────────────────────────────
     # Formula reminders
+    #   compute_energy = 0.011967  # kWh
+    #   storage_energy = 2.922979  # kWh
+    #   compute_cost = 400  # $
+    #   storage_cost = 500  # $
+    #   compute_embodied = 4.276311  # gCO2e
+    #   storage_embodied = 11105.708419  # gCO2e
+    #
     #   energy_ratio_kwh_per_dollar = 0.75 * (compute_energy / compute_cost)
     #                                  + 0.25 * (storage_energy / storage_cost)
-    #                                = 0.75 * (0.012 / 400)
-    #                                + 0.25 * ((0.0857+2.7427+0.0004+0.0085+0.0857) / 500.0)
-    #                                = 0.0000225
-    #                                + 0.25 * (2.923 / 500.0)
-    #                                = 0.0000225 + 0.001484
-    #                                TODO: result not rounded in this case.
-    #                                ≈ 0.0015 kWh/$
+    #                                = 0.001484 kWh/$
     #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
     #                                     + 0.25 * (storage_embodied / storage_cost)
-    #                                   = 0.75 * (4.2763 / 400)
-    #                                   + 0.25 * ((325.9138+10429.2402+0.9856+23.655+325.9138) / 500.0)
-    #                                   =  0.0080
-    #                                   + 0.25 * (11105.7084 / 500.0)
-    #                                   = 0.0080 + 5.5529
-    #                                   ≈ 5.5609 gCO2e/$
+    #                                   = 5.560872 gCO2e/$
     #
     #   operational_gco2e (for a given resource) =  (cost * carbon_intensity_per_region) * energy_ratio_kwh_per_dollar
     #

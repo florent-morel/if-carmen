@@ -45,7 +45,7 @@ class AbstractWriter(ABC):
         content it needs.
         """
 
-    def write_common_content(self, resource: Resource) -> dict[str, str]:
+    def write_common_content(self, resource: Resource) -> dict[str, Any]:
         """
         Method to fill common columns for a given resource.
         Args:
@@ -59,10 +59,10 @@ class AbstractWriter(ABC):
             ReportConfig.COMMON_NAME: resource.name,
             ReportConfig.COMMON_PROVIDER: resource.provider,
             ReportConfig.COMMON_REGION: resource.region,
-            ReportConfig.COMMON_ENERGY: resource.total_energy_consumed,
-            ReportConfig.COMMON_OPERATIONAL_CARBON: resource.total_carbon_operational,
-            ReportConfig.COMMON_EMBODIED_CARBON: resource.total_carbon_embodied,
-            ReportConfig.COMMON_TOTAL_CARBON: resource.total_carbon_emitted,
+            ReportConfig.COMMON_ENERGY: round(resource.total_energy_consumed, 4),
+            ReportConfig.COMMON_OPERATIONAL_CARBON: round(resource.total_carbon_operational, 4),
+            ReportConfig.COMMON_EMBODIED_CARBON: round(resource.total_carbon_embodied, 4),
+            ReportConfig.COMMON_TOTAL_CARBON: round(resource.total_carbon_emitted, 4),
             ReportConfig.COMMON_CARBON_INTENSITY: resource.carbon_intensity,
             ReportConfig.COMMON_COST: resource.cost,
         }

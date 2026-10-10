@@ -17,49 +17,55 @@ def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
     #   R3: cost=210.75, region=northeurope
     #   VM1:
     #       cost=4 (1 + 1 + 2), region=eastus
-    #       EnergyKWH = 1.200e-2 kWh
-    #       EmbodiedCarbonGramsCO2eq = 4.2763 gCO2e
+    #       IF energy=0.011967 kWh, embodied=4.276311 gCO2e
+    #       CSV energy=0.0120 kWh, embodied=4.2763 gCO2e
     #
     #
-    # Constants (from test_data modelling constants)
-    #   storage_cost=1.0 $, storage_energy=0.02 kWh
-    #   storage_embodied=65.0 gCO2e
+    # Ratio inputs
+    #   compute_energy = 0.011967  # kWh
+    #   storage_energy = 0.02  # kWh (default value)
+    #   compute_cost = 4  # $
+    #   storage_cost = 1  # $
+    #   compute_embodied = 4.276311  # gCO2e
+    #   storage_embodied = 65.0  # gCO2e (default value)
     #   weights: compute=0.75, storage=0.25
     #   westeurope -> Netherlands -> carbon_intensity=253 gCO2e/kWh
     #   northeurope -> Ireland -> carbon_intensity=280 gCO2e/kWh
     #
     # Formula reminders
-    #   Ratios and intermediate products use full precision; displayed results are rounded to 4 decimals.
+    #   Ratios use unrounded IF totals. The CSV writer rounds final metrics to
+    #   4 decimals, including total carbon calculated from unrounded components.
     #   energy_ratio_kwh_per_dollar = 0.75 * (compute_energy / compute_cost)
     #                                  + 0.25 * (storage_energy / storage_cost)
-    #                                = 0.75 * (0.012 / 4.0) + 0.25 * (0.02 / 1.0)
-    #                                ≈ 0.0073 kWh/$
+    #                                = 0.007244 kWh/$
     #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
     #                                     + 0.25 * (storage_embodied / storage_cost)
-    #                                   = 0.75 * (4.2763 / 4.0) + 0.25 * (65.0 / 1.0)
-    #                                   ≈ 17.0518 gCO2e/$
+    #                                   = 17.051808 gCO2e/$
     #   energy_kwh = cost * energy_ratio_kwh_per_dollar
     #   operational_gco2e = energy_kwh * carbon_intensity
     #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
     #   total_gco2e = operational_gco2e + embodied_gco2e
     #
     # R1: Azure Firewall - Standard - EU West
-    #   energy_kwh = 120.5 * energy_ratio ≈ 0.8736
-    #   operational_gco2e = energy_kwh * 253.0 ≈ 221.0271
-    #   embodied_gco2e = 120.5 * embodied_ratio ≈ 2054.7427
-    #   total_gco2e = operational_gco2e + embodied_gco2e ≈ 2275.7698
+    #   energy_kwh = 120.5 * energy_ratio = 0.872887
+    #   operational_gco2e = energy_kwh * 253 = 220.840473
+    #   embodied_gco2e = 120.5 * embodied_ratio = 2054.742894
+    #   report: energy=0.8729, operational=220.8405, embodied=2054.7429
+    #           total=2275.5834 (rounded from unrounded component sum)
     #
     # R2: Azure DDoS Protection - Standard - EU West
-    #   energy_kwh = 85.0 * energy_ratio ≈ 0.6163
-    #   operational_gco2e = energy_kwh * 253.0 ≈ 155.9113
-    #   embodied_gco2e = 85.0 * embodied_ratio ≈ 1449.4035
-    #   total_gco2e = operational_gco2e + embodied_gco2e ≈ 1605.3148
+    #   energy_kwh = 85.0 * energy_ratio = 0.615730
+    #   operational_gco2e = energy_kwh * 253 = 155.779587
+    #   embodied_gco2e = 85.0 * embodied_ratio = 1449.403701
+    #   report: energy=0.6157, operational=155.7796, embodied=1449.4037
+    #           total=1605.1833 (rounded from unrounded component sum)
     #
     # R3: Azure Application Gateway - Standard V2 - EU North
-    #   energy_kwh = 210.75 * energy_ratio ≈ 1.5279
-    #   operational_gco2e = energy_kwh * 280.0 ≈ 427.8225
-    #   embodied_gco2e = 210.75 * embodied_ratio ≈ 3593.6682
-    #   total_gco2e = operational_gco2e + embodied_gco2e ≈ 4021.4907
+    #   energy_kwh = 210.75 * energy_ratio = 1.526647
+    #   operational_gco2e = energy_kwh * 280 = 427.461214
+    #   embodied_gco2e = 210.75 * embodied_ratio = 3593.668589
+    #   report: energy=1.5266, operational=427.4612, embodied=3593.6686
+    #           total=4021.1298 (rounded from unrounded component sum)
 
     # -------------------------------------------------------------------------
 
@@ -77,10 +83,8 @@ def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
     run.validate_if_inputs(
         stage="misc_services",
         expected_common_inputs={
-            "compute-cost": 4.0,
-            "storage-energy": 0.02,
-            "storage-embodied": 65.0,
-            "storage-cost": 1.0,
+            "energy-cost-ratio": 0.007244,
+            "embodied-cost-ratio": 17.051808,
         },
         expected_inputs_by_id={
             "Test_ID_Misc_Services_01": {"cost": 120.5},
@@ -106,30 +110,30 @@ def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "Provider": "azure",
                 "Region": "westeurope",
-                "EnergyKWH": 0.8736,
-                "OperationalCarbonGramsCO2eq": 221.0271,
-                "EmbodiedCarbonGramsCO2eq": 2054.7427,
-                "TotalCarbonGramsCO2eq": 2275.7698,
+                "EnergyKWH": 0.8729,
+                "OperationalCarbonGramsCO2eq": 220.8405,
+                "EmbodiedCarbonGramsCO2eq": 2054.7429,
+                "TotalCarbonGramsCO2eq": 2275.5834,
                 "CarbonIntensity": 253,
             },
         "Test_ID_Misc_Services_02": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "Provider": "azure",
                 "Region": "westeurope",
-                "EnergyKWH": 0.6163,
-                "OperationalCarbonGramsCO2eq": 155.9113,
-                "EmbodiedCarbonGramsCO2eq": 1449.4035,
-                "TotalCarbonGramsCO2eq": 1605.3148,
+                "EnergyKWH": 0.6157,
+                "OperationalCarbonGramsCO2eq": 155.7796,
+                "EmbodiedCarbonGramsCO2eq": 1449.4037,
+                "TotalCarbonGramsCO2eq": 1605.1833,
                 "CarbonIntensity": 253,
             },
         "Test_ID_Misc_Services_03": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "Provider": "azure",
                 "Region": "northeurope",
-                "EnergyKWH": 1.5279,
-                "OperationalCarbonGramsCO2eq": 427.8225,
-                "EmbodiedCarbonGramsCO2eq": 3593.6682,
-                "TotalCarbonGramsCO2eq": 4021.4907,
+                "EnergyKWH": 1.5266,
+                "OperationalCarbonGramsCO2eq": 427.4612,
+                "EmbodiedCarbonGramsCO2eq": 3593.6686,
+                "TotalCarbonGramsCO2eq": 4021.1298,
                 "CarbonIntensity": 280,
             }
     }

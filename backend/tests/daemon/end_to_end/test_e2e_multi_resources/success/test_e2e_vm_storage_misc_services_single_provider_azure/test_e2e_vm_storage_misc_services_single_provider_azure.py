@@ -79,24 +79,21 @@ def test_e2e_vm_storage_misc_services_single_provider_azure(tmp_path):
     #    TOTAL TotalCarbonGramsCO2eq = 4.596 + 4.276 = 8.872 gCO2e
     # ─────────────────────────────────────────────────────────────────────────
     # Formula reminders
+    #   Ratios use full IF VM/storage totals. The CSV writer rounds final
+    #   energy and carbon metrics to 4 decimals after calculating total carbon.
+    #   compute_energy = 0.011967  # kWh
+    #   storage_energy = 2.922979  # kWh
+    #   compute_cost = 400  # $
+    #   storage_cost = 500  # $
+    #   compute_embodied = 4.276311  # gCO2e
+    #   storage_embodied = 11105.708419  # gCO2e
+    #
     #   energy_ratio_kwh_per_dollar = 0.75 * (compute_energy / compute_cost)
     #                                  + 0.25 * (storage_energy / storage_cost)
-    #                                = 0.75 * (0.012 / 400)
-    #                                + 0.25 * ((0.0857+2.7427+0.0004+0.0085+0.0857) / 500.0)
-    #                                = 0.0000225
-    #                                + 0.25 * (2.923 / 500.0)
-    #                                = 0.0000225 + 0.0014615
-    #                                = 0.001484
-    #                                TODO: result not rounded in this case.
-    #                                ≈ 0.0015 kWh/$
+    #                                = 0.001484 kWh/$
     #   embodied_ratio_gco2e_per_dollar = 0.75 * (compute_embodied / compute_cost)
     #                                     + 0.25 * (storage_embodied / storage_cost)
-    #                                   = 0.75 * (4.2763 / 400)
-    #                                   + 0.25 * ((325.9138+10429.2402+0.9856+23.655+325.9138) / 500.0)
-    #                                   =  0.0080
-    #                                   + 0.25 * (11105.7084 / 500.0)
-    #                                   = 0.0080 + 5.5529
-    #                                   ≈ 5.5609 gCO2e/$
+    #                                   = 5.560872 gCO2e/$
     #
     #   operational_gco2e (for a given resource) =  (cost * carbon_intensity_per_region) * energy_ratio_kwh_per_dollar
     #
@@ -122,7 +119,10 @@ def test_e2e_vm_storage_misc_services_single_provider_azure(tmp_path):
     )
     run.validate_if_inputs(
         "misc_services",
-        expected_common_inputs={"compute-cost": 400.0, "storage-cost": 500.0},
+        expected_common_inputs={
+            "energy-cost-ratio": 0.001484,
+            "embodied-cost-ratio": 5.560872,
+        },
         expected_inputs_by_id={
             "Test_ID_Misc_Services_01": {"cost": 120.5},
             "Test_ID_Misc_Services_02": {"cost": 85.0},
@@ -222,93 +222,83 @@ def test_e2e_vm_storage_misc_services_single_provider_azure(tmp_path):
             },
             # R7
             #   Energy KWH = cost * energy_ratio_kwh_per_dollar
-            #              = 120.5 * 0.0015
-        #              TODO: Check what we should do regarding rounding.
-            #              = 0.1808 --> KO
-            #              = 120.5 * 0.001484
-            #              = 0.1788 --> OK
+            #              = 120.5 * energy_ratio = 0.178813
             #
-            #   operational_gco2e = cost * carbon_intensity * energy_ratio_kwh_per_dollar
-            #                     = 120.5 * 253 * 0.001484
-            #                         = 45.242
-            #                     = 45.7298 gCO2e
+            #   operational_gco2e = energy * 253 = 45.239782
             #
             #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
-            #                  = 120.5 * 5.5609
-            #                  = 670.0885 gCO2e
+            #                  = 120.5 * embodied_ratio = 670.085111
             #
-            #   total_gco2e = operational_gco2e + embodied_gco2e
-            #               = 45.7298 + 670.0885
-            #               = 715.8183 gCO2e
+            #   report: energy=0.1788, operational=45.2398, embodied=670.0851
+            #           total=715.3249 (rounded from unrounded component sum)
         "Test_ID_Misc_Services_01": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "westeurope",
                 "EnergyKWH": 0.1788,
-                "OperationalCarbonGramsCO2eq": 45.242,
-                "EmbodiedCarbonGramsCO2eq": 670.0885,
-                "TotalCarbonGramsCO2eq": 715.8183,
+                "OperationalCarbonGramsCO2eq": 45.2398,
+            "EmbodiedCarbonGramsCO2eq": 670.0851,
+                "TotalCarbonGramsCO2eq": 715.3249,
                 "CarbonIntensity": 253,
             },
             # R8
             #   Energy KWH = cost * energy_ratio_kwh_per_dollar
-            #              = 85 * 0.0015
-            #              = 0.1808 --> KO
-            #              = 85 * 0.001484
-            #              = 0.1261 --> OK
+            #              = 85 * energy_ratio = 0.126134
             #
-            #   operational_gco2e = cost * carbon_intensity * energy_ratio_kwh_per_dollar
-            #                     = 85 * 253 * 0.001484
-            #                     = 31.9134 gCO2e
+            #   operational_gco2e = energy * 253 = 31.911880
             #
             #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
-            #                  = 85 * 5.5609
-            #                  = 472.6765 gCO2e
+            #                  = 85 * embodied_ratio = 472.674145
             #
-            #   total_gco2e = operational_gco2e + embodied_gco2e
-            #               = 31.9134 + 472.6765
-            #               = 715.8183 gCO2e
+            #   report: energy=0.1261, operational=31.9119, embodied=472.6741
+            #           total=504.5860 (rounded from unrounded component sum)
         "Test_ID_Misc_Services_02": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "westeurope",
                 "EnergyKWH": 0.1261,
-                "OperationalCarbonGramsCO2eq": 31.9134,
-                "EmbodiedCarbonGramsCO2eq": 472.6765,
-                "TotalCarbonGramsCO2eq": 504.5899,
+                "OperationalCarbonGramsCO2eq": 31.9119,
+            "EmbodiedCarbonGramsCO2eq": 472.6741,
+                "TotalCarbonGramsCO2eq": 504.586,
                 "CarbonIntensity": 253,
             },
             # R9
             #   Energy KWH = cost * energy_ratio_kwh_per_dollar
-            #              = 210.75 * 0.0015
-            #              = 0.1808 --> KO
-            #              = 210.75 * 0.001484
-            #              = 0.3128 --> OK
+            #              = 210.75 * energy_ratio = 0.312738
             #
-            #   operational_gco2e = cost * carbon_intensity * energy_ratio_kwh_per_dollar
-            #                     = 210.75 * 280 * 0.001484
-            #                     = 87.5708 gCO2e
+            #   operational_gco2e = energy * 280 = 87.566613
             #
             #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
-            #                  = 210.75 * 5.5609
-            #                  = 1171.9598 gCO2e
+            #                  = 210.75 * embodied_ratio = 1171.953836
             #
-            #   total_gco2e = operational_gco2e + embodied_gco2e
-            #               = 87.5708 + 1171.9598
-            #               = 1259.5306 gCO2e
+            #   report: energy=0.3127, operational=87.5666, embodied=1171.9538
+            #           total=1259.5204 (rounded from unrounded component sum)
         "Test_ID_Misc_Services_03": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
                 "VMSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "northeurope",
-                "EnergyKWH": 0.3128,
-                "OperationalCarbonGramsCO2eq": 87.5708,
-                "EmbodiedCarbonGramsCO2eq": 1171.9598,
-                "TotalCarbonGramsCO2eq": 1259.5306,
+                "EnergyKWH": 0.3127,
+                "OperationalCarbonGramsCO2eq": 87.5666,
+            "EmbodiedCarbonGramsCO2eq": 1171.9538,
+                "TotalCarbonGramsCO2eq": 1259.5204,
                 "CarbonIntensity": 280,
             }
     }
 
     validate_output(row_by_id, expected_by_id)
+
+    for resource_id, expected in expected_by_id.items():
+        if expected["ResourceType"] == ResourceType.MISC_SERVICES.value:
+            for metric in (
+                "EnergyKWH",
+                "OperationalCarbonGramsCO2eq",
+                "EmbodiedCarbonGramsCO2eq",
+                "TotalCarbonGramsCO2eq",
+            ):
+                assert float(row_by_id[resource_id][metric]) == expected[metric], (
+                    resource_id,
+                    metric,
+                )

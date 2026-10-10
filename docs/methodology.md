@@ -3,7 +3,7 @@
 [Carmen](https://greensoftware.foundation/tools/carmen/) is built on top of the [Impact Framework](https://if.greensoftware.foundation/), an open-source solution developed by the Green Software Foundation.  
 We chose the Impact Framework for several key reasons:   
 - First, as highlighted in its documentation, it is designed to support the two essential dimensions of software sustainability metrics: vertical (per-component) analysis and horizontal (over-time) aggregation.
-- Second, the framework relies entirely on a manifest-based execution model, ensuring that all calculations are transparent, reproducible, and verifiable, any user can rerun the manifest to validate results and inspect the exact models used.
+- Second, IF manifests record the models, inputs, and outputs of IF calculations. They can be rerun to check these calculations. Misc-services ratios are currently calculated in Python, as noted below.
 - Finally, the Impact Framework provides a flexible plugin architecture, enabling us to easily integrate and reuse community-maintained models, while also extending the system with our own. This combination of transparency, extensibility, and methodological rigor makes it a strong foundation for Carmen.
 
 The IF pipeline definitions used by Carmen are in:
@@ -11,6 +11,14 @@ The IF pipeline definitions used by Carmen are in:
 - [etc/impact_framework/templates/app_pipeline.yml](etc/impact_framework/templates/app_pipeline.yml)
 - [etc/impact_framework/templates/storage_pipeline.yml](etc/impact_framework/templates/storage_pipeline.yml)
 - [etc/impact_framework/templates/misc_services_pipeline.yml](etc/impact_framework/templates/misc_services_pipeline.yml)
+
+### Precision and reporting
+
+Carmen keeps IF metrics at full precision through resource and fleet totals,
+including the VM and storage totals used for misc-services ratios. Only the
+CSV report rounds energy and carbon values to four decimals. Total carbon is
+calculated before rounding, so it may differ slightly from the sum of the
+displayed operational and embodied values.
 
 ## Infrastructure Pipeline
 The infrastructure pipeline is used by both the Carbon Daemon and the Run Hardware endpoint of Carmen's API to calculate the Software Carbon Intensity (SCI) for virtual machine workloads. It processes resource usage data, hardware specifications, and sustainability parameters to generate accurate energy and carbon impact metrics for VM infrastructure. This methodology is inspired by the Cloud Carbon Footprint (CCF) approach, with some adaptations.
@@ -683,24 +691,31 @@ which delegates computation to the plugin implementation in
 
 ### Input dependencies
 
-For each misc-services resource, the model consumes:
-- compute totals: `compute-energy`, `compute-embodied`, `compute-cost`
-- storage totals: `storage-energy`, `storage-embodied`, `storage-cost`
-- misc-services own cost: `cost`
-- location intensity: `carbon-intensity`
+Before running IF, the orchestrator uses run-wide compute and storage totals
+(energy, embodied carbon, cost), or configured defaults when results are absent.
+The plugin receives the two derived ratios, the resource's `cost`, and its
+`carbon-intensity`.
 
-These compute and storage totals are injected upstream by orchestrator hydration before
-misc-services runner execution.
+The orchestrator computes and logs the weighted `energy-cost-ratio` (kWh/currency)
+and `embodied-cost-ratio` (gCO2e/currency) once before hydrating the resources.
+The plugin receives these two ratios, `cost`, and `carbon-intensity` for each time
+point. Both cost denominators must be nonzero, and the input costs must share a currency.
 
 ### Misc-services formulas
 
-The plugin computes energy and carbon using weighted cost-intensity factors.
-Current weighting is 75% compute and 25% storage:
+Python computes the ratios using 75% compute and 25% storage weighting:
 
 ```
-misc-services-energy = cost
-                * (0.75 * (compute_energy / compute_cost)
-                  + 0.25 * (storage_energy / storage_cost))
+energy-cost-ratio = 0.75 * (compute_energy / compute_cost)
+                  + 0.25 * (storage_energy / storage_cost)
+embodied-cost-ratio = 0.75 * (compute_embodied / compute_cost)
+                    + 0.25 * (storage_embodied / storage_cost)
+```
+
+The IF plugin calculates the impacts at each time point using the resource's full cost:
+
+```
+misc-services-energy = cost * energy-cost-ratio
 ```
 
 ```
@@ -708,10 +723,15 @@ misc-services-operational = misc-services-energy * carbon-intensity
 ```
 
 ```
-misc-services-embodied = cost
-                 * (0.75 * (compute_embodied / compute_cost)
-                   + 0.25 * (storage_embodied / storage_cost))
+misc-services-embodied = cost * embodied-cost-ratio
 ```
+
+### Limitation and next step
+
+The IF manifest contains the ratios but not the compute and storage totals used
+to calculate them. The manifest alone cannot explain the ratios; these source
+values are in the Python logs. A future IF pipeline should calculate the ratios
+from raw totals and expose them as intermediate outputs before calculating impacts.
 
 ### Validation helper references
 

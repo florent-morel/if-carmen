@@ -81,8 +81,8 @@ class MetricsMapper:
         if resource.total_carbon_emitted == 0.0 and (
             resource.total_carbon_operational > 0 or resource.total_carbon_embodied > 0
         ):
-            resource.total_carbon_emitted = round(
-                resource.total_carbon_operational + resource.total_carbon_embodied, 4
+            resource.total_carbon_emitted = (
+                resource.total_carbon_operational + resource.total_carbon_embodied
             )
 
         # Guard against pipelines that do not emit a direct per-observation total carbon series. 
@@ -97,10 +97,15 @@ class MetricsMapper:
             )
             resource.carbon_emitted = [
                 # For each observation index, total carbon is operational + embodied.
-                round(
-                    (resource.carbon_operational[index] if index < len(resource.carbon_operational) else 0.0)
-                    + (resource.carbon_embodied[index] if index < len(resource.carbon_embodied) else 0.0),
-                    4,
+                (
+                    resource.carbon_operational[index]
+                    if index < len(resource.carbon_operational)
+                    else 0.0
+                )
+                + (
+                    resource.carbon_embodied[index]
+                    if index < len(resource.carbon_embodied)
+                    else 0.0
                 )
                 for index in range(observation_count)
             ]

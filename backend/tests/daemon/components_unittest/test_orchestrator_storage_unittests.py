@@ -17,6 +17,7 @@ from backend.src.common.errors import ERRORS, ErrorCode
 from backend.src.common.constants import (
     HOURLY_INTERVAL_SECONDS,
     DAILY_SECONDS,
+    EXPECTED_LIFESPAN,
 )
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.resource import Resource, ResourceType
@@ -135,16 +136,20 @@ class TestCarbonDaemonOrchestratorStorage(unittest.TestCase):
         self.assertEqual(resultStorageResource.replication_type, "LRS")
 
         # Validate computation calculation on single resource
-        self.assertEqual(resultStorage.total_energy_consumed, 0.0001)
-        self.assertEqual(resultStorage.total_carbon_operational, 0.0291)
-        self.assertEqual(resultStorage.total_carbon_embodied, 0.4381)
-        self.assertEqual(resultStorage.total_carbon_emitted, 0.4672)
-
-        # Validate computation calculation on overall result
-        self.assertEqual(carbonDaemonResult.total_energy_consumed, 0.0001)
-        self.assertEqual(carbonDaemonResult.total_carbon_operational, 0.0291)
-        self.assertEqual(carbonDaemonResult.total_carbon_embodied, 0.4381)
-        self.assertEqual(carbonDaemonResult.total_carbon_emitted, 0.4672)
+        expected_energy = 32.0 * 3 * 0.0000012 * HOURLY_INTERVAL_SECONDS / 3600
+        expected_operational = expected_energy * 253.0
+        expected_embodied = (
+            32.0 * 3 * 160 * HOURLY_INTERVAL_SECONDS / EXPECTED_LIFESPAN
+        )
+        for result in (resultStorageResource, resultStorage, carbonDaemonResult):
+            self.assertAlmostEqual(result.total_energy_consumed, expected_energy, places=12)
+            self.assertAlmostEqual(result.total_carbon_operational, expected_operational, places=12)
+            self.assertAlmostEqual(result.total_carbon_embodied, expected_embodied, places=12)
+            self.assertAlmostEqual(
+                result.total_carbon_emitted,
+                expected_operational + expected_embodied,
+                places=12,
+            )
         # mock_register_models.assert_called_once()
         # mock_reader_factory.create_reader.assert_called_once_with(self.mock_config)
         # mock_reader.read.assert_called_once()

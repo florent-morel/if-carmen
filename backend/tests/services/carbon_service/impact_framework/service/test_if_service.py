@@ -606,6 +606,26 @@ class TestIFService(unittest.TestCase):
         self.assertEqual(result["energy"]["observations"], [3, 7])
         self.assertEqual(result["energy"]["aggregated"], 10)
 
+    def test_get_measurement_from_output_preserves_small_values(self):
+        if_output = {
+            "tiny": {
+                "aggregated": {"carbon": 0.00012, "energy": 0.00012},
+                "outputs": [
+                    {"carbon": 0.00004, "energy": 0.00004} for _ in range(3)
+                ],
+            }
+        }
+
+        metrics = IFService.get_measurements_from_output(if_output, "tiny")
+
+        self.assertEqual(metrics["carbon"]["aggregated"], 0.00012)
+        self.assertEqual(metrics["carbon"]["observations"], [0.00004] * 3)
+        self.assertAlmostEqual(
+            sum(metrics["carbon"]["observations"]),
+            metrics["carbon"]["aggregated"],
+            places=12,
+        )
+
     @patch(
         "backend.src.services.carbon_service.impact_framework.service.if_service.IFService.aggregate_app_level"
     )

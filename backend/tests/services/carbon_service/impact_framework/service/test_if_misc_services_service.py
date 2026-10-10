@@ -70,36 +70,12 @@ def test_get_models_info(mock_super_get_models_info):
     assert mock_data["hardware_models"]["misc_services-model"]
 
 
-@patch(
-    "backend.src.services.carbon_service.impact_framework.service.if_misc_services_service.MiscServicesModel.fill_inputs"
-)
-@patch.object(IFMiscServicesService, "__init__", lambda self, duration: None)
-def test_get_resource_inputs(
-    mock_misc_services_model_fill_inputs, mock_misc_services_resource
-):
+def test_get_resource_inputs(mock_misc_services_resource):
     """
     Test get_resource_inputs for IFMiscServicesService with MiscServicesModel.
     """
-    mock_misc_services_model_fill_inputs.side_effect = (
-        lambda misc_services_resource, time_index: {
-            "compute-energy": misc_services_resource.compute_energy,
-            "storage-energy": misc_services_resource.storage_energy,
-            "compute-embodied": misc_services_resource.compute_embodied,
-            "storage-embodied": misc_services_resource.storage_embodied,
-            "compute-cost": misc_services_resource.compute_cost,
-            "storage-cost": misc_services_resource.storage_cost,
-            "cost": misc_services_resource.cost,
-            "carbon-intensity": misc_services_resource.carbon_intensity,
-            "timestamp": misc_services_resource.time_points[time_index],
-        }
-    )
-
-    mock_misc_services_resource.compute_energy = 50.0
-    mock_misc_services_resource.storage_energy = 60.0
-    mock_misc_services_resource.compute_embodied = 10.0
-    mock_misc_services_resource.storage_embodied = 20.0
-    mock_misc_services_resource.compute_cost = 30.0
-    mock_misc_services_resource.storage_cost = 40.0
+    mock_misc_services_resource.energy_cost_ratio = 0.125
+    mock_misc_services_resource.embodied_cost_ratio = 0.75
     mock_misc_services_resource.time_points = [0]
     mock_misc_services_resource.duration_seconds = [DAILY_SECONDS]
 
@@ -110,13 +86,9 @@ def test_get_resource_inputs(
     expected_inputs = [
         {
             "carbon-intensity": 100.0,
-            "compute-cost": 30.0,
-            "compute-embodied": 10.0,
-            "compute-energy": 50.0,
+            "energy-cost-ratio": 0.125,
+            "embodied-cost-ratio": 0.75,
             "cost": 50.0,
-            "storage-cost": 40.0,
-            "storage-embodied": 20.0,
-            "storage-energy": 60.0,
             "timestamp": 0,
             "duration": DAILY_SECONDS,
             "duration/seconds": DAILY_SECONDS,
@@ -124,6 +96,3 @@ def test_get_resource_inputs(
     ]
 
     assert resource_inputs == expected_inputs
-    mock_misc_services_model_fill_inputs.assert_called_once_with(
-        mock_misc_services_resource, 0
-    )

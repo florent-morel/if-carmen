@@ -73,9 +73,10 @@ def validate_if_inputs(
     assert first_resource is not None, f"Missing IF result for {first_resource_id}"
     assert first_resource["inputs"], f"Missing IF inputs for {first_resource_id}"
 
+    ratio_fields = {"energy-cost-ratio", "embodied-cost-ratio"}
     for field, expected_value in (expected_common_inputs or {}).items():
         assert first_resource["inputs"][0][field] == pytest.approx(
-            expected_value, abs=0.0001, rel=0
+            expected_value, abs=1e-6 if field in ratio_fields else 0.0001, rel=0
         ), (
             f"{first_resource_id}: IF common input {field} "
             f"actual={first_resource['inputs'][0][field]} expected={expected_value}"
@@ -87,7 +88,7 @@ def validate_if_inputs(
         assert actual["inputs"], f"Missing IF inputs for {resource_id}"
         for field, expected_value in expected_inputs.items():
             assert actual["inputs"][0][field] == pytest.approx(
-                expected_value, abs=0.0001, rel=0
+                expected_value, abs=1e-6 if field in ratio_fields else 0.0001, rel=0
             ), (
                 f"{resource_id}: IF input {field} "
                 f"actual={actual['inputs'][0][field]} expected={expected_value}"

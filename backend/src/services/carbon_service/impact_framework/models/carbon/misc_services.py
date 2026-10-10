@@ -13,12 +13,8 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
 from backend.src.common.constants import (
     IF_INPUT_INPUT_PARAMETERS,
     IF_INPUT_OUTPUT_PARAMETERS,
-    IF_INPUT_COMPUTE_ENERGY,
-    IF_INPUT_COMPUTE_EMBODIED,
-    IF_INPUT_COMPUTE_COST,
-    IF_INPUT_STORAGE_ENERGY,
-    IF_INPUT_STORAGE_EMBODIED,
-    IF_INPUT_STORAGE_COST,
+    IF_INPUT_MISC_SERVICES_ENERGY_COST_RATIO,
+    IF_INPUT_MISC_SERVICES_EMBODIED_COST_RATIO,
     IF_INPUT_COST,
     IF_INPUT_MISC_SERVICES_ENERGY,
     IF_INPUT_MISC_SERVICES_ENERGY_TXT,
@@ -42,12 +38,8 @@ class MiscServicesModel(ModelUtilities):
     def __init__(self):
         config = {
             IF_INPUT_INPUT_PARAMETERS: [
-                IF_INPUT_COMPUTE_ENERGY,
-                IF_INPUT_STORAGE_ENERGY,
-                IF_INPUT_COMPUTE_EMBODIED,
-                IF_INPUT_STORAGE_EMBODIED,
-                IF_INPUT_COMPUTE_COST,
-                IF_INPUT_STORAGE_COST,
+                IF_INPUT_MISC_SERVICES_ENERGY_COST_RATIO,
+                IF_INPUT_MISC_SERVICES_EMBODIED_COST_RATIO,
                 IF_INPUT_COST,
                 IF_INPUT_CARBON_INTENSITY,
             ],
@@ -86,18 +78,13 @@ class MiscServicesModel(ModelUtilities):
         )
 
     @staticmethod
-    # Fetch CarbonDaemonResult values to fill compute-energy, etc.
     def fill_inputs(misc_services_resource: MiscServicesResource, time_index: int):
         """
         Fills the time point specific input values.
         """
         return {
-            IF_INPUT_COMPUTE_ENERGY: misc_services_resource.compute_energy,
-            IF_INPUT_STORAGE_ENERGY: misc_services_resource.storage_energy,
-            IF_INPUT_COMPUTE_EMBODIED: misc_services_resource.compute_embodied,
-            IF_INPUT_STORAGE_EMBODIED: misc_services_resource.storage_embodied,
-            IF_INPUT_COMPUTE_COST: misc_services_resource.compute_cost,
-            IF_INPUT_STORAGE_COST: misc_services_resource.storage_cost,
+            IF_INPUT_MISC_SERVICES_ENERGY_COST_RATIO: misc_services_resource.energy_cost_ratio,
+            IF_INPUT_MISC_SERVICES_EMBODIED_COST_RATIO: misc_services_resource.embodied_cost_ratio,
             IF_INPUT_COST: misc_services_resource.cost,
             IF_INPUT_CARBON_INTENSITY: misc_services_resource.carbon_intensity,
             IF_INPUT_TIMESTAMP: misc_services_resource.time_points[time_index],

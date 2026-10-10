@@ -35,23 +35,16 @@ export const MiscServicesModelPlugin = PluginFactory({
     const { 'input-parameters': _inputParameters } = config;
 
     return inputs.map(input => {
-      // Define input parameters
-      const computeEnergy = input['compute-energy'];
-      const storageEnergy = input['storage-energy'];
-      const computeEmbodied = input['compute-embodied'];
-      const storageEmbodied = input['storage-embodied'];
-      const computeCost = input['compute-cost'];
-      const storageCost = input['storage-cost'];
       const cost = input['cost'];
       const carbonIntensity = input['carbon-intensity'];
+      const energyCostRatio = input['energy-cost-ratio'];
+      const embodiedCostRatio = input['embodied-cost-ratio'];
 
-      // Calculate the outputs
-      // TODO: Magic numbers to be put in config
-      const miscServicesEnergyValue = cost * (0.75 * (computeEnergy / computeCost) + 0.25 * (storageEnergy / storageCost));
+      const miscServicesEnergyValue = cost * energyCostRatio;
 
       const miscServicesOperationalValue = miscServicesEnergyValue * carbonIntensity;
 
-      const miscServicesEmbodiedValue = cost * (0.75 * (computeEmbodied / computeCost) + 0.25 * (storageEmbodied / storageCost));
+      const miscServicesEmbodiedValue = cost * embodiedCostRatio;
 
 
       return {

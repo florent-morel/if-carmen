@@ -24,24 +24,16 @@ def mock_misc_services_resources():
     return [
         MiscServicesResource(
             id="misc_service1",
-            compute_energy=500.0,
-            storage_energy=200.0,
-            compute_embodied=300.0,
-            storage_embodied=100.0,
-            compute_cost=250.0,
-            storage_cost=100.0,
+            energy_cost_ratio=2.0,
+            embodied_cost_ratio=1.15,
             cost=50.0,
             carbon_intensity=100.0,
             time_points=["2025-11-10"],
         ),
         MiscServicesResource(
             id="misc_service2",
-            compute_energy=400.0,
-            storage_energy=300.0,
-            compute_embodied=200.0,
-            storage_embodied=150.0,
-            compute_cost=150.0,
-            storage_cost=125.0,
+            energy_cost_ratio=2.6,
+            embodied_cost_ratio=1.3,
             cost=80.0,
             carbon_intensity=120.0,
             time_points=["2025-11-10"],
@@ -151,3 +143,17 @@ def test_services_embodied_computation_for_misc_services_resources(
     assert misc_services_resources[1].total_carbon_embodied == pytest.approx(
         expected_embodied_misc_service2, rel=1e-4
     )
+
+
+def test_services_apply_full_cost_at_each_time_point(mock_misc_services_resources):
+    resource = mock_misc_services_resources[0]
+    resource.time_points = ["2025-11-10", "2025-11-11"]
+
+    result = IFMiscServicesService(SAMPLING_RATE_IN_SECONDS).run_engine([resource])[0]
+
+    assert result.misc_services_energy == pytest.approx([100.0, 100.0])
+    assert result.misc_services_operational == pytest.approx([10000.0, 10000.0])
+    assert result.misc_services_embodied == pytest.approx([57.5, 57.5])
+    assert result.total_energy_consumed == pytest.approx(200.0)
+    assert result.total_carbon_operational == pytest.approx(20000.0)
+    assert result.total_carbon_embodied == pytest.approx(115.0)

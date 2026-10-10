@@ -77,8 +77,8 @@ async def test_memory_energy_computation_for_apps(sample_app):
     memory_requested = (
         sum(pod.requested_memory[0] for pod in sample_app[0].pods) / 1000000000
     )  # memory in GB
-    expected_result = round(
-        compute_memory_energy(memory_requested, SAMPLING_RATE_IN_SECONDS) / 3600, 4
+    expected_result = (
+        compute_memory_energy(memory_requested, SAMPLING_RATE_IN_SECONDS) / 3600
     )
     service = IFAppService(SAMPLING_RATE_IN_SECONDS)
     apps = await service.run_engine(sample_app)

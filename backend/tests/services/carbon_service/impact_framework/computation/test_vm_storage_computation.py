@@ -37,8 +37,8 @@ def test_storage_energy_computation_for_virtual_machines(sample_vms):
     """
     Test: Verifies storage energy computation for a single virtual machine.
     """
-    expected_storage_energy = round(
-        compute_storage_energy(sample_vms[0].storage_size[0], 1), 4
+    expected_storage_energy = compute_storage_energy(
+        sample_vms[0].storage_size[0], SAMPLING_RATE_IN_SECONDS / 3600
     )
     service = IFVMService(SAMPLING_RATE_IN_SECONDS)
     vms = service.run_engine(sample_vms)
@@ -51,8 +51,8 @@ def test_storage_embodied_emissions_for_virtual_machines(sample_vms):
     """
     Test: Verifies that the computation of storage-specific embodied emissions is correct.
     """
-    expected_storage_embodied = round(
-        compute_embodied_carbon(0, 1, sample_vms[0].storage_size[0], 1), 4
+    expected_storage_embodied = compute_embodied_carbon(
+        0, 1, sample_vms[0].storage_size[0], 1
     )
     service = IFVMService(SAMPLING_RATE_IN_SECONDS * 2)
     vms = service.run_engine(sample_vms)

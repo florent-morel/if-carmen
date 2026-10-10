@@ -15,10 +15,13 @@ def test_e2e_misc_services_single_provider_azure(tmp_path):
     #   R2: cost=85.00,  region=westeurope
     #   R3: cost=210.75, region=northeurope
     #
-    # Constants (from test_data modelling constants)
-    #   compute_cost=1.0 $, compute_energy=0.15 kWh
-    #   storage_cost=1.0 $, storage_energy=0.02 kWh
-    #   compute_embodied=15.0 gCO2e, storage_embodied=65.0 gCO2e
+    # Ratio inputs (default values from test_data modelling constants)
+    #   compute_energy = 0.15  # kWh
+    #   storage_energy = 0.02  # kWh
+    #   compute_cost = 1  # $
+    #   storage_cost = 1  # $
+    #   compute_embodied = 15.0  # gCO2e
+    #   storage_embodied = 65.0  # gCO2e
     #   weights: compute=0.75, storage=0.25
     #   westeurope -> Netherlands -> carbon_intensity=253 gCO2e/kWh
     #   northeurope -> Ireland -> carbon_intensity=280 gCO2e/kWh
@@ -36,35 +39,39 @@ def test_e2e_misc_services_single_provider_azure(tmp_path):
     #   operational_gco2e = energy_kwh * carbon_intensity
     #   embodied_gco2e = cost * embodied_ratio_gco2e_per_dollar
     #   total_gco2e = operational_gco2e + embodied_gco2e
+    #   IF products and derived total carbon keep full precision. The CSV
+    #   writer rounds each final energy/carbon value to 4 decimals.
     #
     # R1: Azure Firewall - Standard - EU West
     #   energy_kwh = 120.50 * 0.1175 = 14.15875
     #   operational_gco2e = 14.15875 * 253 = 3582.16375
     #   embodied_gco2e = 120.50 * 27.5 = 3313.75
     #   total_gco2e = 3582.16375 + 3313.75 = 6895.91375
+    #   report: energy=14.1587, operational=3582.1637, embodied=3313.7500
+    #           total=3582.1637 + 3313.7500 = 6895.9137
     #
     # R2: Azure DDoS Protection - Standard - EU West
     #   energy_kwh = 85.00 * 0.1175 = 9.9875
     #   operational_gco2e = 9.9875 * 253 = 2526.8375
     #   embodied_gco2e = 85.00 * 27.5 = 2337.5
     #   total_gco2e = 2526.8375 + 2337.5 = 4864.3375
+    #   report: energy=9.9875, operational=2526.8375, embodied=2337.5000
+    #           total=2526.8375 + 2337.5000 = 4864.3375
     #
     # R3: Azure Application Gateway - Standard V2 - EU North
     #   energy_kwh = 210.75 * 0.1175 = 24.763125
     #   operational_gco2e = 24.763125 * 280 = 6933.675
     #   embodied_gco2e = 210.75 * 27.5 = 5795.625
     #   total_gco2e = 6933.675 + 5795.625 = 12729.3
+    #   report: energy=24.7631, operational=6933.6750, embodied=5795.6250
+    #           total=6933.6750 + 5795.6250 = 12729.3000
     # -------------------------------------------------------------------------
     run = run_daemon(Path(__file__), tmp_path)
     run.validate_if_inputs(
         "misc_services",
         expected_common_inputs={
-            "compute-cost": 1.0,
-            "compute-energy": 0.15,
-            "compute-embodied": 15.0,
-            "storage-cost": 1.0,
-            "storage-energy": 0.02,
-            "storage-embodied": 65.0,
+            "energy-cost-ratio": 0.1175,
+            "embodied-cost-ratio": 27.5,
         },
         expected_inputs_by_id={
             "Test_ID_Misc_Services_01": {"cost": 120.5},

@@ -75,3 +75,24 @@ class TestWriterMiscServices(unittest.TestCase):
         second = rows[1]
         self.assertEqual(second[ReportConfig.COMMON_ID], self.misc_services_resources[1].id)
         self.assertEqual(float(second[ReportConfig.COMMON_COST]), self.misc_services_resources[1].cost)
+
+    def test_report_rounds_without_changing_resource_totals(self):
+        resource = MiscServicesResource(
+            id="tiny",
+            cost=10.0,
+            total_energy_consumed=0.00004,
+            total_carbon_operational=0.00006,
+            total_carbon_embodied=0.00006,
+            total_carbon_emitted=0.00012,
+        )
+        writer, buf = self._make_writer([resource])
+
+        writer.write_content([resource])
+
+        row = next(csv.DictReader(io.StringIO(buf.getvalue())))
+        self.assertEqual(float(row[ReportConfig.COMMON_ENERGY]), 0.0)
+        self.assertEqual(float(row[ReportConfig.COMMON_OPERATIONAL_CARBON]), 0.0001)
+        self.assertEqual(float(row[ReportConfig.COMMON_EMBODIED_CARBON]), 0.0001)
+        self.assertEqual(float(row[ReportConfig.COMMON_TOTAL_CARBON]), 0.0001)
+        self.assertEqual(resource.total_energy_consumed, 0.00004)
+        self.assertEqual(resource.total_carbon_emitted, 0.00012)

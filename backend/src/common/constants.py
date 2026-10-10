@@ -125,7 +125,6 @@ IF_INPUT_STORAGE_SLASH_ENERGY = "storage/energy"
 IF_INPUT_STORAGE_SLASH_REQUESTED = "storage/requested"
 IF_INPUT_STORAGE_SLASH_EMBODIED = "storage/embodied-coefficient"
 IF_INPUT_DURATION_SLASH_SECONDS = "duration/seconds"
-# IF_INPUT_
 
 IF_INPUT_CARBON = "carbon"
 IF_INPUT_CARBON_TXT = "Carbon emissions"
@@ -150,6 +149,8 @@ IF_INPUT_STORAGE_EMBODIED = "storage-embodied"
 IF_INPUT_STORAGE_EMBODIED_TXT = "Storage embodied emissions"
 IF_INPUT_STORAGE_COST = "storage-cost"
 
+IF_INPUT_MISC_SERVICES_ENERGY_COST_RATIO = "energy-cost-ratio"
+IF_INPUT_MISC_SERVICES_EMBODIED_COST_RATIO = "embodied-cost-ratio"
 IF_INPUT_MISC_SERVICES_ENERGY = "misc-services-energy"
 IF_INPUT_MISC_SERVICES_ENERGY_TXT = "Total energy consumed for the services"
 IF_INPUT_MISC_SERVICES_OPERATIONAL = "misc-services-operational"

@@ -109,3 +109,16 @@ def test_map_metrics_to_misc_services_resource():
     assert misc_services_resource.total_carbon_operational == 60
     assert misc_services_resource.misc_services_embodied == [70]
     assert misc_services_resource.total_carbon_embodied == 70
+
+
+def test_derived_carbon_totals_keep_full_precision():
+    metrics = {
+        "carbon-operational": {"observations": [0.00006], "aggregated": 0.00006},
+        "carbon-embodied": {"observations": [0.00006], "aggregated": 0.00006},
+    }
+    resource = ComputeResource(id="tiny")
+
+    MetricsMapper.map_metrics_to_resource(metrics, resource)
+
+    assert resource.total_carbon_emitted == 0.00012
+    assert resource.carbon_emitted == [0.00012]
