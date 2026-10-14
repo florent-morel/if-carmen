@@ -240,7 +240,7 @@ def configure_logger(validated_settings: Settings) -> None:
 
         # Create log file with current date
         log_file = os.path.join(
-            log_dir, f"carbon_engine_{datetime.now().strftime('%Y-%m-%d')}.log"
+            log_dir, f"carbon_engine_{datetime.now().strftime('%Y-%m-%d_%Hh%M')}.log"
         )
         file_handler = logging.FileHandler(log_file, mode="w")
         file_formatter = logging.Formatter(log_format, datefmt=date_format)
