@@ -1,6 +1,7 @@
 """
 This module contains helper functions for the daemon, including VM creation and logging of missing regions.
 TODO: this is actually a virtual_machine_helpers module
+TODO: what should we do about this TODO?
 """
 
 import re
@@ -75,7 +76,7 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         region=region,
         vm_size=get_row_data(row, SOURCE_VM_SIZE, UNKNOWN),
         vcpu_count=_parse_vcpu_count_from_row(row),
-        # TODO Vnext: carbon_intensity should be a time_series, populated each time a VM datapoint is found 
+        # Vnext: carbon_intensity should be a time_series, populated each time a VM datapoint is found 
         carbon_intensity=PaasCiMapper.calculate_ci(region),
         pue=(
             provider_config.get_pue()

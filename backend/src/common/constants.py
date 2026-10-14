@@ -56,6 +56,7 @@ SOURCE_STORAGE_TYPE = "StorageType"
 SOURCE_STORAGE_REPLICATION_TYPE = "StorageReplicationType"
 SOURCE_STORAGE_SIZE_GB = "StorageSizeGB"
 SOURCE_SAMPLE_DURATION_SECONDS = "SampleDurationSeconds"
+SOURCE_STORAGE_QUANTITY = "Quantity"
 UNKNOWN = "Unknown"
 
 # Computation formats

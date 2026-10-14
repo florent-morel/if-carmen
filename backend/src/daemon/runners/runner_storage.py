@@ -132,7 +132,7 @@ class Runner_Storage(AbstractRunner):
                     len(storage_resources),
                 )
 
-                # TODO: duration should not be hardcoded
+                # vNext: duration should not be hardcoded
                 # => design decision needed on how to handle
                 # env variable? input file parameter?
                 storage_service = ioc_util.resolve(

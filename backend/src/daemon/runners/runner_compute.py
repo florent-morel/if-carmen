@@ -133,7 +133,7 @@ class Runner_Compute(AbstractRunner):
                 len(list_resources_to_process),
             )
 
-            # TODO: duration should not be hardcoded
+            # vNext: duration should not be hardcoded
             # => design decision needed on how to handle
             # env variable? input file parameter?
             carbon_service = ioc_util.resolve(

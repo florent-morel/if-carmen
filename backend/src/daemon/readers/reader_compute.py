@@ -131,7 +131,7 @@ class Reader_Compute(AbstractReader):
                     str_to_float(row[SOURCE_VM_AVG_CPU_UTIL_PERCENT]) / 100
                 )
                 vm_dict[vm_id].time_points.append(row[SOURCE_SAMPLE_TIMESTAMP])
-                # TODO: shouldn't storage_size be a constant for the VM ? And thus populated at creation time only.
+                # TODO: shouldn't storage_size be a constant for the VM? And thus populated at creation time only.
                 vm_dict[vm_id].duration_seconds.append(duration_seconds)
                 vm_dict[vm_id].storage_size.append(
                     str_to_float(row[SOURCE_VM_DISK_SIZE_GB]))

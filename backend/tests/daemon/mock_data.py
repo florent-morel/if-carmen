@@ -28,6 +28,7 @@ from backend.src.common.constants import (
     SOURCE_VM_NB_VCPUS,
     SOURCE_STORAGE_TYPE,
     SOURCE_STORAGE_REPLICATION_TYPE,
+    SOURCE_STORAGE_QUANTITY,
     DATE_FORMAT,
     SOURCE_VM_DISK_SIZE_GB,
     UNKNOWN,
@@ -199,7 +200,7 @@ def _read_and_process_storage_csv(sample_file, storage_dict):
 
 def _process_storage_row(row, storage_dict):
     """Adds a StorageResource for a new ResourceId; skips rows already present in storage_dict."""
-    resource_id = row.get("ResourceId", "")
+    resource_id = row.get(SOURCE_RESOURCE_ID, "")
     if resource_id not in storage_dict:
         storage_dict[resource_id] = _create_storage_resource(row)
 
@@ -211,13 +212,13 @@ def _create_storage_resource(row):
     """
 
     return StorageResource(
-        id=row.get("ResourceId", ""),
+        id=row.get(SOURCE_RESOURCE_ID, ""),
         name=row.get(SOURCE_RESOURCE_NAME, ""),
         provider=row.get(SOURCE_PROVIDER, UNKNOWN),
         region=row.get(SOURCE_REGION, UNKNOWN),
         storage_type=row.get(SOURCE_STORAGE_TYPE, UNKNOWN),
         replication_type=row.get(SOURCE_STORAGE_REPLICATION_TYPE, UNKNOWN),
-        size_gb=str_to_float(row.get("Quantity", "0")),
+        size_gb=str_to_float(row.get(SOURCE_STORAGE_QUANTITY, "0")),
         carbon_intensity=_DEFAULT_CARBON_INTENSITY,
     )
 
@@ -265,7 +266,7 @@ def _read_and_process_misc_services_csv(sample_file, misc_dict):
 
 def _process_misc_services_row(row, misc_dict):
     """Upserts a MiscServicesResource into misc_dict, accumulating cost across multiple billing rows for the same ResourceId."""
-    resource_id = row.get("ResourceId", "")
+    resource_id = row.get(SOURCE_RESOURCE_ID, "")
     if resource_id not in misc_dict:
         misc_dict[resource_id] = _create_misc_services_resource(row)
     else:
@@ -282,7 +283,7 @@ def _create_misc_services_resource(row):
              SampleTimestamp, Cost, ...
     """
     return MiscServicesResource(
-        id=get_row_data(row, "ResourceId", ""),
+        id=get_row_data(row, SOURCE_RESOURCE_ID, ""),
         name=get_row_data(row, "ResourceName", ""),
         provider=get_row_data(row, "Provider", UNKNOWN),
         region=get_row_data(row, "ResourceLocation", UNKNOWN),

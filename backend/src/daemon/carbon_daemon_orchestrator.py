@@ -103,7 +103,7 @@ class CarbonDaemonOrchestrator:
         """
         self.config: DaemonConfig = daemon_config
 
-        # TODO: we should go for a collection ensuring unicity
+        # vNext: we should go for a collection ensuring unicity
         self.list_resource_processors: list[
             AbstractProcessor
         ] = self._resolve_resource_processors(list_resource_processors)
@@ -227,7 +227,7 @@ class CarbonDaemonOrchestrator:
             if list_resource_processors:
                 # Check if Misc Services processor is present in the list.
                 # If yes and not in last position, re-order the list
-                # TODO Vnext: protect against several misc services processor in the list, which should not be the case. 
+                # Vnext: protect against several misc services processor in the list, which should not be the case. 
                 misc_proc = next(
                     (proc for proc in list_resource_processors if isinstance(proc, Processor_Misc_Services)),
                     None,
@@ -557,8 +557,8 @@ class CarbonDaemonOrchestrator:
                 f"(compute_cost={compute_cost}, storage_cost={storage_cost})."
             )
 
-        # TODO|5 vNext : Set weights used in ratio calculation as configurable input with a default value.
-        # TODO|6 vNext : Move ratio calculation into IF. 
+        # vNext|5: Set weights used in ratio calculation as configurable input with a default value.
+        # vNext|6: Move ratio calculation into IF. 
         # Include the raw compute/storage totals in the manifest and expose intermediate ratios, 
         # so the manifest explains the impact without Python logs.
         energy_cost_ratio = (
