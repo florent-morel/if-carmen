@@ -62,7 +62,7 @@ class IFStorageService(IFService):
             1 for storage in storage_resources if "hdd" in storage.storage_type.lower()
         )
 
-        logger.info(
+        logger.debug(
             "Storage inventory: %.1f GB total (%d SSD, %d HDD)",
             total_size,
             ssd_count,
@@ -108,11 +108,11 @@ class IFStorageService(IFService):
             storage.total_carbon_emitted for storage in storage_resources
         )
 
-        logger.info("Storage calculation completed:")
-        logger.info("   Energy: %.4f kWh", total_energy)
-        logger.info("   Operational: %.2f gCO2", total_operational)
-        logger.info("   Embodied: %.2f gCO2", total_embodied)
-        logger.info("   Total: %.2f gCO2", total_carbon)
+        logger.debug("Storage calculation completed:")
+        logger.debug("   Energy: %.4f kWh", total_energy)
+        logger.debug("   Operational: %.2f gCO2", total_operational)
+        logger.debug("   Embodied: %.2f gCO2", total_embodied)
+        logger.debug("   Total: %.2f gCO2", total_carbon)
 
         # Top 5 carbon emitters for debugging
         sorted_by_carbon = sorted(

@@ -68,7 +68,7 @@ class IFService(ABC, CarbonService):
 
     # TODO: Should be in config.yaml
     INFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_input")
-    logger.info(f"IF_FILES_DIR: {IF_FILES_DIR}")
+    logger.debug(f"IF_FILES_DIR: {IF_FILES_DIR}")
     OUTFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_output")
     FILE_EXTENSION = ".yaml"
 
@@ -130,7 +130,7 @@ class IFService(ABC, CarbonService):
             f'--output "{self.OUTFILE_PATH}{file_id}{self.FILE_EXTENSION}"'
         )
 
-        logger.info("Impact Framework command: %s", cmd)
+        logger.debug("Impact Framework command: %s", cmd)
 
         # throwing exception if the command fails
         exit_code = os.system(cmd)
@@ -151,7 +151,7 @@ class IFService(ABC, CarbonService):
                                                        to be processed by the IF service.
             file_id (int, optional): An identifier for the input/output files. Defaults to 0.
         """
-        logger.info(
+        logger.debug(
             "Generating Impact Framework input file id %d for %d resources...",
             file_id,
             len(resources),
@@ -160,7 +160,7 @@ class IFService(ABC, CarbonService):
         self.fill_parser_data(data, resources)
         start = time.time()
         self.write_if_input(data, file_id)
-        logger.info(
+        logger.debug(
             "Impact Framework input %d generated in %d seconds.",
             file_id,
             round(time.time() - start),
@@ -278,7 +278,7 @@ class IFService(ABC, CarbonService):
             )
         resources_str = "resources"
         data[resources_str] = compute_resources
-        logger.info(f"data[resources] = {data[resources_str]}")
+        logger.debug(f"data[resources] = {data[resources_str]}")
 
     def fill_parser_data(self, data, resources: list[Resource]):
         """
@@ -331,7 +331,7 @@ class IFService(ABC, CarbonService):
         :return: parsed output dictionary at application or pod level
         """
         start = time.time()
-        logger.info("Parsing output for file %d...", file_id)
+        logger.debug("Parsing output for file %d...", file_id)
         if_output = read_file(self.OUTFILE_PATH + str(file_id) + self.FILE_EXTENSION)
         if if_output["execution"]["status"] != "success":
             err_text = (
@@ -344,7 +344,7 @@ class IFService(ABC, CarbonService):
             output = IFService.aggregate_pod_level(resources, if_output)
         else:
             output = IFService.aggregate_app_level(resources, if_output, file_id)
-        logger.info(
+        logger.debug(
             "Output parsing completed in %d seconds for file %d",
             round(time.time() - start),
             file_id,
@@ -358,7 +358,7 @@ class IFService(ABC, CarbonService):
         """
         Aggregates the application metrics
         """
-        logger.info(
+        logger.debug(
             "Parsing IF output for file number %s at application level", str(file_id)
         )
         for resource in resources:
@@ -373,7 +373,7 @@ class IFService(ABC, CarbonService):
         """
         Aggregates the pod metrics
         """
-        logger.info("Parsing IF output at pod level")
+        logger.debug("Parsing IF output at pod level")
         output = IFService.initialize_output(compute_resources)
         for compute_resource in compute_resources:
             for pod in compute_resource.pods:

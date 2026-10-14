@@ -149,7 +149,7 @@ class Runner_Compute(AbstractRunner):
 
             process_time = time.time() - process_start_time
 
-            logger.info("carbon calculations completed in %.2f seconds", process_time)
+            logger.debug("carbon calculations completed in %.2f seconds", process_time)
 
             return processed_vms
 

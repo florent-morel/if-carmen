@@ -360,7 +360,7 @@ def get_duration_raw_with_fallback(row: dict, resource_id: str) -> str | int:
     """
     duration_raw = row.get(SOURCE_SAMPLE_DURATION_SECONDS)
     if duration_raw in (None, ""):
-        logger.info(
+        logger.warning(
             "Missing %s for %s, using default value %s",
             SOURCE_SAMPLE_DURATION_SECONDS,
             resource_id,
@@ -403,7 +403,7 @@ def process_custom_columns(resource: Resource, row: dict, list_ignore_column: li
     """
     Process custom columns from input file.
     """
-    logger.info(f"Processing custom columns for resource.id: {resource.id}")
+    logger.debug(f"Processing custom columns for resource.id: {resource.id}")
     for column_name, column_value in row.items():
         if column_name and column_name not in list_ignore_column:
             logger.debug(

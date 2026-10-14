@@ -62,14 +62,14 @@ class Runner_Storage(AbstractRunner):
                     list_resources_to_process
                 )
 
-                logger.info("Processed resources: %s", processed_resources)
+                logger.debug("Processed resources: %s", processed_resources)
                 execution_time = time.time() - start_time
 
                 resource_type_result = self.create_resource_type_result(
                     True, execution_time, ResourceType.STORAGE, processed_resources, []
                 )
 
-                logger.info(
+                logger.debug(
                     "Storage processing: %d storage resources processed, "
                     "%.2f kWh total energy, %.0f gCO2 total emissions",
                     len(resource_type_result.list_processed_resources),
@@ -144,20 +144,20 @@ class Runner_Storage(AbstractRunner):
                         "failed to resolve CarbonService from IoC container"
                     )
 
-                logger.info(
+                logger.debug(
                     "process carbon calculations on resources: %s", storage_resources
                 )
                 processed_storage_resources: list[
                     StorageResource
                 ] = storage_service.run_engine(storage_resources)
-                logger.info(
+                logger.debug(
                     "Result process carbon calculations on resources: %s",
                     processed_storage_resources,
                 )
 
                 process_time = time.time() - process_start_time
 
-                logger.info(
+                logger.debug(
                     "Storage processing calculations completed in %.2f seconds",
                     process_time,
                 )

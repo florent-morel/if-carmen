@@ -65,7 +65,7 @@ class Runner_Misc_Services(AbstractRunner):
                     list_resources_to_process
                 )
 
-                logger.info("Processed resources: %s", processed_resources)
+                logger.debug("Processed resources: %s", processed_resources)
                 execution_time = time.time() - start_time
 
                 resource_type_result = self.create_resource_type_result(
@@ -76,7 +76,7 @@ class Runner_Misc_Services(AbstractRunner):
                     [],
                 )
 
-                logger.info(
+                logger.debug(
                     "Misc services processing: %d misc services resources processed, "
                     "%.2f kWh total energy, %.0f gCO2 total emissions",
                     len(resource_type_result.list_processed_resources),
@@ -134,7 +134,7 @@ class Runner_Misc_Services(AbstractRunner):
         process_start_time = time.time()
 
         try:
-            logger.info(
+            logger.debug(
                 "starting carbon calculations for %d miscellaneous services",
                 len(list_resources_to_process),
             )
@@ -155,7 +155,7 @@ class Runner_Misc_Services(AbstractRunner):
 
             process_time = time.time() - process_start_time
 
-            logger.info("carbon calculations completed in %.2f seconds", process_time)
+            logger.debug("carbon calculations completed in %.2f seconds", process_time)
 
             return processed_misc_services
 

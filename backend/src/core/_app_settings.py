@@ -247,7 +247,7 @@ def configure_logger(validated_settings: Settings) -> None:
         file_handler.setFormatter(file_formatter)
         root_logger.addHandler(file_handler)
 
-        logger.info("Log file created at: %s", log_file)
+        logger.debug("Log file created at: %s", log_file)
 
     logger.debug("Logger configured with level %s.", validated_settings.LOG_LEVEL.value)
     logger.debug(

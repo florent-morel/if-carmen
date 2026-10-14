@@ -177,7 +177,7 @@ class CarbonDaemonOrchestrator:
                     total_execution_time,
                 )
 
-                logger.info(f"Result: {self.carbon_daemon_result.dict_resource_result}")
+                logger.debug(f"Result: {self.carbon_daemon_result.dict_resource_result}")
             else:
                 error_msg = "Carmen Daemon not excuted, no processor found."
                 logger.warning(error_msg)
@@ -238,7 +238,7 @@ class CarbonDaemonOrchestrator:
                         list_resource_processors.append(misc_proc)
                 else:
                     logger.info(
-                        "No processor found for Misc Services. "
+                        "No processor found for Misc Services."
                     )
 
                 register_models()
@@ -251,7 +251,7 @@ class CarbonDaemonOrchestrator:
                 input_path = self.config.source.input_path
                 self.list_input_file = self.load_input_files(input_path)
 
-                logger.info(f"output_path: {self.config.output.output_path}")
+                logger.debug(f"output_path: {self.config.output.output_path}")
                 if self.config.output.output_file_name:
                     output_file_name = f"{self.config.output.output_file_name}.csv"
                 else:
@@ -281,7 +281,7 @@ class CarbonDaemonOrchestrator:
                 logger.info(f"input file found: {file}")
                 list_files.append(input_path + "/" + file)
 
-        logger.info(f"list_input_file: {list_files}")
+        logger.debug(f"list_input_file: {list_files}")
         logger.info(f"Carmen Dameon loaded {len(list_files)} input file(s).")
         return list_files
 
@@ -293,12 +293,12 @@ class CarbonDaemonOrchestrator:
         Raises:
             Exception: If reading fails
         """
-        logger.info(":::: Carbon Daemon Orchestrator :::: Start of"
+        logger.info("\r\n:::: Carbon Daemon Orchestrator :::: Start of"
                     " read_data_source process ::::")
         start_time = time.time()
 
         try:
-            logger.info(
+            logger.debug(
                 "Starting data source reading loop for %d processors: %s.",
                 len(self.list_resource_processors),
                 self.list_resource_processors,
@@ -312,9 +312,9 @@ class CarbonDaemonOrchestrator:
                     try:
                         csv_data = ""
                         if os.path.exists(input_file):
-                            logger.info("--------------")
+                            logger.debug("--------------")
                             logger.info(f"Data source reading from {input_file}")
-                            logger.info("--------------")
+                            logger.debug("--------------")
                             with open(
                                 input_file, "r", encoding=CSV_FILE_ENCODING
                             ) as file:
@@ -324,7 +324,7 @@ class CarbonDaemonOrchestrator:
 
                         for abstract_processor in self.list_resource_processors:
                             logger.debug(f"abstract_processor: {abstract_processor}")
-                            logger.info(
+                            logger.debug(
                                 f"Data source reading by {abstract_processor.reader}"
                                 f" reader for {abstract_processor.resource_type.value}"
                                 f" resource type."
@@ -337,7 +337,7 @@ class CarbonDaemonOrchestrator:
 
                         file_read_time = time.time() - start_time
                         if file_resources:
-                            logger.info(
+                            logger.debug(
                                 "Source data reading completed for file %s."
                                 " Reader %s retrieved %d resources of type %s"
                                 " in %.2f seconds",
@@ -348,7 +348,7 @@ class CarbonDaemonOrchestrator:
                                 file_read_time,
                             )
                             all_resources_to_process.append(file_resources)
-                            logger.info(f"all_resources_to_process length: {len(all_resources_to_process)}")
+                            logger.debug(f"all_resources_to_process length: {len(all_resources_to_process)}")
                             logger.debug(f"all_resources_to_process: {all_resources_to_process}")
                             nb_input_files += 1
                         else:
@@ -404,7 +404,7 @@ class CarbonDaemonOrchestrator:
                         )
 
                 logger.info(":::: Carbon Daemon Orchestrator :::: End of"
-                            " read_data_source process ::::")
+                            " read_data_source process ::::\r\n")
                 read_time = time.time() - start_time
                 if all_resources_to_process:
                     logger.info(
@@ -451,7 +451,7 @@ class CarbonDaemonOrchestrator:
         Raises:
             Exception: If running fails
         """
-        logger.info(":::: Carbon Daemon Orchestrator :::: Start of"
+        logger.info("\r\n:::: Carbon Daemon Orchestrator :::: Start of"
                     " run_engine process ::::")
         start_time = time.time()
         dict_resource_results: dict[ResourceType, ResourceTypeResult] = {}
@@ -465,8 +465,7 @@ class CarbonDaemonOrchestrator:
             if self.list_resource_processors:
                 for abstract_processor in self.list_resource_processors:
                     logger.info(
-                        f"Running engine by {abstract_processor.runner}"
-                        f" runner for {abstract_processor.resource_type.value}"
+                        f"Running engine for {abstract_processor.resource_type.value}"
                         f" resource type."
                     )
 
@@ -485,7 +484,7 @@ class CarbonDaemonOrchestrator:
                         ] = resource_type_result
 
                 # End of loop, store complete execution time
-                logger.info(
+                logger.debug(
                     f"Creating CarbonDaemonResult for dict_resource_results: {dict_resource_results}"
                 )
                 self.update_carbon_daemon_result(
@@ -495,7 +494,7 @@ class CarbonDaemonOrchestrator:
                     dict_resource_results=dict_resource_results,
                 )
                 logger.info(":::: Carbon Daemon Orchestrator :::: End of"
-                            " run_engine process ::::")
+                            " run_engine process ::::\r\n")
         except Exception as e:
             error_msg = f"Failed to run engine for the given processors: {str(e)}"
             logger.exception(error_msg)
@@ -569,7 +568,7 @@ class CarbonDaemonOrchestrator:
             0.75 * compute_embodied / compute_cost
             + 0.25 * storage_embodied / storage_cost
         )
-        logger.info(
+        logger.debug(
             "Misc services cost ratios: energy_cost_ratio=%s kWh/currency, "
             "embodied_cost_ratio=%s gCO2e/currency "
             "(compute source=%s, energy=%s, embodied=%s, cost=%s; "
@@ -628,11 +627,10 @@ class CarbonDaemonOrchestrator:
         dict_resource_results: dict[ResourceType, ResourceTypeResult],
     ):
         execution_time = time.time() - start_time
-        logger.info(
+        logger.debug(
             f"Updating CarbonDaemonResult with success={success}, execution_time={execution_time}, "
             f"list_exceptions={list_exceptions}, dict_resource_results={dict_resource_results}"
         )
-        logger.info(f"Success value before update: {self.carbon_daemon_result.success}")
         self.carbon_daemon_result.success &= success
         self.carbon_daemon_result.execution_time = execution_time
         self.carbon_daemon_result.list_exceptions.extend(list_exceptions)
@@ -653,14 +651,12 @@ class CarbonDaemonOrchestrator:
                 )
             self.carbon_daemon_result.dict_resource_result = self.carbon_daemon_result.dict_resource_result | dict_resource_results
 
-        logger.info(f"Success value after update: {self.carbon_daemon_result.success}")
-
     def write_report(self):
         """
         Creates a CSV report containing all resource types.
         Handles VMs, Storage, and future resource categories in one file.
         """
-        logger.info(":::: Carbon Daemon Orchestrator :::: Start of"
+        logger.info("\r\n:::: Carbon Daemon Orchestrator :::: Start of"
                     " write_report process ::::")
         logger.info(
             "Starting write_results for %d resource results.",
@@ -670,7 +666,7 @@ class CarbonDaemonOrchestrator:
 
         if self.carbon_daemon_result.success:
             # Carbon daemon run was succesful, write report output file.
-            logger.info("Carbon daemon run was succesful, write report output file.")
+            logger.debug("Carbon daemon run was succesful, write report output file.")
             os.makedirs(str(self.config.output.output_path), exist_ok=True)
             with open(self.output_file, "w", newline="") as report_csv_file:
                 fieldnames = AbstractWriter.get_report_headers()
@@ -680,7 +676,7 @@ class CarbonDaemonOrchestrator:
                 # Iterate on each Resource Carbon Daemon Processor
                 if self.list_resource_processors:
                     for abstract_processor in self.list_resource_processors:
-                        logger.info(
+                        logger.debug(
                             # f"Writing results by {abstract_processor.writer(dict_writer)}"
                             f" writer for {abstract_processor.resource_type.value}"
                             f" resource type."
@@ -710,7 +706,7 @@ class CarbonDaemonOrchestrator:
                 #         )
 
         else:
-            logger.info(
+            logger.error(
                 "Carbon daemon run was not succesful, write error in output file."
             )
             # TODO: Implement error case
@@ -718,10 +714,10 @@ class CarbonDaemonOrchestrator:
         elapsed_time = time.time() - start
 
         logger.info(":::: Carbon Daemon Orchestrator :::: End of"
-                    " write_report process ::::")
+                    " write_report process ::::\r\n")
 
-        logger.info("CSV report created in %.2f seconds", elapsed_time)
-        logger.info("Report saved to: %s", self.output_file)
+        logger.debug("CSV report created in %.2f seconds", elapsed_time)
+        logger.debug("Report saved to: %s", self.output_file)
 
 
 def main() -> None:

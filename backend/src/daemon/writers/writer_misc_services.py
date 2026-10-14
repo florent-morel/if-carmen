@@ -24,7 +24,7 @@ class Writer_Misc_Services(AbstractWriter):
 
             self.csv_dict_writer.writerow(row)
 
-        logger.info(
+        logger.debug(
             " Rows built for %d resources",
             len(resources),
         )

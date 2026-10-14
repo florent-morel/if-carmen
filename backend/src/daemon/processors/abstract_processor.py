@@ -74,12 +74,12 @@ class AbstractProcessor(ABC):
             List of resources read from the CSV data
         """
         logger.debug(f"Inside AbstractProcessor reader: {self.reader}")
-        logger.info(f"Length of list_resources_to_process: {len(self.list_resources_to_process)}")
+        logger.debug(f"Length of list_resources_to_process: {len(self.list_resources_to_process)}")
         resources = self.reader.read(csv_data)
-        logger.info(f"Length of resources: {len(resources)}")
+        logger.debug(f"Length of resources: {len(resources)}")
         self.list_resources_to_process = resources
         # self.list_resources_to_process.extend(resources)
-        logger.info(f"Length of list_resources_to_process: {len(self.list_resources_to_process)}")
+        logger.debug(f"Length of list_resources_to_process: {len(self.list_resources_to_process)}")
         return self.list_resources_to_process
 
     def run(self) -> ResourceTypeResult:
@@ -91,7 +91,7 @@ class AbstractProcessor(ABC):
         """
         self.resource_type_result = None
         if self.list_resources_to_process and len(self.list_resources_to_process) > 0:
-            logger.info("list_resources_to_process: %d", len(self.list_resources_to_process))
+            logger.debug("list_resources_to_process: %d", len(self.list_resources_to_process))
             self.resource_type_result = self.runner.run(self.list_resources_to_process)
         else:
             logger.warning(f"No resource to process for this runner: {self.runner}.")

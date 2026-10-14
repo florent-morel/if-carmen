@@ -85,7 +85,7 @@ class Reader_Compute(AbstractReader):
             False if the CSV data is empty (excluding the header row).
         """
         rows = blob_data.splitlines()
-        logger.info(f"Processing {len(rows) - 1} rows for compute resources.")
+        logger.debug(f"Processing {len(rows) - 1} rows for compute resources.")
         if len(rows) == 1:
             return False
         csv_reader = csv.DictReader(rows)
@@ -101,7 +101,7 @@ class Reader_Compute(AbstractReader):
             total_rows += 1
             resource_type = row.get(SOURCE_RESOURCE_TYPE, "")
             if not resource_type or resource_type.lower() != SOURCE_RESOURCE_TYPE_COMPUTE.lower():
-                logger.info(f"Resource __{resource_type}__ is not of type {
+                logger.warning(f"Resource __{resource_type}__ is not of type {
                             SOURCE_RESOURCE_TYPE_COMPUTE}, skipping it.")
                 skipped_rows += 1
                 continue
@@ -116,7 +116,7 @@ class Reader_Compute(AbstractReader):
                     vm_dict[vm_id] = new_vm
                     new_vm_rows += 1
                 else:
-                    logger.info(f"Id __{
+                    logger.warning(f"Id __{
                                 vm_id}__ already found previously, skipping it and logging a duplicate row.")
                     duplicate_rows += 1
 
@@ -156,7 +156,7 @@ class Reader_Compute(AbstractReader):
         """
         Log the results of the processing operation.
         """
-        logger.info("Processing completed found %d compute resources",
+        logger.debug("Processing completed found %d compute resources",
                     len(self.list_resources_to_process))
 
         logger.debug("Compute processing summary:")
@@ -171,5 +171,5 @@ class Reader_Compute(AbstractReader):
 
         self.log_unknown_info()
 
-        logger.info("Local Reader processing finished successfully"
+        logger.debug("Local Reader processing finished successfully"
                     " for resource type compute.")

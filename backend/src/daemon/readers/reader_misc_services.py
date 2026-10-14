@@ -57,7 +57,7 @@ class Reader_Misc_Services(AbstractReader):
             list[StorageResource]: List of storage resources extracted from the
             data source.
         """
-        logger.info(f"Inside reader misc services: {self}")
+        logger.debug(f"Inside reader misc services: {self}")
         logger.debug(f"csv_data: {csv_data}")
 
         self.process_csv_data(csv_data, self._misc_services_dict)
@@ -87,7 +87,7 @@ class Reader_Misc_Services(AbstractReader):
             list[MiscServicesResource]: Processed misc services resource list
         """
         rows = csv_data.splitlines()
-        logger.info(f"Processing {len(rows) - 1} rows for misc services "
+        logger.debug(f"Processing {len(rows) - 1} rows for misc services "
                     "resources.")
         if len(rows) <= 1:
             raise CarmenException(
@@ -96,7 +96,7 @@ class Reader_Misc_Services(AbstractReader):
 
         csv_reader = csv.DictReader(rows)
 
-        logger.info("Processing Misc services CSV...")
+        logger.debug("Processing Misc services CSV...")
         misc_services_resources: list[MiscServicesResource] = []
         logger.debug(f"csv_data: {csv_data}")
 
@@ -128,7 +128,7 @@ class Reader_Misc_Services(AbstractReader):
                 misc_services_dict[id] = misc_services_resource
                 misc_services_rows += 1
             else:
-                logger.info(f"Id __{
+                logger.warning(f"Id __{
                             id}__ already found previously, skipping it and logging a duplicate row.")
             # End of row process, fetch custom columns
             process_custom_columns(misc_services_resource, row,
@@ -147,7 +147,7 @@ class Reader_Misc_Services(AbstractReader):
         """
         Log the results of the processing operation.
         """
-        logger.info(
+        logger.debug(
             "Processing completed found %d misc services resources",
             len(self.list_resources_to_process),
         )

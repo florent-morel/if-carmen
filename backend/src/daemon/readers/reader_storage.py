@@ -42,7 +42,7 @@ class Reader_Storage(AbstractReader):
             data source.
         """
 
-        logger.info("Starting to read storage data from local filesystem")
+        logger.debug("Starting to read storage data from local filesystem")
 
         try:
             self.process_csv_data(csv_data, self._storage_dict)
@@ -73,7 +73,7 @@ class Reader_Storage(AbstractReader):
             bool: True if data was found and processed, False otherwise
         """
         rows = csv_data.splitlines()
-        logger.info(f"Processing {len(rows) - 1} rows for storage resources.")
+        logger.debug(f"Processing {len(rows) - 1} rows for storage resources.")
         if len(rows) <= 1:
             return False
 
@@ -87,10 +87,10 @@ class Reader_Storage(AbstractReader):
         disk_rows = 0
         excluded_rows = 0
 
-        logger.info("Processing CSV...")
-        logger.info(f"List of mandatory columns for resource type "
+        logger.debug("Processing CSV...")
+        logger.debug(f"List of mandatory columns for resource type "
                     f"{ResourceType.STORAGE}: {StorageResource.mandatory_columns()}")
-        logger.info(f"csv_data: {csv_data}")
+        logger.debug(f"csv_data: {csv_data}")
 
         for row in csv_reader:
             total_rows += 1
@@ -107,7 +107,7 @@ class Reader_Storage(AbstractReader):
 
             # Process storage row using helper
             try:
-                logger.info(f"Processing row: {row}")
+                logger.debug(f"Processing row: {row}")
                 if _process_storage_row(row, storage_dict):
                     disk_rows += 1
                     data_found = True
@@ -130,7 +130,7 @@ class Reader_Storage(AbstractReader):
 
         logger.info("Storage CSV processed")
 
-        logger.info(f"End of process_csv_data, storage_dict: {storage_dict}")
+        logger.debug(f"End of process_csv_data, storage_dict: {storage_dict}")
         return data_found
 
     def log_processing_results(self) -> None:
@@ -154,5 +154,5 @@ class Reader_Storage(AbstractReader):
 
         self.log_unknown_info()
 
-        logger.info("Local Reader processing finished successfully"
+        logger.debug("Local Reader processing finished successfully"
                     " for resource type storage.")
