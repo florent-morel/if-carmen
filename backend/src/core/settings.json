@@ -5,7 +5,7 @@
     "RELOAD": false,
     "TIME_OUT": 180
   },
-  "LOG_LEVEL": "INFO",
+  "LOG_LEVEL": "WARNING",
   "THANOS": {
     "CLUSTER_GROUPING_LEVEL": 5
   }
