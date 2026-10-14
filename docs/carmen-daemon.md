@@ -2,91 +2,6 @@
 
 The Carmen Daemon is a specialized reporting tool designed to help you track and understand the environmental footprint of your cloud infrastructure. It generates comprehensive reports detailing the carbon emissions and energy consumption of your cloud resources, with particular emphasis on compute resources like virtual machines.
 
-## Carmen Daemon configuration
-
-This section explains the configuration structure for the Carmen daemon and details the configuration files content.
-
-TODO: Review this list
-### Input files directory structure
-
-Carmen daemon reads input files from a directory configured in main config file located in `etc/config/config.yaml`.
-
-The configuration directory structure is the following:
-``` sh
-if-carmen/etc/config/
-├── config-test.yaml
-├── config.yaml
-└── modelling_constants
-    ├── carbon_intensity.yaml
-    └── cloud_providers
-        ├── aws
-        │   └── aws.yaml
-        ├── azure
-        │   ├── azure_instances.csv
-        │   └── azure.yaml
-        └── gcp
-            └── gcp.yaml
-```
-
-#### ~/etc/config/config.yaml
-
-This is Carmen's main configuration file.
-
-It contains: 
-- Carbon intensity & PUE default values.
-- Configuration settings for Carmen API (see [[carmen-as-a-service]] for more information).
-- Input folder path.
-- Output folder path.
-- List of supported processors.
-    - This corresponds to the implemented resources CO2 computation: TODO: properly define resources.
-        * Compute: VM, pod, etc.
-        * Storage: storage services.
-        * Misc_Services: all other services required.
-
-#### ~/etc/config/config-test.yaml
-
-This file is following the same structure as config.yaml.
-It is used for Unit Tests only.
-
-#### ~/etc/config/modelling_constants/carbon_values.yaml
-
-This file defines several carbon computation related values.
-These are common to all providers.
-
-Carmen looks up each CSV `Region` in the `regions` mappings of the loaded provider configurations. The matching entry identifies a location, whose intensity is read from `carbon_intensity_by_location` in `etc/config/modelling_constants/carbon_values.yaml`. For example, `eastus` maps to `United_States`, with an intensity of `384 gCO2e/kWh`. If the region or location is not mapped, Carmen uses `default_carbon_intensity`. To support a new region, configure both its region-to-location mapping and the location's intensity.
-
-It also defines the embodied storage values for the following technologies:
-- HDD.
-- SSD.
-- A default value is provided in case the technology is unknown.
-
-#### ~/etc/config/modelling_constants/cloud_providers folder
-
-This folder stores cloud providers specific configurations.
-
-##### ~/etc/config/modelling_constants/azure/azure.yaml
-
-This file is dedicated to Microsoft Azure Cloud Service Provider.
-It defines constants related to:
-- Power Usage Effectiveness ratio (PUE).
-- Mapping between Azure defined regions and carbon intensity values defined in carbon_values.yaml.
-- Electricity ratios: energy consumption of different resources.
-
-
-##### ~/etc/config/modelling_constants/azure/azure_instances.csv
-
-TODO: Explain what's in this file.
-
-##### ~/etc/config/modelling_constants/aws/aws.yaml
-
-Follows same structure. 
-Not implemented yet.
-
-##### ~/etc/config/modelling_constants/gcp/gcp.yaml
-
-Follows same structure.  
-Not implemented yet.
-
 ## Expected Source File Format
 
 The daemon expects to read a group of csv files containing resource usage data. Below is a description for each column expected in the CSV input.
@@ -198,3 +113,9 @@ To run the example, navigate to the project root and execute the orchestrator mo
 ```bash
 uv run python -m backend.src.daemon.carbon_daemon_orchestrator
 ```
+
+
+## Carmen Logging
+
+
+Carmen generates a log file per day stored in CARMEN_HOME/backend/logs.

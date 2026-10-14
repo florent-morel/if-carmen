@@ -681,7 +681,7 @@ The expected-value helper formulas are implemented in:
 - [compute_storage_embodied_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
 
 
-## Services Pipeline
+## Miscellaneous Services Pipeline
 
 The misc-services pipeline estimates impact for cloud spend that is not directly attributable
 to VM or storage rows. It is wired by [IFMiscServicesService](../backend/src/services/carbon_service/impact_framework/service/if_misc_services_service.py)
