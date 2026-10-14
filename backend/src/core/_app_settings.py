@@ -172,7 +172,7 @@ class Settings(BaseSettings):
     CARMEN_PROVIDER_CONFIG_FILEPATH: str = Field(
         default_factory=lambda: _get_env_or_cli(
             "CARMEN_PROVIDER_CONFIG_FILEPATH",
-            "etc/config/modelling_constants/cloud_providers",
+            "etc/config/modelling_constants/providers/cloud_providers",
             "--carmen-provider-config-filepath",
         )
     )

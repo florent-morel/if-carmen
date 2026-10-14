@@ -1,0 +1,4 @@
+# Power usage effectiveness for this provider
+# This is an example, please provide your own values
+# Refer to cloud_providers/azure/azure.yaml for extensive list of possible values
+pue: 1.1
