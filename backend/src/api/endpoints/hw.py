@@ -11,8 +11,7 @@ from backend.src.schemas.response_models import HardwareResponse
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.services.carbon_service.carbon_service import CarbonService
 from backend.src.utils import ioc_util
-from backend.src.utils.helpers import validate_query_parameters
-from backend.src.utils.paas_ci_mapper import PaasCiMapper
+from backend.src.utils.helpers import get_ci_for_region, validate_query_parameters
 from backend.src.schemas.compute_resource import ComputeResource
 from backend.src.core.yaml_config_loader import config
 
@@ -116,7 +115,7 @@ async def run_engine_for_selected_hardware(
             cpu_util=cpu_load,
             storage_size=storage_size,
             time_points=time_points,
-            carbon_intensity=PaasCiMapper.calculate_ci(
+            carbon_intensity=get_ci_for_region(
                 "germanywestcentral"
             ),  # mocked for now
         )

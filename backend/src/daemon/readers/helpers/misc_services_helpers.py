@@ -9,11 +9,11 @@ from backend.src.schemas.misc_services_resource import MiscServicesResource
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.schemas.virtual_machine import VirtualMachine
 from backend.src.utils.helpers import (
+    get_ci_for_region,
     str_to_float,
     get_row_data,
     parse_duration_seconds,
 )
-from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.common.constants import (
     SOURCE_PROVIDER,
     SOURCE_RESOURCE_ID,
@@ -74,7 +74,7 @@ def create_misc_services_resource(row):
             id=misc_services_id,
             provider=get_row_data(row, SOURCE_PROVIDER, UNKNOWN),
             region=region,
-            carbon_intensity=PaasCiMapper.calculate_ci(region.lower()),
+            carbon_intensity=get_ci_for_region(region.lower()),
             cost=str_to_float(get_row_data(row, SOURCE_COST, "0.0")),
             duration_seconds=[duration_seconds],
             time_points=[get_row_data(row, SOURCE_SAMPLE_TIMESTAMP, datetime.now().strftime(DATE_FORMAT))],

@@ -36,7 +36,7 @@ class TestParseVcpuCountFromVmSize(unittest.TestCase):
         self.assertEqual(parse_vcpu_count_from_azure_vm_size("standard_d8s_v3"), 8)
 
     def test_unrecognised_format_returns_none(self):
-        # Does not start with Standard_ — heuristic cannot apply
+        # Does not start with Standard_ : heuristic cannot apply
         self.assertIsNone(parse_vcpu_count_from_azure_vm_size("Unknown_Type"))
 
     def test_empty_string_returns_none(self):
@@ -48,7 +48,7 @@ class TestParseVcpuCountFromVmSize(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# create_vm — vcpu_count field
+# create_vm : vcpu_count field
 # ---------------------------------------------------------------------------
 
 _MINIMAL_ROW = {
@@ -74,45 +74,47 @@ class TestCreateVmVcpuCount(unittest.TestCase):
             row["VmNbCpus"] = nb_vcpus_value
         return row
 
-    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.get_ci_for_region")
     @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
-    def test_vcpu_count_populated_from_input_csv_column(self, mock_config, mock_mapper):
+    def test_vcpu_count_populated_from_input_csv_column(self, mock_config, mock_ci):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
-        mock_mapper.calculate_ci.return_value = 200.0
+        mock_ci.return_value = 200.0
 
         row = self._make_row("4")
         vm = create_vm(row, "vm-id-1")
 
         self.assertEqual(vm.vcpu_count, 4)
+        self.assertEqual(vm.carbon_intensity, 200.0)
+        mock_ci.assert_called_once_with("eastus")
 
-    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.get_ci_for_region")
     @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
-    def test_vcpu_count_is_none_when_column_absent(self, mock_config, mock_mapper):
+    def test_vcpu_count_is_none_when_column_absent(self, mock_config, mock_ci):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
-        mock_mapper.calculate_ci.return_value = 200.0
+        mock_ci.return_value = 200.0
 
         row = self._make_row(None)  # VmNbCpus column missing entirely
         vm = create_vm(row, "vm-id-2")
 
         self.assertIsNone(vm.vcpu_count)
 
-    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.get_ci_for_region")
     @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
-    def test_vcpu_count_is_none_for_dash_value(self, mock_config, mock_mapper):
+    def test_vcpu_count_is_none_for_dash_value(self, mock_config, mock_ci):
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
-        mock_mapper.calculate_ci.return_value = 200.0
+        mock_ci.return_value = 200.0
 
         row = self._make_row("-")
         vm = create_vm(row, "vm-id-3")
 
         self.assertIsNone(vm.vcpu_count)
 
-    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.PaasCiMapper")
+    @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.get_ci_for_region")
     @patch("backend.src.daemon.readers.helpers.virtual_machine_helpers.config")
-    def test_vcpu_count_handles_float_string(self, mock_config, mock_mapper):
+    def test_vcpu_count_handles_float_string(self, mock_config, mock_ci):
         """CSV may store integers as floats e.g. '4.0'; int(float('4.0')) == 4."""
         mock_config.provider_configs.get.return_value = MagicMock(get_pue=lambda: 1.2)
-        mock_mapper.calculate_ci.return_value = 200.0
+        mock_ci.return_value = 200.0
 
         row = self._make_row("4.0")
         vm = create_vm(row, "vm-id-4")

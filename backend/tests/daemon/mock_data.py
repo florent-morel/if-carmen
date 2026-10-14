@@ -165,7 +165,7 @@ csv_test_csv_path = "etc/sample_data/test_data/storage_test.csv"
 def read_sample_storage_data(file_dict, _destination_folder):
     """
     Reads storage data from CSV files and returns a list of StorageResource objects.
-    Mirrors read_sample_vm_data — each unique ResourceId maps to one StorageResource.
+    Mirrors read_sample_vm_data : each unique ResourceId maps to one StorageResource.
     """
     storage_dict = {}
     for group, files in file_dict.items():

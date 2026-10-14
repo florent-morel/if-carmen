@@ -58,7 +58,7 @@ class TestReaderComputeDictLogInfo(unittest.TestCase):
         return "\n".join([_HEADERS] + list(rows))
 
     def test_single_vm_single_row(self):
-        """One unique VM, one row — new_vm_rows=1, duplicate_rows=0."""
+        """One unique VM, one row : new_vm_rows=1, duplicate_rows=0."""
         csv_data = self._csv(_make_row("vm-1"))
         self.reader.read(csv_data)
 
@@ -69,7 +69,7 @@ class TestReaderComputeDictLogInfo(unittest.TestCase):
         self.assertEqual(self.reader.dict_log_info["excluded_rows"], 0)
 
     def test_single_vm_multiple_time_series_rows(self):
-        """Same VM appearing in 3 rows (time-series) — new_vm_rows=1, duplicate_rows=2."""
+        """Same VM appearing in 3 rows (time-series) : new_vm_rows=1, duplicate_rows=2."""
         csv_data = self._csv(
             _make_row("vm-1"),
             _make_row("vm-1"),
@@ -95,7 +95,7 @@ class TestReaderComputeDictLogInfo(unittest.TestCase):
         self.assertEqual(resources[0].cost, 4.0)
 
     def test_multiple_unique_vms(self):
-        """Three distinct VMs — new_vm_rows=3, duplicate_rows=0."""
+        """Three distinct VMs : new_vm_rows=3, duplicate_rows=0."""
         csv_data = self._csv(
             _make_row("vm-1"),
             _make_row("vm-2"),
@@ -110,7 +110,7 @@ class TestReaderComputeDictLogInfo(unittest.TestCase):
         self.assertEqual(self.reader.dict_log_info["excluded_rows"], 0)
 
     def test_mix_unique_and_duplicate_rows(self):
-        """Two VMs, one appears twice — new_vm_rows=2, duplicate_rows=1."""
+        """Two VMs, one appears twice : new_vm_rows=2, duplicate_rows=1."""
         csv_data = self._csv(
             _make_row("vm-1"),
             _make_row("vm-2"),
@@ -125,7 +125,7 @@ class TestReaderComputeDictLogInfo(unittest.TestCase):
         self.assertEqual(self.reader.dict_log_info["excluded_rows"], 0)
 
     def test_empty_csv_no_counters_set(self):
-        """Header-only CSV — process_csv_data returns early, dict_log_info stays empty."""
+        """Header-only CSV : process_csv_data returns early, dict_log_info stays empty."""
         csv_data = _HEADERS  # no data rows
         self.reader.read(csv_data)
 

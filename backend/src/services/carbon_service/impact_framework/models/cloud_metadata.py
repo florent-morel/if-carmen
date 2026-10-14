@@ -1,10 +1,10 @@
 """
-Cloud Metadata model — Python-level VM instance lookup with correct per-VM TDP attribution.
+Cloud Metadata model : Python-level VM instance lookup with correct per-VM TDP attribution.
 
 For each VM, ``fill_inputs`` looks up the instance type in the provider instances
 CSV and returns four values consumed by the IF pipeline:
 
-  - ``cpu/thermal-design-power`` — host package TDP scaled to the VM's share:
+  - ``cpu/thermal-design-power`` : host package TDP scaled to the VM's share:
 
         cpu/thermal-design-power = cpu-tdp × (vcpus-utilized / vcpus-available)
 
@@ -12,14 +12,14 @@ CSV and returns four values consumed by the IF pipeline:
     this scaling, the IF pipeline over-counts CPU power by a factor equal to
     the total number of host cores.
 
-  - ``vcpus-total`` / ``vcpus-allocated`` — used by downstream embodied-carbon
+  - ``vcpus-total`` / ``vcpus-allocated`` : used by downstream embodied-carbon
     steps to compute the VM's share of manufacturing emissions.
 
-  - ``memory/requested`` — VM memory in GB.
+  - ``memory/requested`` : VM memory in GB.
 
 When the instance type is absent from the CSV, TDP and core counts are
 unavailable.  Because TDP is exclusively sourced from the CSV, a CSV hit
-already provides everything needed — input CSV vCPU count is redundant in that
+already provides everything needed : input CSV vCPU count is redundant in that
 case.  When the CSV lookup misses, the chain is:
 
        a. Input VmNbCpus (``vm.vcpu_count``, populated by ``create_vm`` from
@@ -32,7 +32,7 @@ case.  When the CSV lookup misses, the chain is:
           (e.g. ``Standard_E32-8s_v3``) can encode a different number 
           than the actual vCPU count.
 
-       c. CarmenException(UNKNOWN_VM_INSTANCE_TYPE) — the VM cannot be
+       c. CarmenException(UNKNOWN_VM_INSTANCE_TYPE) : the VM cannot be
           attributed and is excluded from the carbon report.
 
      In all fallback cases TDP is approximated as ``cpu_max × vcpu_count``
@@ -161,7 +161,7 @@ class CloudMetadata:
                 IF_INPUT_MEMORY_REQUESTED: memory,
             }
 
-        # Instance type not in CSV — apply fallback chain.
+        # Instance type not in CSV : apply fallback chain.
         provider_config = app_config.provider_configs.get(provider)
         cpu_max = provider_config.get_cpu_max() if provider_config else None
         if cpu_max is None:

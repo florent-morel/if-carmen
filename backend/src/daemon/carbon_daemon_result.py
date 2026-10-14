@@ -44,28 +44,33 @@ class CarbonDaemonResult:
         self.execution_time: float = execution_time
         self.list_exceptions: list[CarmenException] = list_exceptions
 
-    def get_resource_type_list_exception(self, resource_type: ResourceType) -> dict[ResourceType, list[CarmenException]] | None:
+    def get_resource_type_list_exception(self, resource_type: ResourceType) -> list[CarmenException] | None:
         """
         Fetches exceptions in different resource results.
         """
-        dict_resource_result_exceptions: dict[ResourceType, list[CarmenException]] = None
-
         if resource_type is None:
-            # No resource_type provided in input
-            # Iterate on all results
-            for resource_result in self.dict_resource_result.values():
-                if resource_result and resource_result.list_exceptions:
-                    dict_resource_result_exceptions[resource_result.resource_type] = resource_result.list_exceptions
+            if self.dict_resource_result:
+                collected_exceptions: list[CarmenException] = []
+                for resource_result in self.dict_resource_result.values():
+                    if resource_result and resource_result.list_exceptions:
+                        collected_exceptions.extend(resource_result.list_exceptions)
+                if collected_exceptions:
+                    return collected_exceptions
+            return self.list_exceptions or None
 
-        else:
-            # Fetch only for given resource_type
-            logger.info(f"Fetching exceptions for ResourceTypeResult {resource_type}")
-            resource_result = self.dict_resource_result.get(resource_type)
-            logger.info(f"resource results: {resource_result}")
-            if resource_result and resource_result.list_exceptions:
-                dict_resource_result_exceptions[resource_result.resource_type] = resource_result.list_exceptions
+        # Fetch only for given resource_type
+        logger.info(f"Fetching exceptions for ResourceTypeResult {resource_type}")
+        resource_result = (
+            self.dict_resource_result.get(resource_type)
+            if self.dict_resource_result
+            else None
+        )
+        logger.info(f"resource results: {resource_result}")
+        if resource_result and resource_result.list_exceptions:
+            return resource_result.list_exceptions
 
-        return dict_resource_result_exceptions
+        # If no per-resource exceptions are available, return global exceptions.
+        return self.list_exceptions or None
 
 
 class ResourceTypeResult:

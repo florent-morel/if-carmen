@@ -9,12 +9,12 @@ from datetime import datetime
 
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.utils.helpers import (
+    get_ci_for_region,
     str_to_float,
     get_row_data,
     parse_duration_seconds,
     process_custom_columns,
 )
-from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.common.constants import (
     MAX_STORAGE_SIZE_GB_WARNING_THRESHOLD,
     SOURCE_PROVIDER,
@@ -63,7 +63,7 @@ def create_storage_resource(
         replication_type=get_row_data(row, SOURCE_STORAGE_REPLICATION_TYPE, UNKNOWN),
         size_gb=size_gb,
         region=region,
-        carbon_intensity=PaasCiMapper.calculate_ci(region),
+        carbon_intensity=get_ci_for_region(region),
         # TODO: study PUE implementation for storage energy computation
         cost=str_to_float(get_row_data(row, SOURCE_COST, "0.0")),
     )

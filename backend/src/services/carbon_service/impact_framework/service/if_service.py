@@ -268,7 +268,7 @@ class IFService(ABC, CarbonService):
         for compute_resource in resources:
             if compute_resource.id in compute_resources:
                 logger.error(
-                    "Duplicate resource ID '%s' passed to IF engine — skipping. "
+                    "Duplicate resource ID '%s' passed to IF engine : skipping. "
                     "Each unique resource ID must be merged before processing.",
                     compute_resource.id,
                 )

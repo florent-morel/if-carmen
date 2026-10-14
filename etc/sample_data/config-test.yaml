@@ -1,5 +1,5 @@
 ---
-# Test configuration — used when TEST_ENV=True (set automatically by conftest.py).
+# Test configuration : used when TEST_ENV=True (set automatically by conftest.py).
 # Mirrors config.yaml with dummy credentials and temp filesystem paths.
 
 carmen_api:

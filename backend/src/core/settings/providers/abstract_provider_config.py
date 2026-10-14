@@ -9,7 +9,7 @@ class AbstractProviderConfig(BaseSettings):
     """
     Configuration class for all supported providers.
 
-    All fields are optional — a provider YAML only needs to supply what it supports.
+    All fields are optional. A provider YAML only needs to supply what it supports.
     Adding a new provider requires only a new directory and YAML file under
     config/cloud_providers/<name>/<name>.yaml; no code changes are needed.
     """
@@ -20,7 +20,6 @@ class AbstractProviderConfig(BaseSettings):
     storage_replication_factors: dict[str, int] | None = None
     disk_sku_size_mapping: dict[str, int] | None = None
     regions: dict[str, str] | None = None
-    zone_aliases: dict[str, str] | None = None
 
     def get_pue(self) -> float | None:
         return self.pue
@@ -45,6 +44,3 @@ class AbstractProviderConfig(BaseSettings):
         if self.electricity_ratios is None:
             return None
         return self.electricity_ratios.get("cpu_max")
-
-    def get_zone_aliases(self) -> dict[str, str] | None:
-        return self.zone_aliases

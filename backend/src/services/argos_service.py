@@ -18,8 +18,8 @@ from backend.src.schemas.cluster import Cluster
 from backend.src.api.dependencies import AppDao
 from backend.src.common.enums import Label, HardwareConsumptionType, SamplingRate
 from backend.src.schemas.compute_resource import ComputeResource
-from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.utils.helpers import (
+    get_ci_for_region,
     return_desired_metric_from_response,
     group_clusters_by_level,
     get_timestamps,
@@ -260,7 +260,7 @@ class ArgosService:
             paas = data["metric"][Label.PAAS.value]
             namespace = data["metric"][Label.NAMESPACE.value]
             pod = data["metric"][Label.POD.value]
-            carbon_intensity = PaasCiMapper.get_ci_from_paas(paas)
+            carbon_intensity = get_ci_for_region(None)
 
             pod_telemetries.setdefault(
                 uid,

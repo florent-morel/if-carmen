@@ -253,7 +253,7 @@ async def test_retrieve_telemetry_data_exception_handling(
     return_value=[0.5, 0.6],
 )
 @patch(
-    "backend.src.services.argos_service.PaasCiMapper.get_ci_from_paas", return_value=368
+    "backend.src.services.argos_service.get_ci_for_region", return_value=368
 )
 async def test_parse_pod_data(mock_get_ci, mock_interpolate):
     """
@@ -288,6 +288,8 @@ async def test_parse_pod_data(mock_get_ci, mock_interpolate):
     assert result["uid1"].paas == "paas1"
     assert result["uid1"].namespace == "namespace1"
     assert result["uid1"].cpu_util == [0.5, 0.6]
+    assert result["uid1"].carbon_intensity == 368
+    mock_get_ci.assert_called_once_with(None)
 
 
 def test_interpolate_field_data():

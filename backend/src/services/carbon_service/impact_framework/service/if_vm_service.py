@@ -86,7 +86,7 @@ class IFVMService(IFService, ABC):
         """
         Fill the model dictionary with IF plugin configurations for the VM pipeline.
 
-        CloudMetadata is not an IF plugin and therefore not registered here — it
+        CloudMetadata is not an IF plugin and therefore not registered here : it
         operates at the Python level via fill_inputs before the IF pipeline runs.
         """
         provider_config = config.provider_configs.get(provider)

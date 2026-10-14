@@ -15,6 +15,7 @@ from backend.src.common.carmen_exception import (
 )
 from backend.src.utils.helpers import (
     remove_unnecessary,
+    get_ci_for_region,
     run_command_and_parse_json,
     validate_query_parameters,
     get_result_from_response,
@@ -133,6 +134,15 @@ class TestHelpers(unittest.TestCase):
         result = remove_unnecessary("erd8-dd-54d")
         expected = "erd-dd-d"
         assert result == expected
+
+    def test_get_ci_for_region_with_existing_region(self):
+        self.assertEqual(get_ci_for_region("eastus"), 384.0)
+
+    def test_get_ci_for_region_with_missing_region(self):
+        self.assertEqual(get_ci_for_region("example_region"), 281.0)
+
+    def test_get_ci_for_region_with_no_region(self):
+        self.assertEqual(get_ci_for_region(None), 281.0)
 
     def test_time_conversion(self):
         """

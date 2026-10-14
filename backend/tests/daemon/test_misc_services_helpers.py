@@ -64,7 +64,7 @@ class TestMiscServicesHelpers(unittest.TestCase):
     #     self.assertEqual(str(context.exception.details), "Misc Services CSV data is empty")
 
     @patch(
-        "backend.src.daemon.readers.helpers.misc_services_helpers.PaasCiMapper.calculate_ci"
+        "backend.src.daemon.readers.helpers.misc_services_helpers.get_ci_for_region"
     )
     def test_create_misc_services_resource(self, mock_ci_calculator):
         """

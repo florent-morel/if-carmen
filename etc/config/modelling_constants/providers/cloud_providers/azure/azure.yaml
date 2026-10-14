@@ -1,5 +1,6 @@
 
 # Mapping of Azure region codes to country names used in carbon_intensity.yaml
+# Source: https://github.com/Green-Software-Foundation/if-data/blob/main/region-metadata.csv
 regions:
   australiaeast: Australia
   centralus: United_States
@@ -21,28 +22,6 @@ regions:
   westus3: United_States
   centralindia: India
   southindia: India
-
-# Mapping of internal PaaS zone codes (after digit-stripping) to Azure region names.
-# Keys must be uppercase and digit-free, matching what PaasCiMapper derives from
-# the raw PaaS value via remove_unnecessary(paas.upper()).
-zone_aliases:
-  EUS: eastus
-  WUS: westus
-  NE: northeurope
-  EUN: northeurope       # covers PaaS codes like EUN1, EUN2, …
-  IRL: northeurope
-  FC: francecentral
-  SA: southeastasia
-  GWC: germanywestcentral
-  ERD: germanywestcentral
-  MUC: germanywestcentral
-  CDF: germanywestcentral
-  CDFDEV: germanywestcentral
-  NLD: westeurope
-  WE: westeurope
-  NGI: northeurope
-  NET: westeurope
-  NCE: francesouth
 
 # Electricity ratios
 electricity_ratios:
@@ -106,7 +85,6 @@ disk_sku_size_mapping:
   S60: 8192
   S70: 16384
   S80: 32767
-
 
 # Power usage effectiveness for this cloud provider
 pue: 1.185

@@ -4,6 +4,7 @@ This module contains helper functions used in the project
 
 from __future__ import annotations
 
+from functools import lru_cache
 import pathlib
 import subprocess
 import logging
@@ -431,3 +432,17 @@ def get_execution_date():
         execution_date.strftime(DATE_FORMAT),
     )
     return execution_date_str
+
+
+@lru_cache(1000)
+def get_ci_for_region(region: str | None) -> float:
+    from backend.src.core.yaml_config_loader import config
+
+    ci_config = config.carbon_values_config
+    default_ci = ci_config.default_carbon_intensity
+    for provider_config in config.provider_configs.values():
+        provider_regions = provider_config.get_regions()
+        if provider_regions and region in provider_regions:
+            country = provider_regions[region]
+            return float(ci_config.get_ci_for_location(country, default_ci))
+    return float(default_ci)

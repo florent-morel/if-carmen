@@ -87,13 +87,13 @@ class AbstractReader(ABC):
     def log_unknown_info(self) -> None:
         for region, count in self.unknown_regions.items():
             logger.warning(
-                "Unknown Region '%s': %d — using default carbon intensity",
+                "Unknown Region '%s': %d : using default carbon intensity",
                 region,
                 count,
             )
         for provider, count in self.unknown_providers.items():
             logger.warning(
-                "unknown provider '%s': %d — using default PUE",
+                "unknown provider '%s': %d : using default PUE",
                 provider,
                 count,
             )

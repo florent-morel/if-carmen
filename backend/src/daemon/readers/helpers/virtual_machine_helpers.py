@@ -8,8 +8,8 @@ import re
 
 from backend.src.core.yaml_config_loader import config
 from backend.src.schemas.virtual_machine import VirtualMachine
-from backend.src.utils.paas_ci_mapper import PaasCiMapper
 from backend.src.utils.helpers import (
+    get_ci_for_region,
     str_to_float,
     get_row_data,
 )
@@ -41,7 +41,7 @@ def parse_vcpu_count_from_azure_vm_size(vm_size: str) -> int | None:
 
     Returns None if the pattern does not match or vm_size is empty.
     Constrained-core variants (e.g. Standard_E32-8s_v3) are not handled and
-    will return None. This is a last-resort fallback — always log a WARNING.
+    will return None. This is a last-resort fallback : always log a WARNING.
     """
     if not vm_size:
         return None
@@ -77,7 +77,7 @@ def create_vm(row: dict[str, str], vm_id: str) -> VirtualMachine:
         vm_size=get_row_data(row, SOURCE_VM_SIZE, UNKNOWN),
         vcpu_count=_parse_vcpu_count_from_row(row),
         # Vnext: carbon_intensity should be a time_series, populated each time a VM datapoint is found 
-        carbon_intensity=PaasCiMapper.calculate_ci(region),
+        carbon_intensity=get_ci_for_region(region),
         pue=(
             provider_config.get_pue()
             if provider_config

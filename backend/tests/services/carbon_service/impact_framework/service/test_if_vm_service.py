@@ -111,7 +111,7 @@ def test_run_engine_groups_vms_by_provider(mock_parse_if_output, mock_run_if):
     all_vms = [vm_azure_1, vm_aws, vm_azure_2]
     result = service.run_engine(all_vms)
 
-    # Should be called twice — once per provider
+    # Should be called twice : once per provider
     assert mock_run_if.call_count == 2
     assert mock_parse_if_output.call_count == 2
 

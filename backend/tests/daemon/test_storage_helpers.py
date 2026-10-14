@@ -229,7 +229,7 @@ class TestStorageHelpers(unittest.TestCase):
         )
 
     @patch(
-        "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
+        "backend.src.daemon.readers.helpers.storage_helpers.get_ci_for_region"
     )
     def test_create_storage_resource(self, mock_ci_calculator):
         """Test creation of StorageResource object."""
@@ -293,7 +293,7 @@ class TestStorageHelpers(unittest.TestCase):
         for region, expected_ci in test_regions:
             with self.subTest(region=region):
                 with patch(
-                    "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
+                    "backend.src.daemon.readers.helpers.storage_helpers.get_ci_for_region"
                 ) as mock_ci:
                     mock_ci.return_value = expected_ci
 
@@ -313,7 +313,7 @@ class TestStorageHelpers(unittest.TestCase):
                     self.assertEqual(storage.region, region)
 
         with patch(
-            "backend.src.daemon.readers.helpers.storage_helpers.PaasCiMapper.calculate_ci"
+            "backend.src.daemon.readers.helpers.storage_helpers.get_ci_for_region"
         ) as mock_ci:
             mock_ci.return_value = 281
 

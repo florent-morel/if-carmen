@@ -109,6 +109,8 @@ energy_adjusted (kWh) = energy (kWh) × PUE
 
 The operational carbon emissions are calculated by converting energy consumption into carbon dioxide equivalent emissions. The grid carbon intensity varies by region and represents how many grams of CO2 equivalent are emitted per kilowatt-hour of electricity consumed. This value depends on the energy mix of the local power grid – regions with more renewable energy have lower intensities, while coal-heavy grids have higher values.
 
+For resources with a provider region, Carmen maps the region to a location and uses its configured carbon intensity. Unknown regions use `default_carbon_intensity`; pod telemetry uses the same default because no provider region is supplied for the pod.
+
 **Equation:**
 ```
 carbon-operational (gCO2e) = energy_adjusted (kWh) × grid_carbon_intensity (gCO2e/kWh)
@@ -118,7 +120,7 @@ carbon-operational (gCO2e) = energy_adjusted (kWh) × grid_carbon_intensity (gCO
 
 Embodied emissions represent the carbon cost of manufacturing, transporting, and disposing of hardware. The sci-m-cpu component calculates embodied emissions for compute resources using lifecycle analysis. This formula allocates a portion of the server's total embodied emissions to your specific workload based on how many vCPUs you use, for how long, and what fraction of the server's lifetime your usage represents. The total embodied emissions typically include manufacturing emissions, transportation, and end-of-life disposal.
 
-The default `device/emissions-embodied` value (`1,999,999 mgCO2e`) is a **configurable fleet average** — set in [`carbon_values.yaml`](../etc/config/modelling_constants/carbon_values.yaml) under `default_device_emissions_embodied`. It represents the average total embodied emissions across a representative server fleet and should be updated to reflect the hardware profile of your own inventory. In the future it will be retrieved per instance type from a provider-specific instance database (e.g., `*_instances.csv`).
+The default `device/emissions-embodied` value (`1,999,999 mgCO2e`) is a **configurable fleet average** : set in [`carbon_values.yaml`](../etc/config/modelling_constants/carbon_values.yaml) under `default_device_emissions_embodied`. It represents the average total embodied emissions across a representative server fleet and should be updated to reflect the hardware profile of your own inventory. In the future it will be retrieved per instance type from a provider-specific instance database (e.g., `*_instances.csv`).
 
 **Equation:**
 ```
