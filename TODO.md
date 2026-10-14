@@ -11,7 +11,7 @@
 - [ ] Review & remove if possible commented code (or put it in vNext/v1).
 - [ ] Review all documentation.
 - [ ] Documentation: explain sample data in tests folders.
-- [ ] Review changelog.
+- [x] Review changelog.
 - [ ] Review & centralize vNext in [[changelog.md]].
 - [ ] Fix gitignore of tests output.
 - [ ] Review log level in log files.
