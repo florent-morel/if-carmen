@@ -55,8 +55,8 @@ class AbstractWriter(ABC):
             # Common columns
             ReportConfig.COMMON_DATE: self.date,
             ReportConfig.COMMON_RESOURCE_TYPE: resource.resource_type.value,
-            ReportConfig.COMMON_ID: resource.id,
-            ReportConfig.COMMON_NAME: resource.name,
+            ReportConfig.COMMON_RESOURCE_ID: resource.id,
+            ReportConfig.COMMON_RESOURCE_NAME: resource.name,
             ReportConfig.COMMON_PROVIDER: resource.provider,
             ReportConfig.COMMON_REGION: resource.region,
             ReportConfig.COMMON_ENERGY: round(resource.total_energy_consumed, 4),

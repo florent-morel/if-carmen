@@ -13,6 +13,7 @@ from backend.src.schemas.resource import ResourceType
 
 common_fields_str = [
     "ResourceType",
+    "ResourceName",
     "Provider",
     "Region",
 ]
@@ -26,13 +27,13 @@ common_fields_float = [
 ]
 
 VM_fields = [
-    "VMSize",
+    "VmSize",
 ]
 
 storage_fields = [
     "StorageType",
-    "ReplicationType",
-    "SizeGB",
+    "StorageReplicationType",
+    "StorageSizeGB",
 ]
 
 
@@ -117,14 +118,14 @@ def validate_output(row_by_id, expected_result_by_id):
 
         if expected_result["ResourceType"] == ResourceType.VIRTUAL_MACHINE.value:
             for field in VM_fields:
-                # By default, VMSize is a string, so we can compare directly
+                # By default, VmSize is a string, so we can compare directly
                 if field in expected_result:
                     assert actual_result[field] == expected_result[field], f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
 
         if expected_result["ResourceType"] == ResourceType.STORAGE.value:
             for field in storage_fields:
                 # Float comparison
-                if field == "SizeGB":
+                if field == "StorageSizeGB":
                     assert float(actual_result[field]) == pytest.approx(expected_result[field], rel=1e-6), (
                         f"{resource_id}: {field} actual_result={actual_result[field]} expected_result={expected_result[field]}"
                     )

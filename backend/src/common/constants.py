@@ -8,15 +8,6 @@ from backend.src.common.enums import SamplingRate
 from enum import Enum
 from pathlib import Path
 
-# CPU_MIN_ELECTRICITY_RATIO_AZURE = 0.78  # watt per core
-# CPU_MAX_ELECTRICITY_RATIO_AZURE = 3.76  # watt per core
-# MEMORY_ELECTRICITY_RATIO_AZURE = 0.392  # watt per GB
-
-# European Average for 2024 (Source: https://ourworldindata.org/grapher/carbon-intensity-electricity)
-# Carbon intensity fallback is now loaded from config/carbon_intensity.yaml (default_carbon_intensity)
-# CARBON_INTENSITY_EUROPE = 281  # gCO2 per kWh
-# CPU_THRESHOLD: int = 1000000  # 1.000.000 cores
-# MEMORY_THRESHOLD: int = 100000000000000  # 100.000 TB
 
 RATE_TO_DURATION = {
     SamplingRate.FIFTEEN_SECONDS: timedelta(seconds=15),

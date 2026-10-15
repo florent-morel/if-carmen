@@ -73,17 +73,16 @@ Options:
 
   --carmen-provider-config-filepath PATH
       Path to provider config directory.
-      Env fallback: CARMEN_PROVIDER_CONFIG_FILEPATH
-      Default: etc/config/modelling_constants/cloud_providers
+      Env takes precedence: CARMEN_PROVIDER_CONFIG_FILEPATH
+      Default: etc/config/modelling_constants/providers/cloud_providers
 
   --carmen-carbon-values-filepath PATH
       Path to carbon values YAML.
-      Env fallback: CARMEN_CARBON_VALUES_FILEPATH
+      Env takes precedence: CARMEN_CARBON_VALUES_FILEPATH
       Default: etc/config/modelling_constants/carbon_values.yaml
 
 Examples:
-  python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath etc/config/config.yaml
-  python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-provider-config-filepath etc/config/modelling_constants/cloud_providers --carmen-carbon-values-filepath etc/config/modelling_constants/carbon_values.yaml
+    uv run python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath example-data/config.yaml
 """
     print(help_message)
 

@@ -1,0 +1,10 @@
+Date,ResourceType,Id,Name,Provider,Region,EnergyKWH,OperationalCarbonGramsCO2eq,EmbodiedCarbonGramsCO2eq,TotalCarbonGramsCO2eq,CarbonIntensity,Cost,VMSize,StorageType,StorageReplicationType,StorageSizeGB
+2026-10-15,VirtualMachine,/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-01,web-vm-01,azure,eastus,0.1811,69.5301,31.1476,100.6777,384.0,0.0,Standard_D4s_v3,,,
+2026-10-15,VirtualMachine,/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/web-vm-02,web-vm-02,azure,westeurope,0.1694,42.8487,31.1476,73.9963,253.0,0.0,Standard_D4s_v3,,,
+2026-10-15,VirtualMachine,/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/api-vm-01,api-vm-01,azure,eastus,0.3954,151.8164,62.2952,214.1116,384.0,0.0,Standard_D8s_v3,,,
+2026-10-15,VirtualMachine,/subscriptions/def-456/resourceGroups/staging-rg/providers/Microsoft.Compute/virtualMachines/test-vm-01,test-vm-01,azure,westeurope,0.0703,17.7968,15.5738,33.3706,253.0,0.0,Standard_B2ms,,,
+2026-10-15,VirtualMachine,/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/db-vm-01,db-vm-01,azure,northeurope,1.0749,300.9815,124.5904,425.5719,280.0,0.0,Standard_E16s_v3,,,
+2026-10-15,VirtualMachine,/subscriptions/ghi-789/resourceGroups/dev-rg/providers/Microsoft.Compute/virtualMachines/dev-vm-01,dev-vm-01,azure,eastus2,0.0626,24.0235,15.5738,39.5973,384.0,0.0,Standard_D2s_v3,,,
+2026-10-15,VirtualMachine,/subscriptions/abc-123/resourceGroups/prod-rg/providers/Microsoft.Compute/virtualMachines/cache-vm-01,cache-vm-01,azure,uksouth,0.0789,16.6499,15.5738,32.2237,211.0,0.0,Standard_D4s_v3,,,
+2026-10-15,VirtualMachine,vm-001,web-server-01,azure,eastus,0.0326,12.5241,6.333,18.8571,384.0,0.0,Standard_D2s_v3,,,
+2026-10-15,VirtualMachine,vm-002,api-server-01,azure,westeurope,0.0274,6.9202,5.8402,12.7604,253.0,0.0,Standard_B2ms,,,

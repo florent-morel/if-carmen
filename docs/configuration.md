@@ -4,21 +4,20 @@ This file documents all possible configuration options for running Carmen.
 
 `CARMEN_ROOT` refers to the installation path of Carmen.
 
-The default configuration path is `CARMEN_ROOT/etc/config/config.yaml`, but can be overridden through the `CARMEN_CONFIG_FILEPATH` environment variable.
+The default configuration path is `CARMEN_ROOT/etc/config/config.yaml` when running from `CARMEN_ROOT`. When running the daemon, you can override it with `--carmen-config-filepath PATH` or the `CARMEN_CONFIG_FILEPATH` environment variable. If both are set, the command-line path takes precedence.
 
 ## Carmen Daemon configuration
 
 This section explains the configuration structure for the Carmen daemon and details the configuration files content.
 
 TODO: Review this list
-### Input files directory structure
+### Configuration files directory structure
 
-Carmen daemon reads input files from a directory configured in main config file located in `CARMEN_ROOT/etc/config/config.yaml`.
+The daemon reads input files from `carmen_daemon.source.input_path` in the main configuration file.
 
-The configuration directory structure is the following:
+The configuration files are organized as follows:
 ```
 CARMEN_ROOT/etc/config/
-├── config-test.yaml
 ├── config.yaml
 └── modelling_constants
     ├── carbon_values.yaml
@@ -41,72 +40,56 @@ This is Carmen's main configuration file.
 It is located in CARMEN_ROOT/etc/config/config.yaml.
 
 It contains: 
-- Carbon intensity & PUE default values.
-- Configuration settings for Carmen API (see [[carmen-as-a-service]] for more information).
+- Configuration settings for Carmen API (see [Carmen as a Service](carmen-as-a-service.md) for more information).
 - Input folder path.
 - Output folder path.
-- List of supported processors.
-    - This corresponds to the implemented resources CO2 computation: TODO: properly define resources.
-        * Compute: VM, pod, etc.
-        * Storage: storage services.
-        * Misc_Services: all other services required.
+- List of processors to run.
+    - Can be selected from the following list of supported processors:
+        * Processor_Compute: Virtual Machine, pod, etc.
+        * Processor_Storage: Storage services.
+        * Processor_Misc_Services: All other services.
+    - Defaults to Processor_Compute.
 
-#### CARMEN_ROOT/etc/config/config-test.yaml
+#### CARMEN_ROOT/etc/sample_data/config-test.yaml
 
-This file is following the same structure as config.yaml.
-It is used for Unit Tests only.
+This file follows the same structure as `config.yaml` and is used by pytest.
+Carbon intensity and PUE defaults are loaded separately from the carbon-values configuration for both files.
 
 ### Default Carbon values
 
 This file defines several carbon computation related values.
-It is located in CARMEN_ROOT/etc/config/modelling_constants/carbon_values.yaml.
+By default, it is located in `CARMEN_ROOT/etc/config/modelling_constants/carbon_values.yaml` when running from `CARMEN_ROOT`. When running the daemon, you can select another file with `--carmen-carbon-values-filepath PATH` or the `CARMEN_CARBON_VALUES_FILEPATH` environment variable. If both are set, the environment variable takes precedence.
 These are common to all providers.
 
 Carmen looks up each CSV `Region` in the `regions` mappings of the loaded provider configurations. The matching entry identifies a location, whose intensity is read from `carbon_intensity_by_location` in `etc/config/modelling_constants/carbon_values.yaml`. For example, `eastus` maps to `United_States`, with an intensity of `384 gCO2e/kWh`. If the region or location is not mapped, Carmen uses `default_carbon_intensity`. To support a new region, configure both its region-to-location mapping and the location's intensity.
 
 It also defines the embodied storage values for the following technologies:
-- HDD.
-- SSD.
-- A default value is provided in case the technology is unknown.
+- HDD (Hard Drive Disks)
+- SSD (Solid State Disks)
+- A default value is provided in case the disk technology is unknown.
 
 #### Providers configuration folder
 
 This folder stores cloud providers specific configurations.
-It is located in CARMEN_ROOT/etc/config/modelling_constants/providers/cloud_providers.
+By default, this folder is located in `CARMEN_ROOT/etc/config/modelling_constants/providers/cloud_providers` when running from `CARMEN_ROOT`. When running the daemon, you can select another folder with `--carmen-provider-config-filepath PATH` or the `CARMEN_PROVIDER_CONFIG_FILEPATH` environment variable. If both are set, the environment variable takes precedence.
 
-##### Azure Cloud Service Provider
+##### Cloud providers configuration folders
 
-This file is dedicated to Microsoft Azure Cloud Service Provider.
-It is located in CARMEN_ROOT/etc/config/modelling_constants/providers/cloud_providers/azure/azure.yaml.
+This folder stores subfolders dedicated to implemented cloud providers.
+In each implemented subfolder, one will find :
+- %provider%.yaml : defines constants related to
+  - Power Usage Effectiveness ratio (PUE).
+  - Mapping between Azure defined regions and carbon intensity values defined in carbon_values.yaml.
+  - Electricity ratios: energy consumption of different resources.
+- %provider%_instances.csv : dataset extracted from GSF's if-data containing hardware instances data per virtual machine type.
 
-It defines constants related to:
-- Power Usage Effectiveness ratio (PUE).
-- Mapping between Azure defined regions and carbon intensity values defined in carbon_values.yaml.
-- Electricity ratios: energy consumption of different resources.
+##### Local configuration folder
 
-
-###### Azure Cloud Service Provider - Instances configuration
-
-CARMEN_ROOT/etc/config/modelling_constants/providers/cloud_providers/azure/azure_instances.csv
-
-TODO: Explain what's in this file.
-
-##### AWS Cloud Service Provider
-
-It is located in CARMEN_ROOT/etc/config/modelling_constants/providers/cloud_providers/aws/aws.yaml.
-
-Follows same structure. 
-Not implemented yet.
-
-##### GCP Cloud Service Provider
-
-It is located in CARMEN_ROOT/etc/config/modelling_constants/providers/cloud_providers/gcp/gcp.yaml.
-
-Follows same structure.  
-Not implemented yet.
-
+Same as above, except it is dedicated to non-CSP configuration.
 
 ## Configuration example
+
+The main configuration must contain at least one of `carmen_api` or `carmen_daemon`. You can configure the API, the daemon, or both.
 
 TODO: review this file.
 ```yaml
@@ -164,22 +147,19 @@ carmen_daemon:
   source:
     # Path to the example data directory
     # Using relative path from project root
-    input_path: "vm-metrics"
-    # Or use absolute path:
-    # input_path: "/home/user/carbon-engine/example-data/vm-metrics"
+    input_path: "etc/sample_data/vm-metrics"
 
   # Output directory for carbon reports
-  output_path: "./output"
+  output:
+    output_path: "./output"
   # TODO document properly below
   orchestrator:
     list_processors:
       - Processor_Compute
-      - Processor_Storage
-      - Processor_Misc_Services
 ```
 
 
 ## Configuration examples path
 
 
-Configuration examples can be found in CARMEN_ROOT/etc/sample_data.
+Configuration examples can be found in CARMEN_ROOT/etc/sample_data or in the [E2E tests](../backend/tests/daemon/end_to_end/test_e2e_multi_resources/success/test_e2e_vm_storage_misc_services_single_provider_azure/test_data/config/config.yaml)

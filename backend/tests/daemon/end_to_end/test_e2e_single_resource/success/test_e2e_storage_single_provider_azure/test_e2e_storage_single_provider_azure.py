@@ -94,7 +94,7 @@ def test_e2e_storage_single_provider_azure(tmp_path):
     )
 
     output_rows = run.rows
-    row_by_id = {row["Id"]: row for row in output_rows}
+    row_by_id = {row["ResourceId"]: row for row in output_rows}
 
     assert len(output_rows) == 5
     expected_by_id = {
@@ -104,8 +104,8 @@ def test_e2e_storage_single_provider_azure(tmp_path):
             "Provider": "azure",
             "Region": "westeurope",
             "StorageType": "SSD",
-            "ReplicationType": "LRS",
-            "SizeGB": 32.0,
+            "StorageReplicationType": "LRS",
+            "StorageSizeGB": 32.0,
             "EnergyKWH": 0.0857,
             "OperationalCarbonGramsCO2eq": 21.6843,
             "EmbodiedCarbonGramsCO2eq": 325.9138,
@@ -118,8 +118,8 @@ def test_e2e_storage_single_provider_azure(tmp_path):
             "Provider": "azure",
             "Region": "westeurope",
             "StorageType": "SSD",
-            "ReplicationType": "GRS",
-            "SizeGB": 512.0,
+            "StorageReplicationType": "GRS",
+            "StorageSizeGB": 512.0,
             "EnergyKWH": 2.7427,
             "OperationalCarbonGramsCO2eq": 693.8984,
             "EmbodiedCarbonGramsCO2eq": 10429.2402,
@@ -132,8 +132,8 @@ def test_e2e_storage_single_provider_azure(tmp_path):
             "Provider": "azure",
             "Region": "westeurope",
             "StorageType": "Unknown",
-            "ReplicationType": "LRS",
-            "SizeGB": 128.0,
+            "StorageReplicationType": "LRS",
+            "StorageSizeGB": 128.0,
             "EnergyKWH": 0.0004,
             "OperationalCarbonGramsCO2eq": 0.0899,
             "EmbodiedCarbonGramsCO2eq": 0.9856,
@@ -146,8 +146,8 @@ def test_e2e_storage_single_provider_azure(tmp_path):
             "Provider": "azure",
             "Region": "westeurope",
             "StorageType": "Unknown",
-            "ReplicationType": "LRS",
-            "SizeGB": 128.0,
+            "StorageReplicationType": "LRS",
+            "StorageSizeGB": 128.0,
             "EnergyKWH": 0.0085,
             "OperationalCarbonGramsCO2eq": 2.157,
             "EmbodiedCarbonGramsCO2eq": 23.65,
@@ -160,8 +160,8 @@ def test_e2e_storage_single_provider_azure(tmp_path):
             "Provider": "azure",
             "Region": "francecentral",
             "StorageType": "SSD",
-            "ReplicationType": "LRS",
-            "SizeGB": 32.0,
+            "StorageReplicationType": "LRS",
+            "StorageSizeGB": 32.0,
             "EnergyKWH": 0.0857,
             "OperationalCarbonGramsCO2eq": 3.7712,
             "EmbodiedCarbonGramsCO2eq": 325.9138,

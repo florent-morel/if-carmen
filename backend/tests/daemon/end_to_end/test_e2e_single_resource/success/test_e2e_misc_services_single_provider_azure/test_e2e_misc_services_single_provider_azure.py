@@ -80,14 +80,14 @@ def test_e2e_misc_services_single_provider_azure(tmp_path):
         },
     )
     output_rows = run.rows
-    row_by_id = {row["Id"]: row for row in output_rows}
+    row_by_id = {row["ResourceId"]: row for row in output_rows}
 
     assert len(output_rows) == 3
 
     expected_by_id = {
         "Test_ID_Misc_Services_01": {
             "ResourceType": ResourceType.MISC_SERVICES.value,
-            "VMSize": "Standard_A1_v2",
+            "VmSize": "Standard_A1_v2",
             "Provider": "azure",
             "Region": "westeurope",
             "EnergyKWH": 14.1587,
@@ -98,7 +98,7 @@ def test_e2e_misc_services_single_provider_azure(tmp_path):
         },
         "Test_ID_Misc_Services_02": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
-                "VMSize": "Standard_A1_v2",
+                "VmSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "westeurope",
                 "EnergyKWH": 9.9875,
@@ -109,7 +109,7 @@ def test_e2e_misc_services_single_provider_azure(tmp_path):
             },
         "Test_ID_Misc_Services_03": {
                 "ResourceType": ResourceType.MISC_SERVICES.value,
-                "VMSize": "Standard_A1_v2",
+                "VmSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "northeurope",
                 "EnergyKWH": 24.7631,

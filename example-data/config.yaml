@@ -4,12 +4,11 @@ carmen_daemon:
   source:
     # Path to the example data directory
     # Using relative path from project root
-    input_path: "vm-metrics"
-    # Or use absolute path:
-    # input_path: "/home/user/carbon-engine/example-data/vm-metrics"
+    input_path: "etc/sample_data/vm-metrics"
 
   # Output directory for carbon reports
-  output_path: "./output"
+  output:
+    output_path: "./output"
   orchestrator:
     list_processors:
       # Provide the list of processors used to estimate the impact of given resources.
@@ -19,5 +18,3 @@ carmen_daemon:
       # - Processor_Storage: to estimate impact of storage services.
       # - Processor_Misc_Services: to estimate impact of other services (security, network appliances, etc).
       - Processor_Compute
-      - Processor_Storage
-      - Processor_Misc_Services

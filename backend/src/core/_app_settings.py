@@ -102,8 +102,8 @@ class ReportConfig:
     # Common columns
     COMMON_DATE = "Date"
     COMMON_RESOURCE_TYPE = "ResourceType"
-    COMMON_ID = "Id"
-    COMMON_NAME = "Name"
+    COMMON_RESOURCE_ID = "ResourceId"
+    COMMON_RESOURCE_NAME = "ResourceName"
     COMMON_PROVIDER = "Provider"
     COMMON_REGION = "Region"
     COMMON_ENERGY = "EnergyKWH"
@@ -114,12 +114,12 @@ class ReportConfig:
     COMMON_COST = "Cost"
 
     # VM columns
-    COMPUTE_VM_SIZE = "VMSize"
+    COMPUTE_VM_SIZE = "VmSize"
 
     # Storage columns
     STORAGE_TYPE = "StorageType"
-    STORAGE_REPLICATION_TYPE = "ReplicationType"
-    STORAGE_SIZE_GB = "SizeGB"
+    STORAGE_REPLICATION_TYPE = "StorageReplicationType"
+    STORAGE_SIZE_GB = "StorageSizeGB"
 
     # No Misc services columns
 
@@ -128,8 +128,8 @@ class ReportConfig:
         # Common columns
         "Date",
         "ResourceType",
-        "Id",
-        "Name",
+        "ResourceId",
+        "ResourceName",
         "Provider",
         "Region",
         "EnergyKWH",
@@ -139,11 +139,11 @@ class ReportConfig:
         "CarbonIntensity",
         "Cost",
         # VM columns
-        "VMSize",
+        "VmSize",
         # Storage columns
         "StorageType",
-        "ReplicationType",
-        "SizeGB",
+        "StorageReplicationType",
+        "StorageSizeGB",
         # No Misc services columns
     ]
 

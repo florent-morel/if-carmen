@@ -7,10 +7,10 @@ We chose the Impact Framework for several key reasons:
 - Finally, the Impact Framework provides a flexible plugin architecture, enabling us to easily integrate and reuse community-maintained models, while also extending the system with our own. This combination of transparency, extensibility, and methodological rigor makes it a strong foundation for Carmen.
 
 The IF pipeline definitions used by Carmen are in:
-- [etc/impact_framework/templates/infrastructure_pipeline.yml](etc/impact_framework/templates/infrastructure_pipeline.yml)
-- [etc/impact_framework/templates/app_pipeline.yml](etc/impact_framework/templates/app_pipeline.yml)
-- [etc/impact_framework/templates/storage_pipeline.yml](etc/impact_framework/templates/storage_pipeline.yml)
-- [etc/impact_framework/templates/misc_services_pipeline.yml](etc/impact_framework/templates/misc_services_pipeline.yml)
+- [etc/impact_framework/templates/infrastructure_pipeline.yml](../etc/impact_framework/templates/infrastructure_pipeline.yml)
+- [etc/impact_framework/templates/app_pipeline.yml](../etc/impact_framework/templates/app_pipeline.yml)
+- [etc/impact_framework/templates/storage_pipeline.yml](../etc/impact_framework/templates/storage_pipeline.yml)
+- [etc/impact_framework/templates/misc_services_pipeline.yml](../etc/impact_framework/templates/misc_services_pipeline.yml)
 
 ### Precision and reporting
 
@@ -59,11 +59,11 @@ cpu/energy (kWh) = cpu/power (kW) × duration (hours)
 
 ### Memory Power and Energy Calculations
 
-Memory power consumption is estimated using a coefficient-based approach.The memory coefficient we used is the azure's average taken from the CCF. We multiply the amount of requested memory by this coefficient and convert to kilowatts.
+Memory power consumption uses a coefficient of `0.000392 kW/GB` from CCF. Carmen multiplies requested memory in GB by this coefficient to obtain power in kW.
 
 **Equation:**
 ```
-memory/power (kW) = (memory/requested (GB) × memory_coefficient (W/GB)) / 1000
+memory/power (kW) = memory/requested (GB) × memory_coefficient (kW/GB)
 ```
 
 Then, similar to the CPU calculation, we determine memory energy consumption. This gives us the total energy consumed by the memory subsystem over the measurement period.
@@ -75,11 +75,11 @@ memory/energy (kWh) = memory/power (kW) × duration (hours)
 
 ### Storage Power and Energy Calculations
 
-Storage follows a similar coefficient-based methodology, with different coefficients for SSD, and HDD disks.
+For VM-attached storage, Carmen uses the configured `unknown` storage electricity ratio because VM input does not specify disk technology.
 
 **Equation:**
 ```
-storage/power (kW) = (storage/requested (GB) × storage_coefficient (W/GB)) / 1000
+storage/power (kW) = storage/requested (GB) × storage_coefficient (kW/GB)
 ```
 
 The energy calculation follows the standard formula, giving us the total storage energy consumption.
@@ -98,7 +98,7 @@ We aggregate the energy from all three components using a simple summation. This
 energy (kWh) = cpu/energy + memory/energy + storage/energy
 ```
 
-However, datacenters require additional energy for cooling systems, power distribution, lighting, and other infrastructure. This overhead is captured by the Power Usage Effectiveness (PUE) metric. A PUE of 1.58, for example, means that for every 1 kWh used by IT equipment, the datacenter consumes 1.185 kWh total. 
+However, datacenters require additional energy for cooling systems, power distribution, lighting, and other infrastructure. This overhead is captured by the Power Usage Effectiveness (PUE) metric. A PUE of 1.185, for example, means that for every 1 kWh used by IT equipment, the datacenter consumes 1.185 kWh total.
 
 **Equation:**
 ```
@@ -120,7 +120,7 @@ carbon-operational (gCO2e) = energy_adjusted (kWh) × grid_carbon_intensity (gCO
 
 Embodied emissions represent the carbon cost of manufacturing, transporting, and disposing of hardware. The sci-m-cpu component calculates embodied emissions for compute resources using lifecycle analysis. This formula allocates a portion of the server's total embodied emissions to your specific workload based on how many vCPUs you use, for how long, and what fraction of the server's lifetime your usage represents. The total embodied emissions typically include manufacturing emissions, transportation, and end-of-life disposal.
 
-The default `device/emissions-embodied` value (`1,999,999 mgCO2e`) is a **configurable fleet average** : set in [`carbon_values.yaml`](../etc/config/modelling_constants/carbon_values.yaml) under `default_device_emissions_embodied`. It represents the average total embodied emissions across a representative server fleet and should be updated to reflect the hardware profile of your own inventory. In the future it will be retrieved per instance type from a provider-specific instance database (e.g., `*_instances.csv`).
+The default `device/emissions-embodied` value (`1,999,999 gCO2e`) is a **configurable fleet average** : set in [`carbon_values.yaml`](../etc/config/modelling_constants/carbon_values.yaml) under `default_device_emissions_embodied`. It represents the average total embodied emissions across a representative server fleet and should be updated to reflect the hardware profile of your own inventory. In the future it will be retrieved per instance type from a provider-specific instance database (e.g., `*_instances.csv`).
 
 **Equation:**
 ```
@@ -615,12 +615,12 @@ tree:
 ## Storage Pipeline
 
 The storage pipeline computes energy, operational carbon, and embodied carbon for storage resources.
-It is driven by [IFStorageService](backend/src/services/carbon_service/impact_framework/service/if_storage_service.py),
-which binds the models [PStorage](backend/src/services/carbon_service/impact_framework/models/power/p_storage.py),
-[EStorage](backend/src/services/carbon_service/impact_framework/models/energy/e_storage.py),
-and [MStorage](backend/src/services/carbon_service/impact_framework/models/carbon/m_storage.py)
-into [storage_template.yml.j2](etc/impact_framework/templates/storage_template.yml.j2)
-and [storage_pipeline.yml](etc/impact_framework/templates/storage_pipeline.yml).
+It is driven by [IFStorageService](../backend/src/services/carbon_service/impact_framework/service/if_storage_service.py),
+which binds the models [PStorage](../backend/src/services/carbon_service/impact_framework/models/power/p_storage.py),
+[EStorage](../backend/src/services/carbon_service/impact_framework/models/energy/e_storage.py),
+and [MStorage](../backend/src/services/carbon_service/impact_framework/models/carbon/m_storage.py)
+into [storage_template.yml.j2](../etc/impact_framework/templates/storage_template.yml.j2)
+and [storage_pipeline.yml](../etc/impact_framework/templates/storage_pipeline.yml).
 
 ### Storage input normalization
 
@@ -678,9 +678,9 @@ carbon-embodied (gCO2e) = effective_storage_gb
 ### Validation helper references
 
 The expected-value helper formulas are implemented in:
-- [compute_storage_energy_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
-- [compute_storage_operational_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
-- [compute_storage_embodied_helper](backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_storage_energy_helper](../backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_storage_operational_helper](../backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
+- [compute_storage_embodied_helper](../backend/tests/services/carbon_service/impact_framework/computation/computation_helpers.py)
 
 
 ## Miscellaneous Services Pipeline

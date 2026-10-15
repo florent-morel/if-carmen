@@ -72,7 +72,7 @@ def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
     run = run_daemon(Path(__file__), tmp_path)
     output_rows = run.rows
 
-    row_by_id = {row["Id"]: row for row in output_rows}
+    row_by_id = {row["ResourceId"]: row for row in output_rows}
 
     # 1 VM + 3 Misc Services resources
     assert len(output_rows) == 4
@@ -97,7 +97,7 @@ def test_e2e_vm_misc_services_single_provider_azure(tmp_path):
         "Test_ID_VM_01":
             {
                 "ResourceType": ResourceType.VIRTUAL_MACHINE.value,
-                "VMSize": "Standard_A1_v2",
+                "VmSize": "Standard_A1_v2",
                 "Provider": "azure",
                 "Region": "eastus",
                 "EnergyKWH": 0.012,

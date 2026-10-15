@@ -31,7 +31,7 @@ class CarbonValuesConfig(BaseSettings):
     default_misc_services_constants: DefaultMiscServicesConstants = (
         DefaultMiscServicesConstants()
     )
-    # Fleet-average total embodied emissions (TE) for a VM, in mgCO2e.
+    # Fleet-average total embodied emissions (TE) for a VM, in gCO2e.
     # Used as a fallback when no per-instance value is available.
     # TODO: Retrieve per-instance TE from a provider instance database (*_instances.csv).
     default_device_emissions_embodied: int

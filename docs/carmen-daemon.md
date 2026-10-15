@@ -8,66 +8,103 @@ The daemon expects to read a group of csv files containing resource usage data. 
 
 For all resource rows, input data can include `SampleDurationSeconds` to represent the usage duration for that row.
 If `SampleDurationSeconds` is missing or empty, Carmen applies a default value of `86400` seconds.
+When supplied, `SampleDurationSeconds` must be a positive whole number of seconds.
 
-Internally, Carmen stores per-observation durations as a list (`duration_seconds`) aligned with
-resource `time_points`. For convenience when constructing schema objects in code/tests,
-`duration_seconds` accepts either a single integer (for example `duration_seconds=86400`) or
-an explicit list (for example `duration_seconds=[86400, 3600]`). A scalar value is normalized
-to a one-element list.
+### Input file structure
 
-### Input file structure (=columns)
-
-TODO: review this.
-
+#### Common fields
 
 | Field | Description | Example |
 |------|-------------|---------|
 | SampleTimestamp | Timestamp when the measurement was recorded, typically in ISO 8601 format | 2024-10-15T14:30:00Z |
 | ResourceName | Human-readable name assigned to the resource | production-web-01 |
 | ResourceId | Unique identifier for the resource | vm-a1b2c3d4e5f6 |
-| VmSize | VM instance size used to look up hardware specifications | Standard_D4s_v3 |
-| VmNbCpus | Number of vCPUs allocated to the VM, used to estimate CPU power when instance metadata is unavailable | 4 |
 | Region | Region code used to determine carbon intensity | eastus |
 | Provider | Name of the resource's provider, used to select provider-specific modelling values and instance data when available | azure |
+| Cost | Cost attributed to this resource row; required for compute rows (use 0 if unknown) | 120.50 |
 | ResourceType | Resource category used to select the appropriate processor | Compute, Storage, network |
+| SampleDurationSeconds | Recommended for all resource rows. Duration represented by the row, in seconds. If missing or empty, Carmen defaults to 86400. | 3600 |
+
+#### VM fields
+
+| Field | Description | Example |
+|------|-------------|---------|
+| VmSize | VM instance size used to look up hardware specifications | Standard_D4s_v3 |
+| VmNbCpus | Number of vCPUs allocated to the VM, used to estimate CPU power when instance metadata is unavailable | 4 |
 | AverageVmCpuUtilPercent | Average CPU utilization during the measurement period (0-100) | 45.7 |
 | VmDiskSizeGb | Total provisioned disk storage in gigabytes | 128 |
+
+#### Storage fields
+
+| Field | Description | Example |
+|------|-------------|---------|
 | StorageSizeGB | Required for storage rows. Normalized storage capacity in gigabytes. | 512 |
-| SampleDurationSeconds | Recommended for all resource rows. Duration represented by the row, in seconds. If missing or empty, Carmen defaults to 86400. | 3600 |
-| ReplicationType | Storage replication type | GRS, LRS |
+| StorageType | Storage technology used to select the storage power coefficient | SSD |
+| StorageReplicationType | Storage replication type | GRS, LRS |
 
-### Storage-specific ingestion contract
+#### Misc-services fields
 
-For every row where `ResourceType` is `Storage`, the following rules apply:
+Misc-services input rows have no additional columns. Their common `Cost` value drives the cost-based energy and embodied estimates. If it is missing, Carmen uses `0`, producing zero estimated impact for that resource. Use the same currency for VM, storage, and misc-services costs.
 
-- `StorageSizeGB` is required and must be numeric and strictly positive.
-- `SampleDurationSeconds` is optional but should be provided by the source. If it is missing or empty, Carmen applies the default duration `86400` seconds (1 day).
-- If `SampleDurationSeconds` is non-numeric, zero, negative, or fractional, Carmen skips the row.
+### VM-specific input and modelling
 
+For rows with `ResourceType` set to `Compute`:
 
-### Technical required data
+- `AverageVmCpuUtilPercent` and `VmDiskSizeGb` provide CPU utilization and disk capacity for each observation; the VM reader expects both columns.
+- `VmSize` selects provider instance metadata. If no matching instance is available, the provider must define `electricity_ratios.cpu_max`. Carmen then uses `VmNbCpus` or, for Azure only, a vCPU count inferred from `VmSize`. Without those fallback inputs, CPU energy computation fails.
+
+### Storage-specific input and modelling
+
+For rows with `ResourceType` set to `Storage`:
+
+- `StorageSizeGB` must be present, numeric, and greater than zero; otherwise the row is skipped.
+- `StorageType` selects the storage power coefficient. Missing or unrecognized values use the configured `unknown` coefficient; computation fails if no applicable coefficient exists.
+- `StorageReplicationType` selects a factor from the provider's `storage_replication_factors`. A missing or unmapped factor can pass ingestion but prevents computation when a provider configuration is loaded. Without a provider configuration, Carmen uses a factor of `1`.
+
 
 
 ## Report File
 
-TODO: review this.
-TODO: Add the expected unit when applicable.
+The Carmen Daemon generates one CSV report for all resource types, using the same columns. Each row fills the common fields and the fields for its resource type; other resource-specific fields are empty.
 
-The Carmen Daemon generates a detailed carbon emissions report in CSV format with the following fields:
+The `Input field` column names a corresponding source CSV column; `-` means there is no direct counterpart. `Date` is assigned by the daemon, and carbon intensity and impact totals are calculated from inputs and configuration. Input `Compute` rows are reported as `VirtualMachine`, while VM `Cost` accumulates across observations. `SampleTimestamp`, `SampleDurationSeconds`, `AverageVmCpuUtilPercent`, `VmNbCpus`, and `VmDiskSizeGb` have no separate report columns.
 
-| Field | Description | Example |
-|------|-------------|---------|
-| Date | Date of the reporting period for this record | 2025-10-27 |
-| ResourceType | Type of cloud resource being reported | VM |
-| Id | Unique Azure resource identifier (full ARM path) | /subscriptions/12345678-abcd-1234-abcd-123456789abc/resourceGroups/DATABASE-PROD-RG/providers/Microsoft.Compute/virtualMachines/prod-db-vm-001 |
-| Name | Human-readable name of the virtual machine | prod-db-vm-001 |
-| Region | Azure region where the VM is deployed | francecentral |
-| EnergyKWh | Total energy consumed in kilowatt-hours during the reporting period | 0.1126 |
-| OperationalCarbonGramsCO2eq | Carbon emissions from energy consumption during operation (grams of CO2 equivalent) | 4.9551 |
-| EmbodiedCarbonGramsCO2eq | Carbon emissions from hardware manufacturing, transport, and disposal (grams of CO2 equivalent) | 6.1248 |
-| TotalCarbonGramsCO2eq | Sum of operational and embodied carbon emissions (grams of CO2 equivalent) | 11.08 |
-| CarbonIntensity | Carbon intensity of the France Central electricity grid (grams CO2eq per kWh) | 44.0 |
-| VMSize | Azure VM instance size/SKU | Standard_E16ads_v5 |
+### Common fields
+
+| Field | Input field | Description | Example |
+|------|-------------|-------------|---------|
+| Date | - | Daemon execution date (defaults to the current date; can be set with `EXECUTION_DATE`) | 2025-10-27 |
+| ResourceType | `ResourceType` | Type of resource being reported (`VirtualMachine`, `Storage`, or `MiscServices`) | VirtualMachine |
+| ResourceId | `ResourceId` | Unique resource identifier | /subscriptions/12345678-abcd-1234-abcd-123456789abc/resourceGroups/DATABASE-PROD-RG/providers/Microsoft.Compute/virtualMachines/prod-db-vm-001 |
+| ResourceName | `ResourceName` | Human-readable name of the resource | prod-db-vm-001 |
+| Provider | `Provider` | Provider of the reported resource | azure |
+| Region | `Region` | Region of the reported resource | francecentral |
+| EnergyKWH | - | Total energy consumed by the resource across its processed observations (kWh) | 0.1126 |
+| OperationalCarbonGramsCO2eq | - | Carbon emissions from energy consumption during operation (grams of CO2 equivalent) | 4.9551 |
+| EmbodiedCarbonGramsCO2eq | - | Carbon emissions from hardware manufacturing, transport, and disposal (grams of CO2 equivalent) | 6.1248 |
+| TotalCarbonGramsCO2eq | - | Sum of operational and embodied carbon emissions (grams of CO2 equivalent) | 11.08 |
+| CarbonIntensity | - | Carbon intensity of the region electricity grid (grams CO2eq per kWh) | 44.0 |
+| Cost | `Cost` | Cost of the reported resource | 120.50 |
+
+### VM fields
+
+| Field | Input field | Description | Example |
+|------|-------------|-------------|---------|
+| VmSize | `VmSize` | Azure VM instance size/SKU | Standard_E16ads_v5 |
+
+### Storage fields
+
+| Field | Input field | Description | Example |
+|------|-------------|-------------|---------|
+| StorageType | `StorageType` | Storage technology of the resource | SSD |
+| StorageReplicationType | `StorageReplicationType` | Storage replication setting | LRS |
+| StorageSizeGB | `StorageSizeGB` | Storage size in gigabytes | 32.0 |
+
+### Misc services fields
+
+Misc-services rows have no additional columns.
+
+Energy and carbon values are rounded to four decimal places in the CSV. Total carbon is rounded independently, so its displayed value may differ slightly from the sum of the displayed operational and embodied values. See [Precision and reporting](methodology.md#precision-and-reporting).
 
 
 > [!IMPORTANT]
@@ -79,43 +116,15 @@ The Carmen Daemon generates a detailed carbon emissions report in CSV format wit
 
 ## Running The Daemon
 
-The example-data directory includes sample VM usage datasets you can use to explore and test Carmen Engine. The configuration below demonstrates how to run the engine in local-reader mode, processing example VM metrics and generating carbon reports locally.
-
-```yaml
-# Example Configuration for Carbon Engine with Sample Data
-carmen_daemon:
-  # SOURCE: Read VM metrics from local example data
-  source:
-    # Path to the example data directory
-    # Using relative path from project root
-    input_path: "vm-metrics"
-    # Or use absolute path:
-    # input_path: "/home/user/carbon-engine/example-data/vm-metrics"
-
-  # Output directory for carbon reports
-  output_path: "./output"
-  orchestrator:
-    list_processors:
-      # Provide the list of processors used to estimate the impact of given resources.
-      # Refer to documentation [[docs/methodology.md]] for more information on the models used for each resource.
-      # List of supported processors:
-      # - Processor_Compute: to estimate impact of Virtual Machines.
-      # - Processor_Storage: to estimate impact of storage services.
-      # - Processor_Misc_Services: to estimate impact of other services (security, network appliances, etc).
-      - Processor_Compute
-      - Processor_Storage
-      - Processor_Misc_Services
-
-```
-
-To run the example, navigate to the project root and execute the orchestrator module entrypoint:
+The [VM example configuration](../example-data/config.yaml) reads the [sample VM metrics](../etc/sample_data/vm-metrics/) and writes a CSV report. From the project root, with dependencies installed, run:
 
 ```bash
-uv run python -m backend.src.daemon.carbon_daemon_orchestrator
+uv run python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath example-data/config.yaml
 ```
 
+The report is written to `output/CO2_YYYY-MM-DD.csv`. Other configurations are available in the [daemon end-to-end tests](../backend/tests/daemon/end_to_end/).
 
 ## Carmen Logging
 
 
-Carmen generates a log file per day stored in CARMEN_HOME/backend/logs.
+Carmen writes logs to the console. When `TEST_ENV` is enabled, it also writes a log file in the backend package's `logs` directory.

@@ -69,11 +69,11 @@ class TestWriterMiscServices(unittest.TestCase):
 
         first = rows[0]
         self.assertEqual(first[ReportConfig.COMMON_RESOURCE_TYPE], ResourceType.MISC_SERVICES.value)
-        self.assertEqual(first[ReportConfig.COMMON_ID], self.misc_services_resources[0].id)
+        self.assertEqual(first[ReportConfig.COMMON_RESOURCE_ID], self.misc_services_resources[0].id)
         self.assertEqual(float(first[ReportConfig.COMMON_COST]), self.misc_services_resources[0].cost)
 
         second = rows[1]
-        self.assertEqual(second[ReportConfig.COMMON_ID], self.misc_services_resources[1].id)
+        self.assertEqual(second[ReportConfig.COMMON_RESOURCE_ID], self.misc_services_resources[1].id)
         self.assertEqual(float(second[ReportConfig.COMMON_COST]), self.misc_services_resources[1].cost)
 
     def test_report_rounds_without_changing_resource_totals(self):
