@@ -38,7 +38,6 @@ STORAGE_REPLICATION_FACTORS = {
     "RA_GZRS": 6,  # Read-access geo-zone - same as GZRS
 }
 
-# TODO: -> Config
 MEMORY_COEFFICIENT = 0.000392
 DEVICE_EMISSIONS = 1672000
 

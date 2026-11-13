@@ -23,7 +23,6 @@ from backend.tests.services.carbon_service.impact_framework.computation.computat
 
 logger = logging.getLogger(__name__)
 
-# TODO: Magic
 SAMPLING_RATE_IN_SECONDS = 1800  # 30 min
 TDP_APP = 3.67  # Average watts per core for Azure taken from CCF
 # Standard_A1_v2 from azure_instances.csv: cpu-tdp=205 (full host), cores-utilized=1, cores-available=52

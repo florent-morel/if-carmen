@@ -64,7 +64,7 @@ def create_storage_resource(
         size_gb=size_gb,
         region=region,
         carbon_intensity=get_ci_for_region(region),
-        # TODO: study PUE implementation for storage energy computation
+        # TODO|CODE|vNext|21: study PUE implementation for storage energy computation
         cost=str_to_float(get_row_data(row, SOURCE_COST, "0.0")),
     )
 

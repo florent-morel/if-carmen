@@ -66,7 +66,7 @@ class IFService(ABC, CarbonService):
     to compute carbon and energy metrics for given resources.
     """
 
-    # TODO: Should be in config.yaml
+    # TODO|CODE|v1|24: Should be in config.yaml
     INFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_input")
     logger.debug(f"IF_FILES_DIR: {IF_FILES_DIR}")
     OUTFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_output")

@@ -1,7 +1,5 @@
 """
 This module contains helper functions for the daemon, including VM creation and logging of missing regions.
-TODO: this is actually a virtual_machine_helpers module
-TODO: what should we do about this TODO?
 """
 
 import re
@@ -24,7 +22,6 @@ from backend.src.common.constants import (
 )
 
 
-# TODO: Magic Azure
 # Matches Azure VM size names of the form Standard_<family><digits>[suffix]
 # (e.g. Standard_D32as_v5, Standard_E4s_v3, Standard_B2ms) and extracts the
 # digit(s) immediately following the family letters as the vCPU count.

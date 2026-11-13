@@ -61,9 +61,9 @@ FORMAT_STORAGE_ONE_GIB_PER_HOUR: str = "1 GiB/Hour"
 FORMAT_STORAGE_ONE_PER_MONTH: str = "1/Month"
 MAX_STORAGE_SIZE_GB_WARNING_THRESHOLD: int = 32767
 
-# TODO: add VM, storage and services chunk size as configurable settings
+# TODO|CODE|vNext|16: add VM, storage and services chunk size as configurable settings
 
-# TODO: do this in a cleaner way (project root)
+# TODO|CODE|vNext|17: do this in a cleaner way (project root)
 current_file = Path(__file__)
 project_root = (
     current_file.parent.parent.parent.parent
@@ -90,7 +90,7 @@ MODELS_CPU_CORES_UTILIZED = "cpu-cores-utilized"
 MODELS_CPU_TDP = "cpu-tdp"
 MODELS_MEMORY_AVAIL = "memory-available"
 
-# TODO: To be cleaned up. Do we really need singular and plural versions of these constants?
+# TODO|CODE|vNext|18: To be cleaned up. Do we really need singular and plural versions of these constants?
 IF_INPUT_INPUT_PARAMETER = "input-parameter"
 IF_INPUT_INPUT_PARAMETERS = "input-parameters"
 IF_INPUT_OUTPUT_PARAMETER = "output-parameter"
