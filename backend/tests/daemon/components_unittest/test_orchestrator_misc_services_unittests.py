@@ -52,7 +52,7 @@ def test_populate_misc_services_ratios_once_for_all_resources(
     ]
     with patch("backend.src.daemon.carbon_daemon_orchestrator.config") as mock_config:
         mock_config.carbon_values_config.default_misc_services_constants = defaults
-        with caplog.at_level(logging.INFO):
+        with caplog.at_level(logging.DEBUG):
             CarbonDaemonOrchestrator.__new__(
                 CarbonDaemonOrchestrator
             )._populate_misc_services_resources(resources, results)
