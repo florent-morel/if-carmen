@@ -14,7 +14,7 @@ class ComputeResource(Resource):
     Extends Resource with compute-specific fields for CPU, memory, storage capacity,
     and network I/O tracking.
 
-    TODO: annotate each field that represents a physical value with its unit
+    TODO|CODE|vNext|9: annotate each field that represents a physical value with its unit
           (e.g. using pydantic Field(description="kWh") or a dedicated unit annotation),
           so that the unit is machine-readable and not buried in comments.
     """

@@ -25,6 +25,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+    # TODO|CODE|vNext|12: Implement UT to validate exception is raised
+    # if no CSV provided. (Should be in reader)
+    # def test_process_misc_services_csv_empty(self):
+    #     """
+    #     Test process_misc_services_csv function with empty CSV data.
+    #     """
+
+    #     with self.assertRaises(CarmenException) as context:
+    #         process_misc_services_csv("")
+
+    #     self.assertEqual(str(context.exception.details), "Misc Services CSV data is empty")
+
 
 class TestReaderMiscServices(unittest.TestCase):
     """
@@ -71,16 +83,12 @@ class TestReaderMiscServices(unittest.TestCase):
         resultMiscServicesResource = list_processed_resources[0]
 
         # Ensure input data is not altered.
-        # TODO: check what needs to be validated in output of Misc Services Reader
+        # TODO|CODE|V1|14: check what needs to be validated in output of Misc Services Reader
         self.assertEqual(resultMiscServicesResource.resource_type, ResourceType.MISC_SERVICES)
         self.assertEqual(resultMiscServicesResource.id, "misc_service5")  # first non-compute/storage row
         self.assertEqual(resultMiscServicesResource.cost, 80.0)
         self.assertEqual(resultMiscServicesResource.provider, "provider_abc")
         self.assertEqual(resultMiscServicesResource.region, "centralus")
-
-        # TODO: these should be UT
-        # self.assertEqual(total_compute_cost, 175.0)
-        # self.assertEqual(total_storage_cost, 110.0)
 
     def test_reader_misc_services_dict_log_info(self):
         """

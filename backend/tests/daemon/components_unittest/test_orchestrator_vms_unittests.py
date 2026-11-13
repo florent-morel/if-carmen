@@ -90,11 +90,12 @@ class TestCarbonDaemonOrchestratorComponents(unittest.TestCase):
         self.assertGreater(result.execution_time, 0)
         self.assertEqual(len(result.list_exceptions), 0)
 
+        # TODO|CODE|v1|15: these should be in a dedicated UT
+        # self.assertEqual(total_compute_cost, 175.0)
+        # self.assertEqual(total_storage_cost, 110.0)
+
         # Validate that the mocks were called as expected by the Orchestrator
         mock_register_models.assert_called_once()
-        # TODO: There are 26 files in test folder, check with single file to
-        # uncomment this
-        # mock_processor.read.assert_called_once()
         mock_ioc_util_resolve.assert_called_once_with(
             CarbonService, "IFVm", DAILY_SECONDS)
 

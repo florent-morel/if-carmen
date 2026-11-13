@@ -208,7 +208,6 @@ def _process_storage_row(row, storage_dict):
 def _create_storage_resource(row):
     """
     Creates a StorageResource from input CSV row (storage_test.csv format).
-    Columns: TODO
     """
 
     return StorageResource(

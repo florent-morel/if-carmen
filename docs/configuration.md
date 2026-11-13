@@ -10,7 +10,7 @@ The default configuration path is `CARMEN_ROOT/etc/config/config.yaml` when runn
 
 This section explains the configuration structure for the Carmen daemon and details the configuration files content.
 
-TODO: Review this list
+TODO|DOC|5: Review this list
 ### Configuration files directory structure
 
 The daemon reads input files from `carmen_daemon.source.input_path` in the main configuration file.
@@ -91,7 +91,7 @@ Same as above, except it is dedicated to non-CSP configuration.
 
 The main configuration must contain at least one of `carmen_api` or `carmen_daemon`. You can configure the API, the daemon, or both.
 
-TODO: review this file.
+TODO|DOC|6: review this file.
 ```yaml
 # API Configuration (optional)
 carmen_api:
@@ -152,7 +152,7 @@ carmen_daemon:
   # Output directory for carbon reports
   output:
     output_path: "./output"
-  # TODO document properly below
+  # TODO|DOC|7 document properly below
   orchestrator:
     list_processors:
       - Processor_Compute

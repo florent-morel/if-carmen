@@ -4,7 +4,7 @@
 
 ## Unreleased - 2026-10-14
 
-TODO: To be moved in [[#Latest Release - yyyy-mm-dd]] once ready to release.
+TODO|DOC|3: To be moved in [[#Latest Release - yyyy-mm-dd]] once ready to release.
 
 ### Summary
 
@@ -65,7 +65,7 @@ Carmen architecture now supports Multi-Cloud Provider variables such as regions,
 
 - v1.0 Download input file from an Azure blob storage as it was specific to Amadeus' environment. See Summary section.
 - v1.0 Upload output file to an Azure blob storage as it was specific to Amadeus' environment. See Summary section.
-- TODO: removed useless columns in azure_instances.csv
+- TODO|DOC|4: removed useless columns in azure_instances.csv
 
 ### Fixed
 

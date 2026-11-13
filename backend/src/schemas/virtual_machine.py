@@ -19,7 +19,7 @@ from backend.src.common.constants import (
     SOURCE_SAMPLE_DURATION_SECONDS,
     SOURCE_VM_SIZE,
     SOURCE_VM_DISK_SIZE_GB,
-    # TODO: Add DISK_TYPE (akin to storage_type for storage resources, to be then propagated in computation)
+    # TODO|CODE|vNext|11: Add DISK_TYPE (akin to storage_type for storage resources, to be then propagated in computation)
     # At the moment we always fallback on the default values for the VMs' disk.
     SOURCE_COST,
 )

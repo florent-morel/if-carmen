@@ -103,7 +103,7 @@ In case the Impact Framework is not properly install, running the following comm
 npm install
 ```
 
-TODO: How to check Impact Framework is properly installed
+TODO|DOC|1|: How to check Impact Framework is properly installed
 
 #### Step 2: Install Carmen
 
@@ -111,7 +111,7 @@ We recommend installing Carmen in a virtual environment to keep dependencies iso
 
 **For Linux/macOS/Windows:**
 
-TODO: review this install process
+TODO|DOC|2|: review this install process
 ```bash
 uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate

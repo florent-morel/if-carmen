@@ -1,5 +1,6 @@
 # TODO
 
+TODO|DOC|Id or TODO|CODE|V1|Id or TODO|CODE|vNext|Id
 
 ## 2026-09-11 14:15:08
 
@@ -25,18 +26,18 @@
 
 vNext:
 
-TODO|1 - Implement embodied emissions TE retrieved from config file per instance_type
-TODO|2 - Configure and propagate output/generated folders for IF files dir (hardcoded as IF_FILES_DIR in Constants).
-TODO|3 - Resolve carbon intensity using the resource's Provider-specific region mapping, not the first matching region across all providers.
+TODO|CODE|vNext|1 - Implement embodied emissions TE retrieved from config file per instance_type
+TODO|CODE|vNext|2 - Configure and propagate output/generated folders for IF files dir (hardcoded as IF_FILES_DIR in Constants).
+TODO|CODE|vNext|3 - Resolve carbon intensity using the resource's Provider-specific region mapping, not the first matching region across all providers.
     Today, the readers record Provider, but call PaasCiMapper.get_ci_for_region with Region only... The mapper scans every provider’s region map and takes the FIRST match.
 
     For example, suppose both Azure and AWS configure the same code for a different region: Azure maps it to the Netherlands (253 gCO₂/kWh), while AWS maps it to France (44 gCO₂/kWh). An AWS resource in that region using 10 kWh should produce 440 gCO₂. If Azure’s mapping is encountered first, the current lookup would use 2,530 gCO₂ instead.
 
     Low risk, but conflict may arise in the future.
-TODO|4 - Fail storage computation explicitly when a configured provider has no mapping for a resource's StorageReplicationType.
-TODO|5 - Misc-services computation: Set weights used in ratio calculation as configurable input with a default value.
-TODO|6 - Misc-services computation: Move ratio calculation into IF. Include the raw compute/storage totals in the manifest and expose intermediate ratios, so the manifest explains the impact without Python logs.
-TODO|7 - Carmen API: Add Region as input to be used in carbon intensity computation. 
+TODO|CODE|vNext|4 - Fail storage computation explicitly when a configured provider has no mapping for a resource's StorageReplicationType.
+TODO|CODE|vNext|5 - Misc-services computation: Set weights used in ratio calculation as configurable input with a default value.
+TODO|CODE|vNext|6 - Misc-services computation: Move ratio calculation into IF. Include the raw compute/storage totals in the manifest and expose intermediate ratios, so the manifest explains the impact without Python logs.
+TODO|CODE|vNext|7 - Carmen API: Add Region as input to be used in carbon intensity computation. 
 
 ## Documentation
 

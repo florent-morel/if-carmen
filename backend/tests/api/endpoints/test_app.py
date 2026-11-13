@@ -153,7 +153,7 @@ def test_run_engine_for_selected_resources_success_with_emission_breakdown(
     mock_retrieve_telemetry_data.assert_called_once()
     mock_resolve.assert_called_once_with(CarbonService, "IFApp", 1800)
     mock_run_engine.assert_awaited_once_with(mock_pods, True)"""
-    # TODO: Fix. There should be another schema class called namespace.py that has List of pods just like Cluster schema
+    # TODO|CODE|vNext|8: Fix. There should be another schema class called namespace.py that has List of pods just like Cluster schema
     #   Having a Dict of Dict of Dict of List of Pod is not a good design if we want to have scalable code:
     #   Dict[str, Dict[str, Dict[str, List[Pod]]]]
     #   If we choose to describe these objects in complex datastructures starting from app level,

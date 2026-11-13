@@ -51,18 +51,6 @@ class TestMiscServicesHelpers(unittest.TestCase):
         self.assertEqual(vm_total_carbon, 200.0)
         self.assertEqual(vm_total_energy, 100.0)
 
-    # TODO: Implement UT to validate exception is raised
-    # if no CSV provided. (Should be in reader)
-    # def test_process_misc_services_csv_empty(self):
-    #     """
-    #     Test process_misc_services_csv function with empty CSV data.
-    #     """
-
-    #     with self.assertRaises(CarmenException) as context:
-    #         process_misc_services_csv("")
-
-    #     self.assertEqual(str(context.exception.details), "Misc Services CSV data is empty")
-
     @patch(
         "backend.src.daemon.readers.helpers.misc_services_helpers.get_ci_for_region"
     )

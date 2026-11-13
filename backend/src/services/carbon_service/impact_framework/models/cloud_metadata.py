@@ -38,8 +38,6 @@ case.  When the CSV lookup misses, the chain is:
      In all fallback cases TDP is approximated as ``cpu_max × vcpu_count``
      where ``cpu_max`` is the per-core maximum power drawn from provider config.
 
-# TODO: update docs/methodology.md to document the fallback chain and
-#       the TDP scaling formula.
 """
 
 import csv
