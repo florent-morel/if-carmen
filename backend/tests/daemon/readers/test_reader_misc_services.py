@@ -83,7 +83,7 @@ class TestReaderMiscServices(unittest.TestCase):
         resultMiscServicesResource = list_processed_resources[0]
 
         # Ensure input data is not altered.
-        # TODO|CODE|V1|14: check what needs to be validated in output of Misc Services Reader
+        # TODO|CODE|v1|14: check what needs to be validated in output of Misc Services Reader
         self.assertEqual(resultMiscServicesResource.resource_type, ResourceType.MISC_SERVICES)
         self.assertEqual(resultMiscServicesResource.id, "misc_service5")  # first non-compute/storage row
         self.assertEqual(resultMiscServicesResource.cost, 80.0)

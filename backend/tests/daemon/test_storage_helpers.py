@@ -46,7 +46,7 @@ class TestStorageHelpers(unittest.TestCase):
             SOURCE_STORAGE_REPLICATION_TYPE: "LRS",
         }
 
-        # TODO|CODE|V1|13: Not used (hence not tested)
+        # TODO|CODE|v1|13: Not used (hence not tested)
         self.sample_hdd_row = {
             SOURCE_RESOURCE_NAME: "Standard HDD Managed Disks",
             SOURCE_RESOURCE_ID: "test_line_456",
