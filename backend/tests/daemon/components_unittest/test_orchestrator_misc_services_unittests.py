@@ -19,7 +19,7 @@ from backend.src.utils.metrics_mapper import MetricsMapper
 @pytest.mark.parametrize(
     "use_vm,use_storage", [(False, False), (True, False), (False, True), (True, True)]
 )
-def test_hydrate_misc_services_ratios_once_for_all_resources(
+def test_populate_misc_services_ratios_once_for_all_resources(
     use_vm, use_storage, caplog
 ):
     defaults = SimpleNamespace(
@@ -55,7 +55,7 @@ def test_hydrate_misc_services_ratios_once_for_all_resources(
         with caplog.at_level(logging.INFO):
             CarbonDaemonOrchestrator.__new__(
                 CarbonDaemonOrchestrator
-            )._hydrate_misc_services_resources(resources, results)
+            )._populate_misc_services_resources(resources, results)
 
     compute_cost = vm_result.total_cost if use_vm else defaults.compute_cost
     storage_cost = storage_result.total_cost if use_storage else defaults.storage_cost
@@ -92,7 +92,7 @@ def test_hydrate_misc_services_ratios_once_for_all_resources(
 @pytest.mark.parametrize(
     "result_type", [ResourceType.VIRTUAL_MACHINE, ResourceType.STORAGE]
 )
-def test_hydrate_misc_services_rejects_zero_measured_cost(result_type):
+def test_populate_misc_services_rejects_zero_measured_cost(result_type):
     defaults = SimpleNamespace(
         compute_cost=1.0,
         compute_energy=0.15,
@@ -115,7 +115,7 @@ def test_hydrate_misc_services_rejects_zero_measured_cost(result_type):
         ):
             CarbonDaemonOrchestrator.__new__(
                 CarbonDaemonOrchestrator
-            )._hydrate_misc_services_resources(
+            )._populate_misc_services_resources(
                 [resource], {result_type: measured_result}
             )
 

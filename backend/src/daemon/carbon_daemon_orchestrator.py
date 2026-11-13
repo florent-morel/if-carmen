@@ -470,7 +470,7 @@ class CarbonDaemonOrchestrator:
 
                     # Misc Services modelling is executed at the end of the process
                     if abstract_processor.resource_type == ResourceType.MISC_SERVICES:
-                        self._hydrate_misc_services_resources(
+                        self._populate_misc_services_resources(
                             abstract_processor.list_resources_to_process,
                             dict_resource_results,
                         )
@@ -505,7 +505,7 @@ class CarbonDaemonOrchestrator:
             )
             raise
 
-    def _hydrate_misc_services_resources(
+    def _populate_misc_services_resources(
         self,
         list_resources_to_process: list,
         dict_resource_results: dict[ResourceType, ResourceTypeResult],
