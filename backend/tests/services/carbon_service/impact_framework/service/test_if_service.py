@@ -266,10 +266,10 @@ class TestIFService(unittest.TestCase):
         mock_fill_parser_data.assert_called_once_with(mock_data, compute_resources)
         mock_write_if_input.assert_called_once()
         mock_run_command_in_shell.assert_called_once()
-        mock_logging.info.assert_any_call(
+        mock_logging.debug.assert_any_call(
             "Generating Impact Framework input file id %d for %d resources...", 0, 1
         )
-        mock_logging.info.assert_any_call(
+        mock_logging.debug.assert_any_call(
             "Impact Framework input %d generated in %d seconds.", 0, 1
         )
         mock_logging.info.assert_any_call(
@@ -633,11 +633,11 @@ class TestIFService(unittest.TestCase):
         "backend.src.services.carbon_service.impact_framework.service.if_service.read_file"
     )
     @patch(
-        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.info"
+        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.debug"
     )
     @patch.object(IFService, "__init__", lambda self, *args, **kwargs: None)
     def test_parse_if_output_success_at_app_level(
-        self, mock_logging_info, mock_read_file, mock_aggregate_app_level
+        self, mock_logging, mock_read_file, mock_aggregate_app_level
     ):
         """
         Test that parse_if_output correctly processes the YAML output and populates compute resources at app level.
@@ -679,7 +679,7 @@ class TestIFService(unittest.TestCase):
             },
             0,
         )
-        mock_logging_info.assert_any_call(
+        mock_logging.assert_any_call(
             "Output parsing completed in %d seconds for file %d", 0, 0
         )
 
@@ -690,11 +690,11 @@ class TestIFService(unittest.TestCase):
         "backend.src.services.carbon_service.impact_framework.service.if_service.read_file"
     )
     @patch(
-        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.info"
+        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.debug"
     )
     @patch.object(IFService, "__init__", lambda self, *args, **kwargs: None)
     def test_parse_if_output_success_at_pod_level(
-        self, mock_logging_info, mock_read_file, mock_aggregate_pod_level
+        self, mock_logging, mock_read_file, mock_aggregate_pod_level
     ):
         """
         Test that parse_if_output correctly processes the YAML output and populates compute resources at pod level.
@@ -737,7 +737,7 @@ class TestIFService(unittest.TestCase):
                 }
             },
         )
-        mock_logging_info.assert_any_call(
+        mock_logging.assert_any_call(
             "Output parsing completed in %d seconds for file %d", 0, 0
         )
 
@@ -777,12 +777,12 @@ class TestIFService(unittest.TestCase):
         )
 
     @patch(
-        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.info"
+        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.debug"
     )
     @patch.object(IFService, "get_measurements_from_output")
     @patch.object(IFService, "__init__", lambda self, *args, **kwargs: None)
     def test_aggregate_app_level(
-        self, mock_get_measurements_from_output, mock_logging_info
+        self, mock_get_measurements_from_output, mock_logging
     ):
         """
         Test that aggregate_app_level correctly aggregates the application metrics.
@@ -822,12 +822,12 @@ class TestIFService(unittest.TestCase):
         self.assertEqual(result[0].total_carbon_emitted, 25)
         self.assertEqual(result[0].energy_consumed, [3, 7])
         self.assertEqual(result[0].total_energy_consumed, 10)
-        mock_logging_info.assert_called_once_with(
+        mock_logging.assert_called_once_with(
             "Parsing IF output for file number %s at application level", "0"
         )
 
     @patch(
-        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.info"
+        "backend.src.services.carbon_service.impact_framework.service.if_service.logger.debug"
     )
     @patch.object(IFService, "get_measurements_from_output")
     @patch(
@@ -838,7 +838,7 @@ class TestIFService(unittest.TestCase):
         self,
         mock_initialize_output,
         mock_get_measurements_from_output,
-        mock_logging_info,
+        mock_logging,
     ):
         """
         Test that aggregate_pod_level correctly aggregates the pod metrics.
@@ -881,7 +881,7 @@ class TestIFService(unittest.TestCase):
         result = IFService.aggregate_pod_level(mock_compute_resources, mock_if_output)
 
         mock_initialize_output.assert_called_once_with(mock_compute_resources)
-        mock_logging_info.assert_called_once_with("Parsing IF output at pod level")
+        mock_logging.assert_called_once_with("Parsing IF output at pod level")
         mock_get_measurements_from_output.assert_called_once_with(
             {
                 "pod1": {
