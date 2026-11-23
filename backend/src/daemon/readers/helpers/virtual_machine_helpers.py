@@ -22,23 +22,18 @@ from backend.src.common.constants import (
 )
 
 
-# Matches Azure VM size names of the form Standard_<family><digits>[suffix]
-# (e.g. Standard_D32as_v5, Standard_E4s_v3, Standard_B2ms) and extracts the
-# digit(s) immediately following the family letters as the vCPU count.
-# This heuristic does not apply to other cloud providers: AWS names
-# (e.g. m5.xlarge) do not encode a vCPU count, and GCP names follow a
-# different scheme requiring a separate pattern.
+# Matches Azure VM sizes like Standard_D32as_v5 or Standard_B2ms and captures
+# the vCPU count immediately following the family letters.
 _VM_SIZE_VCPU_RE = re.compile(r"(?i)standard_[a-z]+(\d+)")
 
 
 def parse_vcpu_count_from_azure_vm_size(vm_size: str) -> int | None:
     """
-    Attempt to extract the vCPU count from an Azure VM size name using the
-    Azure naming convention (e.g. Standard_D32as_v5 → 32, Standard_E4s_v3 → 4).
+    Extract the vCPU count from an Azure VM size name
+    (e.g. Standard_D32as_v5 -> 32, Standard_E4s_v3 -> 4).
 
-    Returns None if the pattern does not match or vm_size is empty.
-    Constrained-core variants (e.g. Standard_E32-8s_v3) are not handled and
-    will return None. This is a last-resort fallback : always log a WARNING.
+    Returns None when vm_size is empty or does not match the standard pattern.
+    Constrained-core variants (e.g. Standard_E32-8s_v3) are not handled separately.
     """
     if not vm_size:
         return None

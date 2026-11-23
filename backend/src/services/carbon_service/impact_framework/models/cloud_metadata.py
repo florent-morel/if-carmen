@@ -1,43 +1,5 @@
 """
-Cloud Metadata model : Python-level VM instance lookup with correct per-VM TDP attribution.
-
-For each VM, ``fill_inputs`` looks up the instance type in the provider instances
-CSV and returns four values consumed by the IF pipeline:
-
-  - ``cpu/thermal-design-power`` : host package TDP scaled to the VM's share:
-
-        cpu/thermal-design-power = cpu-tdp × (vcpus-utilized / vcpus-available)
-
-    The CSV stores the FULL package TDP for the entire physical host.  Without
-    this scaling, the IF pipeline over-counts CPU power by a factor equal to
-    the total number of host cores.
-
-  - ``vcpus-total`` / ``vcpus-allocated`` : used by downstream embodied-carbon
-    steps to compute the VM's share of manufacturing emissions.
-
-  - ``memory/requested`` : VM memory in GB.
-
-When the instance type is absent from the CSV, TDP and core counts are
-unavailable.  Because TDP is exclusively sourced from the CSV, a CSV hit
-already provides everything needed : input CSV vCPU count is redundant in that
-case.  When the CSV lookup misses, the chain is:
-
-       a. Input VmNbCpus (``vm.vcpu_count``, populated by ``create_vm`` from
-          the input CSV's VmNbCpus column). 
-          VM value reported by the cloud provider.
-
-       b. Name-parsing heuristic : try to extract the digit from the instance type
-          name (e.g. ``Standard_D32as_v5`` → 32). 
-          Less reliable than input CSV data: constrained-core variants 
-          (e.g. ``Standard_E32-8s_v3``) can encode a different number 
-          than the actual vCPU count.
-
-       c. CarmenException(UNKNOWN_VM_INSTANCE_TYPE) : the VM cannot be
-          attributed and is excluded from the carbon report.
-
-     In all fallback cases TDP is approximated as ``cpu_max × vcpu_count``
-     where ``cpu_max`` is the per-core maximum power drawn from provider config.
-
+Cloud Metadata model for VM instance lookup and per-VM TDP attribution.
 """
 
 import csv
@@ -48,6 +10,7 @@ from pathlib import Path
 from backend.src.common.errors import ErrorCode
 from backend.src.common.carmen_exception import CarmenException
 from backend.src.core.settings import settings
+from backend.src.core.yaml_config_loader import config
 from backend.src.daemon.readers.helpers.virtual_machine_helpers import parse_vcpu_count_from_azure_vm_size
 from backend.src.schemas.virtual_machine import VirtualMachine
 
@@ -70,14 +33,12 @@ logger = logging.getLogger(__name__)
 @lru_cache(maxsize=None)
 def _load_instances(provider: str) -> dict:
     """
-    Load and cache the instances CSV for a provider as a dict keyed by instance-class.
+    Load and cache the provider's instances CSV keyed by instance-class.
 
-    The CSV may start with comment lines beginning with '#'; these are skipped.
-    Rows with an empty instance-class are ignored.
-    If 'cpu-cores-available' is absent or zero, it is defaulted to 'cpu-cores-utilized'
-    so the attribution ratio is 1 (full TDP assigned to the VM).
-
-    Returns an empty dict when the CSV does not exist or cannot be read.
+    Skips '#' comment lines and empty instance-class rows. When
+    cpu-cores-available is absent or zero, defaults it to cpu-cores-utilized
+    so the full TDP is attributed to the VM. Returns an empty dict if no
+    provider is specified or the CSV is missing or unreadable.
     """
     if not provider:
         return {}
@@ -93,54 +54,62 @@ def _load_instances(provider: str) -> dict:
         )
         return {}
     result: dict = {}
-    with open(csv_path, encoding="utf-8") as f:
-        data_lines = (line for line in f if not line.startswith("#"))
-        reader = csv.DictReader(data_lines)
-        for row in reader:
-            key = row.get(MODELS_INSTANCE_CLASS, "").strip()
-            if not key:
-                continue
-            try:
-                raw_avail = row.get(MODELS_CPU_CORES_AVAIL, "").strip()
-                raw_util = row.get(MODELS_CPU_CORES_UTILIZED, "").strip()
-                raw_tdp = row.get(MODELS_CPU_TDP, "").strip()
-                raw_mem = row.get(MODELS_MEMORY_AVAIL, "").strip()
-                cores_utilized = float(raw_util) if raw_util else None
-                cores_available = float(raw_avail) if raw_avail else None
-                cpu_tdp = float(raw_tdp) if raw_tdp else None
-                memory = float(raw_mem) if raw_mem else 0.0
-            except ValueError:
-                logger.debug("Skipping malformed CSV row for instance '%s'", key)
-                continue
-            # If cpu-cores-available is absent or zero, treat ratio as 1
-            if not cores_available:
-                cores_available = cores_utilized
-            result[key] = {
-                MODELS_CPU_CORES_AVAIL: cores_available,
-                MODELS_CPU_CORES_UTILIZED: cores_utilized,
-                MODELS_CPU_TDP: cpu_tdp,
-                MODELS_MEMORY_AVAIL: memory,
-            }
+    try:
+        with open(csv_path, encoding="utf-8") as f:
+            data_lines = (line for line in f if not line.startswith("#"))
+            reader = csv.DictReader(data_lines)
+            for row in reader:
+                key = row.get(MODELS_INSTANCE_CLASS, "").strip()
+                if not key:
+                    continue
+                try:
+                    raw_avail = row.get(MODELS_CPU_CORES_AVAIL, "").strip()
+                    raw_util = row.get(MODELS_CPU_CORES_UTILIZED, "").strip()
+                    raw_tdp = row.get(MODELS_CPU_TDP, "").strip()
+                    raw_mem = row.get(MODELS_MEMORY_AVAIL, "").strip()
+                    cores_utilized = float(raw_util) if raw_util else None
+                    cores_available = float(raw_avail) if raw_avail else None
+                    cpu_tdp = float(raw_tdp) if raw_tdp else None
+                    memory = float(raw_mem) if raw_mem else 0.0
+                except ValueError:
+                    logger.debug("Skipping malformed CSV row for instance '%s'", key)
+                    continue
+                # If cpu-cores-available is absent or zero, treat ratio as 1
+                if not cores_available:
+                    cores_available = cores_utilized
+                result[key] = {
+                    MODELS_CPU_CORES_AVAIL: cores_available,
+                    MODELS_CPU_CORES_UTILIZED: cores_utilized,
+                    MODELS_CPU_TDP: cpu_tdp,
+                    MODELS_MEMORY_AVAIL: memory,
+                }
+    except OSError as e:
+        logger.warning(
+            "Could not read instances CSV '%s' for provider '%s': %s; all VMs will use the TDP fallback",
+            csv_path,
+            provider,
+            e,
+        )
+        return {}
     return result
 
 
 class CloudMetadata:
     """
-    Cloud metadata provider.
+    Resolves VM hardware inputs (cpu/thermal-design-power, vcpus-total,
+    vcpus-allocated, memory/requested) from the provider instances CSV.
 
-    ``fill_inputs`` returns cpu/thermal-design-power, vcpus-total, vcpus-allocated, 
-    memory/requested, with TDP correctly scaled to the VM's allocated share of the host processor:
+    The CSV stores full host package TDP, which is scaled to the VM's share:
 
-        cpu/thermal-design-power = cpu-tdp × (vcpus-utilized / vcpus-available)
+        cpu/thermal-design-power = cpu-tdp x (vcpus-utilized / vcpus-available)
 
-    For VM types not present in the instances CSV the fallback chain is applied
-    (input CSV VmNbCpus → name parsing → CarmenException).
+    When an instance type is absent from the CSV, TDP is approximated as
+    cpu_max x vcpu_count using the provider's cpu_max value and the resolved
+    vCPU count.
     """
 
     @staticmethod
-    def fill_inputs(resource: VirtualMachine, time_index: int) -> dict:  # noqa: ARG002
-        from backend.src.core.yaml_config_loader import config as app_config
-
+    def fill_inputs(resource: VirtualMachine, time_index: int) -> dict:
         provider = resource.provider or ""
         instances = _load_instances(provider)
         row = instances.get(resource.vm_size or "")
@@ -150,7 +119,7 @@ class CloudMetadata:
             cores_utilized = row[MODELS_CPU_CORES_UTILIZED]
             cpu_tdp = row[MODELS_CPU_TDP]
             memory = row[MODELS_MEMORY_AVAIL]
-            # Scale the full host package TDP down to the VM's allocation fraction.
+            # Scale full host package TDP down to the VM's core share.
             vm_tdp = cpu_tdp * cores_utilized / cores_available
             return {
                 IF_INPUT_CPU_TDP: vm_tdp,
@@ -159,8 +128,8 @@ class CloudMetadata:
                 IF_INPUT_MEMORY_REQUESTED: memory,
             }
 
-        # Instance type not in CSV : apply fallback chain.
-        provider_config = app_config.provider_configs.get(provider)
+        # Estimate TDP from provider cpu_max when the instance type is absent from the CSV.
+        provider_config = config.provider_configs.get(provider)
         cpu_max = provider_config.get_cpu_max() if provider_config else None
         if cpu_max is None:
             raise CarmenException(
@@ -177,18 +146,17 @@ class CloudMetadata:
             IF_INPUT_CPU_TDP: vm_tdp,
             IF_INPUT_VCPU_TOTAL: vcpu_count,
             IF_INPUT_VCPU_ALLOCATED: vcpu_count,
-            # INV3c: memory fallback not yet implemented; 0 avoids an IF pipeline crash
+            # Memory is unavailable without a CSV entry; pass 0 as required by the IF pipeline.
             IF_INPUT_MEMORY_REQUESTED: 0,
         }
 
     @staticmethod
     def _resolve_vcpu_count(vm: VirtualMachine, cpu_max: float) -> int:
         """
-        Fallback chain for VMs whose instance type is absent from the CSV:
-          1. Input CSV VmNbCpus column (``vm.vcpu_count``, set by ``create_vm``)
-          2. Azure name-parsing heuristic (e.g. ``Standard_D32as_v5`` → 32),
-             only attempted when ``vm.provider == "azure"``
-          3. Raise CarmenException
+        Resolve vCPU count when the instance type is absent from the CSV:
+        1. Input CSV VmNbCpus column (vm.vcpu_count).
+        2. Azure VM size name parsing (e.g. Standard_D32as_v5 -> 32) for Azure VMs.
+        3. Raise CarmenException(UNKNOWN_VM_INSTANCE_TYPE).
         """
         if vm.vcpu_count is not None:
             logger.warning(

@@ -1,8 +1,5 @@
 """
-Exception handler for FastAPI application.
-
-This module provides centralized exception handling for the Carbon Engine API,
-mapping custom exceptions to appropriate HTTP responses with consistent error formatting.
+FastAPI exception handlers for the Carbon Engine API.
 """
 
 from __future__ import annotations
@@ -12,110 +9,48 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from backend.src.common.carmen_exception import (
-    CarmenException,
-)
-from backend.src.common.errors import ErrorCode, ErrorCategory
+from backend.src.common.carmen_exception import CarmenException
+from backend.src.common.errors import ERRORS, ErrorCategory, ErrorCode
 
 logger = logging.getLogger(__name__)
 
+_ERROR_CODE_STATUS: dict[ErrorCode, int] = {
+    ErrorCode.THANOS_TIMEOUT: status.HTTP_504_GATEWAY_TIMEOUT,
+    ErrorCode.DATA_FETCH_NO_RESULTS: status.HTTP_404_NOT_FOUND,
+    ErrorCode.FILE_NOT_FOUND: status.HTTP_404_NOT_FOUND,
+    ErrorCode.FILE_PERMISSION_DENIED: status.HTTP_403_FORBIDDEN,
+}
+
+_CATEGORY_STATUS: dict[ErrorCategory, int] = {
+    ErrorCategory.CONFIGURATION: status.HTTP_503_SERVICE_UNAVAILABLE,
+    ErrorCategory.AUTHENTICATION: status.HTTP_401_UNAUTHORIZED,
+    ErrorCategory.DATA_FETCH: status.HTTP_502_BAD_GATEWAY,
+    ErrorCategory.VALIDATION: status.HTTP_422_UNPROCESSABLE_ENTITY,
+    ErrorCategory.FILE_SYSTEM: status.HTTP_500_INTERNAL_SERVER_ERROR,
+    ErrorCategory.COMPUTATION: status.HTTP_500_INTERNAL_SERVER_ERROR,
+    ErrorCategory.IMPACT_FRAMEWORK: status.HTTP_502_BAD_GATEWAY,
+}
+
 
 def get_status_code_for_error(error_code: ErrorCode) -> int:
-    """
-    Map error codes to appropriate HTTP status codes.
-
-    Args:
-        error_code: The error code to map.
-
-    Returns:
-        The appropriate HTTP status code.
-    """
-    # Configuration errors (usually 500 or 503)
-    if error_code.value.startswith("1"):
-        return status.HTTP_503_SERVICE_UNAVAILABLE
-
-    # Authentication errors (401 or 403)
-    if error_code.value.startswith("2"):
-        if error_code in [ErrorCode.AUTH_UNAUTHORIZED]:
-            return status.HTTP_403_FORBIDDEN
-        return status.HTTP_401_UNAUTHORIZED
-
-    # Data fetch errors (usually 502 or 503)
-    if error_code.value.startswith("3"):
-        if error_code in [
-            ErrorCode.DATA_FETCH_TIMEOUT,
-            ErrorCode.THANOS_TIMEOUT,
-        ]:
-            return status.HTTP_504_GATEWAY_TIMEOUT
-        if error_code in [
-            ErrorCode.DATA_FETCH_NO_RESULTS,
-        ]:
-            return status.HTTP_404_NOT_FOUND
-        return status.HTTP_502_BAD_GATEWAY
-
-    # Validation errors (400 or 422)
-    if error_code.value.startswith("4"):
-        return status.HTTP_422_UNPROCESSABLE_ENTITY
-
-    # File system errors (usually 404 or 500)
-    if error_code.value.startswith("5"):
-        if error_code in [
-            ErrorCode.FILE_NOT_FOUND,
-            ErrorCode.DIRECTORY_NOT_FOUND,
-        ]:
-            return status.HTTP_404_NOT_FOUND
-        if error_code in [
-            ErrorCode.FILE_PERMISSION_DENIED,
-        ]:
-            return status.HTTP_403_FORBIDDEN
+    """Map an ErrorCode to its HTTP status code."""
+    if error_code in _ERROR_CODE_STATUS:
+        return _ERROR_CODE_STATUS[error_code]
+    template = ERRORS.get(error_code)
+    if template is None:
         return status.HTTP_500_INTERNAL_SERVER_ERROR
-
-    # Computation errors (usually 500)
-    if error_code.value.startswith("6"):
-        return status.HTTP_500_INTERNAL_SERVER_ERROR
-
-    # Impact Framework errors (usually 500 or 502)
-    if error_code.value.startswith("7"):
-        return status.HTTP_502_BAD_GATEWAY
-
-    # Database errors (usually 500 or 503)
-    if error_code.value.startswith("8"):
-        return status.HTTP_503_SERVICE_UNAVAILABLE
-
-    # External API errors (usually 502 or 503)
-    if error_code.value.startswith("9"):
-        if error_code == ErrorCode.EXTERNAL_API_RATE_LIMIT:
-            return status.HTTP_429_TOO_MANY_REQUESTS
-        if error_code == ErrorCode.EXTERNAL_API_TIMEOUT:
-            return status.HTTP_504_GATEWAY_TIMEOUT
-        return status.HTTP_502_BAD_GATEWAY
-
-    # Report generation errors (usually 500)
-    if error_code.value.startswith("10"):
-        return status.HTTP_500_INTERNAL_SERVER_ERROR
-
-    # Default to internal server error
-    return status.HTTP_500_INTERNAL_SERVER_ERROR
+    return _CATEGORY_STATUS.get(
+        template.category, status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
 
 
 def create_error_response(
     error_code: str,
     category: str,
     message: str,
-    details: dict[str, Any] = None,
+    details: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """
-    Create a standardized error response structure.
-
-    Args:
-        error_code: The error code.
-        category: The error category.
-        message: The error message.
-        details: Optional additional details about the error.
-
-    Returns:
-        A dictionary containing the error response.
-    """
+    """Build the JSON error envelope returned by API exception handlers."""
     response = {
         "error": {
             "code": error_code,
@@ -133,19 +68,9 @@ def create_error_response(
 async def carmen_exception_handler(
     request: Request, exc: CarmenException
 ) -> JSONResponse:
-    """
-    Handle CarmenException and its subclasses.
-
-    Args:
-        request: The incoming request.
-        exc: The exception that was raised.
-
-    Returns:
-        A JSON response with appropriate status code and error details.
-    """
+    """Convert CarmenException instances into structured JSON responses."""
     status_code = get_status_code_for_error(exc.error_code)
 
-    # Log the error with appropriate level based on status code
     if status_code >= 500:
         logger.error(
             "Known exception occurred: [%s] %s",
@@ -160,10 +85,7 @@ async def carmen_exception_handler(
             exc.formatted_string,
         )
 
-    # Build details dictionary
     details: dict[str, Any] = {}
-
-    # Add exception-specific details
     if hasattr(exc, "missing") and exc.missing:
         details["missing_parameters"] = exc.missing
     if hasattr(exc, "file_path") and exc.file_path:
@@ -171,7 +93,7 @@ async def carmen_exception_handler(
     if hasattr(exc, "path") and exc.path:
         details["path"] = exc.path
     if hasattr(exc, "query") and exc.query:
-        details["query"] = exc.query[:200]  # Truncate long queries
+        details["query"] = exc.query[:200]
     if hasattr(exc, "field_name") and exc.field_name:
         details["field"] = exc.field_name
     if hasattr(exc, "invalid_value") and exc.invalid_value:
@@ -180,14 +102,6 @@ async def carmen_exception_handler(
         details["source"] = exc.source
     if hasattr(exc, "operation") and exc.operation:
         details["operation"] = exc.operation
-    if hasattr(exc, "api_name") and exc.api_name:
-        details["api"] = exc.api_name
-    if hasattr(exc, "endpoint") and exc.endpoint:
-        details["endpoint"] = exc.endpoint
-    if hasattr(exc, "container") and exc.container:
-        details["container"] = exc.container
-    if hasattr(exc, "blob_name") and exc.blob_name:
-        details["blob"] = exc.blob_name
 
     response = create_error_response(
         error_code=exc.error_code.value,
@@ -202,29 +116,17 @@ async def carmen_exception_handler(
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    """
-    Handle FastAPI/Pydantic validation errors.
-
-    Args:
-        request: The incoming request.
-        exc: The validation exception.
-
-    Returns:
-        A JSON response with validation error details.
-    """
+    """Handle FastAPI/Pydantic request validation errors."""
     logger.warning("Validation error occurred: %s", exc.errors())
 
-    # Extract field names and error messages
-    validation_errors = []
-    for error in exc.errors():
-        field = ".".join(str(loc) for loc in error["loc"])
-        validation_errors.append(
-            {
-                "field": field,
-                "message": error["msg"],
-                "type": error["type"],
-            }
-        )
+    validation_errors = [
+        {
+            "field": ".".join(str(loc) for loc in error["loc"]),
+            "message": error["msg"],
+            "type": error["type"],
+        }
+        for error in exc.errors()
+    ]
 
     response = create_error_response(
         error_code=ErrorCode.VALIDATION_INVALID_PARAMETER.value,
@@ -240,19 +142,9 @@ async def validation_exception_handler(
 
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    """
-    Handle HTTPException from FastAPI.
-
-    Args:
-        request: The incoming request.
-        exc: The HTTP exception.
-
-    Returns:
-        A JSON response with the exception details.
-    """
+    """Handle FastAPI HTTPException errors."""
     logger.warning("HTTP exception occurred: %s - %s", exc.status_code, exc.detail)
 
-    # Map status codes to categories
     if exc.status_code >= 500:
         category = "server error"
     elif exc.status_code >= 400:
@@ -270,23 +162,13 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """
-    Handle unexpected exceptions.
-
-    Args:
-        request: The incoming request.
-        exc: The exception that was raised.
-
-    Returns:
-        A JSON response with error details.
-    """
+    """Handle unhandled exceptions without leaking internal details."""
     logger.exception("Unexpected exception occurred: %s", str(exc))
 
-    # Don't expose internal error details in production
     response = create_error_response(
         error_code="INTERNAL_ERROR",
         category="server error",
-        message="An unexpected error occurred. Please contact support if the issue persists.",
+        message="An internal server error occurred.",
     )
 
     return JSONResponse(
@@ -296,37 +178,10 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    """
-    Register all exception handlers with the FastAPI application.
-
-    Args:
-        app: The FastAPI application instance.
-    """
-    # Register custom exception handlers
+    """Register exception handlers on the FastAPI application."""
     app.add_exception_handler(CarmenException, carmen_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(HTTPException, http_exception_handler)
     app.add_exception_handler(Exception, generic_exception_handler)
 
     logger.info("Exception handlers registered successfully")
-
-
-def raise_http_error(
-    status_code: int,
-    error_code: str,
-    category: str,
-    message: str,
-    details: dict[str, Any] = None,
-) -> None:
-    """
-    Raise an HTTPException with standardized error format.
-
-    Args:
-        status_code: HTTP status code.
-        error_code: Application error code.
-        category: Error category.
-        message: Error message.
-        details: Optional additional details.
-    """
-    error_response = create_error_response(error_code, category, message, details)
-    raise HTTPException(status_code=status_code, detail=error_response)
