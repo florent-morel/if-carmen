@@ -8,6 +8,7 @@ TODO|DOC|Id or TODO|CODE|V1|Id or TODO|CODE|vNext|Id
 - [ ] E2E UT covering aggregated:
     - [X] 3 resources success.
     - [ ] failures cases.
+- [ ] TODO doc.
 - [ ] Review all TODOs.
 - [ ] Review & remove if possible commented code (or put it in vNext/v1).
 - [ ] Review all documentation.
