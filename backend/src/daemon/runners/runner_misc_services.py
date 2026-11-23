@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 class Runner_Misc_Services(AbstractRunner):
     """
-    Implementation of the Runner for the Storage Resource Type.
+    Implementation of the Runner for the Misc Services Resource Type.
     """
 
     def should_run(self, list_resources_to_process: list[Resource]) -> bool:
@@ -48,7 +48,7 @@ class Runner_Misc_Services(AbstractRunner):
 
     def run(self, list_resources_to_process: list[Resource]) -> ResourceTypeResult:
         """
-        Run the Impact Framework and build result for the Storage Resource Type.
+        Run the Impact Framework and build result for the Misc Services Resource Type.
 
         Returns:
             ResourceTypeResult containing execution results

@@ -69,6 +69,7 @@ class IFStorageService(IFService):
             hdd_count,
         )
 
+        # TODO|CODE|v1|26: Magic number. Should be in config.yaml
         chunk_size = 10000
 
         # Group by provider so each IF run uses the correct provider-specific config.

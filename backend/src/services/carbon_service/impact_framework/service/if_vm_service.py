@@ -55,6 +55,7 @@ class IFVMService(IFService, ABC):
         """
         Runs the IF model and returns the VMs with their computed energy and CO2 values.
         """
+        # TODO|CODE|v1|26: Magic number. Should be in config.yaml
         chunk_size = 430
 
         # Group by provider so each IF run uses the correct provider-specific config.
