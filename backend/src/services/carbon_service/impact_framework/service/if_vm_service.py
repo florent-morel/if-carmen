@@ -6,8 +6,6 @@ It provides functionality to compute carbon and energy metrics at infrastructure
 import concurrent
 import logging
 from abc import ABC
-from itertools import groupby
-from typing import List, Tuple
 
 from backend.src.core.yaml_config_loader import config
 from backend.src.services.carbon_service.impact_framework.models.cloud_metadata import (
@@ -51,25 +49,14 @@ class IFVMService(IFService, ABC):
             duration,
         )
 
-    def run_engine(self, vms: List[VirtualMachine]) -> List[VirtualMachine]:
+    def run_engine(self, vms: list[VirtualMachine]) -> list[VirtualMachine]:
         """
         Runs the IF model and returns the VMs with their computed energy and CO2 values.
         """
         # TODO|CODE|v1|26: Magic number. Should be in config.yaml
         chunk_size = 430
 
-        # Group by provider so each IF run uses the correct provider-specific config.
-        # Sort first so groupby sees consecutive equal keys.
-        def _provider_key(vm: VirtualMachine) -> str:
-            return vm.provider if isinstance(vm.provider, str) else ""
-
-        sorted_vms = sorted(vms, key=_provider_key)
-        logger.debug(f"sorted_vms: {sorted_vms}")
-        all_chunks: list[list[VirtualMachine]] = []
-        for _, group in groupby(sorted_vms, key=_provider_key):
-            group_list = list(group)
-            for x in range(0, len(group_list), chunk_size):
-                all_chunks.append(group_list[x : x + chunk_size])
+        all_chunks = self._chunk_by_provider(vms, chunk_size)
 
         def compute_metrics_for_chunk(chunk: list[VirtualMachine], index: int) -> None:
             self.run_if(chunk, file_id=index)
@@ -87,8 +74,8 @@ class IFVMService(IFService, ABC):
         """
         Fill the model dictionary with IF plugin configurations for the VM pipeline.
 
-        CloudMetadata is not an IF plugin and therefore not registered here : it
-        operates at the Python level via fill_inputs before the IF pipeline runs.
+        CloudMetadata is not an IF plugin and is not registered here; it populates
+        VM inputs in Python via fill_inputs before the IF pipeline runs.
         """
         provider_config = config.provider_configs.get(provider)
         super().get_models_info(data, provider)
@@ -106,7 +93,7 @@ class IFVMService(IFService, ABC):
     @staticmethod
     def get_resource_inputs(
         virtual_machine: VirtualMachine,
-        models: Tuple[ModelUtilities] = (
+        models: tuple[ModelUtilities, ...] = (
             CloudMetadata,
             PVmStorage,
         ),
@@ -115,10 +102,8 @@ class IFVMService(IFService, ABC):
         """
         Generate input data for each time point of a VM using the specified models.
 
-        Each model's ``fill_inputs`` is called per time point. ``CloudMetadata``
-        resolves the instance type from the provider CSV and injects
-        ``cpu/thermal-design-power`` (scaled to the VM's allocated core share),
-        ``vcpus-total``, ``vcpus-allocated``, and ``memory/requested`` as plain
-        input keys consumed by downstream IF pipeline steps.
+        CloudMetadata resolves the instance type from the provider CSV and injects
+        cpu/thermal-design-power, vcpus-total, vcpus-allocated, and memory/requested
+        for downstream IF pipeline steps.
         """
         return IFService.get_resource_inputs(virtual_machine, models, fallback_duration)

@@ -2,7 +2,7 @@
 Storage Services Power Consumption model made with IF builtins based on disk type (SSD/HDD)
 """
 
-from asyncio.log import logger
+import logging
 
 from backend.src.schemas.storage_resource import StorageResource
 from backend.src.services.carbon_service.impact_framework.models.metadata import (
@@ -15,6 +15,9 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
 from backend.src.core.settings.providers.abstract_provider_config import (
     AbstractProviderConfig,
 )
+from backend.src.core.yaml_config_loader import config
+
+logger = logging.getLogger(__name__)
 
 
 class PStorage(ModelUtilities):
@@ -29,14 +32,14 @@ class PStorage(ModelUtilities):
 
     def __init__(self, provider_config: AbstractProviderConfig | None = None):
         self.provider_config = provider_config
-        config = {
+        model_config = {
             "input-parameters": ["storage/requested", "power/coefficient"],
             "output-parameter": "storage/power",  # in kW
         }
         output_metadata = [
             Metadata("storage/power", "kW", "Storage Power consumption", "sum", "sum")
         ]
-        super().__init__("builtin", "Multiply", config, output_metadata)
+        super().__init__("builtin", "Multiply", model_config, output_metadata)
 
     def fill_inputs(self, storage_resource: StorageResource, time_index: int):
         """
@@ -49,15 +52,13 @@ class PStorage(ModelUtilities):
         Returns:
             Dict containing storage input in GB and the power coefficient based on storage type
         """
-        from backend.src.core.yaml_config_loader import config as app_config
-
         global_ratios = (
-            app_config.carbon_values_config.get_storage_electricity_ratios()
-            if app_config.carbon_values_config
-            else None
-        ) or {}
+            config.carbon_values_config.storage_electricity_ratios or {}
+            if config.carbon_values_config
+            else {}
+        )
         provider_ratios = (
-            (self.provider_config.get_storage_electricity_ratios() or {})
+            self.provider_config.storage_electricity_ratios or {}
             if self.provider_config
             else {}
         )
@@ -67,13 +68,12 @@ class PStorage(ModelUtilities):
         power_coefficient = ratios.get(storage_type, ratios.get("unknown"))
         if power_coefficient is None:
             raise ValueError(
-                f"No electricity ratio for storage type '{storage_type}' and no"
-                " 'unknown' fallback found. Add an 'unknown' entry under"
-                " 'storage_electricity_ratios' in carbon_values.yaml."
+                f"Missing electricity ratio for storage type '{storage_type}' "
+                "(and no 'unknown' fallback in carbon_values.yaml)."
             )
 
         if self.provider_config:
-            replication_factors = (self.provider_config.get_storage_replication_factors())
+            replication_factors = self.provider_config.storage_replication_factors
             replication_factor = replication_factors.get(storage_resource.replication_type.lower())
         else:
             logger.warning(

@@ -1,8 +1,5 @@
 """
-Carbon daemon for processing infrastructure resources and generating carbon emission reports.
-
-This module provides a clean, extensible architecture for reading infrastructure data,
-processing it through the carbon engine, and generating emission reports.
+Runner for storage resources.
 """
 
 from __future__ import annotations

@@ -30,8 +30,8 @@ class AbstractReader(ABC):
         self.known_regions: set[str] = {
             region
             for pc in config.provider_configs.values()
-            if pc.get_regions()
-            for region in pc.get_regions()
+            if pc.regions
+            for region in pc.regions
         }
         self.unknown_regions: Counter = Counter()
         self.unknown_providers: Counter = Counter()

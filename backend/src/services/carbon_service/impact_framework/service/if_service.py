@@ -11,6 +11,7 @@ from pathlib import Path
 from uuid import uuid4
 from abc import ABC
 from collections import defaultdict
+from typing import Any
 import yaml
 from jinja2 import exceptions
 from backend.src.common.constants import DAILY_SECONDS, IF_FILES_DIR
@@ -172,6 +173,20 @@ class IFService(ABC, CarbonService):
             file_id,
             round(time.time() - start),
         )
+
+    @staticmethod
+    def _chunk_by_provider(
+        resources: list[Resource], chunk_size: int
+    ) -> list[list[Resource]]:
+        """Group resources by provider and split each group into fixed-size chunks."""
+        grouped: dict[str, list[Resource]] = defaultdict(list)
+        for resource in resources:
+            grouped[resource.provider or ""].append(resource)
+        return [
+            group[i : i + chunk_size]
+            for group in grouped.values()
+            for i in range(0, len(group), chunk_size)
+        ]
 
     @staticmethod
     def get_models_info(data, provider: str = ""):

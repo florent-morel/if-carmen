@@ -101,17 +101,7 @@ def str_to_float(string: str | None) -> float:
 def return_desired_metric_from_response(
     data: list[dict[str, Any]], key: str
 ) -> list[Any]:
-    """
-    Extracts values corresponding to the specified key from dictionaries in a list.
-
-    Args:
-        data (list): A list of dictionaries containing metric data.
-        key (str): The key whose corresponding value needs to be extracted.
-
-    Returns:
-        list: A list containing the values corresponding to the specified key
-
-    """
+    """Return the value of key from each item's metric dict."""
     return [d["metric"][key] for d in data if d["metric"]]
 
 
@@ -297,16 +287,7 @@ def convert_to_seconds(time_str) -> int:
 def subtract_last_time_point(
     date_time: datetime, sampling_rate: SamplingRate
 ) -> datetime:
-    """
-    Subtract the defined sampling rate interval from the given datetime.
-
-    Parameters:
-    - date_time (datetime): The datetime to adjust.
-    - sampling_rate (SamplingRate): The sampling rate to subtract.
-
-    Returns:
-    - datetime: The adjusted datetime.
-    """
+    """Subtract one sampling_rate interval from date_time."""
     delta = RATE_TO_DURATION[sampling_rate]
     adjusted_time = date_time - delta
     return adjusted_time
@@ -316,21 +297,15 @@ def get_timestamps(
     interval_start: datetime, interval_end: datetime, sampling_rate: SamplingRate
 ) -> list[datetime]:
     """
-    Generate a list of timestamps from start to end at specified intervals.
+    Generate a list of timestamps from interval_start to interval_end at sampling_rate intervals.
 
-    Parameters:
-    start (datetime): The starting datetime.
-    end (datetime): The ending datetime.
-    sampling_rate (str): The interval between timestamps.
-                             Valid values are
-                             '15s', '30s', '1m', '5m', '30m', '1h', '6h', '1d'.
+    Args:
+        interval_start (datetime): The starting datetime.
+        interval_end (datetime): The ending datetime.
+        sampling_rate (SamplingRate): Interval between timestamps.
 
     Returns:
-    List[datetime]: A list of datetime objects
-                    at the specified intervals from start to end.
-
-    Raises:
-    ValueError: If the sampling_interval is not one of the valid values.
+        list[datetime]: Datetime points from interval_start to interval_end.
     """
     timestamps = []
     current_timepoint = interval_start
@@ -343,9 +318,9 @@ def get_timestamps(
     return timestamps
 
 
-def get_row_data(row: dict, row_column: str, fallback_value : str = "") -> str:
+def get_row_data(row: dict, row_column: str, fallback_value: str = "") -> str:
     """
-    Helper function to get row data, returns empty string if the data is missing or represented as '-'.
+    Return the value for row_column, or fallback_value when missing, empty, or '-'.
     """
     row_data = row.get(row_column)
     return row_data if row_data != "-" and row_data else fallback_value
@@ -353,10 +328,7 @@ def get_row_data(row: dict, row_column: str, fallback_value : str = "") -> str:
 
 def get_duration_raw_with_fallback(row: dict, resource_id: str) -> str | int:
     """
-    Return raw duration value from a CSV row, applying default fallback when missing.
-
-    This helper centralizes the repeated "read SampleDurationSeconds or fallback to
-    DAILY_SECONDS" behavior across resource readers.
+    Return SampleDurationSeconds from row, falling back to DAILY_SECONDS when missing.
     """
     duration_raw = row.get(SOURCE_SAMPLE_DURATION_SECONDS)
     if duration_raw in (None, ""):
@@ -403,15 +375,19 @@ def process_custom_columns(resource: Resource, row: dict, list_ignore_column: li
     """
     Process custom columns from input file.
     """
-    logger.debug(f"Processing custom columns for resource.id: {resource.id}")
+    logger.debug("Processing custom columns for resource.id: %s", resource.id)
     for column_name, column_value in row.items():
         if column_name and column_name not in list_ignore_column:
             logger.debug(
-                f"Storing custom column --{column_name}-- with value --{column_value}--")
+                "Storing custom column --%s-- with value --%s--",
+                column_name,
+                column_value,
+            )
             resource.dict_custom_columns[column_name] = column_value
 
 
-def get_execution_date():
+def get_execution_date() -> str:
+    """Return and validate EXECUTION_DATE from the environment, defaulting to today."""
     execution_date_str = os.getenv(EXECUTION_DATE)
     if not execution_date_str:
         execution_date_str = datetime.now().strftime(
@@ -436,12 +412,14 @@ def get_execution_date():
 
 @lru_cache(1000)
 def get_ci_for_region(region: str | None) -> float:
+    """Return the grid carbon intensity for a cloud region, or the configured default."""
+    # Deferred import avoids a circular import with core._app_settings -> utils.helpers.read_file.
     from backend.src.core.yaml_config_loader import config
 
     ci_config = config.carbon_values_config
     default_ci = ci_config.default_carbon_intensity
     for provider_config in config.provider_configs.values():
-        provider_regions = provider_config.get_regions()
+        provider_regions = provider_config.regions
         if provider_regions and region in provider_regions:
             country = provider_regions[region]
             return float(ci_config.get_ci_for_location(country, default_ci))

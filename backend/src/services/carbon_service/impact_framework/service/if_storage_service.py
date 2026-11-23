@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import concurrent
 import logging
-from itertools import groupby
 
 from backend.src.core.yaml_config_loader import config
 from backend.src.services.carbon_service.impact_framework.service.if_service import (
@@ -72,16 +71,7 @@ class IFStorageService(IFService):
         # TODO|CODE|v1|26: Magic number. Should be in config.yaml
         chunk_size = 10000
 
-        # Group by provider so each IF run uses the correct provider-specific config.
-        def _provider_key(s: StorageResource) -> str:
-            return s.provider if isinstance(s.provider, str) else ""
-
-        sorted_resources = sorted(storage_resources, key=_provider_key)
-        all_chunks: list[list[StorageResource]] = []
-        for _, group in groupby(sorted_resources, key=_provider_key):
-            group_list = list(group)
-            for x in range(0, len(group_list), chunk_size):
-                all_chunks.append(group_list[x : x + chunk_size])
+        all_chunks = self._chunk_by_provider(storage_resources, chunk_size)
 
         def compute_metrics_for_chunk(chunk, index):
             """Process a chunk of storage resources."""

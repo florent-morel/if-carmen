@@ -1,17 +1,10 @@
-import logging
 from pydantic_settings import BaseSettings
-
-
-logger = logging.getLogger(__name__)
 
 
 class AbstractProviderConfig(BaseSettings):
     """
-    Configuration class for all supported providers.
-
-    All fields are optional. A provider YAML only needs to supply what it supports.
-    Adding a new provider requires only a new directory and YAML file under
-    config/cloud_providers/<name>/<name>.yaml; no code changes are needed.
+    Configuration schema loaded from a provider YAML file under
+    CARMEN_PROVIDER_CONFIG_FILEPATH. All fields are optional.
     """
 
     pue: float | None = None
@@ -23,21 +16,6 @@ class AbstractProviderConfig(BaseSettings):
 
     def get_pue(self) -> float | None:
         return self.pue
-
-    def get_electricity_ratios(self) -> dict[str, float] | None:
-        return self.electricity_ratios
-
-    def get_storage_electricity_ratios(self) -> dict[str, float] | None:
-        return self.storage_electricity_ratios
-
-    def get_storage_replication_factors(self) -> dict[str, int] | None:
-        return self.storage_replication_factors
-
-    def get_disk_sku_size_mapping(self) -> dict[str, int] | None:
-        return self.disk_sku_size_mapping
-
-    def get_regions(self) -> dict[str, str] | None:
-        return self.regions
 
     def get_cpu_max(self) -> float | None:
         """Return the maximum per-core TDP (W/core) for this provider, or None if not configured."""

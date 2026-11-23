@@ -515,7 +515,7 @@ class CarbonDaemonOrchestrator:
         misc services runner executes.
 
         Values are taken from the VM and Storage ResourceTypeResults already
-        accumulated in ``dict_resource_results`` during the current engine loop.
+        accumulated in dict_resource_results during the current engine loop.
         When a result is absent, configurable defaults from carbon_values.yaml
         are used instead.
         """

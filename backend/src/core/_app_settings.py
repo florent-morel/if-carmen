@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import logging
 import os
-import os.path
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -25,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 def _get_cli_arg_value(flag_name: str) -> str | None:
-    """Return CLI value for a ``--flag value`` or ``--flag=value`` argument."""
+    """Return CLI value for a '--flag value' or '--flag=value' argument."""
     prefix = f"{flag_name}="
     for index, arg in enumerate(sys.argv):
         if arg == flag_name and index + 1 < len(sys.argv):
@@ -77,18 +76,7 @@ class ThanosConfig(BaseSettings):
     # pylint: disable=no-self-argument
     @field_validator("CLUSTER_GROUPING_LEVEL")
     def check_cluster_group_level(cls, level: int) -> int:
-        """
-        Validates the clustering grouping level.
-
-        Args:
-            level: The clustering grouping level to validate.
-
-        Returns:
-            int: The validated clustering grouping level.
-
-        Raises:
-            ValueError: If the level is not greater than 0.
-        """
+        """Ensure CLUSTER_GROUPING_LEVEL is positive."""
         if level <= 0:
             raise ValueError("CLUSTER_GROUPING_LEVEL must be greater than 0")
         return level

@@ -82,28 +82,11 @@ class IFAppService(IFService):
         models: Tuple[ModelUtilities] = (SciMcpu, PMem),
         fallback_duration: int = DAILY_SECONDS,
     ):
-        """
-        Generates input data for each time point of a compute unit using the specified models.
-
-        Args:
-            pod (Pod): The pod to process.
-            models (Tuple[ModelUtilities], optional): Additional models to include in the input generation.
-            fallback_duration (int): Duration in seconds to use when a time point has no entry in
-                pod.duration_seconds. Defaults to DAILY_SECONDS.
-
-        Returns:
-            List[Dict[str, Any]]: A list of dictionaries containing inputs for each time point.
-        """
+        """Generate per-timepoint IF inputs for a pod using the app models."""
         return IFService.get_resource_inputs(pod, models, fallback_duration)
 
     def get_models_info(self, data, provider: str = ""):
-        """
-        Concrete method that fills the model dictionary with basic model information depending on the defined
-        pipeline.
-
-        This is a concrete method in the IFService abstract class because it is commonly shared between
-        the two types of IF services as of (21/05/2024).
-        """
+        """Populate IF plugin configurations for the app pipeline."""
         super().get_models_info(data, provider)
         if "p-cores" in data["hardware_models"]:
             data["hardware_models"]["p-cores"] = PCores().__dict__

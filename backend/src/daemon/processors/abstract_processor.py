@@ -4,9 +4,6 @@ needed to:
 - Read input data.
 - Run the call to the Impact Framework.
 - Write output report.
-
-This module provides a clean, extensible architecture for reading infrastructure data,
-processing it through the carbon engine, and generating emission reports.
 """
 
 from __future__ import annotations

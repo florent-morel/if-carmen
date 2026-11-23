@@ -244,7 +244,7 @@ def load_yaml(path: Path) -> dict:
 
     try:
         with path.open("r", encoding="utf-8") as file:
-            raw_config = yaml.load(file, Loader=loader)  # type: ignore[misc]
+            raw_config = yaml.load(file, Loader=loader)
 
         if not raw_config or not isinstance(raw_config, dict):
             logger.error("Configuration file is empty or invalid: %s", path)
@@ -322,54 +322,31 @@ def load_carbon_values_config() -> CarbonValuesConfig:
     return CarbonValuesConfig.model_validate(raw)
 
 
-def _instantiate_provider_config(name: str, raw: dict) -> AbstractProviderConfig | None:
-    """
-    Factory function to instantiate a provider configuration from raw YAML data.
-
-    Fully data-driven: any directory under config/cloud_providers/<name>/ with a
-    valid YAML file is automatically treated as a supported provider. No code
-    change is needed to add a new CSP or on-premises setup.
-
-    Args:
-        name (str): The name of the provider (used only for logging).
-        raw (dict): The raw configuration data from the provider YAML file.
-
-    Returns:
-        AbstractProviderConfig | None: The validated provider configuration, or
-        None if the YAML does not conform to the expected schema.
-    """
-    try:
-        return AbstractProviderConfig.model_validate(raw)
-    except ValidationError as e:
-        logger.warning("Provider '%s' config invalid, skipping: %s", name, e)
-        return None
-
-
 def load_provider_configs() -> dict[str, AbstractProviderConfig]:
     """
-    Load provider-specific configuration files.
-    Part of multi-provider support implementation, allows to easily add new providers,
-    by adding a new yaml file and provider config class,
-    and updating _instantiate_provider_config factory.
+    Load provider YAML files from CARMEN_PROVIDER_CONFIG_FILEPATH.
+
+    Each subdirectory `<name>/<name>.yaml` is validated with AbstractProviderConfig.
+    Providers with invalid YAML schemas are logged and skipped.
 
     Returns:
-        dict[str, AbstractProviderConfig]: A dictionary mapping provider names to their configuration objects.
+        dict[str, AbstractProviderConfig]: Validated provider configurations keyed by provider name.
+
     Raises:
-        ConfigFileError: If any provider configuration file is missing or invalid.
-        ConfigValidationError: If any provider configuration fails validation.
-        MissingParametersError: If required parameters are missing in any provider configuration.
+        ConfigFileError: If a provider YAML file is missing or cannot be parsed.
     """
-    provider_configs = {}
+    provider_configs: dict[str, AbstractProviderConfig] = {}
     provider_config_dir = Path(settings.CARMEN_PROVIDER_CONFIG_FILEPATH)
     for provider_dir in provider_config_dir.iterdir():
-        if provider_dir.is_dir():
-            yaml_file = provider_dir / f"{provider_dir.name}.yaml"
-            raw = load_yaml(yaml_file)
-            provider_name = provider_dir.name  # "azure", "aws", "gcp"
-            provider_config = _instantiate_provider_config(provider_name, raw)
-            # Guard against None in case of unknown provider or not-yet-implemented provider
-            if provider_config is not None:
-                provider_configs[provider_name] = provider_config
+        if not provider_dir.is_dir():
+            continue
+        provider_name = provider_dir.name
+        yaml_file = provider_dir / f"{provider_name}.yaml"
+        raw = load_yaml(yaml_file)
+        try:
+            provider_configs[provider_name] = AbstractProviderConfig.model_validate(raw)
+        except ValidationError as e:
+            logger.warning("Provider '%s' config invalid, skipping: %s", provider_name, e)
 
     return provider_configs
 
@@ -393,23 +370,6 @@ def load_and_validate_config() -> AppConfig:
         provider_configs=provider_configs,
         carbon_values_config=carbon_values_config,
     )
-
-
-def get_config() -> AppConfig:
-    """
-    Get the application configuration.
-
-    This function provides a way to access the configuration without
-    directly calling the cached loader function.
-
-    Returns:
-        The application configuration object.
-
-    Raises:
-        FileNotFoundError: If the configuration file is not found.
-        ValueError: If there's an error parsing or validating the configuration.
-    """
-    return load_and_validate_config()
 
 
 try:
