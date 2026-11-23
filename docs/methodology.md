@@ -695,8 +695,6 @@ which delegates computation to the plugin implementation in
 
 Before running IF, the orchestrator uses run-wide compute and storage totals
 (energy, embodied carbon, cost), or configured defaults when results are absent.
-The plugin receives the two derived ratios, the resource's `cost`, and its
-`carbon-intensity`.
 
 The orchestrator computes and logs the weighted `energy-cost-ratio` (kWh/currency)
 and `embodied-cost-ratio` (gCO2e/currency) once before hydrating the resources.
