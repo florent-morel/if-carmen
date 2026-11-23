@@ -707,6 +707,9 @@ point. Both cost denominators must be nonzero, and the input costs must share a 
 
 Python computes the ratios using 75% compute and 25% storage weighting:
 
+TODO: need to align our definitions with what we find in the tests (e2e).
+    - We are talking about ratios in the tests, it does not appear here.
+
 ```
 energy-cost-ratio = 0.75 * (compute_energy / compute_cost)
                   + 0.25 * (storage_energy / storage_cost)
