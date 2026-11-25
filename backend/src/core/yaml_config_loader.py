@@ -184,11 +184,18 @@ class DaemonConfig(BaseSettings):
         return self.output.output_path
 
 
+class ImpactFrameworkConfig(BaseSettings):
+    """Configuration for Impact Framework generated artifact files."""
+
+    generated_dir: str | None = None
+
+
 class AppConfig(BaseSettings):
     """Root configuration class containing all Carbon Engine settings."""
 
     carmen_api: ApiConfig | None = None
     carmen_daemon: DaemonConfig | None = None
+    impact_framework: ImpactFrameworkConfig = ImpactFrameworkConfig()
     provider_configs: dict[str, AbstractProviderConfig] = {}
     carbon_values_config: CarbonValuesConfig | None = None
 
@@ -268,12 +275,12 @@ def load_yaml(path: Path) -> dict:
     return raw_config
 
 
-def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None]:
+def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None, ImpactFrameworkConfig]:
     """
     Load the main configuration file and validate required sections.
 
     Returns:
-        Tuple containing the API configuration and Daemon configuration objects.
+        Tuple containing the API configuration, Daemon configuration, and Impact Framework configuration objects.
 
     Raises:
         ConfigFileError: If the configuration file is not found or invalid.
@@ -294,7 +301,7 @@ def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None]:
             ErrorCode.CONFIG_MISSING_PARAMETERS, ["carmen_api", "carmen_daemon"]
         )
 
-    # Fill in APIConfig and DaemonConfig based on data retrieved from config.yaml
+    # Fill in APIConfig, DaemonConfig, and ImpactFrameworkConfig based on data retrieved from config.yaml
     carmen_api = (
         ApiConfig.model_validate(main_config_raw["carmen_api"])
         if "carmen_api" in main_config_raw
@@ -305,7 +312,13 @@ def load_main_config() -> tuple[ApiConfig | None, DaemonConfig | None]:
         if "carmen_daemon" in main_config_raw
         else None
     )
-    return carmen_api, carmen_daemon
+    impact_framework_raw = main_config_raw.get("impact_framework")
+    impact_framework = (
+        ImpactFrameworkConfig.model_validate(impact_framework_raw)
+        if impact_framework_raw is not None
+        else ImpactFrameworkConfig()
+    )
+    return carmen_api, carmen_daemon, impact_framework
 
 
 def load_carbon_values_config() -> CarbonValuesConfig:
@@ -360,13 +373,14 @@ def load_and_validate_config() -> AppConfig:
         The validated configuration object.
 
     """
-    carmen_api, carmen_daemon = load_main_config()
+    carmen_api, carmen_daemon, impact_framework = load_main_config()
     provider_configs = load_provider_configs()
     carbon_values_config = load_carbon_values_config()
 
     return AppConfig(
         carmen_api=carmen_api,
         carmen_daemon=carmen_daemon,
+        impact_framework=impact_framework,
         provider_configs=provider_configs,
         carbon_values_config=carbon_values_config,
     )

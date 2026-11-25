@@ -20,13 +20,18 @@ carmen_api:
 
 carmen_daemon:
   source:
-    input_path: "/tmp/test-data"
+    input_path: "etc/sample_data/demo"
   output:
-    output_path: "/tmp/test-output"
-    # If output_file_name not filled fall back to: CO2_{date}.csv
+    output_path: "./output"
+    # Defaults to CO2_{date}.csv
     output_file_name:
   orchestrator:
     list_processors:
       - Processor_Compute
-      - Processor_Storage
-      - Processor_Misc_Services
+      # - Processor_Storage
+      # - Processor_Misc_Services
+
+impact_framework:
+  # Directory where generated Impact Framework input/output YAML files are stored.
+  # Defaults to etc/impact_framework/generated when omitted or null.
+  generated_dir:

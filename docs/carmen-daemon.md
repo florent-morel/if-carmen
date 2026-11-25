@@ -116,10 +116,10 @@ Energy and carbon values are rounded to four decimal places in the CSV. Total ca
 
 ## Running The Daemon
 
-The [VM example configuration](../example-data/config.yaml) reads the [sample VM metrics](../etc/sample_data/vm-metrics/) and writes a CSV report. From the project root, with dependencies installed, run:
+The [default configuration](../etc/config/config.yaml) reads the [demo sample data](../etc/sample_data/demo/) and writes a CSV report. From the project root, with dependencies installed, run:
 
 ```bash
-uv run python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath example-data/config.yaml
+uv run python -m backend.src.daemon.carbon_daemon_orchestrator
 ```
 
 The report is written to `output/CO2_YYYY-MM-DD.csv`. Other configurations are available in the [daemon end-to-end tests](../backend/tests/daemon/end_to_end/).

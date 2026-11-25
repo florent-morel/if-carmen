@@ -58,7 +58,7 @@ from backend.src.utils.helpers import read_file
 from backend.src.utils.metrics_mapper import MetricsMapper
 
 logger = logging.getLogger(__name__)
-_RUN_ARTIFACT_DIR = Path(IF_FILES_DIR) / "generated" / uuid4().hex
+_RUN_ID = uuid4().hex
 
 
 class IFService(ABC, CarbonService):
@@ -67,16 +67,22 @@ class IFService(ABC, CarbonService):
     to compute carbon and energy metrics for given resources.
     """
 
-    # TODO|CODE|v1|24: Should be in config.yaml
-    INFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_input")
-    logger.debug(f"IF_FILES_DIR: {IF_FILES_DIR}")
-    OUTFILE_PATH = os.path.join(IF_FILES_DIR, "generated", "if_output")
     FILE_EXTENSION = ".yaml"
 
     def __init__(
         self, template_filename, pipeline_filename, aggregation_type, duration
     ):
-        artifact_dir = Path(os.environ.get("CARMEN_IF_ARTIFACT_DIR", _RUN_ARTIFACT_DIR))
+        env_artifact_dir = os.environ.get("CARMEN_IF_ARTIFACT_DIR")
+        if env_artifact_dir:
+            artifact_dir = Path(env_artifact_dir)
+        else:
+            generated_dir = config.impact_framework.generated_dir
+            base_dir = (
+                Path(generated_dir)
+                if generated_dir
+                else Path(IF_FILES_DIR) / "generated"
+            )
+            artifact_dir = base_dir / _RUN_ID
         stage = pipeline_filename.removesuffix("_pipeline.yml")
         if stage == "infrastructure":
             stage = "vm"

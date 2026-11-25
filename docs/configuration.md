@@ -147,7 +147,7 @@ carmen_daemon:
   source:
     # Path to the example data directory
     # Using relative path from project root
-    input_path: "etc/sample_data/vm-metrics"
+    input_path: "etc/sample_data/demo"
 
   # Output directory for carbon reports
   output:
@@ -156,6 +156,13 @@ carmen_daemon:
   orchestrator:
     list_processors:
       - Processor_Compute
+
+# Impact Framework Configuration (optional)
+impact_framework:
+  # OPTIONAL: Base directory where generated Impact Framework input/output YAML files are stored
+  # Type: string | null
+  # Default: etc/impact_framework/generated (can be overridden by CARMEN_IF_ARTIFACT_DIR)
+  generated_dir: "etc/impact_framework/generated"
 ```
 
 

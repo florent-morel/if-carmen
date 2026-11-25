@@ -2,7 +2,10 @@
 """
 Unit tests for the IF_Service in impact framework.
 """
+import os
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch, mock_open as open_mock, MagicMock
 from itertools import cycle
 import yaml
@@ -46,6 +49,65 @@ class TestIFService(unittest.TestCase):
         self.assertIn("aggregation_type", service.data)
         self.assertEqual(service.data["aggregation_type"], "aggregation")
         self.assertEqual(service.data["duration"], "duration")
+
+    @patch(
+        "backend.src.services.carbon_service.impact_framework.service.if_service.read_file"
+    )
+    def test_init_uses_configured_generated_dir(self, mock_read_file):
+        """
+        Test that IFService uses impact_framework.generated_dir from config.yaml when set.
+        """
+        mock_read_file.side_effect = [
+            Template("template_content"),
+            {"hardware_models": {}},
+        ]
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            with patch.dict(os.environ, {}, clear=False), patch(
+                "backend.src.services.carbon_service.impact_framework.service.if_service._RUN_ID",
+                "run123",
+            ), patch(
+                "backend.src.services.carbon_service.impact_framework.service.if_service.config.impact_framework.generated_dir",
+                tmp_dir,
+            ):
+                os.environ.pop("CARMEN_IF_ARTIFACT_DIR", None)
+                service = IFService(
+                    "vm_template.yml.j2", "infrastructure_pipeline.yml", "sum", 3600
+                )
+
+                expected_stage_dir = Path(tmp_dir) / "run123" / "vm"
+                self.assertTrue(expected_stage_dir.is_dir())
+                self.assertEqual(service.INFILE_PATH, str(expected_stage_dir / "if_input"))
+                self.assertEqual(service.OUTFILE_PATH, str(expected_stage_dir / "if_output"))
+                self.assertEqual(service.FILE_EXTENSION, ".yaml")
+
+    @patch(
+        "backend.src.services.carbon_service.impact_framework.service.if_service.read_file"
+    )
+    def test_init_env_artifact_dir_overrides_config_generated_dir(self, mock_read_file):
+        """
+        Test that CARMEN_IF_ARTIFACT_DIR takes precedence over impact_framework.generated_dir.
+        """
+        mock_read_file.side_effect = [
+            Template("template_content"),
+            {"hardware_models": {}},
+        ]
+
+        with tempfile.TemporaryDirectory() as env_dir, tempfile.TemporaryDirectory() as cfg_dir:
+            with patch.dict(
+                os.environ, {"CARMEN_IF_ARTIFACT_DIR": env_dir}, clear=False
+            ), patch(
+                "backend.src.services.carbon_service.impact_framework.service.if_service.config.impact_framework.generated_dir",
+                cfg_dir,
+            ):
+                service = IFService(
+                    "app_template.yml.j2", "app_pipeline.yml", "sum", 3600
+                )
+
+                expected_stage_dir = Path(env_dir) / "app"
+                self.assertTrue(expected_stage_dir.is_dir())
+                self.assertEqual(service.INFILE_PATH, str(expected_stage_dir / "if_input"))
+                self.assertEqual(service.OUTFILE_PATH, str(expected_stage_dir / "if_output"))
 
     @patch.object(IFService, "__init__", lambda self, *args, **kwargs: None)
     @patch("builtins.open", new_callable=MagicMock)

@@ -124,3 +124,26 @@ def test_get_env_or_cli_falls_back_to_env() -> None:
             "--carmen-config-filepath",
         )
         assert value == "/tmp/env-config.yaml"
+
+
+def test_load_main_config_impact_framework_defaults_and_override() -> None:
+    from backend.src.core.yaml_config_loader import load_main_config
+
+    base_config = {
+        "carmen_daemon": {
+            "source": {"input_path": "/tmp/in"},
+            "output": {"output_path": "/tmp/out"},
+        }
+    }
+
+    with patch("backend.src.core.yaml_config_loader.load_yaml", return_value=base_config):
+        _, _, if_config = load_main_config()
+        assert if_config.generated_dir is None
+
+    with_if_config = {
+        **base_config,
+        "impact_framework": {"generated_dir": "/tmp/custom-if-generated"},
+    }
+    with patch("backend.src.core.yaml_config_loader.load_yaml", return_value=with_if_config):
+        _, _, if_config = load_main_config()
+        assert if_config.generated_dir == "/tmp/custom-if-generated"

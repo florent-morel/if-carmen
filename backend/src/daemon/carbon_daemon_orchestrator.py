@@ -82,7 +82,8 @@ Options:
       Default: etc/config/modelling_constants/carbon_values.yaml
 
 Examples:
-    uv run python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath example-data/config.yaml
+    uv run python -m backend.src.daemon.carbon_daemon_orchestrator
+    uv run python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath etc/config/config.yaml
 """
     print(help_message)
 
