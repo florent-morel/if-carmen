@@ -124,7 +124,7 @@ uv sync --extra dev
 To verify your installation, run the Carmen daemon example:
 
 ```bash
-uv run python -m backend.src.daemon.carbon_daemon_orchestrator --carmen-config-filepath etc/sample_data/config-example.yaml
+uv run python -m backend.src.daemon.carbon_daemon_orchestrator
 ```
 
 The carbon emissions report will be generated and saved in the `output/` directory.
