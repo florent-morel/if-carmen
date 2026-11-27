@@ -68,10 +68,7 @@ class IFStorageService(IFService):
             hdd_count,
         )
 
-        # TODO|CODE|v1|26: Magic number. Should be in config.yaml
-        chunk_size = 10000
-
-        all_chunks = self._chunk_by_provider(storage_resources, chunk_size)
+        all_chunks = self._chunk_by_provider(storage_resources, config.impact_framework.chunk_size_storage)
 
         def compute_metrics_for_chunk(chunk, index):
             """Process a chunk of storage resources."""

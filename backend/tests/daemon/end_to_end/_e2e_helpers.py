@@ -138,8 +138,8 @@ def run_daemon(test_path: Path, tmp_path: Path) -> DaemonRun:
     import csv
     import subprocess
     import sys
-    if_artifact_dir = tmp_path / "if-artifacts"
     test_data_folder = test_path.parent / "test_data"
+    if_artifact_dir = test_data_folder / "impact_framework" / "generated"
     output_dir = test_path.parent / "test_data" / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 

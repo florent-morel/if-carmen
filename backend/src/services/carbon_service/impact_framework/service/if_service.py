@@ -74,7 +74,9 @@ class IFService(ABC, CarbonService):
     ):
         env_artifact_dir = os.environ.get("CARMEN_IF_ARTIFACT_DIR")
         if env_artifact_dir:
-            artifact_dir = Path(env_artifact_dir) / "impact_framework" / "generated"
+            artifact_dir = Path(env_artifact_dir)
+            if not env_artifact_dir.endswith("impact_framework/generated"):
+                artifact_dir = Path(env_artifact_dir) / "impact_framework" / "generated"
         else:
             generated_dir = config.impact_framework.generated_dir
             base_dir = (

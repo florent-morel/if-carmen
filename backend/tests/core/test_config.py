@@ -13,6 +13,8 @@ from backend.src.core._app_settings import (
 )
 from backend.src.common.enums import LogLevel
 from backend.src.common.carmen_exception import ConfigValidationError
+from pathlib import Path
+from backend.src.common.constants import IF_FILES_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +140,8 @@ def test_load_main_config_impact_framework_defaults_and_override() -> None:
 
     with patch("backend.src.core.yaml_config_loader.load_yaml", return_value=base_config):
         _, _, if_config = load_main_config()
-        assert if_config.generated_dir is None
+        assert if_config.generated_dir is not None
+        assert if_config.generated_dir == Path(IF_FILES_DIR) / "generated"
 
     with_if_config = {
         **base_config,

@@ -5,6 +5,7 @@ import concurrent
 import logging
 from typing import List
 
+from backend.src.core.yaml_config_loader import config
 from backend.src.common.constants import DAILY_SECONDS
 from backend.src.schemas.resource import Resource
 from backend.src.schemas.misc_services_resource import MiscServicesResource
@@ -42,12 +43,9 @@ class IFMiscServicesService(IFService):
         Executes the Impact Framework (IF) model to estimate impact for misc resources.
         """
         # Divide into chunks
-        # TODO|CODE|v1|26: Magic number. Should be in config.yaml
-        chunk_size = 10000
-
         chunks = [
-            misc_services_resources[x: x + chunk_size]
-            for x in range(0, len(misc_services_resources), chunk_size)
+            misc_services_resources[x: x + config.impact_framework.chunk_size_misc_services]
+            for x in range(0, len(misc_services_resources), config.impact_framework.chunk_size_misc_services)
         ]
 
         def compute_metrics_for_chunk(chunk, index):

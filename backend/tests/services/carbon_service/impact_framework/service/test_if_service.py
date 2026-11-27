@@ -5,6 +5,7 @@ Unit tests for the IF_Service in impact framework.
 import os
 import tempfile
 import unittest
+import logging
 from pathlib import Path
 from unittest.mock import patch, mock_open as open_mock, MagicMock
 from itertools import cycle
@@ -21,6 +22,8 @@ from backend.src.services.carbon_service.impact_framework.models.model_utilities
 )
 from backend.src.common.carmen_exception import CarmenException
 from backend.src.common.constants import DAILY_SECONDS
+
+logger = logging.getLogger(__name__)
 
 
 class TestIFService(unittest.TestCase):
@@ -104,8 +107,12 @@ class TestIFService(unittest.TestCase):
                     "app_template.yml.j2", "app_pipeline.yml", "sum", 3600
                 )
 
-                expected_stage_dir = Path(env_dir) / "app"
+                expected_stage_dir = Path(env_dir) / "impact_framework/generated"
+                logger.error("eho: %s", env_dir)
+                logger.error("eho2: %s", expected_stage_dir)
                 self.assertTrue(expected_stage_dir.is_dir())
+                logger.error("eho3: %s", service.INFILE_PATH)
+
                 self.assertEqual(service.INFILE_PATH, str(expected_stage_dir / "if_input"))
                 self.assertEqual(service.OUTFILE_PATH, str(expected_stage_dir / "if_output"))
 

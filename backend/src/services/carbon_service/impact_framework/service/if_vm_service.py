@@ -53,10 +53,7 @@ class IFVMService(IFService, ABC):
         """
         Runs the IF model and returns the VMs with their computed energy and CO2 values.
         """
-        # TODO|CODE|v1|26: Magic number. Should be in config.yaml
-        chunk_size = 430
-
-        all_chunks = self._chunk_by_provider(vms, chunk_size)
+        all_chunks = self._chunk_by_provider(vms, config.impact_framework.chunk_size_vm)
 
         def compute_metrics_for_chunk(chunk: list[VirtualMachine], index: int) -> None:
             self.run_if(chunk, file_id=index)

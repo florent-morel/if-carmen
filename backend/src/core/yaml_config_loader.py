@@ -14,6 +14,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
+from backend.src.common.constants import IF_FILES_DIR
 
 import yaml
 from pydantic import model_validator, ValidationError
@@ -188,6 +189,51 @@ class ImpactFrameworkConfig(BaseSettings):
     """Configuration for Impact Framework generated artifact files."""
 
     generated_dir: str | None = None
+    chunk_size_vm: int | None = None
+    chunk_size_storage: int | None = None
+    chunk_size_misc_services: int | None = None
+
+    @model_validator(mode="after")
+    def validate_impact_framework_configuration(self) -> ImpactFrameworkConfig:
+        """
+        Validate impact framework configuration parameters.
+
+        Returns:
+            The validated model.
+
+        Raises:
+            ValueError: If required parameters are missing or invalid.
+        """
+        if not self.generated_dir:
+            logger.info(
+                "No directory provided for Impact Framework generated files."
+                " Defaulting to %s.", Path(IF_FILES_DIR) / "generated"
+            )
+            self.generated_dir = Path(IF_FILES_DIR) / "generated"
+
+        if not self.chunk_size_vm:
+            logger.info(
+                "No chunk size provided for VMs Impact Framework call."
+                " Defaulting to 430."
+            )
+            self.chunk_size_vm = 430
+
+        if not self.chunk_size_storage:
+            logger.info(
+                "No chunk size provided for storage Impact Framework call."
+                " Defaulting to 10000."
+            )
+            self.chunk_size_storage = 10000
+
+        if not self.chunk_size_misc_services:
+            logger.info(
+                "No chunk size provided for misc_services Impact Framework call."
+                " Defaulting to 10000."
+            )
+            self.chunk_size_misc_services = 10000
+
+        return self
+
 
 
 class AppConfig(BaseSettings):
