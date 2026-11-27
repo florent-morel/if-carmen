@@ -32,6 +32,7 @@ carmen_daemon:
       # - Processor_Misc_Services
 
 impact_framework:
-  # Directory where generated Impact Framework input/output YAML files are stored.
-  # Defaults to etc/impact_framework/generated when omitted or null.
+  # Root directory where generated Impact Framework input/output YAML files are stored.
+  # Files will be stored in $generated_dir/impact_framework/generated
+  # Defaults to CARMEN_ROOT/etc/impact_framework/generated when omitted or null.
   generated_dir:
